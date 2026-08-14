@@ -1,0 +1,32 @@
+# Security & Production Git Ignore Rules for IERL Platform
+
+# Environment Secrets & API Keys
+*.env
+!.env.example
+API_KEYS_CONFIG.env
+
+# Python Cache & Environment Files
+__pycache__/
+*.py[cod]
+*$py.class
+.venv/
+venv/
+ENV/
+env/
+
+# IDE & System Files
+.idea/
+.vscode/
+.DS_Store
+Thumbs.db
+*.log
+
+# AI Assistant Brain & Cache
+.gemini/
+brain/
+artifacts/
+
+# Deployment & Build Outputs
+node_modules/
+dist/
+build/
