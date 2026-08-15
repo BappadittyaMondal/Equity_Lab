@@ -21,7 +21,7 @@ if os.getenv("IERL_ENVIRONMENT", "development").lower() == "development":
 
 class Settings:
     PROJECT_NAME: str = "IERL AI Equity Intelligence OS Engine"
-    VERSION: str = "0.7-Production"
+    VERSION: str = "0.3-Production"
     DESCRIPTION: str = "Institutional Indian Equity Research, Options Arbitrage, and Return Probability Engine"
 
     # Active LLM Provider
