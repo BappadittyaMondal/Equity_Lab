@@ -6,7 +6,8 @@ Follow these quick 4 steps to deploy your **IERL Stitch UI** to your Hostinger B
 
 ## 📁 Files Included in Deployment Package (`frontend_deploy/`)
 
-- `index.html` — Production-ready HTML5 dark-mode institutional terminal (Obsidian Aurum styling, 18 Expert Strategy Quick Launchers, AI Assistant query box).
+- `index.html` — Production-ready HTML5 dark-mode institutional terminal.
+- `style.css` — Required production stylesheet.
 
 ---
 
@@ -23,9 +24,10 @@ Follow these quick 4 steps to deploy your **IERL Stitch UI** to your Hostinger B
 ### Step 3: Upload `index.html` to `public_html`
 1. Double-click the **`public_html`** directory to open it.
 2. If there is a default Hostinger `default.php` or `index.php` placeholder, you can rename or delete it.
-3. Click the **Upload** button (top right corner icon with an arrow pointing up).
-4. Select **File** -> choose `d:\bappa_oldPC\Indian_Equity_Project\Equity_final_claude_v_0.3\frontend_deploy\index.html`.
-5. Upload complete!
+3. In `index.html`, set the `ierl-api-base` meta tag to your HTTPS backend URL (for example, your Render service URL). Do not leave it blank on a static Hostinger deployment.
+4. Click the **Upload** button (top right corner icon with an arrow pointing up).
+5. Upload both `index.html` and `style.css` from `frontend_deploy/` to `public_html`.
+6. Configure the backend `ALLOWED_ORIGIN` to include your Hostinger domain.
 
 ### Step 4: Verify Your Website is Live!
 1. Open `https://yourdomain.com` in your browser.
@@ -35,6 +37,6 @@ Follow these quick 4 steps to deploy your **IERL Stitch UI** to your Hostinger B
 
 ## 🎯 What Happens Next?
 
-- The frontend is now **100% LIVE** on Hostinger.
-- It includes automatic fallback simulation, so any query typed into the AI Assistant produces an instant institutional Decision Card.
-- Next, we will set up **Step 2 (FastAPI Backend)** on Render.com / Railway / local machine and link your domain's API URL to feed live market data & LLM responses!
+- The interface is live once both files are uploaded, but analytical features require a separately deployed backend.
+- There is no simulated-analysis fallback: failed live requests are displayed as failures.
+- Configure and test the backend before presenting the site as an active research product.

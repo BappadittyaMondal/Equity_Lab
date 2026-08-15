@@ -1,0 +1,349 @@
+/* ==========================================================================
+   IERL Equity Intelligence OS — Classic Luxury Private-Bank Theme
+   ========================================================================== */
+
+@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,500;0,600;0,700;1,400&family=Inter:wght@300;400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap');
+
+:root {
+  --bg-background: #18110b; /* Deep Warm Espresso */
+  --bg-surface: #18110b;
+  --bg-surface-lowest: #120c07;
+  --bg-surface-low: #221610; /* Dark Coffee Container */
+  --bg-surface-container: #2a1d15;
+  --bg-surface-high: #35251b;
+  --bg-surface-highest: #423023;
+
+  /* Cream Ivory Containers for High Contrast Research Cards */
+  --bg-surface-cream: #faf6f0;
+  --bg-surface-cream-alt: #f4eee5;
+  --text-cream-dark: #231810;
+  --text-cream-muted: #5c4a3e;
+
+  --text-on-surface: #f7ebe1;
+  --text-on-surface-variant: #d8c3b4;
+  --text-brushed-gold: #d4af37;
+  --text-gold-amber: #c8963e;
+  --text-deep-copper: #b87333;
+  
+  --color-bullish-green: #38a169;
+  --color-bearish-red: #e53e3e;
+  --color-outline: #8c7361;
+  --color-outline-variant: #4a382c;
+  
+  --font-serif: 'Playfair Display', Georgia, serif;
+  --font-sans: 'Inter', system-ui, -apple-system, sans-serif;
+  --font-mono: 'IBM Plex Mono', monospace;
+}
+
+*, *::before, *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html, body {
+  background-color: var(--bg-background);
+  color: var(--text-on-surface);
+  font-family: var(--font-sans);
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+
+h1, h2, h3, h4, .font-serif {
+  font-family: var(--font-serif);
+  letter-spacing: -0.01em;
+}
+
+/* Custom scrollbars */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: var(--bg-background);
+}
+::-webkit-scrollbar-thumb {
+  background: var(--bg-surface-highest);
+  border-radius: 4px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: var(--text-gold-amber);
+}
+
+/* Typography & Monospace */
+.font-mono {
+  font-family: var(--font-mono);
+}
+
+/* Glow & Borders */
+.ai-glow {
+  box-shadow: 0 0 16px rgba(200, 150, 62, 0.18);
+}
+.ai-border-top {
+  border-top: 2px solid var(--text-gold-amber);
+}
+
+/* Luxury Cream Card Styling */
+.card-cream {
+  background-color: var(--bg-surface-cream);
+  color: var(--text-cream-dark);
+  border: 1px solid rgba(200, 150, 62, 0.3);
+  border-radius: 0.5rem;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.25);
+}
+.card-cream h1, .card-cream h2, .card-cream h3, .card-cream h4 {
+  color: var(--text-cream-dark);
+}
+.card-cream .text-muted {
+  color: var(--text-cream-muted);
+}
+
+/* Explicit Utility Classes for Backgrounds, Text, and Borders */
+.bg-surface { background-color: var(--bg-surface) !important; }
+.bg-surface-lowest { background-color: var(--bg-surface-lowest) !important; }
+.bg-surface-low { background-color: var(--bg-surface-low) !important; }
+.bg-surface-container { background-color: var(--bg-surface-container) !important; }
+.bg-surface-high { background-color: var(--bg-surface-high) !important; }
+.bg-surface-highest { background-color: var(--bg-surface-highest) !important; }
+
+.text-gold { color: var(--text-gold-amber) !important; }
+.text-copper { color: var(--text-deep-copper) !important; }
+.text-green { color: var(--color-bullish-green) !important; }
+.text-red { color: var(--color-bearish-red) !important; }
+.text-muted { color: var(--text-on-surface-variant) !important; }
+.text-cream-dark { color: var(--text-cream-dark) !important; }
+.text-cream-muted { color: var(--text-cream-muted) !important; }
+
+.border-gold { border-color: var(--text-gold-amber) !important; }
+.border-copper { border-color: var(--text-deep-copper) !important; }
+.border-green { border-color: var(--color-bullish-green) !important; }
+.border-red { border-color: var(--color-bearish-red) !important; }
+
+button {
+  background-color: transparent;
+  color: inherit;
+  border-style: none;
+}
+
+/* Standalone Layout & Structural Positioning Utilities */
+.fixed { position: fixed !important; }
+.relative { position: relative !important; }
+.absolute { position: absolute !important; }
+.top-0 { top: 0 !important; }
+.bottom-0 { bottom: 0 !important; }
+.left-0 { left: 0 !important; }
+.right-0 { right: 0 !important; }
+.h-full { height: 100% !important; }
+.w-64 { width: 16rem !important; }
+.w-96 { width: 24rem !important; }
+.z-40 { z-index: 40 !important; }
+.z-50 { z-index: 50 !important; }
+.flex-1 { flex: 1 1 0% !important; }
+.hidden { display: none !important; }
+.block { display: block !important; }
+.inline-block { display: inline-block !important; }
+
+@media (min-width: 768px) {
+  .md\:flex { display: flex !important; }
+  .md\:hidden { display: none !important; }
+  .md\:ml-64 { margin-left: 16rem !important; }
+  .md\:p-6 { padding: 1.5rem !important; }
+}
+
+@media (min-width: 1024px) {
+  .lg\:flex { display: flex !important; }
+  .lg\:hidden { display: none !important; }
+  .lg\:mr-96 { margin-right: 24rem !important; }
+  .lg\:grid-cols-3 { grid-template-columns: repeat(3, minmax(0, 1fr)) !important; }
+}
+
+/* Ticker Strip Animation */
+.ticker-strip-wrapper {
+  overflow: hidden;
+  white-space: nowrap;
+  width: 100%;
+}
+.ticker-strip {
+  display: inline-flex;
+  animation: ticker 35s linear infinite;
+}
+.ticker-strip:hover {
+  animation-play-state: paused;
+}
+@keyframes ticker {
+  0% { transform: translateX(0); }
+  100% { transform: translateX(-50%); }
+}
+
+/* Tab & Modal Display Controls */
+.view-panel {
+  display: none;
+}
+.view-panel.active {
+  display: block;
+}
+
+/* Input & Form Styling */
+.form-input {
+  background-color: var(--bg-surface-lowest);
+  border: 1px solid var(--color-outline-variant);
+  color: var(--text-on-surface);
+  border-radius: 0.375rem;
+  padding: 0.5rem 0.75rem;
+  font-size: 0.875rem;
+  outline: none;
+  transition: border-color 0.2s, box-shadow 0.2s;
+  width: 100%;
+}
+.form-input:focus {
+  border-color: var(--text-gold-amber);
+  box-shadow: 0 0 0 2px rgba(200, 150, 62, 0.2);
+}
+
+.btn-primary {
+  background-color: var(--text-gold-amber);
+  color: #120c07;
+  font-weight: 700;
+  padding: 0.6rem 1.2rem;
+  border-radius: 0.375rem;
+  border: none;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-family: var(--font-sans);
+}
+.btn-primary:hover {
+  background-color: #d8a64e;
+  box-shadow: 0 2px 10px rgba(200, 150, 62, 0.3);
+}
+
+.btn-secondary {
+  background-color: var(--bg-surface-high);
+  color: var(--text-on-surface);
+  border: 1px solid var(--color-outline-variant);
+  font-weight: 600;
+  padding: 0.5rem 1rem;
+  border-radius: 0.375rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+.btn-secondary:hover {
+  border-color: var(--text-gold-amber);
+  color: var(--text-brushed-gold);
+}
+
+/* Table Styling */
+.data-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.875rem;
+}
+.data-table th {
+  background-color: var(--bg-surface-low);
+  color: var(--text-gold-amber);
+  text-align: left;
+  padding: 0.75rem 1rem;
+  border-bottom: 1px solid var(--color-outline-variant);
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+.data-table td {
+  padding: 0.75rem 1rem;
+  border-bottom: 1px solid var(--color-outline-variant);
+  color: var(--text-on-surface);
+}
+.data-table tr:hover td {
+  background-color: var(--bg-surface-high);
+}
+
+/* Badge styling */
+.badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.15rem 0.6rem;
+  border-radius: 0.25rem;
+  font-size: 0.75rem;
+  font-weight: 700;
+  font-family: var(--font-mono);
+  letter-spacing: 0.02em;
+}
+.badge-success {
+  background-color: rgba(56, 161, 105, 0.15);
+  color: #38a169;
+  border: 1px solid rgba(56, 161, 105, 0.4);
+}
+.badge-warning {
+  background-color: rgba(200, 150, 62, 0.15);
+  color: var(--text-gold-amber);
+  border: 1px solid rgba(200, 150, 62, 0.4);
+}
+.badge-danger {
+  background-color: rgba(229, 62, 62, 0.15);
+  color: var(--color-bearish-red);
+  border: 1px solid rgba(229, 62, 62, 0.4);
+}
+.badge-neutral {
+  background-color: var(--bg-surface-highest);
+  color: var(--text-on-surface-variant);
+  border: 1px solid var(--color-outline-variant);
+}
+
+/* Diagnostic Modal Styling */
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background-color: rgba(18, 12, 7, 0.85);
+  backdrop-filter: blur(4px);
+  z-index: 200;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem;
+}
+.modal-overlay.active {
+  display: flex;
+}
+.modal-content {
+  background-color: var(--bg-surface-cream);
+  color: var(--text-cream-dark);
+  border: 1px solid var(--text-gold-amber);
+  border-radius: 0.5rem;
+  max-width: 650px;
+  width: 100%;
+  max-height: 85vh;
+  overflow-y: auto;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+  padding: 1.5rem;
+}
+
+/* Responsive Drawers */
+.mobile-drawer {
+  position: fixed;
+  top: 0;
+  bottom: 0;
+  width: 320px;
+  max-width: 85vw;
+  background-color: var(--bg-surface-low);
+  border-right: 1px solid var(--color-outline-variant);
+  z-index: 100;
+  transform: translateX(-100%);
+  transition: transform 0.3s ease-in-out;
+}
+.mobile-drawer.open {
+  transform: translateX(0);
+}
+.drawer-overlay {
+  position: fixed;
+  inset: 0;
+  background-color: rgba(0, 0, 0, 0.7);
+  backdrop-filter: blur(2px);
+  z-index: 90;
+  display: none;
+}
+.drawer-overlay.open {
+  display: block;
+}

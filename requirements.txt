@@ -1,0 +1,2 @@
+# Root requirements mirrors the deployable backend dependency set.
+-r app/requirements.txt

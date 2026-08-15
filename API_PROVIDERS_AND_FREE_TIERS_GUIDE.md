@@ -4,18 +4,18 @@
 
 ---
 
-## 1. Overview of Multi-LLM Provider Support
+## 1. Provider Configuration Status
 
-Your **IERL AI Equity OS** can now run seamlessly across **any LLM provider** you choose. You are not locked into a single AI model. You can switch providers instantly depending on your budget and task depth.
+The configuration file contains placeholders for several providers, but the current executable service invokes **Gemini only**. Do not represent unimplemented providers as available until they have their own tested integrations.
 
-| LLM Provider | Model Supported | Free Tier Available? | Key Strengths for Indian Equity |
+| LLM Provider | Current runtime status | Notes |
 | :--- | :--- | :---: | :--- |
-| **Google Gemini** | `gemini-1.5-pro` / `flash` | **YES (100% Free)** | 1 Million Token context window — perfect for uploading 100-page Annual Reports & Concalls. |
-| **Groq AI** | `llama-3.3-70b-versatile` | **YES (100% Free)** | Ultra-fast inference speed (~300 tokens/sec) for quick stock screening. |
-| **DeepSeek AI** | `deepseek-reasoner` (R1) | **Free Trial / Cheap** | Superior mathematical step-by-step chain of thought for DCF & Forensic ratio checks. |
-| **Moonshot Kimi AI** | `moonshot-v1-128k` | **Free Trial / Cheap** | Specialist in massive context processing & multilingual financial translation. |
-| **Anthropic Claude** | `claude-3-5-sonnet` | **Pay-As-You-Go** | Highest accuracy institutional equity analysis, zero hallucination rate on financial metrics. |
-| **OpenAI ChatGPT** | `gpt-4o` / `gpt-4o-mini` | **Pay-As-You-Go** | Standard global model for structured JSON outputs and general fundamental summaries. |
+| **Google Gemini** | Implemented | Uses the configured Gemini model when a valid key is present. |
+| **Groq AI** | Placeholder only | Configuration field exists; no runtime client is implemented. |
+| **DeepSeek AI** | Placeholder only | Configuration field exists; no runtime client is implemented. |
+| **Moonshot Kimi AI** | Not configured | No environment field or runtime client is implemented. |
+| **Anthropic Claude** | Placeholder only | Configuration field exists; no runtime client is implemented. |
+| **OpenAI** | Not configured | No environment field or runtime client is implemented. |
 
 ---
 

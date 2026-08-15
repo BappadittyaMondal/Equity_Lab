@@ -1,0 +1,15 @@
+# Never put development credentials, local environments, or archives in an image.
+.env
+*.env
+!/.env.example
+API_KEYS_CONFIG.env
+.git
+.pytest_cache
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+node_modules/
+dist/
+build/
+*.zip

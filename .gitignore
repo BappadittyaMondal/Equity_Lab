@@ -30,3 +30,13 @@ artifacts/
 node_modules/
 dist/
 build/
+
+# Local research database
+data/*.sqlite3
+data/*.sqlite3-*
+
+# Testing & Temp Files
+.pytest_cache/
+.pytest_temp/
+.pytest_tmp/
+*.zip
