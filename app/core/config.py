@@ -34,7 +34,7 @@ class Settings:
     # Security & CORS
     ALLOWED_ORIGINS_RAW: str = os.getenv(
         "ALLOWED_ORIGIN", 
-        "https://sovereignmind.in,http://localhost:8000,http://127.0.0.1:8000"
+        "*,https://sovereignmind.in,http://localhost:8000,http://127.0.0.1:8000"
     )
     
     @property
