@@ -4,14 +4,29 @@ Serves the institutional research frontend and FastAPI backend API engines.
 """
 
 import os
+import sys
+
+# Ensure project root is in sys.path so 'import app...' works regardless of working directory
+project_root = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
+if project_root not in sys.path:
+    sys.path.insert(0, project_root)
+app_dir = os.path.abspath(os.path.dirname(__file__))
+if app_dir not in sys.path:
+    sys.path.insert(0, app_dir)
+
 from fastapi import FastAPI, Request, status
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 from fastapi.responses import FileResponse, JSONResponse
 
-from app.core.config import settings
-from app.core.security import ApiSecurityMiddleware, SecurityHeadersMiddleware
-from app.api import health, market, comparison, probability, options, strategies, query, research_data, watchlist
+try:
+    from app.core.config import settings
+    from app.core.security import ApiSecurityMiddleware, SecurityHeadersMiddleware
+    from app.api import health, market, comparison, probability, options, strategies, query, research_data, watchlist
+except ModuleNotFoundError:
+    from core.config import settings
+    from core.security import ApiSecurityMiddleware, SecurityHeadersMiddleware
+    from api import health, market, comparison, probability, options, strategies, query, research_data, watchlist
 
 app = FastAPI(
     title=settings.PROJECT_NAME,
