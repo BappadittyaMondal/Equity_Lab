@@ -3,16 +3,17 @@
     "PROJECT_VERSION": "0.4.0",
     "BUNDLE_VERSION": "2.0",
     "SCHEMA_VERSION": "1.0",
-    "GIT_COMMIT": "33f3193",
-    "GENERATED_AT": "2026-08-17T07:00:33.834392+00:00",
+    "GIT_COMMIT_SOURCE": "54533de",
+    "GIT_COMMIT": "54533de",
+    "GENERATED_AT": "2026-08-17T08:07:50.930453+00:00",
     "GENERATOR_VERSION": "2.0",
     "SOURCE_HASH": "311073031dcedc4452deabc29b371de3ae9fdc8fc7eea1f644b4b835cef0d4a2"
   },
   "bundle_files": {
     "01_System_Core_Instructions_Architecture.md": {
       "sources_count": 8,
-      "output_bytes": 139558,
-      "sha256": "43f067a69354d3f848714b4fb567fed5a3e623e3a51fce27bfabb09ebca8288b",
+      "output_bytes": 139561,
+      "sha256": "1d165b2fcaa64673dcdbce33a18f0b6c3b63ab857d6da798840aa566c32607f3",
       "embedded_sources": [
         {
           "position": 1,
@@ -66,8 +67,8 @@
     },
     "02_Engine_Contracts_Schemas_Registries.md": {
       "sources_count": 12,
-      "output_bytes": 236609,
-      "sha256": "e1b9c5f0f656bd5e2fa5d77317f4c35219b816f4f60ea99974be3597321fe5a1",
+      "output_bytes": 236612,
+      "sha256": "23803995853c31394663bfdc5a046f7f14a665eaa712c916dc308997aa097530",
       "embedded_sources": [
         {
           "position": 1,
@@ -145,8 +146,8 @@
     },
     "03_Workflow_Skills_01_to_25.md": {
       "sources_count": 1,
-      "output_bytes": 297764,
-      "sha256": "64b143abc3ae6a0f4767c139402b5d83a8f1d7b521dab5aca4d734a8a56b0c20",
+      "output_bytes": 297767,
+      "sha256": "2f33e9d9a8676ce2cb478b444cd3a3a6af7983e8a85ce5ca066409ab1fbf0cfa",
       "embedded_sources": [
         {
           "position": 1,
@@ -158,8 +159,8 @@
     },
     "04_Analytical_Lens_Skills_26_to_41.md": {
       "sources_count": 17,
-      "output_bytes": 327850,
-      "sha256": "5881c45c7c0be728ab71d1a6e1c4e0aac2fefd84c5ffdce61829544886e1fae1",
+      "output_bytes": 327853,
+      "sha256": "74079cf0addbcd7b1725f502a357d036a4dcb7c3f165d5daa1e1d134d7f9ce60",
       "embedded_sources": [
         {
           "position": 1,
@@ -267,8 +268,8 @@
     },
     "05_Knowledge_Base_Vol_1_Economics_Financials.md": {
       "sources_count": 12,
-      "output_bytes": 86692,
-      "sha256": "e1a3a5664a5bda083bf42420a4cdff755617295616d8612b6f59d4f4cf252237",
+      "output_bytes": 86695,
+      "sha256": "1c92551f2f4889193cbf969d6def7b1ec3cc4ba66756441649f6a011f01a51bb",
       "embedded_sources": [
         {
           "position": 1,
@@ -346,8 +347,8 @@
     },
     "06_Knowledge_Base_Vol_2_Markets_Governance_Macro.md": {
       "sources_count": 12,
-      "output_bytes": 84751,
-      "sha256": "62092696c4b06f2d97c66996fc37d4e8b89645b794b1d3241888e188f14fea70",
+      "output_bytes": 84754,
+      "sha256": "57f2287953db9e21c539931fb9a037b1c2c0d86421a474e8209f3b78e8e3b9c2",
       "embedded_sources": [
         {
           "position": 1,
@@ -425,8 +426,8 @@
     },
     "07_Knowledge_Base_Vol_3_Forensics_Moats_Banking.md": {
       "sources_count": 8,
-      "output_bytes": 64688,
-      "sha256": "761b08f99c350bfb19509255539e082b34d04d719470e2b8951c434dcb80dd9a",
+      "output_bytes": 64691,
+      "sha256": "3ac2a50ddc129fcc8b19381f50394fcf87eee529339adb21a71bcef2585eb7af",
       "embedded_sources": [
         {
           "position": 1,
@@ -480,8 +481,8 @@
     },
     "08_Knowledge_Base_Vol_4_Sector_Deep_Dives.md": {
       "sources_count": 9,
-      "output_bytes": 71295,
-      "sha256": "756cdf0c615e9aa19a9a5cc0462ff9778a12369f8d9be7e70674e3637eb64cb8",
+      "output_bytes": 71298,
+      "sha256": "9b5faf96a05ab9e26f2443b2d0c52aba230a931692fb726252e5c8922f6ed0f5",
       "embedded_sources": [
         {
           "position": 1,
@@ -541,8 +542,8 @@
     },
     "09_Knowledge_Base_Vol_5_Screening_Portfolio_Glossaries.md": {
       "sources_count": 10,
-      "output_bytes": 88087,
-      "sha256": "486d9a56e78e3eb13f6d04e3e8eea50ba2b7dc9e82f60a0848b320691bd1df1d",
+      "output_bytes": 88090,
+      "sha256": "618bddf96d662df439bada4e962d393c335af734bbf7e9390d8012bb568439a2",
       "embedded_sources": [
         {
           "position": 1,

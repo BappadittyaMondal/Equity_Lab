@@ -26,19 +26,19 @@ To resolve the orphaned manifest commit bug, a two-step commit workflow was esta
 ```powershell
 # 1. Inspect GIT_COMMIT_SOURCE stamped in MANIFEST.json:
 Get-Content CONSOLIDATED_5_FILE_SYSTEM/MANIFEST.json | Select-String "GIT_COMMIT_SOURCE"
-# Output: "GIT_COMMIT_SOURCE": "f9c1f6b"
+# Output: "GIT_COMMIT_SOURCE": "54533de"
 
 # 2. Check object type in git database:
-git cat-file -t f9c1f6b
+git cat-file -t (git rev-parse --short HEAD~1)
 # Output: commit
 
 # 3. Verify reachability from main branch:
-git branch --contains f9c1f6b
+git branch --contains (git rev-parse --short HEAD~1)
 # Output: * main
 
 # 4. Compare parent commit hash (HEAD~1):
 git rev-parse --short HEAD~1
-# Output: f9c1f6b (Matches GIT_COMMIT_SOURCE exactly)
+# Output: 54533de (Matches GIT_COMMIT_SOURCE in MANIFEST.json exactly)
 ```
 
 ---
