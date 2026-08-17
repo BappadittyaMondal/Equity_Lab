@@ -21,12 +21,16 @@ from fastapi.responses import FileResponse, JSONResponse
 
 try:
     from app.core.config import settings
+    # Validate CORS settings for production environment
+    settings._validate_cors_settings()
     from app.core.security import ApiSecurityMiddleware, SecurityHeadersMiddleware
-    from app.api import health, market, comparison, probability, options, strategies, query, research_data, watchlist
+    from app.api import health, market, comparison, probability, options, strategies, query, research_data, watchlist, decision, watchlist_digest, monitoring
 except ModuleNotFoundError:
     from core.config import settings
+    # Validate CORS settings for production environment
+    settings._validate_cors_settings()
     from core.security import ApiSecurityMiddleware, SecurityHeadersMiddleware
-    from api import health, market, comparison, probability, options, strategies, query, research_data, watchlist
+    from api import health, market, comparison, probability, options, strategies, query, research_data, watchlist, decision, watchlist_digest, monitoring
 
 app = FastAPI(
     title=settings.PROJECT_NAME,
@@ -70,6 +74,9 @@ app.include_router(strategies.router)
 app.include_router(query.router)
 app.include_router(research_data.router)
 app.include_router(watchlist.router)
+app.include_router(decision.router)
+app.include_router(watchlist_digest.router)
+app.include_router(monitoring.router)
 
 # Mount Frontend Assets
 frontend_dir = os.path.join(os.path.dirname(__file__), "../frontend_deploy")

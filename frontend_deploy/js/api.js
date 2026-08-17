@@ -1,0 +1,225 @@
+// api.js — Centralized API interaction layer for IERL frontend
+// Handles health checks, data fetching, and chart rendering
+
+const API_BASE = window.API_BASE || "";
+
+/**
+ * Check backend API health and display status in header.
+ */
+export async function initApiHealth() {
+  try {
+    const resp = await fetch(`${API_BASE}/api/v1/health`);
+    if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
+    const data = await resp.json();
+    const indicator = document.getElementById("api-status");
+    if (indicator) {
+      indicator.textContent = `API: ${data.status || "ONLINE"} | v${data.version || "?"}`;
+      indicator.classList.add("text-green");
+    }
+    // Store version for footer
+    window.__IERL_API_VERSION = data.version || "unknown";
+    window.__IERL_DATA_MODE = data.data_mode || "unknown";
+  } catch (err) {
+    const indicator = document.getElementById("api-status");
+    if (indicator) {
+      indicator.textContent = "API: OFFLINE";
+      indicator.classList.add("text-red");
+    }
+    console.warn("IERL API health check failed:", err.message);
+  }
+}
+
+/**
+ * Load ticker strip quotes for the scrolling market tape.
+ */
+export async function loadTickerStrip() {
+  const container = document.getElementById("ticker-strip");
+  if (!container) return;
+
+  try {
+    const resp = await fetch(`${API_BASE}/api/v1/ticker-strip`);
+    if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
+    const quotes = await resp.json();
+
+    if (!Array.isArray(quotes) || quotes.length === 0) {
+      container.innerHTML = `<span class="text-xs text-muted">No ticker data available</span>`;
+      return;
+    }
+
+    const tickerHTML = quotes.map(q => {
+      const sym = (q.symbol || "").replace(".NS", "").replace(".BO", "");
+      const price = q.price != null ? `₹${q.price.toLocaleString("en-IN")}` : "—";
+      const changePct = q.change_percent != null ? q.change_percent.toFixed(2) : "0.00";
+      const changeColor = q.change_percent >= 0 ? "text-green" : "text-red";
+      const arrow = q.change_percent >= 0 ? "▲" : "▼";
+      return `
+        <span class="inline-flex items-center gap-1.5 px-3 py-1 text-xs font-mono whitespace-nowrap">
+          <span class="font-bold text-gold">${sym}</span>
+          <span class="text-white">${price}</span>
+          <span class="${changeColor} font-semibold">${arrow} ${changePct}%</span>
+        </span>`;
+    }).join("");
+
+    // Duplicate for seamless scroll animation
+    container.innerHTML = `
+      <div class="ticker-strip">${tickerHTML}${tickerHTML}</div>`;
+  } catch (err) {
+    container.innerHTML = `<span class="text-xs text-muted">Ticker data unavailable</span>`;
+    console.warn("Ticker strip load failed:", err.message);
+  }
+}
+
+/**
+ * Load market regime data (VIX, Nifty level, regime classification).
+ */
+export async function loadRegimeData() {
+  const container = document.getElementById("regime-panel");
+  if (!container) return;
+
+  try {
+    const resp = await fetch(`${API_BASE}/api/v1/regime`);
+    if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
+    const data = await resp.json();
+
+    container.innerHTML = `
+      <div class="flex items-center gap-4 text-xs font-mono">
+        <span class="text-muted">Regime:</span>
+        <span class="badge badge-${data.regime === 'volatile' ? 'danger' : data.regime === 'elevated' ? 'warning' : 'success'}">${(data.regime || "UNKNOWN").toUpperCase()}</span>
+        ${data.vix != null ? `<span class="text-muted">VIX: <strong class="text-white">${data.vix}</strong></span>` : ""}
+        ${data.nifty_spot != null ? `<span class="text-muted">Nifty: <strong class="text-white">${data.nifty_spot.toLocaleString("en-IN")}</strong></span>` : ""}
+      </div>`;
+  } catch (err) {
+    container.innerHTML = `<span class="text-xs text-muted">Regime data unavailable</span>`;
+    console.warn("Regime data load failed:", err.message);
+  }
+}
+
+/**
+ * Load available strategy modules catalog.
+ */
+export async function loadStrategyCatalog() {
+  const container = document.getElementById("strategy-catalog");
+  if (!container) return;
+
+  try {
+    const resp = await fetch(`${API_BASE}/api/v1/strategies`);
+    if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
+    const data = await resp.json();
+    const strategies = data.strategies || data || [];
+
+    if (!Array.isArray(strategies) || strategies.length === 0) {
+      container.innerHTML = `<span class="text-xs text-muted">No strategies loaded</span>`;
+      return;
+    }
+
+    const listHTML = strategies.map(s => `
+      <div class="p-3 bg-surface-low rounded border border-surface-border/50 hover:border-gold/30 transition-colors">
+        <div class="flex items-center justify-between mb-1">
+          <span class="font-mono text-xs font-bold text-gold">${s.id || "?"}</span>
+          <span class="badge ${s.status === 'production' ? 'badge-success' : 'badge-neutral'}">${s.status || "unknown"}</span>
+        </div>
+        <div class="text-sm font-semibold text-white">${s.name || "Unnamed Strategy"}</div>
+        <div class="text-xs text-muted mt-0.5">${s.category || ""}</div>
+      </div>`).join("");
+
+    container.innerHTML = `
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
+        ${listHTML}
+      </div>`;
+  } catch (err) {
+    container.innerHTML = `<span class="text-xs text-muted">Strategy catalog unavailable</span>`;
+    console.warn("Strategy catalog load failed:", err.message);
+  }
+}
+
+/**
+ * Fetch historical OHLCV data and render a simple chart visualization.
+ */
+export async function fetchAndRenderChart(period = "1y") {
+  const container = document.getElementById("chart-panel");
+  if (!container) return;
+
+  const symbol = window.__IERL_SELECTED_SYMBOL || "RELIANCE";
+  container.innerHTML = `
+    <div class="p-4 bg-surface-lowest rounded-xl border animate-pulse">
+      <div class="h-40 bg-surface-high rounded"></div>
+    </div>`;
+
+  try {
+    const resp = await fetch(`${API_BASE}/api/v1/ticker/${encodeURIComponent(symbol)}/history?period=${period}`);
+    if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
+    const data = await resp.json();
+    const history = data.history || [];
+
+    if (history.length === 0) {
+      container.innerHTML = `
+        <div class="p-4 bg-surface-lowest rounded-xl border text-center text-muted text-xs">
+          No historical data available for ${data.symbol || symbol}
+        </div>`;
+      return;
+    }
+
+    // Simple SVG line chart
+    const closes = history.map(d => d.close);
+    const minPrice = Math.min(...closes);
+    const maxPrice = Math.max(...closes);
+    const range = maxPrice - minPrice || 1;
+    const width = 600;
+    const height = 160;
+
+    const points = closes.map((c, i) => {
+      const x = (i / (closes.length - 1)) * width;
+      const y = height - ((c - minPrice) / range) * (height - 20) - 10;
+      return `${x},${y}`;
+    }).join(" ");
+
+    const lastPrice = closes[closes.length - 1];
+    const firstPrice = closes[0];
+    const pctChange = ((lastPrice - firstPrice) / firstPrice * 100).toFixed(2);
+    const lineColor = lastPrice >= firstPrice ? "var(--color-bullish-green)" : "var(--color-bearish-red)";
+
+    container.innerHTML = `
+      <div class="p-4 bg-surface-lowest rounded-xl border">
+        <div class="flex items-center justify-between mb-3">
+          <div>
+            <span class="font-mono text-sm font-bold text-gold">${(data.symbol || symbol).replace(".NS", "")}</span>
+            <span class="text-xs text-muted ml-2">${period} chart</span>
+          </div>
+          <div class="text-xs font-mono">
+            <span class="text-white">₹${lastPrice.toLocaleString("en-IN")}</span>
+            <span class="${lastPrice >= firstPrice ? 'text-green' : 'text-red'} ml-1">(${pctChange}%)</span>
+          </div>
+        </div>
+        <svg viewBox="0 0 ${width} ${height}" class="w-full" style="max-height: 180px;">
+          <polyline fill="none" stroke="${lineColor}" stroke-width="2" points="${points}" />
+        </svg>
+        <div class="flex justify-between text-xs text-muted mt-1 font-mono">
+          <span>${history[0].date}</span>
+          <span>${history[history.length - 1].date}</span>
+        </div>
+      </div>`;
+  } catch (err) {
+    container.innerHTML = `
+      <div class="p-4 bg-surface-lowest rounded-xl border text-center text-xs text-muted">
+        Chart data unavailable: ${err.message}
+      </div>`;
+    console.warn("Chart load failed:", err.message);
+  }
+}
+
+/**
+ * Load watchlist data (called from bootstrap; renderWatchlistPanel handles display).
+ */
+export async function loadWatchlist() {
+  // Pre-fetch watchlist so it's warm when renderWatchlistPanel runs.
+  // The actual rendering is handled by watchlist_panel.js.
+  try {
+    const resp = await fetch(`${API_BASE}/api/v1/watchlist`);
+    if (resp.ok) {
+      const data = await resp.json();
+      window.__IERL_WATCHLIST = data.items || data || [];
+    }
+  } catch (_) {
+    // Silent – watchlist_panel.js has its own error handling
+  }
+}

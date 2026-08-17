@@ -22,6 +22,11 @@ class SecurityHeadersMiddleware(BaseHTTPMiddleware):
         response.headers["Referrer-Policy"] = "strict-origin-when-cross-origin"
         response.headers["Permissions-Policy"] = "geolocation=(), microphone=(), camera=()"
         
+        # Build dynamic connect-src from allowed origins
+        connect_sources = "'self'"
+        if settings.ALLOWED_ORIGINS:
+            connect_sources += " " + " ".join(settings.ALLOWED_ORIGINS)
+        
         # Strict Content-Security-Policy
         csp_policy = (
             "default-src 'self'; "
@@ -29,7 +34,7 @@ class SecurityHeadersMiddleware(BaseHTTPMiddleware):
             "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; "
             "font-src 'self' https://fonts.gstatic.com; "
             "img-src 'self' data: https:; "
-            "connect-src 'self'; "
+            f"connect-src {connect_sources}; "
             "frame-ancestors 'none';"
         )
         response.headers["Content-Security-Policy"] = csp_policy

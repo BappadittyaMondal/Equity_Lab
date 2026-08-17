@@ -39,5 +39,34 @@ def get_health_status():
         "version": settings.VERSION,
         "timestamp_ist": get_ist_now_str(),
         "providers_status": providers_status,
-        "active_llm": settings.ACTIVE_LLM_PROVIDER
+        "active_llm": settings.ACTIVE_LLM_PROVIDER,
+    }
+
+
+@router.get("/readiness")
+def get_readiness_status():
+    """Verify application readiness, database lock status, and dependency connectivity."""
+    from app.services.db import get_connection
+
+    db_ready = False
+    table_count = 0
+    try:
+        conn = get_connection()
+        rows = conn.execute("SELECT count(*) FROM sqlite_master WHERE type='table'").fetchone()
+        table_count = rows[0] if rows else 0
+        conn.close()
+        db_ready = True
+    except Exception:
+        db_ready = False
+
+    is_ready = db_ready and table_count > 0
+
+    return {
+        "status": "READY" if is_ready else "NOT_READY",
+        "database": {
+            "connected": db_ready,
+            "table_count": table_count,
+        },
+        "version": settings.VERSION,
+        "timestamp_ist": get_ist_now_str(),
     }

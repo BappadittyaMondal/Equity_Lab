@@ -81,3 +81,39 @@ Unified multi-factor screening engines integrating fundamental acceleration, tur
 
 
 
+## 11. Admin & Observability Endpoints
+
+The admin API is protected by an `X-API-Key` header. The key must match the `ADMIN_API_KEY` environment variable (configured in `app/core/config.py`).
+
+- **`GET /api/v1/admin/llm-usage`**
+  - Returns a JSON payload with daily and monthly LLM token usage and estimated cost.
+  - Example response:
+    ```json
+    {
+      "daily": {"tokens": 342, "estimated_cost": 0.171},
+      "monthly": {"tokens": 8421, "estimated_cost": 4.2105}
+    }
+    ```
+  - Used for quota monitoring and cost‑control.
+
+- **`GET /api/v1/admin/request-stats`**
+  - Returns rolling request counters (reset hourly) tracking total requests and error responses.
+  - Example response:
+    ```json
+    {"total": 1245, "errors": 3}
+    ```
+  - Helps surface request‑rate health without a full APM stack.
+
+Both endpoints are defined in `app/api/admin.py` and leverage the lightweight SQLite‑based `llm_usage` table and in‑memory request counters.
+
+## 12. Conviction Decision & Watchlist Digest Endpoints (Phases 4–5)
+
+- **`GET /api/v1/decision/{symbol}`**
+  - Synthesizes market data, runs Arbiter decision brain across all strategy engines, logs thesis drift, and returns a unified `ConvictionCall`.
+  - Parameters: `symbol` (e.g. `RELIANCE`), `force_refresh` (boolean query param).
+  - Returns `symbol`, `verdict` (`STRONG_BUY`, `ACCUMULATE`, `NEUTRAL`, `TRIM`, `EXIT`), `conviction_score` (0–100), `primary_thesis`, `contributing_engines`, `contradicting_engines`, `confidence_tier`, `stale` flag, and timestamp.
+
+- **`GET /api/v1/digest/watchlist`**
+  - Serves the latest nightly cron watchlist scan digest JSON file (`frontend_deploy/data/digests/watchlist_digest.json`).
+  - Returns `generated_at` timestamp and item list containing conviction scores, verdicts, and thesis drift delta arrows.
+

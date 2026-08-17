@@ -7,13 +7,19 @@ Strictly distinguishes production modules from coming-soon modules.
 from typing import Dict, List, Optional
 from fastapi import HTTPException, status
 from app.models.schemas import StrategyModule, StrategyRunResponse
-from app.services.market_data import get_quote, create_meta_header, normalize_symbol
+from app.services.market_data import get_quote, create_meta_header, normalize_symbol, get_ist_now_str
 
 from app.services.strategies.saatvik_d18 import run_saatvik_d18
 from app.services.strategies.vcp_b5 import run_vcp_b5
 from app.services.strategies.sepa_b8 import run_sepa_b8
 from app.services.strategies.reverse_dcf_c9 import run_reverse_dcf_c9
 from app.services.strategies.ath_breakout_d15 import run_ath_breakout_d15
+# Phase 2 engines
+from app.services.strategies.technical_engines import (
+    run_vpa_b4, run_rs_rating_b6, run_pocket_pivot_b7, run_mean_reversion_d17
+)
+from app.services.strategies.forensic_engine import run_forensic_engine
+from app.services.strategies.dcf_forward import run_dcf_forward
 
 # Master Registry of 18 Expert Strategy Modules
 STRATEGY_MODULES: Dict[str, StrategyModule] = {
@@ -326,11 +332,12 @@ def run_strategy_module(strategy_id: str, symbol: str = "RELIANCE") -> StrategyR
         # Explicit non-production status response
         norm_symbol = normalize_symbol(symbol)
         quote = get_quote(norm_symbol)
+        retrieved = quote.get("meta", {}).get("retrieved_at") if isinstance(quote, dict) and isinstance(quote.get("meta"), dict) else getattr(getattr(quote, "meta", None), "retrieved_at", get_ist_now_str())
         return StrategyRunResponse(
             strategy_id=module.id,
             strategy_name=module.name,
             status="coming_soon",
-            executed_at=quote.meta.retrieved_at,
+            executed_at=retrieved,
             symbol=norm_symbol,
             passed_gates=False,
             results={
@@ -513,37 +520,43 @@ def run_strategy_module(strategy_id: str, symbol: str = "RELIANCE") -> StrategyR
         )
     elif module.id == "D18":
         return run_saatvik_d18(symbol)
+    elif module.id == "B4":
+        return run_vpa_b4(symbol)
     elif module.id == "B5":
         return run_vcp_b5(symbol)
+    elif module.id == "B6":
+        return run_rs_rating_b6(symbol)
+    elif module.id == "B7":
+        return run_pocket_pivot_b7(symbol)
     elif module.id == "B8":
         return run_sepa_b8(symbol)
     elif module.id == "C9":
         return run_reverse_dcf_c9(symbol)
     elif module.id == "D15":
         return run_ath_breakout_d15(symbol)
+    elif module.id == "D17":
+        return run_mean_reversion_d17(symbol)
+    elif module.id in ("C11", "C12", "FORENSIC"):
+        return run_forensic_engine(symbol)
+    elif module.id == "DCF_FWD":
+        return run_dcf_forward(symbol)
     else:
-        quote = get_quote(symbol)
-        meta = create_meta_header("Live Diagnostic Engine")
+        # No fake scores — return data_insufficient for any genuinely unimplemented module
         return StrategyRunResponse(
             strategy_id=module.id,
             strategy_name=module.name,
-            status="production",
-            executed_at=meta.retrieved_at,
-            symbol=quote.symbol,
-            passed_gates=True,
+            status="data_insufficient",
+            executed_at=get_ist_now_str(),
+            symbol=normalize_symbol(symbol),
+            passed_gates=False,
             results={
+                "status": "data_insufficient",
+                "reason": f"Module {module.id} ({module.name}) implementation pending Phase 3.",
                 "strategy_category": module.category,
-                "current_price": quote.last_price,
-                "universe": module.universe
+                "universe": module.universe,
             },
-            metrics={
-                "last_price": quote.last_price,
-                "change_percent": quote.change_percent,
-                "pe_ratio": quote.pe_ratio or 22.5,
-                "diagnostic_score": 82.5
-            },
-            risk_warnings=module.risk_warnings,
-            disclaimer=f"Live institutional diagnostic analysis for {module.id}: {module.name}.",
-            meta=meta
+            metrics={},
+            risk_warnings=[f"Module {module.id} not yet implemented — no score generated."],
+            disclaimer=f"Module {module.id} is registered but not yet implemented. No diagnostic score.",
+            meta=create_meta_header(source=f"IERL Strategy Registry ({module.id})")
         )
-

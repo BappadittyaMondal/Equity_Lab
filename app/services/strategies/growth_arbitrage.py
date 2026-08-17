@@ -34,8 +34,13 @@ def evaluate_growth_arbitrage(
         obs_list = []
     
     # 1. Base Prices & Multipliers
-    cmp = quote.price if (quote.price and quote.price > 0) else 1000.0
-    pe = quote.pe_ratio if (quote.pe_ratio and quote.pe_ratio > 0) else 25.0
+    quote_price = quote.get("price") if isinstance(quote, dict) else getattr(quote, "price", None)
+    cmp = float(quote_price) if (quote_price and float(quote_price) > 0) else 1000.0
+
+    quote_pe = quote.get("pe_ratio") if isinstance(quote, dict) else getattr(quote, "pe_ratio", None)
+    pe = float(quote_pe) if (quote_pe and float(quote_pe) > 0) else 25.0
+
+    quote_52h = quote.get("fifty_two_week_high") if isinstance(quote, dict) else getattr(quote, "fifty_two_week_high", None)
     
     # Historical fundamental growth extraction
     if len(obs_list) >= 2:
@@ -72,7 +77,7 @@ def evaluate_growth_arbitrage(
         "dcf_valuation": min(100.0, max(10.0, 50.0 + (margin_of_safety_pct * 1.5))),
         "quality_of_growth": 80.0,
         "industry_cycle": 75.0,
-        "technical_health": 70.0 if (quote.fifty_two_week_high and cmp >= quote.fifty_two_week_high * 0.85) else 55.0,
+        "technical_health": 70.0 if (quote_52h and cmp >= float(quote_52h) * 0.85) else 55.0,
         "sentiment_ai": 78.0
     }
     

@@ -92,3 +92,37 @@ def get_company_timeline(symbol: str, as_of: datetime | None = None):
         meta=create_meta_header(source="IERL append-only research data store"),
     )
 
+
+@router.get("/lifecycle/{symbol}")
+def get_lifecycle_state(symbol: str):
+    from app.services.longitudinal.lifecycle_engine import LifecycleEngine
+    from app.services.decision_brain.arbiter import Arbiter
+    arbiter = Arbiter()
+    call = arbiter.arbitrate(symbol)
+    engine_outputs = arbiter._collect_engine_outputs(symbol)
+    lifecycle = LifecycleEngine().evaluate_lifecycle(symbol, engine_outputs, call.conviction_score)
+    return lifecycle
+
+
+@router.get("/thesis/{symbol}")
+def get_thesis_state(symbol: str):
+    from app.services.longitudinal.thesis_monitor import ThesisMonitorEngine
+    from app.services.decision_brain.arbiter import Arbiter
+    arbiter = Arbiter()
+    call = arbiter.arbitrate(symbol)
+    thesis = ThesisMonitorEngine().evaluate_thesis_state(
+        symbol=symbol,
+        conviction_score=call.conviction_score,
+        verdict=call.verdict,
+        contradictions=call.contradicting_engines,
+        primary_thesis=call.primary_thesis,
+    )
+    return thesis
+
+
+@router.get("/alerts")
+def get_alerts(limit: int = 50, symbol: str | None = None):
+    from app.services.longitudinal.alert_engine import AlertEngine
+    return AlertEngine().get_recent_alerts(limit=limit, symbol=symbol)
+
+

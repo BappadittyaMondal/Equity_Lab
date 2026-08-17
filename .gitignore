@@ -19,6 +19,7 @@ env/
 .vscode/
 .DS_Store
 Thumbs.db
+*.db
 *.log
 
 # AI Assistant Brain & Cache
@@ -40,3 +41,8 @@ data/*.sqlite3-*
 .pytest_temp/
 .pytest_tmp/
 *.zip
+unnecessary_files_archive/
+Not_Required_Upload/
+backups/
+
+

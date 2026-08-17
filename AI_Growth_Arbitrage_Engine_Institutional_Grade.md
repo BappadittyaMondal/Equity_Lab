@@ -10827,3 +10827,670 @@ The AI should distinguish between:
 \- \*\*Business Risk\*\* (can permanently destroy intrinsic value)
 
 Only businesses with strong financials, durable competitive advantages, disciplined management, and resilient business models should receive the highest Risk Intelligence Score.  
+
+
+---
+
+# PART B — LEGENDARY INVESTOR & FUND MANAGER STRATEGY LIBRARY
+
+Each module below is named after the real investor/fund manager whose publicly documented philosophy it is modeled on, converted into an AI-scoreable engine (0–100), with a Probability Engine output in the same style as Part A. These are **interpretive models** of public philosophies, not the investors' actual live portfolios or endorsements.
+
+---
+
+# Strategy 17 – CANSLIM Momentum-Growth Engine (William O'Neil)
+
+## Objective
+Identify emerging market leaders showing accelerating earnings AND institutional accumulation AND a technical breakout — O'Neil's thesis that the biggest winners show all three at once.
+
+## Core Checklist (C-A-N-S-L-I-M)
+- **C** – Current quarterly EPS growth ≥ 25% YoY
+- **A** – Annual EPS growth ≥ 25% over last 3 years
+- **N** – New product, new management, new industry condition, or new 52-week high
+- **S** – Supply/demand: low float or strong volume surge on up-days
+- **L** – Leader, not laggard: Relative Strength Rank in top 20% of universe
+- **I** – Institutional sponsorship increasing (rising FII/DII/MF holding)
+- **M** – Market direction: overall index in a confirmed uptrend
+
+## AI Scoring
+| Factor | Weight |
+|---|---|
+| Current Earnings Acceleration | 20% |
+| 3-Yr Earnings Growth | 15% |
+| Newness Catalyst | 10% |
+| Volume/Supply Signal | 15% |
+| Relative Strength Leadership | 20% |
+| Institutional Sponsorship Trend | 10% |
+| Market Regime | 10% |
+
+## Probability Engine
+- Probability of Breakout Follow-Through
+- Probability of Joining New Leadership Group
+- Probability of 20–25% Correction (O'Neil's sell discipline trigger)
+- Probability of Becoming a Market Leader (Top 1% performer)
+
+## AI Interpretation
+- 90–100: Textbook CANSLIM Leader — Full Position
+- 75–89: Strong Candidate — Watchlist/Pilot Buy
+- 60–74: Partial Setup — Wait for Confirmation
+- Below 60: Fails CANSLIM Screen — Avoid
+
+## Sample Dashboard
+CANSLIM Score: 87/100 | EPS Growth (Q): 34% | RS Rank: 92 | Institutional Trend: Rising | Market: Confirmed Uptrend | Probability of Follow-Through: 71% | Recommendation: Pilot Buy, add on breakout confirmation
+
+---
+
+# Strategy 18 – Magic Formula Quality-Value Engine (Joel Greenblatt)
+
+## Objective
+Mechanically rank stocks by the intersection of cheapness and quality, per Greenblatt's *The Little Book That Beats the Market* thesis: buy good companies at bargain prices, systematically.
+
+## Core Formula
+- **Earnings Yield** = EBIT / Enterprise Value (higher = cheaper)
+- **Return on Capital** = EBIT / (Net Working Capital + Net Fixed Assets) (higher = better business)
+- Rank all stocks in universe on both metrics → combined rank → buy the top decile, hold ~1 year, rebalance (mind capital-gains/tax timing)
+
+## AI Scoring
+| Factor | Weight |
+|---|---|
+| Earnings Yield Rank | 40% |
+| Return on Capital Rank | 40% |
+| Combined Rank Percentile | 20% |
+
+## Probability Engine
+- Probability of Outperforming Index over 3 years
+- Probability of a "Value Trap" (cheap because business is structurally impaired)
+- Probability of Mean Reversion higher in valuation multiple
+
+## AI Interpretation
+- Top 3.3% combined rank: Exceptional Magic Formula Candidate
+- Top 10%: Strong Candidate
+- Top 25%: Acceptable, Diversify Across Basket (formula works as a portfolio, not a single-stock bet)
+- Outside Top 25%: Skip
+
+## Sample Dashboard
+Earnings Yield: 11.2% | ROC: 41% | Combined Percentile Rank: Top 4% | Probability of 3-Yr Outperformance: 64% | Value-Trap Flag: Low | Recommendation: Include in 20–30 Stock Magic Formula Basket
+
+---
+
+# Strategy 19 – Buy Right Sit Tight QGLP Engine (Raamdeo Agrawal, Motilal Oswal)
+
+## Objective
+Apply Agrawal's QGLP framework (Quality, Growth, Longevity, Price) — a **multiplicative**, not additive, checklist. If any factor scores zero, the whole thesis fails, regardless of how strong the others are.
+
+## Core Checklist
+- **Q — Quality**: ROE > 18–20%, clean accounting, low debt, ethical/competent promoters
+- **G — Growth**: Sustainable revenue/PAT CAGR, reinvestment runway
+- **L — Longevity**: Competitive Advantage Period (CAP) and Growth Advantage Period (GAP) — how many years can this moat and growth realistically persist?
+- **P — Price**: Reasonable entry multiple relative to growth (not necessarily "cheap" — "Buy Right," then "Sit Tight" for years)
+
+## AI Scoring (multiplicative gate, then weighted)
+| Factor | Weight | Gate |
+|---|---|---|
+| Quality Score | 30% | Zero if ROE persistently < 12% or governance red flag |
+| Growth Score | 30% | Zero if 3-yr forward PAT CAGR < 10% |
+| Longevity Score (CAP/GAP) | 25% | Zero if moat erosion visible |
+| Price Reasonableness | 15% | Zero if price implies >2x realistic growth already |
+
+## Probability Engine
+- Probability of Multi-Year Compounding (Buy Right Sit Tight thesis holding)
+- Probability of CAP/GAP Extension beyond current estimate
+- Probability of Permature Exit Regret (selling too early — Agrawal's own noted mistake pattern)
+
+## AI Interpretation
+- 90–100: Core "Sit Tight" Holding — 10–15 Year Horizon
+- 75–89: Strong QGLP Compounder
+- 60–74: Monitor — One Pillar Weak
+- Below 60 or any gate triggered: Disqualified (QGLP score = 0)
+
+## Sample Dashboard
+Quality: 88 | Growth: 79 | Longevity (CAP/GAP): 15+ years | Price Reasonableness: 71 | QGLP Composite: 84/100 | Probability of Multi-Year Compounding: 76% | Recommendation: Buy Right, Sit Tight — Core Holding
+
+---
+
+# Strategy 20 – SMILE Small-Cap Multibagger Engine (Vijay Kedia)
+
+## Objective
+Screen for Kedia's five-part SMILE checklist: businesses positioned to compound from a small base into a large one over 5–15 years, held through cycles.
+
+## Core Checklist (S-M-I-L-E)
+- **S** – Small in size: small/under-tracked market share within its own industry (not just small market cap)
+- **M** – Medium in experience: management with a demonstrated, credible track record (not a first-time promoter with no history)
+- **I** – Large in aspiration/intent: management explicitly targeting multi-fold expansion, not incremental growth
+- **L** – Large addressable/market potential: industry TAM large enough to absorb 10–15 years of compounding
+- **E** – Extra-large potential confirmed by early execution proof points (not just talk)
+
+## AI Scoring
+| Factor | Weight |
+|---|---|
+| Market Share Headroom | 20% |
+| Management Track Record & Integrity | 25% |
+| Stated Ambition vs Demonstrated Capital Allocation | 20% |
+| TAM Size Relative to Current Revenue | 20% |
+| Early Execution Proof (order wins, capacity adds, margin trend) | 15% |
+
+## Probability Engine
+- Probability of 5x Return over 5–10 Years
+- Probability of Management Under-Delivering on Stated Aspiration
+- Probability of Holding Through a >40% Drawdown Without Thesis Breaking
+
+## AI Interpretation
+- 90–100: Full SMILE Clear — Rare (Kedia's own experience: roughly 20–40 stocks/year clear all five screens out of thousands)
+- 75–89: 4-of-5 Clear — Small Starter Position
+- 60–74: Partial Fit — Track, Do Not Buy
+- Below 60: Fails SMILE
+
+## Sample Dashboard
+SMILE Composite: 81/100 | Market Share Headroom: High | Management Track Record: Medium-Strong | Aspiration vs Execution: Aligned | TAM Multiple of Current Revenue: 25x | Probability of 5x in 5–10 Yrs: 38% | Recommendation: Initiate Small Long-Term Position, Add on Execution Confirmation
+
+---
+
+# Strategy 21 – Bargain-Hunter Fortress Engine (Radhakishan Damani)
+
+## Objective
+Model Damani's shift from bear-market trader to concentrated value investor: buy fundamentally sound, cash-generative, low-debt businesses when out of favor, hold with extreme patience, size positions with high conviction rather than diversification.
+
+## Core Checklist
+- Strong, predictable, repeat-demand cash flows
+- Efficient capital allocation; owns rather than leases core assets where possible
+- Low leverage, high margin of safety on balance sheet
+- Contrarian entry: business temporarily out of favor / sector sentiment weak, fundamentals intact
+- Concentration discipline: only a handful of high-conviction names, not a spray of picks
+
+## AI Scoring
+| Factor | Weight |
+|---|---|
+| Cash Flow Predictability | 25% |
+| Balance Sheet Margin of Safety | 25% |
+| Capital Allocation Discipline (asset ownership, low dilution) | 20% |
+| Contrarian Entry Signal (sentiment vs fundamentals gap) | 15% |
+| Conviction/Concentration Fit | 15% |
+
+## Probability Engine
+- Probability of Multi-Decade Holding Outcome
+- Probability of Capital Preservation in a Bear Market
+- Probability of Re-Rating When Sentiment Normalizes
+
+## AI Interpretation
+- 90–100: Fortress Compounder — Concentrated Core Position
+- 75–89: High-Conviction Candidate
+- 60–74: Fundamentally Sound but No Contrarian Edge Yet — Wait
+- Below 60: Avoid
+
+## Sample Dashboard
+Cash Flow Predictability: 91 | Balance Sheet Safety: 88 | Capital Discipline: 85 | Contrarian Gap: Moderate | Fortress Score: 86/100 | Probability of Capital Preservation in Downturn: 82% | Recommendation: High-Conviction Core Position, Size Larger Than Average
+
+---
+
+# Strategy 22 – Scuttlebutt Growth Engine (Philip Fisher)
+
+## Objective
+Apply Fisher's qualitative "scuttlebutt" method (*Common Stocks and Uncommon Profits*) — assess a business through the people around it (customers, competitors, suppliers, ex-employees) rather than numbers alone, focused on long-runway growth businesses meant to be held "forever."
+
+## Core Checklist (from Fisher's 15 Points, condensed)
+- Products/services with sufficient market potential for years of sales growth
+- Management determined to keep developing products/processes to sustain growth
+- Above-average, efficient R&D relative to size
+- Above-average sales organization
+- Worthwhile profit margin, and management effort to sustain/improve it
+- Outstanding labor and executive relations; management of unquestionable integrity
+- Depth of management (not one-person dependency)
+
+## AI Scoring
+| Factor | Weight |
+|---|---|
+| Market Potential / Runway | 20% |
+| Management Growth Orientation & R&D Intensity | 20% |
+| Sales Organization Strength | 10% |
+| Margin Sustainability | 20% |
+| Management Depth & Integrity | 20% |
+| "Scuttlebutt" Qualitative Signal (customer/competitor/employee sentiment) | 10% |
+
+## Probability Engine
+- Probability of Multi-Decade Compounding ("buy and practically never sell" outcome)
+- Probability of Management Succession Risk Materializing
+- Probability of Margin Sustainability Holding for 10+ Years
+
+## AI Interpretation
+- 90–100: Forever-Hold Candidate
+- 75–89: Strong Long-Term Growth Business
+- 60–74: Good Business, Wait for Better Entry or More Scuttlebutt Confirmation
+- Below 60: Fails Qualitative Screen
+
+## Sample Dashboard
+Market Potential: 84 | Management Growth Orientation: 90 | Margin Sustainability: 77 | Management Depth: 81 | Scuttlebutt Signal: Positive | Composite: 83/100 | Probability of Decade+ Compounding: 58% | Recommendation: Long-Term Accumulate, Minimal Trading
+
+---
+
+# Strategy 23 – GARP Ten-Bagger Engine (Peter Lynch)
+
+## Objective
+Apply Lynch's Growth-At-Reasonable-Price (GARP) framework and his "invest in what you know / understand the story in one paragraph" discipline, screening across his stock categories (Fast Grower, Stalwart, Cyclical, Turnaround, Asset Play) to find realistic multi-year "ten-baggers."
+
+## Core Checklist
+- **PEG Ratio** (PE ÷ EPS growth rate) ideally < 1, meaning growth is not fully priced in
+- Simple, understandable business — investor can explain it in 2–3 sentences
+- Category tagging: Fast Grower / Stalwart / Cyclical / Turnaround / Asset Play — each needs a different playbook
+- Institutional ownership still low (room to be "discovered")
+- Insiders buying, company buying back shares
+- Debt manageable relative to category norms
+
+## AI Scoring
+| Factor | Weight |
+|---|---|
+| PEG Ratio Attractiveness | 25% |
+| Business Simplicity/Clarity | 10% |
+| Category-Fit Growth Consistency | 25% |
+| Low Institutional Ownership (discovery potential) | 15% |
+| Insider Buying / Buybacks | 15% |
+| Balance Sheet Fit for Category | 10% |
+
+## Probability Engine
+- Probability of PEG Re-Rating Toward Fair Value
+- Probability of Category Misclassification (e.g., mistaking a cyclical for a fast grower — Lynch's classic error to avoid)
+- Probability of Ten-Bagger Outcome over 5–10 Years (rare, explicitly low-probability, high-payoff)
+
+## AI Interpretation
+- 90–100: Textbook GARP Ten-Bagger Candidate
+- 75–89: Strong GARP Fit
+- 60–74: Fair Price for Fair Growth — Hold Category
+- Below 60: Overpriced for Growth Offered — Avoid
+
+## Sample Dashboard
+PEG Ratio: 0.7 | Category: Fast Grower | Institutional Ownership: 11% (Low) | Insider Buying: Yes | GARP Composite: 80/100 | Probability of Ten-Bagger (5–10 Yr): 8% | Probability of Solid 3–5x: 34% | Recommendation: Accumulate on Dips, Monitor Category Drift
+
+---
+
+# Strategy 24 – Circle of Competence & Moat Engine (Warren Buffett & Charlie Munger)
+
+## Objective
+Combine Buffett's "wonderful company at a fair price" discipline with Munger's mental-models/moat-durability lens, filtered first through Circle of Competence: can the business be understood well enough, 10 years out, to have high confidence in its economics?
+
+## Core Checklist
+- Circle of Competence Fit: business model is genuinely understandable to the analyst/investor (Buffett's "too hard" pile exists for a reason)
+- Durable competitive moat: brand, network effect, cost advantage, switching costs, or regulatory/scale moat
+- Owner-oriented, rational management (capital allocation track record: buybacks, dividends, or reinvestment only when returns exceed cost of capital)
+- Pricing power (can raise prices without losing volume — Buffett's classic single test)
+- Consistent, predictable earning power over 10+ years, low reliance on debt
+- Purchase price offers a margin of safety versus a conservative intrinsic value estimate
+
+## AI Scoring
+| Factor | Weight |
+|---|---|
+| Circle of Competence Fit | 10% |
+| Moat Durability & Type | 30% |
+| Management Capital Allocation Quality | 20% |
+| Pricing Power | 15% |
+| Earnings Predictability (10-yr) | 15% |
+| Margin of Safety at Current Price | 10% |
+
+## Probability Engine
+- Probability of Moat Persisting 10+ Years
+- Probability of Management Capital Misallocation (value-destructive M&A, poor buyback timing)
+- Probability of Business Being "Too Hard" (falls outside reliable understanding — flags for exclusion rather than scoring)
+
+## AI Interpretation
+- 90–100: Wonderful Business at Fair Price — Permanent Holding Candidate
+- 75–89: Strong Moat, Watch Entry Price
+- 60–74: Good Business, Priced for Perfection — Wait
+- Below 60 or Outside Circle of Competence: Pass (Buffett's "too hard" pile)
+
+## Sample Dashboard
+Circle of Competence Fit: Clear | Moat Type: Brand + Distribution Network | Moat Durability: 89 | Capital Allocation: 85 | Pricing Power: High | Margin of Safety: 22% | Composite: 87/100 | Probability of Moat Persisting 10 Yrs: 74% | Recommendation: Buy, Intend to Hold Indefinitely
+
+---
+
+# Strategy 25 – Net-Net Deep Value Engine (Benjamin Graham)
+
+## Objective
+Apply Graham's original quantitative margin-of-safety discipline: buy statistically cheap, financially sound businesses regardless of growth story, per *The Intelligent Investor* and *Security Analysis*.
+
+## Core Checklist
+- **Net-Net test**: Price < Net Current Asset Value (Current Assets − Total Liabilities), ideally at ≤ 66% of NCAV
+- P/E below historical/market average; low P/B (classically < 1.5)
+- Current Ratio ≥ 2; Debt ≤ Net Current Assets
+- Positive earnings in most of the last 5–10 years (no chronic loss-maker)
+- Some dividend history (Graham's quality filter for defensive investors)
+- "Mr. Market" framing: price treated as an offer to be exploited, not a signal to follow
+
+## AI Scoring
+| Factor | Weight |
+|---|---|
+| Discount to Net Current Asset Value | 35% |
+| Balance Sheet Strength (current ratio, low debt) | 25% |
+| Earnings Stability (5–10 yr history) | 20% |
+| Valuation vs Historical Norms (P/E, P/B) | 20% |
+
+## Probability Engine
+- Probability of Price Converging Toward NCAV/Intrinsic Value
+- Probability of Value Trap (deteriorating business masking as "cheap")
+- Probability of Positive Return within Graham's typical 2–3 Year Workout Window
+
+## AI Interpretation
+- 90–100: Classic Graham Net-Net — Deep Margin of Safety
+- 75–89: Strong Statistical Value
+- 60–74: Cheap but Needs Quality Check — Diversify If Buying
+- Below 60: Not Statistically Cheap Enough / Quality Too Weak
+
+## Sample Dashboard
+Price/NCAV: 58% | Current Ratio: 2.4 | Debt vs Net Current Assets: Low | 5-Yr Earnings: Positive in 4 of 5 | Composite: 79/100 | Probability of Convergence in 2–3 Yrs: 47% | Recommendation: Buy in a Diversified Net-Net Basket (Graham's own recommended approach — never single-stock concentrate on net-nets)
+
+---
+
+# Strategy 26 – Global Contrarian Value Engine (Sir John Templeton)
+
+## Objective
+Apply Templeton's "buy at the point of maximum pessimism" and global-search discipline — screen for statistically cheapest, most unloved names/sectors, with a strict pre-defined sell discipline at the point euphoria replaces pessimism.
+
+## Core Checklist
+- Sector/stock sentiment near multi-year pessimism lows (news flow overwhelmingly negative, analyst coverage thinning)
+- Valuation near multi-year or cross-market-relative lows on normalized earnings
+- Business survives the pessimism (balance sheet can withstand the down-cycle)
+- Explicit sell-discipline plan set at time of purchase, not decided emotionally later
+- Willingness to look across sectors/caps/geography rather than staying in familiar names ("search worldwide" analog: search across the entire market, not just popular themes)
+
+## AI Scoring
+| Factor | Weight |
+|---|---|
+| Pessimism Extremity (sentiment vs history) | 30% |
+| Valuation vs Own History / Peers | 30% |
+| Balance Sheet Survivability Through Cycle | 25% |
+| Pre-Defined Sell Discipline Clarity | 15% |
+
+## Probability Engine
+- Probability of Sentiment Mean-Reversion within 1–3 Years
+- Probability of Business Not Surviving the Downcycle (bankruptcy/dilution risk)
+- Probability of "Buying Too Early" (further pessimism before recovery)
+
+## AI Interpretation
+- 90–100: Maximum Pessimism Point — High-Conviction Contrarian Buy
+- 75–89: Deep Pessimism, Good Survivability
+- 60–74: Cheap but Pessimism Not Yet Extreme — Scale In Slowly
+- Below 60: Not Contrarian Enough or Survivability Doubtful
+
+## Sample Dashboard
+Sentiment Percentile: 4th (extreme pessimism) | Valuation vs 10-Yr Avg: −52% | Survivability: Adequate | Composite: 78/100 | Probability of Mean Reversion (1–3 Yrs): 61% | Recommendation: Scale-In Contrarian Buy in 3 Tranches
+
+---
+
+# Strategy 27 – SEPA Volatility Contraction Engine (Mark Minervini)
+
+## Objective
+Model Minervini's Specific Entry Point Analysis (SEPA): combine strong fundamentals with a precise technical "Volatility Contraction Pattern" (VCP) entry to trade market leaders with tight risk control.
+
+## Core Checklist
+- Trend Template: price above rising 50/150/200-day moving averages, 200-day MA trending up for ≥1 month
+- Stock within 25% of 52-week high, ≥30% above 52-week low
+- Strong fundamentals: accelerating quarterly EPS/sales growth, expanding margins
+- Volatility Contraction Pattern: a series of progressively tighter pullbacks with drying-up volume, forming a base
+- Defined risk: hard stop-loss (typically 5–10%) set before entry, position sized to that risk
+
+## AI Scoring
+| Factor | Weight |
+|---|---|
+| Trend Template Compliance | 25% |
+| Fundamental Acceleration | 25% |
+| VCP Base Quality (tightness, volume dry-up) | 30% |
+| Risk/Reward at Entry (stop distance vs target) | 20% |
+
+## Probability Engine
+- Probability of Successful Breakout from Base
+- Probability of Stop-Loss Being Triggered (defined, accepted risk)
+- Probability of Becoming a "Big Winner" (Minervini's outsized-gain outliers)
+
+## AI Interpretation
+- 90–100: Textbook SEPA Setup — Enter on Breakout with Defined Stop
+- 75–89: Good Setup, Base Still Forming
+- 60–74: Fundamentals Fine, Technical Base Not Tight Enough
+- Below 60: No Actionable Setup
+
+## Sample Dashboard
+Trend Template: Pass (all conditions met) | EPS Acceleration: 3 consecutive quarters | VCP Contractions: 3 (25% → 12% → 6%) | Risk at Entry: 7% | Composite: 88/100 | Probability of Breakout Follow-Through: 55% | Recommendation: Buy on Breakout Above Pivot, Stop 7% Below Entry
+
+---
+
+# Strategy 28 – Darvas Box Breakout Engine (Nicolas Darvas)
+
+## Objective
+Model Darvas's box theory: a stock trending up trades within a series of self-defined price "boxes"; buy on confirmed breakout above the current box with rising volume, use the box floor as an automatic trailing stop.
+
+## Core Checklist
+- Identify current box: recent high/low range where price has consolidated
+- Confirm box with time (price respects the range for at least several sessions)
+- Buy signal: price closes above the box ceiling on above-average volume
+- Automatic stop-loss: just below the box floor, trailed upward as new, higher boxes form
+- Preference for stocks already in strong secular uptrends / leading sectors (Darvas famously focused on momentum leaders, minimal fundamental analysis)
+
+## AI Scoring
+| Factor | Weight |
+|---|---|
+| Box Definition Clarity | 25% |
+| Breakout Volume Confirmation | 30% |
+| Prior Trend Strength | 25% |
+| Stop-Loss Discipline Feasibility (clean box floor) | 20% |
+
+## Probability Engine
+- Probability of Breakout Holding (no immediate false-break reversal)
+- Probability of Stop-Loss Triggered Within 10 Trading Days
+- Probability of Multi-Box Trend Continuation (stacking higher boxes)
+
+## AI Interpretation
+- 90–100: Clean Confirmed Breakout — Enter
+- 75–89: Breakout Forming, Await Volume Confirmation
+- 60–74: Box Not Yet Well-Defined
+- Below 60: No Valid Box Pattern
+
+## Sample Dashboard
+Current Box: ₹410–₹455 | Breakout Level: ₹455 | Volume on Breakout: 2.3x Average | Composite: 84/100 | Probability of Breakout Holding: 62% | Stop-Loss: ₹438 (below box floor) | Recommendation: Buy on Confirmed Close Above ₹455
+
+---
+
+# Strategy 29 – High-Growth Compounder Momentum Engine (Basant Maheshwari)
+
+## Objective
+Model Maheshwari's blend of high-growth business fundamentals with price-momentum confirmation ("bet on the winners the market is already rewarding," combined with staying in businesses through cycles once conviction is established).
+
+## Core Checklist
+- High and improving return ratios (ROE/ROCE) alongside strong topline/bottomline growth
+- Business riding a large structural consumption or industry tailwind
+- Price already confirming the fundamental story (market beginning to recognize the stock — momentum as a confirming signal, not the sole reason)
+- Willingness to pay a growth premium for quality, rather than insisting on statistical cheapness
+- Strong conviction holding through interim volatility once thesis is established
+
+## AI Scoring
+| Factor | Weight |
+|---|---|
+| Return Ratio Trend (ROE/ROCE) | 25% |
+| Growth Consistency | 25% |
+| Structural Tailwind Size | 20% |
+| Price-Momentum Confirmation | 20% |
+| Conviction/Hold-Through-Volatility Fit | 10% |
+
+## Probability Engine
+- Probability of Growth Premium Being Justified by Delivered Growth
+- Probability of Momentum Reversing Before Fundamentals Do (key risk this style must manage)
+- Probability of Multi-Year Compounding Continuation
+
+## AI Interpretation
+- 90–100: High-Conviction Growth Compounder
+- 75–89: Strong Candidate, Monitor Valuation Premium
+- 60–74: Good Business, Momentum Not Yet Confirming
+- Below 60: Growth Story Unconfirmed by Fundamentals or Price
+
+## Sample Dashboard
+ROE Trend: Rising (18% → 24%) | Growth Consistency: High | Tailwind: Large (structural consumption theme) | Price Momentum: Confirming | Composite: 82/100 | Probability of Growth Premium Justified: 57% | Recommendation: Buy and Hold Through Cycles, Reassess Only If Fundamentals Break
+
+---
+
+# Strategy 30 – Special Situations & Turnaround Engine (Porinju Veliyath style)
+
+## Objective
+Model the small/micro-cap special-situations and turnaround approach associated with investors like Porinju Veliyath — identifying deeply out-of-favor, structurally mispriced companies undergoing a credible operational or ownership-driven turnaround, ahead of broader market recognition.
+
+## Core Checklist
+- Company trading near multi-year lows, often below book value or replacement cost
+- Identifiable turnaround trigger: new management, debt resolution/restructuring, asset monetization, demerger, or sector cycle bottoming
+- Early, verifiable signs of operational improvement (margin inflection, order book revival, promoter buying)
+- Illiquidity/small-cap discount priced in — acceptable given long holding horizon
+- Explicit acknowledgment of high dispersion of outcomes (some turnarounds fail; sizing reflects this)
+
+## AI Scoring
+| Factor | Weight |
+|---|---|
+| Distress-to-Value Gap (price vs replacement/book value) | 25% |
+| Credibility of Turnaround Trigger | 30% |
+| Early Operational Confirmation | 25% |
+| Promoter/Insider Alignment (buying, not selling) | 20% |
+
+## Probability Engine
+- Probability of Successful Turnaround Completion
+- Probability of Continued Value Destruction (turnaround fails)
+- Probability of Re-Rating Once Turnaround Is Market-Recognized
+
+## AI Interpretation
+- 90–100: High-Conviction Special Situation
+- 75–89: Credible Turnaround, Early Innings
+- 60–74: Turnaround Thesis Unconfirmed — Small Tracking Position Only
+- Below 60: Value Trap Risk Too High — Avoid
+
+## Sample Dashboard
+Price vs Book: 0.6x | Turnaround Trigger: New Management + Debt Restructuring | Operational Confirmation: Early Positive | Promoter Buying: Yes | Composite: 76/100 | Probability of Successful Turnaround: 41% | Probability of Value Destruction: 29% | Recommendation: Small High-Risk Tracking Position, Add Only on Confirmed Operational Inflection
+
+---
+
+# Strategy 31 – Big Bull Conviction Engine (Rakesh Jhunjhunwala style)
+
+## Objective
+Model the high-conviction, macro-thematic, long-holding-period approach associated with Rakesh Jhunjhunwala: identify businesses riding a large multi-year India growth theme, take a meaningfully sized position once convinced, and hold through volatility rather than trading around news.
+
+## Core Checklist
+- Business tied to a large, durable India macro theme (consumption, financialization, infrastructure, manufacturing shift, etc.)
+- Scalable business model with demonstrated or highly plausible operating leverage
+- Management with a credible track record and skin in the game
+- Investor conviction strong enough to size the position meaningfully (not a token allocation) once the thesis is set
+- Explicit tolerance for large mark-to-market drawdowns without thesis abandonment, provided the fundamental story stays intact
+
+## AI Scoring
+| Factor | Weight |
+|---|---|
+| Macro Theme Durability & Size | 30% |
+| Business Scalability / Operating Leverage | 25% |
+| Management Quality & Alignment | 20% |
+| Conviction-to-Position-Size Fit | 15% |
+| Drawdown Tolerance vs Thesis Integrity | 10% |
+
+## Probability Engine
+- Probability of Macro Theme Playing Out as Expected over 5–10 Years
+- Probability of Operating Leverage Materializing
+- Probability of Investor Capitulating During a Deep Drawdown (behavioral risk, not business risk)
+
+## AI Interpretation
+- 90–100: High-Conviction Multi-Year Theme Bet — Large Position Justified
+- 75–89: Strong Thematic Fit
+- 60–74: Theme Plausible, Business Case Not Yet Strong Enough for Size
+- Below 60: Theme Too Speculative or Business Not Scalable
+
+## Sample Dashboard
+Macro Theme: India Financialization | Theme Durability: 10+ Years | Operating Leverage Potential: High | Management Alignment: Strong (high promoter holding) | Composite: 85/100 | Probability of Theme Playing Out: 68% | Recommendation: Large Conviction Position, Multi-Year Hold, Ignore Short-Term Noise
+
+---
+
+# Strategy 32 – Hidden Gem Silent Accumulation Engine (Dolly Khanna style)
+
+## Objective
+Model the low-profile approach associated with investors like Dolly Khanna: quietly accumulate small/mid-cap, often commodity or niche-sector businesses that are cheap on conventional metrics, under-covered by analysts, before broader market attention arrives.
+
+## Core Checklist
+- Low analyst coverage / low institutional ownership (genuine "undiscovered" status, not just small size)
+- Cheap on simple, easily verifiable metrics (low P/E, low P/B relative to sector)
+- Improving sector cycle (often commodity/chemical/agri-linked businesses turning from trough)
+- Consistent, gradual accumulation pattern rather than a single large entry (mirrors observed shareholding-pattern behavior of such investors)
+- Business simple enough to monitor via quarterly shareholding and results without constant management access
+
+## AI Scoring
+| Factor | Weight |
+|---|---|
+| Under-Coverage / Discovery Potential | 30% |
+| Valuation Cheapness (simple multiples) | 25% |
+| Sector Cycle Position (trough vs peak) | 25% |
+| Accumulation Feasibility (liquidity, float) | 20% |
+
+## Probability Engine
+- Probability of Being "Discovered" by Broader Market (re-rating catalyst)
+- Probability of Sector Cycle Turning Favorable within 1–2 Years
+- Probability of Prolonged Value Trap (cycle stays depressed)
+
+## AI Interpretation
+- 90–100: High-Potential Undiscovered Cyclical Value
+- 75–89: Good Candidate, Cycle Still Uncertain
+- 60–74: Cheap but No Clear Cycle Turn Signal
+- Below 60: Structurally Impaired, Not Just Cyclically Cheap
+
+## Sample Dashboard
+Institutional Ownership: 2.1% (very low) | P/E vs Sector: 40% discount | Sector Cycle: Early Recovery | Composite: 73/100 | Probability of Discovery Re-Rating (2 Yrs): 44% | Recommendation: Gradual Accumulation Across Multiple Tranches, Small Individual Position Size
+
+---
+
+# Strategy 33 – Multibagger Hunter Screener (Ashish Kacholia style)
+
+## Objective
+Model the pattern associated with prolific small/mid-cap "smart money" investors like Ashish Kacholia: wide, diversified basket of small positions across emerging niche businesses, sized small individually (given high dispersion of outcomes) but designed so a few multibaggers drive overall portfolio return.
+
+## Core Checklist
+- Niche or under-penetrated market with a long runway
+- Early-stage but visible scaling (revenue base still small enough that a big multiple is mathematically possible)
+- Founder-driven business with high promoter skin-in-the-game
+- Portfolio-level diversification: many small tracking positions rather than few large bets, explicitly accepting most will not outperform
+- Willingness to exit quickly if a specific thesis breaks (unlike buy-and-forget styles), while letting winners run
+
+## AI Scoring
+| Factor | Weight |
+|---|---|
+| Niche/Runway Size | 25% |
+| Early Scaling Evidence | 25% |
+| Founder Skin-in-the-Game | 20% |
+| Portfolio Fit (small-bet diversification suitability) | 15% |
+| Thesis-Break Exit Clarity | 15% |
+
+## Probability Engine
+- Probability Individual Pick Becomes a Multibagger (deliberately modeled as low per-stock, e.g. 5–15%)
+- Probability of Portfolio-Level Outperformance via Basket Effect (modeled higher than any single pick's probability)
+- Probability of Thesis Break Requiring Exit within 12 Months
+
+## AI Interpretation (applied at portfolio-basket level, not single stock)
+- Single stock 90–100: Rare "high in every factor" pick — still size small
+- 75–89: Strong basket candidate
+- 60–74: Track only, small starter size if included
+- Below 60: Exclude from basket
+
+## Sample Dashboard
+Niche Runway: Large | Early Scaling: Confirmed (3 consecutive quarters of order growth) | Promoter Stake: 58%, no pledge | Composite: 79/100 | Probability This Stock Becomes a Multibagger: 11% | Probability Basket of 15 Similar Picks Outperforms Index: 58% | Recommendation: Small Position (1–2% of Portfolio) as Part of a Diversified Multibagger-Hunting Basket
+
+---
+
+# PART B — Master Cross-Strategy Comparison
+
+| Strategy | Style | Holding Period | Position Sizing Discipline | Core Edge |
+|---|---|---|---|---|
+| CANSLIM (O'Neil) | Momentum-Growth | Months–Years | Pyramid on strength, cut losses fast (7–8%) | Earnings + institutional + technical confluence |
+| Magic Formula (Greenblatt) | Mechanical Value | ~1 Year, Basket | Equal-weight basket (20–30 names) | Systematic cheap + quality intersection |
+| QGLP (Agrawal) | Quality Compounding | 10–15 Years | Concentrated, multiplicative gate | Buy Right, Sit Tight |
+| SMILE (Kedia) | Small-Cap Growth | 5–15 Years | Small starter, add on proof | Small share + large ambition |
+| Bargain-Hunter (Damani) | Deep Value/Contrarian | Decades | Concentrated, few names | Margin of safety + patience |
+| Scuttlebutt (Fisher) | Qualitative Growth | "Forever" | Concentrated | Ground-level qualitative research |
+| GARP (Lynch) | Growth at Reasonable Price | Years | Diversified across categories | PEG discipline + category fit |
+| Circle of Competence/Moat (Buffett/Munger) | Quality Compounding | Indefinite | Highly concentrated | Moat + rational capital allocation |
+| Net-Net (Graham) | Deep Statistical Value | 2–3 Years | Diversified basket | Price below liquidation value |
+| Global Contrarian (Templeton) | Contrarian Value | 1–3 Years | Scale-in tranches | Buy at maximum pessimism |
+| SEPA (Minervini) | Technical + Fundamental | Weeks–Months | Fixed % risk per trade | VCP breakout timing |
+| Box Theory (Darvas) | Pure Momentum | Weeks–Months | Trailing stop via box floor | Trend continuation |
+| Growth Momentum (Maheshwari) | Growth + Momentum | Years | Concentrated, high-conviction | Fundamentals confirmed by price |
+| Special Situations (Veliyath style) | Turnaround/Distress | 2–5 Years | Small, high-risk sized | Mispriced operational inflection |
+| Big Bull Conviction (Jhunjhunwala style) | Macro-Thematic | 5–10+ Years | Large, high-conviction | Theme size + operating leverage |
+| Hidden Gem (Khanna style) | Quiet Cyclical Value | 1–3 Years | Gradual accumulation, small size | Under-coverage discount |
+| Multibagger Hunter (Kacholia style) | Diversified Small-Cap Basket | Variable, cut on thesis-break | Many small positions | Basket-level asymmetry |
+
+---
+
+# Combined AI Meta-Engine Note
+
+For production use, the AI Growth Arbitrage Engine (Part A) and this Legendary Strategy Library (Part B) can be run **in parallel** on the same stock: Part A produces a single institutional composite score; Part B tags which specific investor "lens" a stock best fits (e.g., a stock might score 60/100 on QGLP but 88/100 on SEPA — meaning it is a technical trade, not a decade-hold). The most useful output for a retail/prosumer user is often not one score, but a **style-fit table** showing which of these 17 lenses a candidate genuinely satisfies, since most real stocks fit 1–3 of these philosophies well and fail the rest — mixing signals from incompatible styles (e.g., Graham's net-net cheapness with O'Neil's momentum leadership) is a known source of confused, low-conviction decisions.

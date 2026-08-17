@@ -1,0 +1,26 @@
+<!-- conviction_panel.html – Conviction Call Panel -->
+<section class="p-4 bg-surface-lowest rounded border">
+  <h2 class="text-xl font-bold text-gold mb-2">Conviction Call</h2>
+  <div id="conviction-content" class="space-y-2">
+    <!-- Loading placeholder -->
+    <div class="text-center py-4" id="conviction-loading">Loading...</div>
+    <!-- Dynamic content will be injected here -->
+    <div class="hidden" id="conviction-data">
+      <h3 class="text-lg font-semibold" id="conviction-symbol"></h3>
+      <p class="text-sm" id="conviction-verdict"></p>
+      <div class="w-full bg-gray-700 rounded-full h-4 overflow-hidden" id="conviction-gauge-bg">
+        <div class="bg-green-500 h-4" id="conviction-gauge-fill" style="width:0%"></div>
+      </div>
+      <p class="text-sm mt-1" id="conviction-score"></p>
+      <p class="text-sm" id="conviction-thesis"></p>
+      <p class="text-xs" id="conviction-confidence"></p>
+      <details class="mt-3" style="cursor:pointer;">
+        <summary class="text-sm text-gold">Engine Breakdown</summary>
+        <div class="grid grid-cols-2 gap-2 mt-2 text-xs">
+          <div><strong>Contributing</strong><ul id="conviction-contrib"></ul></div>
+          <div><strong>Contradicting</strong><ul id="conviction-contradict"></ul></div>
+        </div>
+      </details>
+    </div>
+  </div>
+</section>

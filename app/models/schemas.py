@@ -1,7 +1,7 @@
 """Pydantic data schemas for request validation and response models.
 """
 
-from datetime import date, datetime
+from datetime import date, datetime, timezone
 from typing import List, Dict, Any, Literal, Optional
 from pydantic import BaseModel, Field, HttpUrl
 
@@ -155,15 +155,48 @@ class StrategyRunResponse(BaseModel):
 class QueryRequest(BaseModel):
     query: str = Field(..., min_length=2, max_length=500, description="Research prompt or query")
     mode: Optional[str] = Field(default="Quick", description="Query mode: Quick, Research, Technical, Fundamental")
-
-
 class QueryResponse(BaseModel):
-    query: str
-    mode: str
-    reply: str
-    provider: str
+    """Response model for AI query endpoint.
+
+    Mirrors the fields returned by `process_llm_query`.
+    """
+    query: str = Field(..., description="Original research prompt")
+    mode: str = Field(default="Quick", description="Query mode used")
+    reply: str = Field(..., description="Narrative response or deterministic fallback")
+    provider: str = Field(..., description="LLM provider or deterministic engine identifier")
+    meta: MetaHeader = Field(..., description="Metadata header with source and timestamps")
+    disclaimer: str = Field(..., description="Legal disclaimer for the response")
+
+    class Config:
+        schema_extra = {
+            "example": {
+                "query": "Show revenue growth for RELIANCE",
+                "mode": "Quick",
+                "reply": "Revenue grew 12% YoY over the last quarter...",
+                "provider": "Google Gemini 1.5 Flash",
+                "meta": {
+                    "source": "IERL Market Data",
+                    "as_of": "2026-08-16T09:00:00+05:30",
+                    "retrieved_at": "2026-08-16T09:00:05+05:30",
+                    "market_data_type": "realtime",
+                    "stale": False,
+                    "limitations": []
+                },
+                "disclaimer": "AI research assistant readout for educational/research purposes. Not investment advice."
+            }
+        }
+
+
+class SynthesizedEquitySnapshot(BaseModel):
+    symbol: str
+    consensus_price: Optional[float] = None
+    consensus_pe: Optional[float] = None
+    adjusted_price: Optional[float] = None
+    adjusted_pe: Optional[float] = None
+    anomaly_flags: List[str] = Field(default_factory=list, description="List of detected anomalies, e.g., price conflict, missing data")
+    data_confidence_score: float = Field(default=1.0, description="Confidence score (0-1) for synthesized data")
     meta: MetaHeader
-    disclaimer: str
+
 
 
 # Point-in-time research data contracts. A financial fact is never overwritten:
@@ -460,6 +493,281 @@ class WatchlistListResponse(BaseModel):
     count: int
 
 
+class ConvictionCall(BaseModel):
+    """Arbitrated decision for a ticker."""
+    symbol: str
+    verdict: Literal["Strong Buy", "Buy", "Accumulate", "Watch", "Avoid"]
+    conviction_score: int = Field(..., ge=0, le=100)
+    primary_thesis: str
+    contributing_engines: List[str] = []
+    contradicting_engines: List[str] = []
+    confidence_tier: Literal["Confirmed", "Model-dependent", "Contested"] = "Model-dependent"
+    timestamp: str = Field(
+        default_factory=lambda: datetime.now(timezone.utc).isoformat(),
+        description="UTC timestamp when the conviction was generated",
+    )
+
+
+class ThesisDriftEvent(BaseModel):
+    """Logged when a symbol's conviction_score moves > 15 points or verdict changes."""
+    symbol: str
+    old_score: int
+    new_score: int
+    delta: int
+    old_verdict: str
+    new_verdict: str
+    triggering_engines: List[str] = []
+    timestamp: str = Field(default_factory=lambda: datetime.now(timezone.utc).isoformat())
+
+class PortfolioSnapshot(BaseModel):
+    """Aggregated view of all watch‑list symbols."""
+    average_score: float
+    verdict_counts: Dict[str, int]
+    symbols: Dict[str, ConvictionCall]
+    timestamp: str = Field(default_factory=lambda: datetime.now(timezone.utc).isoformat())
+
+
+class LifecycleState(BaseModel):
+    """Lifecycle state machine representation for a company."""
+    symbol: str
+    previous_stage: Optional[str] = None
+    current_stage: str = Field(..., description="E.g. DISCOVERY, TURNAROUND, RECOVERY, GROWTH_INFLECTION, EARNINGS_ACCELERATION, RECOGNITION, RERATING, MATURE_GROWTH, DECELERATION, BREAKDOWN")
+    transition_date: str = Field(default_factory=lambda: datetime.now(timezone.utc).isoformat())
+    transition_reason: str
+    confidence: float = Field(default=0.8, ge=0.0, le=1.0)
+    supporting_evidence: List[str] = Field(default_factory=list)
+
+
+class ThesisMonitor(BaseModel):
+    """Tracks thesis state and conditions for a symbol."""
+    symbol: str
+    why_buy: str
+    growth_drivers: List[str] = Field(default_factory=list)
+    catalysts: List[str] = Field(default_factory=list)
+    risks: List[str] = Field(default_factory=list)
+    thesis_conditions: List[str] = Field(default_factory=list)
+    invalidation_conditions: List[str] = Field(default_factory=list)
+    thesis_state: Literal["STRENGTHENING", "STABLE", "WEAKENING", "BROKEN"] = "STABLE"
+    updated_at: str = Field(default_factory=lambda: datetime.now(timezone.utc).isoformat())
+
+
+class MetricTrend(BaseModel):
+    """Multi-period financial metric trend classification."""
+    metric_name: str
+    current: Optional[float] = None
+    prev_quarter: Optional[float] = None
+    prev_year: Optional[float] = None
+    trend_3y: Optional[float] = None
+    trend_5y: Optional[float] = None
+    classification: Literal["improving", "stable", "accelerating", "decelerating", "recovering", "deteriorating", "broken"] = "stable"
+
+
+class ContradictionReport(BaseModel):
+    """Structured Bull vs Bear debate with severity-weighted contradictions.
+
+    Phase 3 upgrade: Full evidence-based debate, not just positive/negative lists.
+    """
+    symbol: str
+    # Legacy fields (preserved for backward compatibility)
+    primary_positives: List[str] = Field(default_factory=list)
+    primary_negatives: List[str] = Field(default_factory=list)
+    key_contradiction: Optional[str] = None
+    decision_impact: str = ""
+
+    # Phase 3 additions
+    bull_case: List[Dict[str, Any]] = Field(
+        default_factory=list,
+        description="Top 3 supporting engines with cited evidence"
+    )
+    bear_case: List[Dict[str, Any]] = Field(
+        default_factory=list,
+        description="Top 3 contradicting engines with cited evidence"
+    )
+    falsification_conditions: List[str] = Field(
+        default_factory=list,
+        description="2–3 specific measurable conditions that would invalidate the thesis"
+    )
+    contradiction_severity: Literal["LOW", "MEDIUM", "HIGH", "CRITICAL"] = "LOW"
+    net_evidence_balance: Optional[str] = None  # e.g. "BULLISH_DOMINANT", "CONTESTED", "BEARISH_DOMINANT"
+    debate_generated_at: str = Field(default_factory=lambda: datetime.now(timezone.utc).isoformat())
+
+
+class SystemAlert(BaseModel):
+    """Lightweight event-driven alert notification."""
+    id: Optional[int] = None
+    symbol: str
+    event_type: str = Field(..., description="E.g. SCORE_CHANGE, LIFECYCLE_TRANSITION, THESIS_WEAKENING, THESIS_BROKEN, GOVERNANCE_WARNING")
+    severity: Literal["INFO", "WARNING", "CRITICAL"] = "INFO"
+    details: str
+    created_at: str = Field(default_factory=lambda: datetime.now(timezone.utc).isoformat())
+
+
+# =====================================================================
+# Phase 1 — Data Foundation Schemas
+# =====================================================================
+
+class RegimeClassification(BaseModel):
+    """Market regime classification based on VIX, trend, and breadth."""
+    regime: Literal["CALM", "ELEVATED", "VOLATILE", "CRISIS"] = "CALM"
+    vix_level: Optional[float] = None
+    nifty_200dma_distance_pct: Optional[float] = None
+    fii_net_flow_direction: Optional[Literal["INFLOW", "OUTFLOW", "NEUTRAL"]] = None
+    confidence: float = Field(default=0.7, ge=0.0, le=1.0)
+    determined_at: str = Field(default_factory=lambda: datetime.now(timezone.utc).isoformat())
+    evidence: List[str] = Field(default_factory=list)
+
+
+class MacroContext(BaseModel):
+    """Macro-economic context provided to every analysis engine."""
+    regime: RegimeClassification = Field(default_factory=RegimeClassification)
+    nifty_level: Optional[float] = None
+    india_vix: Optional[float] = None
+    rbi_repo_rate: float = Field(default=6.5, description="RBI repo rate (manual override)")
+    usd_inr: Optional[float] = None
+    ten_year_gsec_yield: Optional[float] = None
+    risk_free_rate: float = Field(default=7.0, description="10Y G-Sec yield or default 7%")
+    as_of: str = Field(default_factory=lambda: datetime.now(timezone.utc).isoformat())
+
+
+class SectorProfile(BaseModel):
+    """Sector-relative context for a company."""
+    sector: Optional[str] = None
+    industry: Optional[str] = None
+    sector_median_pe: Optional[float] = None
+    sector_median_pb: Optional[float] = None
+    sector_median_roe: Optional[float] = None
+    sector_avg_revenue_growth_pct: Optional[float] = None
+    company_pe_vs_sector: Optional[str] = None  # "PREMIUM", "DISCOUNT", "INLINE"
+    peer_symbols: List[str] = Field(default_factory=list)
+
+
+class DataQualityReport(BaseModel):
+    """Data quality assessment attached to every engine output."""
+    quarters_available: int = 0
+    has_ownership_data: bool = False
+    has_corporate_events: bool = False
+    latest_financial_date: Optional[str] = None
+    data_freshness_days: Optional[int] = None
+    source_credibility_avg: float = Field(default=0.0, ge=0.0, le=1.0)
+    grade: Literal["A", "B", "C", "D", "F"] = "F"
+    warnings: List[str] = Field(default_factory=list)
+
+    @classmethod
+    def compute_grade(cls, quarters: int, has_ownership: bool, credibility: float) -> str:
+        score = min(quarters, 12) * 5  # max 60 from quarters
+        score += 15 if has_ownership else 0
+        score += int(credibility * 25)  # max 25 from credibility
+        if score >= 80:
+            return "A"
+        elif score >= 60:
+            return "B"
+        elif score >= 40:
+            return "C"
+        elif score >= 20:
+            return "D"
+        return "F"
+
+
+class SourceCredibility(BaseModel):
+    """Standard credibility tiers for data sources."""
+    BSE_FILING: float = 1.0
+    NSE_FILING: float = 1.0
+    ANNUAL_REPORT: float = 0.95
+    SCREENER_IN: float = 0.85
+    YFINANCE: float = 0.75
+    NEWS_ARTICLE: float = 0.60
+    AI_GENERATED: float = 0.30
+    UNKNOWN: float = 0.50
+
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Phase 4 — Layer 14: Explainability & Audit Layer
+# ─────────────────────────────────────────────────────────────────────────────
+
+class EngineOutputRecord(BaseModel):
+    """Single engine output stored inside a DecisionAuditTrail.
+
+    Answers: Which engine? What score? What evidence? How confident?
+    What data quality? Is data real or insufficient?
+    """
+    engine_id: str
+    engine_name: str = ""
+    category: str = ""                   # FUNDAMENTAL / TECHNICAL / VALUATION / FORENSIC / MACRO
+    verdict: Literal["Buy", "Avoid"] = "Avoid"
+    passed_gates: bool = False
+    score_0_100: Optional[float] = None  # Normalised score if available
+    confidence_pct: int = 50
+    data_status: str = "unknown"         # "production" | "data_insufficient" | "error"
+    evidence: List[str] = Field(default_factory=list)
+    data_quality_grade: str = "C"        # A/B/C/D/F
+    regime_at_execution: str = "CALM"
+
+
+class DecisionAuditTrail(BaseModel):
+    """Complete, persisted audit trail for every conviction call.
+
+    Answers every institutional question:
+      WHY?         → why_this_verdict + engine_outputs
+      WHAT?        → engine_outputs[n].evidence
+      WHEN?        → timestamp + engine_outputs[n] (per-engine time)
+      CONFIDENCE?  → confidence_decomposition
+      INVALIDATION?→ falsification_conditions
+      DATA SOURCE? → data_lineage
+
+    Persisted to SQLite for historical comparison queries.
+    """
+    id: Optional[int] = None
+    symbol: str
+    timestamp: str = Field(default_factory=lambda: datetime.now(timezone.utc).isoformat())
+    model_version: str = "0.4.0"
+
+    # Engine outputs (full scored record from each engine)
+    engine_outputs: List[EngineOutputRecord] = Field(default_factory=list)
+
+    # Macro context at time of decision
+    macro_regime: str = "CALM"
+    india_vix_at_decision: Optional[float] = None
+
+    # Contradiction summary (from Phase 3 debate engine)
+    contradiction_severity: str = "LOW"
+    net_evidence_balance: Optional[str] = None
+    bull_engine_ids: List[str] = Field(default_factory=list)
+    bear_engine_ids: List[str] = Field(default_factory=list)
+
+    # Prediction summary (from Phase 4 prediction engine)
+    expected_return_1y_pct: Optional[float] = None
+    expected_return_3y_pct: Optional[float] = None
+    confidence_composite_pct: Optional[float] = None
+    catalyst_count: int = 0
+
+    # Final verdict
+    final_score: int = 0
+    final_verdict: Literal["Strong Buy", "Buy", "Accumulate", "Watch", "Avoid"] = "Watch"
+    governance_veto_applied: bool = False
+
+    # Explainability (Layer 14 core outputs)
+    why_this_verdict: str = ""
+    falsification_conditions: List[str] = Field(default_factory=list)
+
+    # Data lineage: source → timestamp → confidence for key inputs
+    data_lineage: List[Dict[str, Any]] = Field(
+        default_factory=list,
+        description="Traceable source chain for each key data input"
+    )
+
+    class Config:
+        json_schema_extra = {
+            "example": {
+                "symbol": "RELIANCE",
+                "final_verdict": "Buy",
+                "final_score": 72,
+                "why_this_verdict": "Verdict BUY (72/100): (1) E1 Growth Inflection 78/100 — Revenue +23% YoY. (2) C9 Reverse DCF — modest expectations priced in. No forensic red flags.",
+                "falsification_conditions": [
+                    "Thesis invalidated if revenue growth falls below 10% YoY",
+                    "Thesis invalidated if D/E exceeds 0.5x",
+                ]
+            }
+        }
 
 
 

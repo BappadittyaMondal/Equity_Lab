@@ -1,0 +1,86 @@
+{
+  "generated_at": "2026-08-17T03:26:28.614026+00:00",
+  "data": {
+    "TCS": {
+      "symbol": "TCS",
+      "verdict": "Avoid",
+      "conviction_score": 0,
+      "primary_thesis": "Arbitrated decision for TCS: Avoid",
+      "contributing_engines": [
+        "A1",
+        "A2",
+        "A3",
+        "B4",
+        "B5",
+        "B6",
+        "B7",
+        "B8",
+        "C9",
+        "C10",
+        "C11",
+        "C12",
+        "C13",
+        "C14",
+        "D15",
+        "D16",
+        "D17",
+        "D18"
+      ],
+      "contradicting_engines": [
+        "A1",
+        "A2",
+        "A3",
+        "B4",
+        "B5",
+        "B6",
+        "B7",
+        "B8",
+        "C9",
+        "C10",
+        "C11",
+        "C12",
+        "D16",
+        "D17",
+        "D18"
+      ],
+      "confidence_tier": "Contested",
+      "timestamp": "2026-08-17T03:26:28.612839+00:00"
+    },
+    "INFY.NS": {
+      "symbol": "INFY.NS",
+      "verdict": "Avoid",
+      "conviction_score": 0,
+      "primary_thesis": "Arbitrated decision for INFY.NS: Avoid",
+      "contributing_engines": [
+        "A1",
+        "A2",
+        "A3",
+        "B4",
+        "B5",
+        "B6",
+        "B7",
+        "B8",
+        "C9",
+        "C10",
+        "C11",
+        "C12",
+        "C13",
+        "C14",
+        "D15",
+        "D16",
+        "D17",
+        "D18"
+      ],
+      "contradicting_engines": [
+        "B5",
+        "B8",
+        "C13",
+        "C14",
+        "D15",
+        "D18"
+      ],
+      "confidence_tier": "Contested",
+      "timestamp": "2026-08-17T03:26:28.613541+00:00"
+    }
+  }
+}

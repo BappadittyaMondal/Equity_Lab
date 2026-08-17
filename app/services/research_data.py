@@ -205,7 +205,11 @@ class ResearchDataStore:
                 """
             )
 
-    def upsert_company(self, request: CompanyUpsertRequest) -> CompanyResponse:
+    def upsert_company(self, request: Any) -> CompanyResponse:
+        if isinstance(request, dict):
+            if not request.get("symbol") or not request.get("legal_name"):
+                raise HTTPException(status_code=400, detail="Missing required company fields")
+            request = CompanyUpsertRequest(**request)
         symbol = normalize_symbol(request.symbol)
         now = _utc_now().isoformat()
         with self._connect() as conn:
@@ -233,7 +237,12 @@ class ResearchDataStore:
             industry=row["industry"], created_at=_parse_datetime(row["created_at"]),
         )
 
-    def add_financial_observation(self, request: FinancialObservationIn) -> FinancialObservationResponse:
+    def add_financial_observation(self, request: Any) -> FinancialObservationResponse:
+        if isinstance(request, dict):
+            try:
+                request = FinancialObservationIn(**request)
+            except Exception as exc:
+                raise HTTPException(status_code=400, detail=f"Invalid financial observation fields: {exc}")
         symbol = normalize_symbol(request.symbol)
         self.get_company(symbol)
         now = _utc_now().isoformat()
@@ -254,6 +263,8 @@ class ResearchDataStore:
             )
             observation_id = cursor.lastrowid
         return FinancialObservationResponse(id=observation_id, ingested_at=_parse_datetime(now), **request.model_dump())
+
+    upsert_financial_observation = add_financial_observation
 
     def add_business_event(self, request: BusinessEventIn) -> BusinessEventResponse:
         symbol = normalize_symbol(request.symbol)

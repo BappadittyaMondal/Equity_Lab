@@ -347,3 +347,9 @@ button {
 .drawer-overlay.open {
   display: block;
 }
+/* Conviction Panel Styles */
+.gauge-bg {background:#444;height:12px;width:100%;margin-top:4px; border-radius:6px; overflow:hidden;}
+.gauge-fill {background:#0f0;height:100%;width:0%; transition:width 0.5s ease;}
+.confidence-badge {display:inline-block;padding:0.2rem 0.5rem;border-radius:0.25rem;background:rgba(200,150,62,0.15);color:var(--text-gold-amber);border:1px solid rgba(200,150,62,0.4);font-size:0.75rem;font-weight:600;}
+.trend-up {color:var(--color-bullish-green); font-weight:700;}
+.trend-down {color:var(--color-bearish-red); font-weight:700;}
