@@ -153,7 +153,7 @@ def operating_wrapper(master_filename: str, files: list[str], mapping: dict, man
     return f"""# {Path(master_filename).stem}
 
 > **IERL AI Equity OS — curated upload artifact**  
-> Project Version: `{manifest_meta['PROJECT_VERSION']}` · Bundle Version: `{manifest_meta['BUNDLE_VERSION']}` · Git Commit: `{manifest_meta['GIT_COMMIT']}`  
+> Project Version: `{manifest_meta['PROJECT_VERSION']}` · Bundle Version: `{manifest_meta['BUNDLE_VERSION']}` · Source Commit: `{manifest_meta['GIT_COMMIT_SOURCE']}`  
 > Generated At: `{manifest_meta['GENERATED_AT']}` · Source Hash: `{manifest_meta['SOURCE_HASH'][:16]}` · Compiler: `consolidate_project.py` v{COMPILER_VERSION}
 
 ## Operating contract
@@ -243,7 +243,7 @@ def validate(mapping: dict, target_dir: Path) -> None:
 
 
 def main() -> None:
-    git_commit = get_git_commit()
+    git_commit_source = get_git_commit()
     source_hash = compute_source_hash()
     generated_at = datetime.datetime.now(datetime.timezone.utc).isoformat()
     
@@ -251,7 +251,8 @@ def main() -> None:
         "PROJECT_VERSION": PROJECT_VERSION,
         "BUNDLE_VERSION": "2.0",
         "SCHEMA_VERSION": SCHEMA_VERSION,
-        "GIT_COMMIT": git_commit,
+        "GIT_COMMIT_SOURCE": git_commit_source,
+        "GIT_COMMIT": git_commit_source,
         "GENERATED_AT": generated_at,
         "GENERATOR_VERSION": COMPILER_VERSION,
         "SOURCE_HASH": source_hash

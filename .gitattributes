@@ -1,0 +1,19 @@
+# Auto-detect text files and normalize line endings to LF on commit
+* text=auto
+
+# Enforce LF line endings for all Markdown files
+*.md text eol=lf
+Not_Required_Upload/**/*.md text eol=lf
+CONSOLIDATED_5_FILE_SYSTEM/**/*.md text eol=lf
+CONSOLIDATED_9_FILE_SYSTEM/**/*.md text eol=lf
+AI_SKILL_IRA_col_final/**/*.md text eol=lf
+Knowledge_IRA_COL_FINAL/**/*.md text eol=lf
+docs/**/*.md text eol=lf
+
+# Enforce LF line endings for Python and Web assets
+*.py text eol=lf
+*.mjs text eol=lf
+*.json text eol=lf
+*.html text eol=lf
+*.css text eol=lf
+*.js text eol=lf
