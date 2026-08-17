@@ -1,7 +1,8 @@
 # 07_Knowledge_Base_Vol_3_Forensics_Moats_Banking
 
 > **IERL AI Equity OS — curated upload artifact**  
-> Compiler: `consolidate_project.py` v2.0 · Source documents: 8 · Secrets: excluded
+> Project Version: `0.4.0` · Bundle Version: `2.0` · Git Commit: `33f3193`  
+> Generated At: `2026-08-17T07:00:33.834392+00:00` · Source Hash: `311073031dcedc44` · Compiler: `consolidate_project.py` v2.0
 
 ## Operating contract
 

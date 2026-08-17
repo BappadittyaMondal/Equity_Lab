@@ -1,4 +1,4 @@
-# IERL OS v0.3.4-MASTER — Disaster Recovery Runbook
+# IERL OS v0.4.0-MASTER — Disaster Recovery Runbook
 
 This runbook documents operational disaster recovery procedures for the Hostinger Business (Frontend) + Hostinger VPS (FastAPI Backend) deployment.
 
@@ -43,7 +43,7 @@ systemctl start ierl-backend
 To roll back a production deployment to a known clean state:
 ```bash
 # 1. Checkout stable Git release tag
-git checkout tags/v0.3.4-MASTER
+git checkout tags/v0.4.0-MASTER
 
 # 2. Run preflight check
 python scripts/preflight_check.py

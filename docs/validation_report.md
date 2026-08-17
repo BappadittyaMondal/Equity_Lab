@@ -1,6 +1,6 @@
 # Overall Empirical Validation Report
 
-- **Version**: `0.3.4-MASTER`
+- **Version**: `0.4.0-MASTER`
 - **Generated At**: `2026-08-16 14:09:07 UTC`
 - **Sample Universe Count**: `8`
 - **Point-in-Time Integrity**: `VERIFIED (available_at <= analysis_date)`
