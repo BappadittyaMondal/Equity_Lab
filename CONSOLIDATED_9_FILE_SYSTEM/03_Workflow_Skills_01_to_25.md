@@ -1,8 +1,8 @@
 # 03_Workflow_Skills_01_to_25
 
 > **IERL AI Equity OS — curated upload artifact**  
-> Project Version: `0.4.0` · Bundle Version: `2.0` · Source Commit: `871475a`  
-> Generated At: `2026-08-19T05:46:16.944746+00:00` · Source Hash: `c8d950da0665d4c0` · Compiler: `consolidate_project.py` v2.0
+> Project Version: `0.4.0` · Bundle Version: `2.0` · Source Commit: `3fe3dc1`  
+> Generated At: `2026-08-19T07:22:37.360292+00:00` · Source Hash: `ef240d8c057f157a` · Compiler: `consolidate_project.py` v2.0
 
 ## Operating contract
 
@@ -19,7 +19,7 @@ This is a generated, read-only working volume. The separately maintained source 
 | Upload file | Primary use | Sources |
 |---|---|---:|
 | `01_System_Core_Instructions_Architecture.md` | 01 System Core Instructions Architecture | 8 |
-| `02_Engine_Contracts_Schemas_Registries.md` | 02 Engine Contracts Schemas Registries | 12 |
+| `02_Engine_Contracts_Schemas_Registries.md` | 02 Engine Contracts Schemas Registries | 15 |
 | `03_Workflow_Skills_01_to_25.md` | 03 Workflow Skills 01 to 25 | 1 |
 | `04_Analytical_Lens_Skills_26_to_41.md` | 04 Analytical Lens Skills 26 to 41 | 17 |
 | `05_Knowledge_Base_Vol_1_Economics_Financials.md` | 05 Knowledge Base Vol 1 Economics Financials | 12 |

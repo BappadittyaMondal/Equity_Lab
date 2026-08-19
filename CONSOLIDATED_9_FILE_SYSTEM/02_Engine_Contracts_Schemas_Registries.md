@@ -1,8 +1,8 @@
 # 02_Engine_Contracts_Schemas_Registries
 
 > **IERL AI Equity OS — curated upload artifact**  
-> Project Version: `0.4.0` · Bundle Version: `2.0` · Source Commit: `871475a`  
-> Generated At: `2026-08-19T05:46:16.944746+00:00` · Source Hash: `c8d950da0665d4c0` · Compiler: `consolidate_project.py` v2.0
+> Project Version: `0.4.0` · Bundle Version: `2.0` · Source Commit: `3fe3dc1`  
+> Generated At: `2026-08-19T07:22:37.360292+00:00` · Source Hash: `ef240d8c057f157a` · Compiler: `consolidate_project.py` v2.0
 
 ## Operating contract
 
@@ -19,7 +19,7 @@ This is a generated, read-only working volume. The separately maintained source 
 | Upload file | Primary use | Sources |
 |---|---|---:|
 | `01_System_Core_Instructions_Architecture.md` | 01 System Core Instructions Architecture | 8 |
-| `02_Engine_Contracts_Schemas_Registries.md` | 02 Engine Contracts Schemas Registries | 12 |
+| `02_Engine_Contracts_Schemas_Registries.md` | 02 Engine Contracts Schemas Registries | 15 |
 | `03_Workflow_Skills_01_to_25.md` | 03 Workflow Skills 01 to 25 | 1 |
 | `04_Analytical_Lens_Skills_26_to_41.md` | 04 Analytical Lens Skills 26 to 41 | 17 |
 | `05_Knowledge_Base_Vol_1_Economics_Financials.md` | 05 Knowledge Base Vol 1 Economics Financials | 12 |
@@ -52,6 +52,9 @@ The SHA-256 values cover the exact UTF-8 source payload, not this wrapper. Use t
 | 10 | `AI_Module_Registry_v_0_0.md` | 17,953 | `b040ffa2662d5b2882eae884615438b3f42523ad5e3705eed09fe13f4b84f037` |
 | 11 | `AI_Framework_Registry_v_0_0.md` | 9,689 | `f4e6af682e8e43484b09b8e6292c4cb619f77afa5852bb73ffa1fd632b627dd2` |
 | 12 | `AI_Conformance_Matrix_v_0_0.md` | 6,482 | `53aeb4b117858cebd43bfb84429ae25f1c217002afcd63589f0760389ec05519` |
+| 13 | `AI_E6_Quality_Growth_Screener_v_0_0.md` | 2,114 | `e951bc9256aaadd04b1cc04940577228e0397f3693291c0ecaba7e145789706e` |
+| 14 | `AI_Causal_Analysis_Engine_v_0_0.md` | 1,969 | `93714b75cdc21b1beef7e71bf381385301251b23c0a1e68dce696f3c55a4f9a8` |
+| 15 | `AI_Geopolitical_Risk_Engine_v_0_0.md` | 1,776 | `04d04e76beaf2f0edd7d95a4314bf83b318197173be9f6325608c4550f7c2272` |
 
 ---
 
@@ -9559,6 +9562,135 @@ Below is the authoritative conformance matrix mapping inputs, outputs, access ru
 **Dependencies:** AI_Object_Schemas_v_0.0.md, AI_Pipeline_Specification_v_0.0.md  
 **Consumed By:** IRA_Project_Validator_v1.0.py  
 <!-- END SYSTEM FILE 12: AI_Conformance_Matrix_v_0_0.md -->
+
+---
+
+<!-- BEGIN SYSTEM FILE 13: AI_E6_Quality_Growth_Screener_v_0_0.md | SHA256: e951bc9256aaadd04b1cc04940577228e0397f3693291c0ecaba7e145789706e -->
+## Embedded source 13: AI E6 Quality Growth Screener
+
+<!-- IERL-CANONICAL-METADATA v1.2 -->
+> **Canonical retrieval label:** E6 Quality-Growth Candidate Screener
+> **Role:** Universe pre-filter strategy
+> **Use when:** Screening candidates before multi-engine conviction synthesis.
+> **Evidence rule:** Preserve condition-level availability and distinguish a pre-filter from a recommendation.
+
+# E6 Quality-Growth Candidate Screener
+
+**Version:** v_0.0  
+**Status:** Production  
+**Category:** Universe Compounder Pre-Filter
+
+## 1. Purpose
+
+E6 screens an equity universe for quality-growth characteristics before a candidate is passed to the Arbiter and broader decision workflow. It is a narrowing mechanism, not a final investment call.
+
+## 2. Contract
+
+**Required input:** `symbol` and the available point-in-time fundamental, market, and governance observations.
+
+**Output:** A structured audit containing `total_conditions`, `conditions_passed`, `conditions_failed`, `conditions_unavailable`, condition-level evidence, and risk warnings.
+
+The implementation evaluates 28 quantitative and fundamental conditions. Every condition remains visible in the audit trail; unavailable observations are not silently converted into failures or passes.
+
+## 3. Operating Rules
+
+1. Normalize the symbol before lookup.
+2. Use point-in-time observations and preserve the relevant observation dates.
+3. Evaluate each quality, growth, financial-strength, valuation, and governance condition independently.
+4. Report missing inputs explicitly.
+5. Pass candidates onward for full analysis; never present the pre-filter result as a `BUY` recommendation.
+
+## 4. Risk And Governance
+
+A high pass count indicates alignment with the configured screen only. It does not establish intrinsic value, future returns, liquidity, suitability, or absence of fraud. Analysts must apply valuation, technical, forensic, sector, and macro checks before a conviction decision.
+
+## 5. Failure Handling
+
+If the required observation set is incomplete, return condition-level unavailable states and explain how missing data affects confidence. Do not invent values or use synthetic fallback observations.
+<!-- END SYSTEM FILE 13: AI_E6_Quality_Growth_Screener_v_0_0.md -->
+
+---
+
+<!-- BEGIN SYSTEM FILE 14: AI_Causal_Analysis_Engine_v_0_0.md | SHA256: 93714b75cdc21b1beef7e71bf381385301251b23c0a1e68dce696f3c55a4f9a8 -->
+## Embedded source 14: AI Causal Analysis Engine
+
+<!-- IERL-CANONICAL-METADATA v1.2 -->
+> **Canonical retrieval label:** Causal Analysis Engine
+> **Role:** Event-impact research engine
+> **Use when:** Estimating empirical post-event return relationships from historical observations.
+> **Evidence rule:** Treat associations as historical evidence, not proof of causation.
+
+# Causal Analysis Engine
+
+**Version:** v_0.0  
+**Status:** Production  
+**Category:** Research And Event Attribution
+
+## 1. Purpose
+
+The Causal Analysis Engine measures historical lead-lag relationships between corporate events and subsequent equity returns. Supported events include earnings releases, capex announcements, governance alerts, management changes, and other events stored in the research timeline.
+
+## 2. Contract
+
+**Inputs:** normalized `symbol`, optional `as_of` cutoff, a research timeline, and daily close history.
+
+**Windows:** five and twenty trading days after each alignable event.
+
+**Outputs:** `status`, `event_causal_relationships`, `net_causal_conviction_delta`, dated evidence, risks, and metadata. Each relationship includes event date and type, title, post-5D and post-20D returns, impact direction, and conviction delta.
+
+## 3. Method
+
+1. Load the point-in-time event timeline.
+2. Load up to five years of daily price history.
+3. Align each event to its event date or the next available trading date.
+4. Calculate post-event returns when the requested trading window exists.
+5. Classify the five-day impact as positive, negative, or neutral using configured thresholds.
+6. Aggregate non-zero deltas as the reported net causal conviction delta.
+
+## 4. Data Availability And Limits
+
+Return `DATA_UNAVAILABLE` when events, price history, close prices, 30 trading days, or alignable event windows are missing. Zero is an explicit unavailable-data delta, not evidence of neutrality. Historical event-return relationships can be confounded and must be combined with fundamental, valuation, technical, and macro evidence.
+<!-- END SYSTEM FILE 14: AI_Causal_Analysis_Engine_v_0_0.md -->
+
+---
+
+<!-- BEGIN SYSTEM FILE 15: AI_Geopolitical_Risk_Engine_v_0_0.md | SHA256: 04d04e76beaf2f0edd7d95a4314bf83b318197173be9f6325608c4550f7c2272 -->
+## Embedded source 15: AI Geopolitical Risk Engine
+
+<!-- IERL-CANONICAL-METADATA v1.2 -->
+> **Canonical retrieval label:** Geopolitical And Macro Risk Engine
+> **Role:** Point-in-time external-risk assessment
+> **Use when:** Testing macro, policy, trade, commodity, currency, and geopolitical exposure.
+> **Evidence rule:** Use observed research events and disclose missing triggers rather than assigning synthetic risk.
+
+# Geopolitical And Macro Risk Engine
+
+**Version:** v_0.0  
+**Status:** Production  
+**Category:** External Risk Assessment
+
+## 1. Purpose
+
+The engine evaluates macro-economic policy shocks, crude-oil volatility, tariff and duty changes, sanctions, foreign-exchange volatility, and geopolitical alerts that may affect an equity or its sector.
+
+## 2. Contract
+
+**Inputs:** normalized `symbol`, optional `as_of` cutoff, company sector data, and the point-in-time research timeline.
+
+**Outputs:** `status`, sector, sector sensitivity profile, `macro_risk_rating`, `active_triggers`, `conviction_penalty_pct`, dated evidence, and metadata.
+
+## 3. Method
+
+1. Load the company and timeline at the requested cutoff.
+2. Identify macro or geopolitical event types, including monetary policy, crude-oil shock, tariff change, sanctions, and FX volatility.
+3. Map known sectors to their primary external sensitivity.
+4. Count high or critical and moderate active triggers.
+5. Apply the configured capped conviction penalty and classify risk as low, moderate, or high.
+
+## 4. Data Availability And Limits
+
+Return `DATA_UNAVAILABLE` when no qualifying trigger is observed. The absence of a stored trigger is not proof that geopolitical risk is absent. Sector profiles are directional sensitivities, not forecasts; the result must be reviewed with current dated evidence, company-specific exposure, and scenario analysis.
+<!-- END SYSTEM FILE 15: AI_Geopolitical_Risk_Engine_v_0_0.md -->
 
 ---
 

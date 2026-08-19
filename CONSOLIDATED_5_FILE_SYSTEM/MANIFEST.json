@@ -3,17 +3,17 @@
     "PROJECT_VERSION": "0.4.0",
     "BUNDLE_VERSION": "2.0",
     "SCHEMA_VERSION": "1.0",
-    "GIT_COMMIT_SOURCE": "871475a",
-    "GIT_COMMIT": "871475a",
-    "GENERATED_AT": "2026-08-19T05:46:16.944746+00:00",
+    "GIT_COMMIT_SOURCE": "3fe3dc1",
+    "GIT_COMMIT": "3fe3dc1",
+    "GENERATED_AT": "2026-08-19T07:22:37.360292+00:00",
     "GENERATOR_VERSION": "2.0",
-    "SOURCE_HASH": "c8d950da0665d4c0773327e20f025ca9efdbd1b6448420daa2028c815f36f9d4"
+    "SOURCE_HASH": "ef240d8c057f157aa8826de09196e9e52c20915410440732aa58818d74a0a020"
   },
   "bundle_files": {
     "01_Master_System_Core_Instructions_Architecture.md": {
       "sources_count": 8,
       "output_bytes": 139171,
-      "sha256": "ba1660e9e2b81c1178b30b9ea0af41103e088c25ca0f8ae7b7adfc7d658d6968",
+      "sha256": "061c8b3fd9db7ee2c6544cb62cbcfab33def1e4200f1021d34e8bd469af4022c",
       "embedded_sources": [
         {
           "position": 1,
@@ -74,9 +74,9 @@
       ]
     },
     "02_Master_Engine_Contracts_Schemas_Registries.md": {
-      "sources_count": 12,
-      "output_bytes": 236245,
-      "sha256": "1423d3bf768403d55a0d714036c018f68700e6d3191e89fae9450154f07bfbe2",
+      "sources_count": 15,
+      "output_bytes": 243280,
+      "sha256": "53380c224daf16e26ebbf2dc2416ca5af6083b0a082f15cc9744487159652660",
       "embedded_sources": [
         {
           "position": 1,
@@ -161,13 +161,34 @@
           "source_path": "canonical_source/AI_Conformance_Matrix_v_0_0.md",
           "sha256": "53aeb4b117858cebd43bfb84429ae25f1c217002afcd63589f0760389ec05519",
           "bytes": 6482
+        },
+        {
+          "position": 13,
+          "source": "AI_E6_Quality_Growth_Screener_v_0_0.md",
+          "source_path": "canonical_source/AI_E6_Quality_Growth_Screener_v_0_0.md",
+          "sha256": "e951bc9256aaadd04b1cc04940577228e0397f3693291c0ecaba7e145789706e",
+          "bytes": 2114
+        },
+        {
+          "position": 14,
+          "source": "AI_Causal_Analysis_Engine_v_0_0.md",
+          "source_path": "canonical_source/AI_Causal_Analysis_Engine_v_0_0.md",
+          "sha256": "93714b75cdc21b1beef7e71bf381385301251b23c0a1e68dce696f3c55a4f9a8",
+          "bytes": 1969
+        },
+        {
+          "position": 15,
+          "source": "AI_Geopolitical_Risk_Engine_v_0_0.md",
+          "source_path": "canonical_source/AI_Geopolitical_Risk_Engine_v_0_0.md",
+          "sha256": "04d04e76beaf2f0edd7d95a4314bf83b318197173be9f6325608c4550f7c2272",
+          "bytes": 1776
         }
       ]
     },
     "03_Master_Skill_Library.md": {
       "sources_count": 18,
       "output_bytes": 621625,
-      "sha256": "70f239201a41351cf0799487fe38743a4888069a16b85c1b044254f99dc05ba9",
+      "sha256": "1dd38872bf0c29745aacf7dfacbadcb595a3e5124e7460673a9980a77aba7ffb",
       "embedded_sources": [
         {
           "position": 1,
@@ -300,7 +321,7 @@
     "04_Master_Knowledge_Base_Vol_1_Fundamentals_Valuation_Governance.md": {
       "sources_count": 24,
       "output_bytes": 167532,
-      "sha256": "78ae20deaf5f7f3ac61181abce2bba08b418cf86dcabc4e6b841617f05b1c543",
+      "sha256": "eb3b9927ef20b25d05d321f071b47f43e5db1d24ec58f2c50ac4ef380e85b0e3",
       "embedded_sources": [
         {
           "position": 1,
@@ -475,7 +496,7 @@
     "05_Master_Knowledge_Base_Vol_2_Sectors_Frameworks_Screening.md": {
       "sources_count": 27,
       "output_bytes": 216588,
-      "sha256": "908b077e91c84a21030625aa2546b0761d8978d650e2753e553422e74923a4a9",
+      "sha256": "f0e0da157839a6e599ab9be8423e9991a13ca2607cd833adb609acad0870befd",
       "embedded_sources": [
         {
           "position": 1,

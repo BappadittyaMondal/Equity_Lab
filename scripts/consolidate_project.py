@@ -53,6 +53,8 @@ FIVE_FILE_MAP = {
         "AI_Object_Schemas_v_0_0.md", "AI_Dependency_Map_v_0_0.md",
         "AI_Unified_Pattern_Taxonomy_v_0_0.md", "AI_Module_Registry_v_0_0.md",
         "AI_Framework_Registry_v_0_0.md", "AI_Conformance_Matrix_v_0_0.md",
+        "AI_E6_Quality_Growth_Screener_v_0_0.md", "AI_Causal_Analysis_Engine_v_0_0.md",
+        "AI_Geopolitical_Risk_Engine_v_0_0.md",
     ],
     "03_Master_Skill_Library.md": [
         "AI_SKILL_IRA_col_final/04_Skills_Reference_v_0_0.md",
