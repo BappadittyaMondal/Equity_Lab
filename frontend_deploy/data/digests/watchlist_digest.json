@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-08-19T05:46:55.727903+00:00",
+  "generated_at": "2026-08-19T19:11:11.583854+00:00",
   "data": {
     "TITAN.NS": {
       "symbol": "TITAN.NS",
@@ -24,7 +24,7 @@
         "D15"
       ],
       "confidence_tier": "Contested",
-      "timestamp": "2026-08-19T05:46:55.723848+00:00",
+      "timestamp": "2026-08-19T19:11:11.567299+00:00",
       "data_backed": true
     },
     "ITC.NS": {
@@ -50,7 +50,7 @@
         "D15"
       ],
       "confidence_tier": "Contested",
-      "timestamp": "2026-08-19T05:46:55.724471+00:00",
+      "timestamp": "2026-08-19T19:11:11.577825+00:00",
       "data_backed": true
     },
     "HINDUNILVR.NS": {
@@ -76,7 +76,7 @@
         "D15"
       ],
       "confidence_tier": "Contested",
-      "timestamp": "2026-08-19T05:46:55.724598+00:00",
+      "timestamp": "2026-08-19T19:11:11.578330+00:00",
       "data_backed": true
     },
     "TATAPOWER.NS": {
@@ -102,7 +102,7 @@
         "D15"
       ],
       "confidence_tier": "Contested",
-      "timestamp": "2026-08-19T05:46:55.724704+00:00",
+      "timestamp": "2026-08-19T19:11:11.578330+00:00",
       "data_backed": true
     },
     "POWERGRID.NS": {
@@ -128,7 +128,7 @@
         "D15"
       ],
       "confidence_tier": "Contested",
-      "timestamp": "2026-08-19T05:46:55.724803+00:00",
+      "timestamp": "2026-08-19T19:11:11.579344+00:00",
       "data_backed": true
     },
     "NTPC.NS": {
@@ -154,7 +154,7 @@
         "D15"
       ],
       "confidence_tier": "Contested",
-      "timestamp": "2026-08-19T05:46:55.724901+00:00",
+      "timestamp": "2026-08-19T19:11:11.579344+00:00",
       "data_backed": true
     },
     "BHARATFORG.NS": {
@@ -180,7 +180,7 @@
         "D15"
       ],
       "confidence_tier": "Contested",
-      "timestamp": "2026-08-19T05:46:55.725001+00:00",
+      "timestamp": "2026-08-19T19:11:11.579344+00:00",
       "data_backed": true
     },
     "TATAMOTORS.NS": {
@@ -206,7 +206,7 @@
         "D15"
       ],
       "confidence_tier": "Contested",
-      "timestamp": "2026-08-19T05:46:55.725096+00:00",
+      "timestamp": "2026-08-19T19:11:11.579344+00:00",
       "data_backed": true
     },
     "MARUTI.NS": {
@@ -232,7 +232,7 @@
         "D15"
       ],
       "confidence_tier": "Contested",
-      "timestamp": "2026-08-19T05:46:55.725192+00:00",
+      "timestamp": "2026-08-19T19:11:11.579344+00:00",
       "data_backed": true
     },
     "LT.NS": {
@@ -258,7 +258,7 @@
         "D15"
       ],
       "confidence_tier": "Contested",
-      "timestamp": "2026-08-19T05:46:55.725285+00:00",
+      "timestamp": "2026-08-19T19:11:11.579344+00:00",
       "data_backed": true
     },
     "BDL.NS": {
@@ -284,7 +284,7 @@
         "D15"
       ],
       "confidence_tier": "Contested",
-      "timestamp": "2026-08-19T05:46:55.725378+00:00",
+      "timestamp": "2026-08-19T19:11:11.579344+00:00",
       "data_backed": true
     },
     "BEL.NS": {
@@ -310,7 +310,7 @@
         "D15"
       ],
       "confidence_tier": "Contested",
-      "timestamp": "2026-08-19T05:46:55.725471+00:00",
+      "timestamp": "2026-08-19T19:11:11.579344+00:00",
       "data_backed": true
     },
     "HAL.NS": {
@@ -336,7 +336,7 @@
         "D15"
       ],
       "confidence_tier": "Contested",
-      "timestamp": "2026-08-19T05:46:55.725569+00:00",
+      "timestamp": "2026-08-19T19:11:11.579344+00:00",
       "data_backed": true
     },
     "DIVISLAB.NS": {
@@ -362,7 +362,7 @@
         "D15"
       ],
       "confidence_tier": "Contested",
-      "timestamp": "2026-08-19T05:46:55.725663+00:00",
+      "timestamp": "2026-08-19T19:11:11.580348+00:00",
       "data_backed": true
     },
     "CIPLA.NS": {
@@ -388,7 +388,7 @@
         "D15"
       ],
       "confidence_tier": "Contested",
-      "timestamp": "2026-08-19T05:46:55.725757+00:00",
+      "timestamp": "2026-08-19T19:11:11.580348+00:00",
       "data_backed": true
     },
     "DRREDDY.NS": {
@@ -414,7 +414,7 @@
         "D15"
       ],
       "confidence_tier": "Contested",
-      "timestamp": "2026-08-19T05:46:55.725850+00:00",
+      "timestamp": "2026-08-19T19:11:11.580348+00:00",
       "data_backed": true
     },
     "SUNPHARMA.NS": {
@@ -440,7 +440,7 @@
         "D15"
       ],
       "confidence_tier": "Contested",
-      "timestamp": "2026-08-19T05:46:55.725941+00:00",
+      "timestamp": "2026-08-19T19:11:11.580348+00:00",
       "data_backed": true
     },
     "BAJFINANCE.NS": {
@@ -466,7 +466,7 @@
         "D15"
       ],
       "confidence_tier": "Contested",
-      "timestamp": "2026-08-19T05:46:55.726033+00:00",
+      "timestamp": "2026-08-19T19:11:11.580348+00:00",
       "data_backed": true
     },
     "SBIN.NS": {
@@ -492,7 +492,7 @@
         "D15"
       ],
       "confidence_tier": "Contested",
-      "timestamp": "2026-08-19T05:46:55.726130+00:00",
+      "timestamp": "2026-08-19T19:11:11.580348+00:00",
       "data_backed": true
     },
     "KOTAKBANK.NS": {
@@ -518,7 +518,7 @@
         "D15"
       ],
       "confidence_tier": "Contested",
-      "timestamp": "2026-08-19T05:46:55.726222+00:00",
+      "timestamp": "2026-08-19T19:11:11.580348+00:00",
       "data_backed": true
     },
     "ICICIBANK.NS": {
@@ -544,7 +544,7 @@
         "D15"
       ],
       "confidence_tier": "Contested",
-      "timestamp": "2026-08-19T05:46:55.726312+00:00",
+      "timestamp": "2026-08-19T19:11:11.580348+00:00",
       "data_backed": true
     },
     "HDFCBANK.NS": {
@@ -570,7 +570,7 @@
         "D15"
       ],
       "confidence_tier": "Contested",
-      "timestamp": "2026-08-19T05:46:55.726401+00:00",
+      "timestamp": "2026-08-19T19:11:11.580348+00:00",
       "data_backed": true
     },
     "TECHM.NS": {
@@ -596,7 +596,7 @@
         "D15"
       ],
       "confidence_tier": "Contested",
-      "timestamp": "2026-08-19T05:46:55.726492+00:00",
+      "timestamp": "2026-08-19T19:11:11.580348+00:00",
       "data_backed": true
     },
     "HCLTECH.NS": {
@@ -622,7 +622,7 @@
         "D15"
       ],
       "confidence_tier": "Contested",
-      "timestamp": "2026-08-19T05:46:55.726582+00:00",
+      "timestamp": "2026-08-19T19:11:11.580348+00:00",
       "data_backed": true
     },
     "WIPRO.NS": {
@@ -648,7 +648,7 @@
         "D15"
       ],
       "confidence_tier": "Contested",
-      "timestamp": "2026-08-19T05:46:55.726675+00:00",
+      "timestamp": "2026-08-19T19:11:11.582348+00:00",
       "data_backed": true
     },
     "BPCL.NS": {
@@ -674,7 +674,7 @@
         "D15"
       ],
       "confidence_tier": "Contested",
-      "timestamp": "2026-08-19T05:46:55.726764+00:00",
+      "timestamp": "2026-08-19T19:11:11.582348+00:00",
       "data_backed": true
     },
     "ONGC.NS": {
@@ -700,7 +700,7 @@
         "D15"
       ],
       "confidence_tier": "Contested",
-      "timestamp": "2026-08-19T05:46:55.726856+00:00",
+      "timestamp": "2026-08-19T19:11:11.582348+00:00",
       "data_backed": true
     },
     "RELIANCE.NS": {
@@ -726,7 +726,7 @@
         "D15"
       ],
       "confidence_tier": "Contested",
-      "timestamp": "2026-08-19T05:46:55.726946+00:00",
+      "timestamp": "2026-08-19T19:11:11.582348+00:00",
       "data_backed": true
     },
     "TCS": {
@@ -772,7 +772,7 @@
         "D18"
       ],
       "confidence_tier": "Contested",
-      "timestamp": "2026-08-19T05:46:55.727099+00:00",
+      "timestamp": "2026-08-19T19:11:11.582348+00:00",
       "data_backed": false
     },
     "INFY.NS": {
@@ -809,7 +809,7 @@
         "D18"
       ],
       "confidence_tier": "Contested",
-      "timestamp": "2026-08-19T05:46:55.727474+00:00",
+      "timestamp": "2026-08-19T19:11:11.582348+00:00",
       "data_backed": false
     }
   }
