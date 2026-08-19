@@ -100,7 +100,11 @@ class Settings:
 
     # Market Data Settings
     MARKET_DATA_PRIMARY_PROVIDER: str = "yfinance"
-    # Cache TTLs for different data types (seconds)\n    CACHE_TTL_QUOTE_SEC: int = int(os.getenv("CACHE_TTL_QUOTE_SEC", "60"))  # default 60s\n    CACHE_TTL_FUNDAMENTALS_SEC: int = int(os.getenv("CACHE_TTL_FUNDAMENTALS_SEC", "300"))  # default 5min\n    # Price conflict tolerance for synthesis (percentage)\n    PRICE_CONFLICT_TOLERANCE_PCT: float = float(os.getenv("PRICE_CONFLICT_TOLERANCE_PCT", "5.0"))\n
+    # Cache TTLs for different data types (seconds)
+    CACHE_TTL_QUOTE_SEC: int = int(os.getenv("CACHE_TTL_QUOTE_SEC", "60"))  # default 60s
+    CACHE_TTL_FUNDAMENTALS_SEC: int = int(os.getenv("CACHE_TTL_FUNDAMENTALS_SEC", "300"))  # default 5min
+    # Price conflict tolerance for synthesis (percentage)
+    PRICE_CONFLICT_TOLERANCE_PCT: float = float(os.getenv("PRICE_CONFLICT_TOLERANCE_PCT", "5.0"))
 
 
 settings = Settings()

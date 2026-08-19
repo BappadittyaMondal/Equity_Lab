@@ -57,12 +57,30 @@ def run_saatvik_d18(symbol: str) -> StrategyRunResponse:
 
     sin_business_flag = (len(flagged_sin_categories) > 0)
 
-    # 2. Financial Hygiene & Governance Ratios
+    # 2. Financial Hygiene & Governance Ratios from ResearchDataStore
     pe_sane = (pe is None or 0.0 <= pe < 100.0)
 
-    debt_to_equity = 0.25
+    from app.services.research_data import ResearchDataStore
+    data_store = ResearchDataStore()
+    debt_to_equity = 0.0
     promoter_pledge_pct = 0.0
-    promoter_holding_pct = 58.5
+    promoter_holding_pct = 50.0
+    
+    try:
+        timeline = data_store.get_timeline(norm_symbol)
+        financials = timeline[1] if isinstance(timeline, tuple) and len(timeline) > 1 else []
+        ownership = timeline[4] if isinstance(timeline, tuple) and len(timeline) > 4 else []
+        
+        de_obs = [f for f in financials if f.metric.upper() in ("DE_RATIO", "DEBT_TO_EQUITY", "DEBT_EQUITY")]
+        if de_obs:
+            debt_to_equity = float(de_obs[-1].value)
+            
+        if ownership:
+            latest_own = ownership[-1]
+            promoter_holding_pct = float(getattr(latest_own, "promoter_pct", 50.0))
+            promoter_pledge_pct = float(getattr(latest_own, "promoter_pledge_pct", 0.0) or 0.0)
+    except Exception:
+        pass
 
     debt_hygiene_pass = (debt_to_equity <= 0.5)
     pledge_hygiene_pass = (promoter_pledge_pct <= 15.0)

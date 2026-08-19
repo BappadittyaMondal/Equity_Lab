@@ -12,7 +12,7 @@ import subprocess
 from pathlib import Path
 
 BASE_DIR = Path(__file__).resolve().parent.parent
-SOURCE_DIR = BASE_DIR / "Not_Required_Upload" / "Canonical_Source_84"
+SOURCE_DIR = BASE_DIR / "canonical_source"
 COMPILER_VERSION = "2.0"
 PROJECT_VERSION = "0.4.0"
 SCHEMA_VERSION = "1.0"
@@ -69,7 +69,7 @@ FIVE_FILE_MAP = {
         "AI_SKILL_IRA_col_final/AI_Portfolio_Construction_Skill.md",
         "AI_SKILL_IRA_col_final/AI_Small_to_Mid_Cap_SIP_Stocks_Analysis_Skill.md",
         "AI_SKILL_IRA_col_final/AI_Swing_Trading_Skill.md",
-        "AI_SKILL_IRA_col_final/AI_Technical_Analysis_Master_Skill_v_0_0.md",
+        "AI_SKILL_IRA_col_final/AI_Technical_Analysis_Master_Skill.md",
         "AI_SKILL_IRA_col_final/AI_Turnaround_Analysis_Skill.md",
         "AI_SKILL_IRA_col_final/AI_Uptrend_Momentum_Stock_Skill.md",
         "AI_SKILL_IRA_col_final/AI_Volume_Delivery_Analysis_Skill.md",
@@ -213,7 +213,14 @@ def build_master_files(mapping: dict, target_dir: Path, manifest_meta: dict) -> 
             if not payload.endswith("\n"):
                 chunks.append("\n")
             chunks.append(f"<!-- END SYSTEM FILE {position}: {Path(rel_file).name} -->\n\n---\n\n")
-            file_sources.append({"position": position, "source": rel_file, "sha256": digest, "bytes": byte_count})
+            source_path = f"canonical_source/{rel_file}".replace("\\", "/")
+            file_sources.append({
+                "position": position,
+                "source": rel_file,
+                "source_path": source_path,
+                "sha256": digest,
+                "bytes": byte_count
+            })
 
         output = "".join(chunks)
         (target_dir / master_filename).write_text(output, encoding="utf-8", newline="")

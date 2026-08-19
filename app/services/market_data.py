@@ -60,7 +60,7 @@ class YFinanceProvider(MarketDataProvider):
                 "fifty_two_week_low": float(info.get("fiftyTwoWeekLow") or price * 0.8),
                 "pe_ratio": float(info.get("trailingPE") or 22.0),
                 "change_percent": float(info.get("regularMarketChangePercent") or 0.0),
-                "timestamp": int(datetime.datetime.utcnow().timestamp()),
+                "timestamp": int(datetime.datetime.now(timezone.utc).timestamp()),
             }
         return await loop.run_in_executor(None, _fetch)
 
@@ -97,7 +97,7 @@ class AlphaVantageProvider(MarketDataProvider):
                 "symbol": symbol,
                 "price": price,
                 "currency": "USD",
-                "timestamp": int(datetime.datetime.utcnow().timestamp()),
+                "timestamp": int(datetime.datetime.now(timezone.utc).timestamp()),
             }
         return await loop.run_in_executor(None, _fetch)
 
@@ -153,7 +153,7 @@ def _store_in_cache(symbol: str, quote: Quote) -> None:
         try:
             conn.execute(
                 "INSERT OR REPLACE INTO market_cache VALUES (?, ?, ?)",
-                (symbol.upper(), json.dumps(quote), int(datetime.datetime.utcnow().timestamp())),
+                (symbol.upper(), json.dumps(quote), int(datetime.datetime.now(timezone.utc).timestamp())),
             )
             conn.commit()
         finally:
@@ -278,7 +278,7 @@ def get_history(symbol: str, period: str = "1y", interval: str = "1d"):
     import pandas as pd
     import numpy as np
 
-    dates = pd.date_range(end=datetime.datetime.utcnow(), periods=250, freq='B')
+    dates = pd.date_range(end=datetime.datetime.now(timezone.utc), periods=250, freq='B')
     close_prices = np.linspace(1000.0, 1300.0, 250)
     high_prices = close_prices * 1.02
     low_prices = close_prices * 0.98

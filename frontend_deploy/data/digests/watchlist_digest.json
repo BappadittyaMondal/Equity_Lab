@@ -1,6 +1,734 @@
 {
-  "generated_at": "2026-08-17T03:26:28.614026+00:00",
+  "generated_at": "2026-08-19T05:46:55.727903+00:00",
   "data": {
+    "TITAN.NS": {
+      "symbol": "TITAN.NS",
+      "verdict": "Watch",
+      "conviction_score": 45,
+      "primary_thesis": "TITAN.NS \u2014 Watch (Regime: VOLATILE).   \u2705 C9: C9 passed screening.   \u2705 C11: Beneish M-Score requires multi-period data.   \u26a0\ufe0f Risks from: B4, B5.   Data confidence: 80%.",
+      "contributing_engines": [
+        "C9",
+        "C11",
+        "C12",
+        "C13",
+        "C14",
+        "D17",
+        "D18"
+      ],
+      "contradicting_engines": [
+        "B4",
+        "B5",
+        "B6",
+        "B7",
+        "B8",
+        "D15"
+      ],
+      "confidence_tier": "Contested",
+      "timestamp": "2026-08-19T05:46:55.723848+00:00",
+      "data_backed": true
+    },
+    "ITC.NS": {
+      "symbol": "ITC.NS",
+      "verdict": "Watch",
+      "conviction_score": 45,
+      "primary_thesis": "ITC.NS \u2014 Watch (Regime: VOLATILE).   \u2705 C9: C9 passed screening.   \u2705 C11: Beneish M-Score requires multi-period data.   \u26a0\ufe0f Risks from: B4, B5.   Data confidence: 80%.",
+      "contributing_engines": [
+        "C9",
+        "C11",
+        "C12",
+        "C13",
+        "C14",
+        "D17",
+        "D18"
+      ],
+      "contradicting_engines": [
+        "B4",
+        "B5",
+        "B6",
+        "B7",
+        "B8",
+        "D15"
+      ],
+      "confidence_tier": "Contested",
+      "timestamp": "2026-08-19T05:46:55.724471+00:00",
+      "data_backed": true
+    },
+    "HINDUNILVR.NS": {
+      "symbol": "HINDUNILVR.NS",
+      "verdict": "Watch",
+      "conviction_score": 45,
+      "primary_thesis": "HINDUNILVR.NS \u2014 Watch (Regime: VOLATILE).   \u2705 C9: C9 passed screening.   \u2705 C11: Beneish M-Score requires multi-period data.   \u26a0\ufe0f Risks from: B4, B5.   Data confidence: 80%.",
+      "contributing_engines": [
+        "C9",
+        "C11",
+        "C12",
+        "C13",
+        "C14",
+        "D17",
+        "D18"
+      ],
+      "contradicting_engines": [
+        "B4",
+        "B5",
+        "B6",
+        "B7",
+        "B8",
+        "D15"
+      ],
+      "confidence_tier": "Contested",
+      "timestamp": "2026-08-19T05:46:55.724598+00:00",
+      "data_backed": true
+    },
+    "TATAPOWER.NS": {
+      "symbol": "TATAPOWER.NS",
+      "verdict": "Watch",
+      "conviction_score": 45,
+      "primary_thesis": "TATAPOWER.NS \u2014 Watch (Regime: VOLATILE).   \u2705 C9: C9 passed screening.   \u2705 C11: Beneish M-Score requires multi-period data.   \u26a0\ufe0f Risks from: B4, B5.   Data confidence: 80%.",
+      "contributing_engines": [
+        "C9",
+        "C11",
+        "C12",
+        "C13",
+        "C14",
+        "D17",
+        "D18"
+      ],
+      "contradicting_engines": [
+        "B4",
+        "B5",
+        "B6",
+        "B7",
+        "B8",
+        "D15"
+      ],
+      "confidence_tier": "Contested",
+      "timestamp": "2026-08-19T05:46:55.724704+00:00",
+      "data_backed": true
+    },
+    "POWERGRID.NS": {
+      "symbol": "POWERGRID.NS",
+      "verdict": "Watch",
+      "conviction_score": 45,
+      "primary_thesis": "POWERGRID.NS \u2014 Watch (Regime: VOLATILE).   \u2705 C9: C9 passed screening.   \u2705 C11: Beneish M-Score requires multi-period data.   \u26a0\ufe0f Risks from: B4, B5.   Data confidence: 80%.",
+      "contributing_engines": [
+        "C9",
+        "C11",
+        "C12",
+        "C13",
+        "C14",
+        "D17",
+        "D18"
+      ],
+      "contradicting_engines": [
+        "B4",
+        "B5",
+        "B6",
+        "B7",
+        "B8",
+        "D15"
+      ],
+      "confidence_tier": "Contested",
+      "timestamp": "2026-08-19T05:46:55.724803+00:00",
+      "data_backed": true
+    },
+    "NTPC.NS": {
+      "symbol": "NTPC.NS",
+      "verdict": "Watch",
+      "conviction_score": 45,
+      "primary_thesis": "NTPC.NS \u2014 Watch (Regime: VOLATILE).   \u2705 C9: C9 passed screening.   \u2705 C11: Beneish M-Score requires multi-period data.   \u26a0\ufe0f Risks from: B4, B5.   Data confidence: 80%.",
+      "contributing_engines": [
+        "C9",
+        "C11",
+        "C12",
+        "C13",
+        "C14",
+        "D17",
+        "D18"
+      ],
+      "contradicting_engines": [
+        "B4",
+        "B5",
+        "B6",
+        "B7",
+        "B8",
+        "D15"
+      ],
+      "confidence_tier": "Contested",
+      "timestamp": "2026-08-19T05:46:55.724901+00:00",
+      "data_backed": true
+    },
+    "BHARATFORG.NS": {
+      "symbol": "BHARATFORG.NS",
+      "verdict": "Watch",
+      "conviction_score": 45,
+      "primary_thesis": "BHARATFORG.NS \u2014 Watch (Regime: VOLATILE).   \u2705 C9: C9 passed screening.   \u2705 C11: Beneish M-Score requires multi-period data.   \u26a0\ufe0f Risks from: B4, B5.   Data confidence: 80%.",
+      "contributing_engines": [
+        "C9",
+        "C11",
+        "C12",
+        "C13",
+        "C14",
+        "D17",
+        "D18"
+      ],
+      "contradicting_engines": [
+        "B4",
+        "B5",
+        "B6",
+        "B7",
+        "B8",
+        "D15"
+      ],
+      "confidence_tier": "Contested",
+      "timestamp": "2026-08-19T05:46:55.725001+00:00",
+      "data_backed": true
+    },
+    "TATAMOTORS.NS": {
+      "symbol": "TATAMOTORS.NS",
+      "verdict": "Avoid",
+      "conviction_score": 11,
+      "primary_thesis": "TATAMOTORS.NS \u2014 Avoid (Regime: VOLATILE).   \u2705 C9: C9 passed screening.   \u2705 C11: Beneish M-Score requires multi-period data.   \u26a0\ufe0f Risks from: B4, B5.   Data confidence: 30%.",
+      "contributing_engines": [
+        "C9",
+        "C11",
+        "C12",
+        "C13",
+        "C14",
+        "D17",
+        "D18"
+      ],
+      "contradicting_engines": [
+        "B4",
+        "B5",
+        "B6",
+        "B7",
+        "B8",
+        "D15"
+      ],
+      "confidence_tier": "Contested",
+      "timestamp": "2026-08-19T05:46:55.725096+00:00",
+      "data_backed": true
+    },
+    "MARUTI.NS": {
+      "symbol": "MARUTI.NS",
+      "verdict": "Watch",
+      "conviction_score": 45,
+      "primary_thesis": "MARUTI.NS \u2014 Watch (Regime: VOLATILE).   \u2705 C9: C9 passed screening.   \u2705 C11: Beneish M-Score requires multi-period data.   \u26a0\ufe0f Risks from: B4, B5.   Data confidence: 80%.",
+      "contributing_engines": [
+        "C9",
+        "C11",
+        "C12",
+        "C13",
+        "C14",
+        "D17",
+        "D18"
+      ],
+      "contradicting_engines": [
+        "B4",
+        "B5",
+        "B6",
+        "B7",
+        "B8",
+        "D15"
+      ],
+      "confidence_tier": "Contested",
+      "timestamp": "2026-08-19T05:46:55.725192+00:00",
+      "data_backed": true
+    },
+    "LT.NS": {
+      "symbol": "LT.NS",
+      "verdict": "Watch",
+      "conviction_score": 45,
+      "primary_thesis": "LT.NS \u2014 Watch (Regime: VOLATILE).   \u2705 C9: C9 passed screening.   \u2705 C11: Beneish M-Score requires multi-period data.   \u26a0\ufe0f Risks from: B4, B5.   Data confidence: 80%.",
+      "contributing_engines": [
+        "C9",
+        "C11",
+        "C12",
+        "C13",
+        "C14",
+        "D17",
+        "D18"
+      ],
+      "contradicting_engines": [
+        "B4",
+        "B5",
+        "B6",
+        "B7",
+        "B8",
+        "D15"
+      ],
+      "confidence_tier": "Contested",
+      "timestamp": "2026-08-19T05:46:55.725285+00:00",
+      "data_backed": true
+    },
+    "BDL.NS": {
+      "symbol": "BDL.NS",
+      "verdict": "Watch",
+      "conviction_score": 45,
+      "primary_thesis": "BDL.NS \u2014 Watch (Regime: VOLATILE).   \u2705 C9: C9 passed screening.   \u2705 C11: Beneish M-Score requires multi-period data.   \u26a0\ufe0f Risks from: B4, B5.   Data confidence: 80%.",
+      "contributing_engines": [
+        "C9",
+        "C11",
+        "C12",
+        "C13",
+        "C14",
+        "D17",
+        "D18"
+      ],
+      "contradicting_engines": [
+        "B4",
+        "B5",
+        "B6",
+        "B7",
+        "B8",
+        "D15"
+      ],
+      "confidence_tier": "Contested",
+      "timestamp": "2026-08-19T05:46:55.725378+00:00",
+      "data_backed": true
+    },
+    "BEL.NS": {
+      "symbol": "BEL.NS",
+      "verdict": "Watch",
+      "conviction_score": 45,
+      "primary_thesis": "BEL.NS \u2014 Watch (Regime: VOLATILE).   \u2705 C9: C9 passed screening.   \u2705 C11: Beneish M-Score requires multi-period data.   \u26a0\ufe0f Risks from: B4, B5.   Data confidence: 80%.",
+      "contributing_engines": [
+        "C9",
+        "C11",
+        "C12",
+        "C13",
+        "C14",
+        "D17",
+        "D18"
+      ],
+      "contradicting_engines": [
+        "B4",
+        "B5",
+        "B6",
+        "B7",
+        "B8",
+        "D15"
+      ],
+      "confidence_tier": "Contested",
+      "timestamp": "2026-08-19T05:46:55.725471+00:00",
+      "data_backed": true
+    },
+    "HAL.NS": {
+      "symbol": "HAL.NS",
+      "verdict": "Watch",
+      "conviction_score": 45,
+      "primary_thesis": "HAL.NS \u2014 Watch (Regime: VOLATILE).   \u2705 C9: C9 passed screening.   \u2705 C11: Beneish M-Score requires multi-period data.   \u26a0\ufe0f Risks from: B4, B5.   Data confidence: 80%.",
+      "contributing_engines": [
+        "C9",
+        "C11",
+        "C12",
+        "C13",
+        "C14",
+        "D17",
+        "D18"
+      ],
+      "contradicting_engines": [
+        "B4",
+        "B5",
+        "B6",
+        "B7",
+        "B8",
+        "D15"
+      ],
+      "confidence_tier": "Contested",
+      "timestamp": "2026-08-19T05:46:55.725569+00:00",
+      "data_backed": true
+    },
+    "DIVISLAB.NS": {
+      "symbol": "DIVISLAB.NS",
+      "verdict": "Watch",
+      "conviction_score": 45,
+      "primary_thesis": "DIVISLAB.NS \u2014 Watch (Regime: VOLATILE).   \u2705 C9: C9 passed screening.   \u2705 C11: Beneish M-Score requires multi-period data.   \u26a0\ufe0f Risks from: B4, B5.   Data confidence: 80%.",
+      "contributing_engines": [
+        "C9",
+        "C11",
+        "C12",
+        "C13",
+        "C14",
+        "D17",
+        "D18"
+      ],
+      "contradicting_engines": [
+        "B4",
+        "B5",
+        "B6",
+        "B7",
+        "B8",
+        "D15"
+      ],
+      "confidence_tier": "Contested",
+      "timestamp": "2026-08-19T05:46:55.725663+00:00",
+      "data_backed": true
+    },
+    "CIPLA.NS": {
+      "symbol": "CIPLA.NS",
+      "verdict": "Watch",
+      "conviction_score": 45,
+      "primary_thesis": "CIPLA.NS \u2014 Watch (Regime: VOLATILE).   \u2705 C9: C9 passed screening.   \u2705 C11: Beneish M-Score requires multi-period data.   \u26a0\ufe0f Risks from: B4, B5.   Data confidence: 80%.",
+      "contributing_engines": [
+        "C9",
+        "C11",
+        "C12",
+        "C13",
+        "C14",
+        "D17",
+        "D18"
+      ],
+      "contradicting_engines": [
+        "B4",
+        "B5",
+        "B6",
+        "B7",
+        "B8",
+        "D15"
+      ],
+      "confidence_tier": "Contested",
+      "timestamp": "2026-08-19T05:46:55.725757+00:00",
+      "data_backed": true
+    },
+    "DRREDDY.NS": {
+      "symbol": "DRREDDY.NS",
+      "verdict": "Watch",
+      "conviction_score": 45,
+      "primary_thesis": "DRREDDY.NS \u2014 Watch (Regime: VOLATILE).   \u2705 C9: C9 passed screening.   \u2705 C11: Beneish M-Score requires multi-period data.   \u26a0\ufe0f Risks from: B4, B5.   Data confidence: 80%.",
+      "contributing_engines": [
+        "C9",
+        "C11",
+        "C12",
+        "C13",
+        "C14",
+        "D17",
+        "D18"
+      ],
+      "contradicting_engines": [
+        "B4",
+        "B5",
+        "B6",
+        "B7",
+        "B8",
+        "D15"
+      ],
+      "confidence_tier": "Contested",
+      "timestamp": "2026-08-19T05:46:55.725850+00:00",
+      "data_backed": true
+    },
+    "SUNPHARMA.NS": {
+      "symbol": "SUNPHARMA.NS",
+      "verdict": "Watch",
+      "conviction_score": 45,
+      "primary_thesis": "SUNPHARMA.NS \u2014 Watch (Regime: VOLATILE).   \u2705 C9: C9 passed screening.   \u2705 C11: Beneish M-Score requires multi-period data.   \u26a0\ufe0f Risks from: B4, B5.   Data confidence: 80%.",
+      "contributing_engines": [
+        "C9",
+        "C11",
+        "C12",
+        "C13",
+        "C14",
+        "D17",
+        "D18"
+      ],
+      "contradicting_engines": [
+        "B4",
+        "B5",
+        "B6",
+        "B7",
+        "B8",
+        "D15"
+      ],
+      "confidence_tier": "Contested",
+      "timestamp": "2026-08-19T05:46:55.725941+00:00",
+      "data_backed": true
+    },
+    "BAJFINANCE.NS": {
+      "symbol": "BAJFINANCE.NS",
+      "verdict": "Watch",
+      "conviction_score": 45,
+      "primary_thesis": "BAJFINANCE.NS \u2014 Watch (Regime: VOLATILE).   \u2705 C9: C9 passed screening.   \u2705 C11: Beneish M-Score requires multi-period data.   \u26a0\ufe0f Risks from: B4, B5.   Data confidence: 80%.",
+      "contributing_engines": [
+        "C9",
+        "C11",
+        "C12",
+        "C13",
+        "C14",
+        "D17",
+        "D18"
+      ],
+      "contradicting_engines": [
+        "B4",
+        "B5",
+        "B6",
+        "B7",
+        "B8",
+        "D15"
+      ],
+      "confidence_tier": "Contested",
+      "timestamp": "2026-08-19T05:46:55.726033+00:00",
+      "data_backed": true
+    },
+    "SBIN.NS": {
+      "symbol": "SBIN.NS",
+      "verdict": "Watch",
+      "conviction_score": 45,
+      "primary_thesis": "SBIN.NS \u2014 Watch (Regime: VOLATILE).   \u2705 C9: C9 passed screening.   \u2705 C11: Beneish M-Score requires multi-period data.   \u26a0\ufe0f Risks from: B4, B5.   Data confidence: 80%.",
+      "contributing_engines": [
+        "C9",
+        "C11",
+        "C12",
+        "C13",
+        "C14",
+        "D17",
+        "D18"
+      ],
+      "contradicting_engines": [
+        "B4",
+        "B5",
+        "B6",
+        "B7",
+        "B8",
+        "D15"
+      ],
+      "confidence_tier": "Contested",
+      "timestamp": "2026-08-19T05:46:55.726130+00:00",
+      "data_backed": true
+    },
+    "KOTAKBANK.NS": {
+      "symbol": "KOTAKBANK.NS",
+      "verdict": "Avoid",
+      "conviction_score": 37,
+      "primary_thesis": "KOTAKBANK.NS \u2014 Avoid (Regime: VOLATILE).   \u2705 C9: C9 passed screening.   \u2705 C11: Beneish M-Score requires multi-period data.   \u26a0\ufe0f Risks from: B4, B5.   Data confidence: 68%.",
+      "contributing_engines": [
+        "C9",
+        "C11",
+        "C12",
+        "C13",
+        "C14",
+        "D17",
+        "D18"
+      ],
+      "contradicting_engines": [
+        "B4",
+        "B5",
+        "B6",
+        "B7",
+        "B8",
+        "D15"
+      ],
+      "confidence_tier": "Contested",
+      "timestamp": "2026-08-19T05:46:55.726222+00:00",
+      "data_backed": true
+    },
+    "ICICIBANK.NS": {
+      "symbol": "ICICIBANK.NS",
+      "verdict": "Watch",
+      "conviction_score": 45,
+      "primary_thesis": "ICICIBANK.NS \u2014 Watch (Regime: VOLATILE).   \u2705 C9: C9 passed screening.   \u2705 C11: Beneish M-Score requires multi-period data.   \u26a0\ufe0f Risks from: B4, B5.   Data confidence: 80%.",
+      "contributing_engines": [
+        "C9",
+        "C11",
+        "C12",
+        "C13",
+        "C14",
+        "D17",
+        "D18"
+      ],
+      "contradicting_engines": [
+        "B4",
+        "B5",
+        "B6",
+        "B7",
+        "B8",
+        "D15"
+      ],
+      "confidence_tier": "Contested",
+      "timestamp": "2026-08-19T05:46:55.726312+00:00",
+      "data_backed": true
+    },
+    "HDFCBANK.NS": {
+      "symbol": "HDFCBANK.NS",
+      "verdict": "Watch",
+      "conviction_score": 45,
+      "primary_thesis": "HDFCBANK.NS \u2014 Watch (Regime: VOLATILE).   \u2705 C9: C9 passed screening.   \u2705 C11: Beneish M-Score requires multi-period data.   \u26a0\ufe0f Risks from: B4, B5.   Data confidence: 80%.",
+      "contributing_engines": [
+        "C9",
+        "C11",
+        "C12",
+        "C13",
+        "C14",
+        "D17",
+        "D18"
+      ],
+      "contradicting_engines": [
+        "B4",
+        "B5",
+        "B6",
+        "B7",
+        "B8",
+        "D15"
+      ],
+      "confidence_tier": "Contested",
+      "timestamp": "2026-08-19T05:46:55.726401+00:00",
+      "data_backed": true
+    },
+    "TECHM.NS": {
+      "symbol": "TECHM.NS",
+      "verdict": "Watch",
+      "conviction_score": 45,
+      "primary_thesis": "TECHM.NS \u2014 Watch (Regime: VOLATILE).   \u2705 C9: C9 passed screening.   \u2705 C11: Beneish M-Score requires multi-period data.   \u26a0\ufe0f Risks from: B4, B5.   Data confidence: 80%.",
+      "contributing_engines": [
+        "C9",
+        "C11",
+        "C12",
+        "C13",
+        "C14",
+        "D17",
+        "D18"
+      ],
+      "contradicting_engines": [
+        "B4",
+        "B5",
+        "B6",
+        "B7",
+        "B8",
+        "D15"
+      ],
+      "confidence_tier": "Contested",
+      "timestamp": "2026-08-19T05:46:55.726492+00:00",
+      "data_backed": true
+    },
+    "HCLTECH.NS": {
+      "symbol": "HCLTECH.NS",
+      "verdict": "Watch",
+      "conviction_score": 45,
+      "primary_thesis": "HCLTECH.NS \u2014 Watch (Regime: VOLATILE).   \u2705 C9: C9 passed screening.   \u2705 C11: Beneish M-Score requires multi-period data.   \u26a0\ufe0f Risks from: B4, B5.   Data confidence: 80%.",
+      "contributing_engines": [
+        "C9",
+        "C11",
+        "C12",
+        "C13",
+        "C14",
+        "D17",
+        "D18"
+      ],
+      "contradicting_engines": [
+        "B4",
+        "B5",
+        "B6",
+        "B7",
+        "B8",
+        "D15"
+      ],
+      "confidence_tier": "Contested",
+      "timestamp": "2026-08-19T05:46:55.726582+00:00",
+      "data_backed": true
+    },
+    "WIPRO.NS": {
+      "symbol": "WIPRO.NS",
+      "verdict": "Watch",
+      "conviction_score": 45,
+      "primary_thesis": "WIPRO.NS \u2014 Watch (Regime: VOLATILE).   \u2705 C9: C9 passed screening.   \u2705 C11: Beneish M-Score requires multi-period data.   \u26a0\ufe0f Risks from: B4, B5.   Data confidence: 80%.",
+      "contributing_engines": [
+        "C9",
+        "C11",
+        "C12",
+        "C13",
+        "C14",
+        "D17",
+        "D18"
+      ],
+      "contradicting_engines": [
+        "B4",
+        "B5",
+        "B6",
+        "B7",
+        "B8",
+        "D15"
+      ],
+      "confidence_tier": "Contested",
+      "timestamp": "2026-08-19T05:46:55.726675+00:00",
+      "data_backed": true
+    },
+    "BPCL.NS": {
+      "symbol": "BPCL.NS",
+      "verdict": "Watch",
+      "conviction_score": 45,
+      "primary_thesis": "BPCL.NS \u2014 Watch (Regime: VOLATILE).   \u2705 C9: C9 passed screening.   \u2705 C11: Beneish M-Score requires multi-period data.   \u26a0\ufe0f Risks from: B4, B5.   Data confidence: 80%.",
+      "contributing_engines": [
+        "C9",
+        "C11",
+        "C12",
+        "C13",
+        "C14",
+        "D17",
+        "D18"
+      ],
+      "contradicting_engines": [
+        "B4",
+        "B5",
+        "B6",
+        "B7",
+        "B8",
+        "D15"
+      ],
+      "confidence_tier": "Contested",
+      "timestamp": "2026-08-19T05:46:55.726764+00:00",
+      "data_backed": true
+    },
+    "ONGC.NS": {
+      "symbol": "ONGC.NS",
+      "verdict": "Watch",
+      "conviction_score": 45,
+      "primary_thesis": "ONGC.NS \u2014 Watch (Regime: VOLATILE).   \u2705 C9: C9 passed screening.   \u2705 C11: Beneish M-Score requires multi-period data.   \u26a0\ufe0f Risks from: B4, B5.   Data confidence: 80%.",
+      "contributing_engines": [
+        "C9",
+        "C11",
+        "C12",
+        "C13",
+        "C14",
+        "D17",
+        "D18"
+      ],
+      "contradicting_engines": [
+        "B4",
+        "B5",
+        "B6",
+        "B7",
+        "B8",
+        "D15"
+      ],
+      "confidence_tier": "Contested",
+      "timestamp": "2026-08-19T05:46:55.726856+00:00",
+      "data_backed": true
+    },
+    "RELIANCE.NS": {
+      "symbol": "RELIANCE.NS",
+      "verdict": "Watch",
+      "conviction_score": 45,
+      "primary_thesis": "RELIANCE.NS \u2014 Watch (Regime: VOLATILE).   \u2705 C9: C9 passed screening.   \u2705 C11: Beneish M-Score requires multi-period data.   \u26a0\ufe0f Risks from: B4, B5.   Data confidence: 80%.",
+      "contributing_engines": [
+        "C9",
+        "C11",
+        "C12",
+        "C13",
+        "C14",
+        "D17",
+        "D18"
+      ],
+      "contradicting_engines": [
+        "B4",
+        "B5",
+        "B6",
+        "B7",
+        "B8",
+        "D15"
+      ],
+      "confidence_tier": "Contested",
+      "timestamp": "2026-08-19T05:46:55.726946+00:00",
+      "data_backed": true
+    },
     "TCS": {
       "symbol": "TCS",
       "verdict": "Avoid",
@@ -44,7 +772,8 @@
         "D18"
       ],
       "confidence_tier": "Contested",
-      "timestamp": "2026-08-17T03:26:28.612839+00:00"
+      "timestamp": "2026-08-19T05:46:55.727099+00:00",
+      "data_backed": false
     },
     "INFY.NS": {
       "symbol": "INFY.NS",
@@ -80,7 +809,8 @@
         "D18"
       ],
       "confidence_tier": "Contested",
-      "timestamp": "2026-08-17T03:26:28.613541+00:00"
+      "timestamp": "2026-08-19T05:46:55.727474+00:00",
+      "data_backed": false
     }
   }
 }

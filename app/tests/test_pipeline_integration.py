@@ -51,6 +51,13 @@ def test_full_pipeline_roundtrip():
 
 
 def test_watchlist_digest_endpoint():
+    import sys, subprocess
+    from pathlib import Path
+    script_path = Path(__file__).resolve().parents[2] / "scripts" / "nightly_watchlist_scan.py"
+    digest_path = Path(__file__).resolve().parents[2] / "frontend_deploy" / "data" / "digests" / "watchlist_digest.json"
+    if not digest_path.exists():
+        subprocess.run([sys.executable, str(script_path)], capture_output=True, text=True)
+
     resp = client.get("/api/v1/digest/watchlist")
     assert resp.status_code == 200
     data = resp.json()

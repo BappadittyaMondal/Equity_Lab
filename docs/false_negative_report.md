@@ -1,7 +1,6 @@
 # False Negative Error Analysis Report
 
-- **Evaluated At**: `2026-08-16 14:09:07 UTC`
-- **Total False Negatives Identified**: `1`
+- **Evaluated At**: `2026-08-19 05:46:28 UTC`
+- **Total False Negatives Identified**: `0`
 
 ## Missed Opportunities (Score < 50 with >25% Forward Return)
-- **Symbol**: `SURPRISE_COMP.NS` | **Score**: `42` | **Return**: `28.0%` | **Root Cause**: `Turnaround acceleration missed by technical filters.`

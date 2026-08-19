@@ -26,11 +26,24 @@ logging.basicConfig(
 )
 logger = logging.getLogger("seed_watchlist")
 
-# Default seed symbols if watchlist is empty
+# Default seed symbols covering Nifty-50 sectors: Banking, Pharma, Defence, Manufacturing, Power, IT, FMCG, Energy
 DEFAULT_SEED_SYMBOLS = [
-    "RELIANCE", "TCS", "INFY", "HDFCBANK", "ICICIBANK",
-    "KOTAKBANK", "HINDUNILVR", "ITC", "SBIN", "BAJFINANCE",
-    "SUNPHARMA", "LT", "MARUTI", "TATAMOTORS", "WIPRO",
+    # Energy / Oil & Gas
+    "RELIANCE", "ONGC", "BPCL",
+    # IT & Technology
+    "TCS", "INFY", "WIPRO", "HCLTECH", "TECHM",
+    # Banking & Financial Services
+    "HDFCBANK", "ICICIBANK", "KOTAKBANK", "SBIN", "BAJFINANCE",
+    # Pharma & Healthcare
+    "SUNPHARMA", "DRREDDY", "CIPLA", "DIVISLAB",
+    # Defence & Aerospace
+    "HAL", "BEL", "BDL",
+    # Manufacturing, Industrials & Auto
+    "LT", "MARUTI", "TATAMOTORS", "BHARATFORG",
+    # Power & Utilities
+    "NTPC", "POWERGRID", "TATAPOWER",
+    # Consumer & FMCG
+    "HINDUNILVR", "ITC", "TITAN"
 ]
 
 
@@ -52,9 +65,12 @@ def run_seed(symbols: list[str] | None = None, price_period: str = "2y") -> dict
     if symbols is None:
         watchlist = store.get_watchlist()
         symbols = [item["symbol"].replace(".NS", "") for item in watchlist]
-        if not symbols:
-            logger.info("Watchlist empty, using default seed symbols")
-            symbols = DEFAULT_SEED_SYMBOLS
+        if len(symbols) < 20:
+            logger.info("Watchlist has only %d symbols — seeding representative 30-symbol universe into watchlist table", len(symbols))
+            for sym in DEFAULT_SEED_SYMBOLS:
+                store.add_to_watchlist(sym, company_name=f"{sym} Ltd", target_price=0.0, notes="Seed universe")
+            watchlist = store.get_watchlist()
+            symbols = [item["symbol"].replace(".NS", "") for item in watchlist]
 
     logger.info("=" * 60)
     logger.info("IERL Watchlist Seed — %d symbols", len(symbols))

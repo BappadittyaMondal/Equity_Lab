@@ -80,4 +80,4 @@ Do not turn a relative comparison, screen, or model output into personalised fin
 
 ## 7. Source maintenance rules
 
-The 89 sources in `Not_Required_Upload/Canonical_Source_84` are the editable source of truth. The 5- and 9-file folders are generated upload artifacts. Update a canonical source, run the compiler, then verify source manifests before uploading. Credentials and local integration files remain outside both source and upload bundles.
+The 89 sources in `canonical_source` are the editable source of truth. The 5- and 9-file folders are generated upload artifacts. Update a canonical source, run the compiler, then verify source manifests before uploading. Credentials and local integration files remain outside both source and upload bundles.

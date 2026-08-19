@@ -24,6 +24,7 @@ class PredictionRecord(BaseModel):
     reference_price: Optional[float] = None
     thesis: str
     model_version: str = "1.0"
+    conviction_call_id: Optional[int] = None
 
 
 class OutcomeRecord(BaseModel):
@@ -49,6 +50,7 @@ class PredictionLedgerService:
         thesis: str,
         reference_price: Optional[float] = None,
         model_version: str = "1.0",
+        conviction_call_id: Optional[int] = None,
     ) -> PredictionRecord:
         """Log a new live conviction call into prediction_ledger."""
         normalized = normalize_symbol(symbol)
@@ -58,10 +60,10 @@ class PredictionLedgerService:
         cursor = conn.execute(
             """
             INSERT INTO prediction_ledger
-            (symbol, timestamp, score, verdict, confidence, reference_price, thesis, model_version, created_at)
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+            (symbol, timestamp, score, verdict, confidence, reference_price, thesis, model_version, created_at, conviction_call_id)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
             """,
-            (normalized, now_iso, score, verdict, confidence, reference_price, thesis, model_version, now_iso),
+            (normalized, now_iso, score, verdict, confidence, reference_price, thesis, model_version, now_iso, conviction_call_id),
         )
         prediction_id = cursor.lastrowid
         conn.commit()

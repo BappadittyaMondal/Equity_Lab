@@ -43,9 +43,9 @@ def run_reverse_dcf_c9(
     norm_symbol = normalize_symbol(symbol)
     quote = get_quote(norm_symbol)
 
-    spot = _safe_float(quote.get("price") if isinstance(quote, dict) else getattr(quote, "price", 1000.0), 1000.0)
-    pe_raw = quote.get("pe_ratio") if isinstance(quote, dict) else getattr(quote, "pe_ratio", 25.0)
-    pe = _safe_float(pe_raw, 25.0) or 25.0
+    spot = _safe_float(quote.get("price") if isinstance(quote, dict) else getattr(quote, "price", 0.0), 0.0)
+    pe_raw = quote.get("pe_ratio") if isinstance(quote, dict) else getattr(quote, "pe_ratio", 0.0)
+    pe = _safe_float(pe_raw, 0.0)
 
     # 1. Market-Implied CAGR Calculation (Gordon Growth / DCF Approximation)
     if pe > 0:

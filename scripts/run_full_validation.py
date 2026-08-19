@@ -26,16 +26,22 @@ DOCS_DIR.mkdir(parents=True, exist_ok=True)
 def generate_reports():
     print("=== Running IERL Phase 4 Empirical Validation Suite ===")
 
-    sample_universe = [
-        {"symbol": "RELIANCE.NS", "conviction_score": 92, "forward_return": 34.5, "benchmark_return": 12.0, "contributing_engines": ["E1", "E4", "D15"]},
-        {"symbol": "TCS.NS", "conviction_score": 84, "forward_return": 22.0, "benchmark_return": 10.0, "contributing_engines": ["E1", "C9"]},
-        {"symbol": "INFY.NS", "conviction_score": 78, "forward_return": 16.5, "benchmark_return": 10.0, "contributing_engines": ["E1", "B8"]},
-        {"symbol": "HDFCBANK.NS", "conviction_score": 68, "forward_return": 8.0, "benchmark_return": 9.0, "contributing_engines": ["C9"]},
-        {"symbol": "WIPRO.NS", "conviction_score": 54, "forward_return": 3.2, "benchmark_return": 8.0, "contributing_engines": ["E2"]},
-        {"symbol": "TATAMOTORS.NS", "conviction_score": 88, "forward_return": 45.0, "benchmark_return": 12.0, "contributing_engines": ["E2", "E1", "E4"]},
-        {"symbol": "FAIL_COMP.NS", "conviction_score": 82, "forward_return": -14.0, "benchmark_return": 8.0, "contributing_engines": ["D15"]},
-        {"symbol": "SURPRISE_COMP.NS", "conviction_score": 42, "forward_return": 28.0, "benchmark_return": 8.0, "contributing_engines": ["E2"]},
-    ]
+    sample_universe = []
+    try:
+        from app.services.monitoring.score_calibration import _fetch_all_outcomes_with_scores
+        raw_outcomes = [o for o in _fetch_all_outcomes_with_scores() if o.get("data_backed")]
+        sample_universe = [
+            {
+                "symbol": o["symbol"],
+                "conviction_score": o["score"],
+                "forward_return": o["actual_return_pct"],
+                "benchmark_return": o["benchmark_return_pct"],
+                "contributing_engines": []
+            }
+            for o in raw_outcomes
+        ]
+    except Exception:
+        sample_universe = []
 
     calibrator = ScoreCalibrator()
     cal_report = calibrator.calibrate(sample_universe)
@@ -85,6 +91,19 @@ def generate_reports():
             f.write(f"| `{label}` | `{metric.sample_count}` | `{metric.median_return_pct}%` | `{metric.mean_return_pct}%` | `{metric.hit_rate_pct}%` | `{metric.benchmark_relative_alpha}%` |\n")
 
     # 3. multibagger_validation_report.md
+    high_conviction_samples = [s for s in sample_universe if s.get("conviction_score", 0) >= 80]
+    if high_conviction_samples:
+        hits = sum(1 for s in high_conviction_samples if s.get("forward_return", 0) > s.get("benchmark_return", 0))
+        hit_rate_str = f"{(hits / len(high_conviction_samples)) * 100.0:.1f}%"
+        double_out = sum(1 for s in high_conviction_samples if s.get("forward_return", 0) >= 2 * s.get("benchmark_return", 0))
+        outperformance_str = f"{(double_out / len(high_conviction_samples)) * 100.0:.1f}%"
+        fps = sum(1 for s in high_conviction_samples if s.get("forward_return", 0) < 0)
+        false_positive_str = f"{(fps / len(high_conviction_samples)) * 100.0:.1f}%"
+    else:
+        hit_rate_str = "insufficient data — 0 validated calls"
+        outperformance_str = "insufficient data — 0 validated calls"
+        false_positive_str = "insufficient data — 0 validated calls"
+
     with open(DOCS_DIR / "multibagger_validation_report.md", "w", encoding="utf-8") as f:
         f.write(f"""# Multibagger Strategy Validation Report
 
@@ -92,9 +111,9 @@ def generate_reports():
 - **Target Engine**: `E4 Multibagger Screener`
 
 ## Historical Performance
-- **High Conviction Hit Rate (Score >= 80)**: `83.3%`
-- **2X+ Outperformance Frequency**: `25.0%`
-- **False-Positive Rate**: `16.7%`
+- **High Conviction Hit Rate (Score >= 80)**: `{hit_rate_str}`
+- **2X+ Outperformance Frequency**: `{outperformance_str}`
+- **False-Positive Rate**: `{false_positive_str}`
 - **Primary Success Driver**: `ROE Acceleration + Low Debt/EBITDA + Earnings Quality`
 """)
 

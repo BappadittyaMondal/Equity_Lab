@@ -255,6 +255,7 @@ class FinancialObservationIn(BaseModel):
     source_url: HttpUrl
     source_reference: Optional[str] = Field(default=None, max_length=250, description="Filing page, table, or document identifier.")
     confidence: float = Field(default=1.0, ge=0.0, le=1.0)
+    source_tier: Optional[str] = Field(default=None, description="Data provenance tier: Tier A (Regulatory), Tier B (Primary API), Tier C (Aggregated), Tier D (Unverified)")
     notes: Optional[str] = Field(default=None, max_length=2000)
 
 
@@ -506,6 +507,7 @@ class ConvictionCall(BaseModel):
         default_factory=lambda: datetime.now(timezone.utc).isoformat(),
         description="UTC timestamp when the conviction was generated",
     )
+    data_backed: bool = Field(default=False, description="True if based on empirical ResearchDataStore observations (confidence >= 0.3)")
 
 
 class ThesisDriftEvent(BaseModel):
@@ -771,4 +773,27 @@ class DecisionAuditTrail(BaseModel):
 
 
 
+class QualityGrowthConditionResult(BaseModel):
+    """Detailed audit trail for a single screening condition in the Quality-Growth filter."""
+    condition_id: str
+    description: str
+    threshold: str
+    actual_value: Optional[Any] = None
+    status: Literal["PASS", "FAIL", "DATA_UNAVAILABLE", "NOT_APPLICABLE"] = "DATA_UNAVAILABLE"
+    as_of_date: Optional[str] = None
+    source: str = "ResearchDataStore"
+    notes: Optional[str] = None
+
+
+class QualityGrowthScreenResponse(BaseModel):
+    """Structured pre-filter output for Quality-Growth candidate screening (28 conditions)."""
+    symbol: str
+    screening_status: Literal["PASS", "FAIL", "DATA_UNAVAILABLE"] = "FAIL"
+    total_conditions: int = 28
+    conditions_passed: int = 0
+    conditions_failed: int = 0
+    conditions_unavailable: int = 0
+    condition_results: List[QualityGrowthConditionResult] = Field(default_factory=list)
+    quality_growth_profile: Dict[str, Any] = Field(default_factory=dict)
+    meta: MetaHeader
 

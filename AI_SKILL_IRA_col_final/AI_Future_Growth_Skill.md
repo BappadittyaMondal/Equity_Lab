@@ -1,3 +1,13 @@
+<!-- IERL-CANONICAL-METADATA v1.2 -->
+> **Canonical retrieval label:** AI Future Growth Skill  
+> **Role:** Executable workflow skill  
+> **Use when:** Use when the request matches this skill's method, then execute its stated gates and output format.  
+> **Cognitive mode:** Gate-based diagnostic execution: test the thesis, its counter-case, and its invalidation before a conclusion.  
+> **Evidence rule:** Date material facts, distinguish fact/calculation/assumption/inference, and disclose missing inputs.  
+> **Handoff: Project Instructions → Confidence Standard → Quality Audit → relevant knowledge domains.**
+> **Minimum skill output:** objective/horizon and as-of date · inputs and gaps · completed gates · conclusion and counter-case · material risks/invalidation · confidence and next verification step.  
+
+
 # AI Future Growth Skill
 **Version:** 1.0 | **Status:** Production Ready | **Last Updated:** July 2026
 **Category:** Cross-Cutting Analytical Discipline — Forward Growth Visibility Tiering

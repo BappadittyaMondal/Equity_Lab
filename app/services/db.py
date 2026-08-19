@@ -36,10 +36,19 @@ def _ensure_tables() -> None:
             contributing_engines TEXT,   -- JSON array
             contradicting_engines TEXT,  -- JSON array
             confidence_tier TEXT,
-            created_at TEXT NOT NULL
+            created_at TEXT NOT NULL,
+            data_backed BOOLEAN DEFAULT 0
         )
         """
     )
+    # Check if data_backed column exists in conviction_calls, migrate and backfill as false if missing
+    try:
+        existing_cols = [r[1] for r in conn.execute("PRAGMA table_info(conviction_calls)").fetchall()]
+        if "data_backed" not in existing_cols:
+            conn.execute("ALTER TABLE conviction_calls ADD COLUMN data_backed BOOLEAN DEFAULT 0")
+            conn.execute("UPDATE conviction_calls SET data_backed = 0 WHERE data_backed IS NULL")
+    except Exception:
+        pass
     conn.execute(
         """
         CREATE TABLE IF NOT EXISTS thesis_drift_events (
@@ -127,10 +136,18 @@ def _ensure_tables() -> None:
             reference_price REAL,
             thesis TEXT,
             model_version TEXT NOT NULL DEFAULT '1.0',
-            created_at TEXT NOT NULL
+            created_at TEXT NOT NULL,
+            conviction_call_id INTEGER REFERENCES conviction_calls(id)
         )
         """
     )
+    # Check if conviction_call_id column exists in prediction_ledger, migrate if missing
+    try:
+        existing_cols = [r[1] for r in conn.execute("PRAGMA table_info(prediction_ledger)").fetchall()]
+        if "conviction_call_id" not in existing_cols:
+            conn.execute("ALTER TABLE prediction_ledger ADD COLUMN conviction_call_id INTEGER REFERENCES conviction_calls(id)")
+    except Exception:
+        pass
     conn.execute("CREATE INDEX IF NOT EXISTS idx_pred_sym ON prediction_ledger(symbol)")
 
     conn.execute(

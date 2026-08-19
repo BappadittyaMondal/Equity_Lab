@@ -8,7 +8,7 @@ produces a `SynthesizedEquitySnapshot` that includes a `data_confidence_score`
 
 import logging
 from datetime import datetime
-from typing import Any, Dict, List
+from typing import Any, Dict, List, Optional
 
 from app.models.schemas import SynthesizedEquitySnapshot, MetaHeader
 from app.core.config import settings
@@ -42,7 +42,7 @@ class DataSynthesizer:
             logger.warning("Failed to fetch market data for %s: %s", symbol, exc)
             return {}
 
-    def synthesize(self, raw_provider_responses: Any) -> SynthesizedEquitySnapshot:
+    def synthesize(self, raw_provider_responses: Any, as_of: Optional[datetime] = None) -> SynthesizedEquitySnapshot:
         """Create a :class:`SynthesizedEquitySnapshot` from raw provider data."""
         if isinstance(raw_provider_responses, str):
             provider_data = {"primary": self._fetch_market_data(raw_provider_responses)}
@@ -85,11 +85,22 @@ class DataSynthesizer:
                     anomaly_flags.append("price_conflict")
                     break
 
-        total_providers = len(provider_data)
-        valid_providers = len([p for p in provider_data.values() if isinstance(p, dict) and p])
-        data_confidence_score = (
-            valid_providers / total_providers if total_providers > 0 else 0.0
-        )
+        # Compute confidence from actual data availability in ResearchDataStore and live quote presence
+        has_quote = 1.0 if (consensus_price is not None and consensus_price > 0) else 0.0
+        fin_count = 0
+        has_ownership = 0.0
+        try:
+            from app.services.research_data import ResearchDataStore
+            store = ResearchDataStore()
+            if symbol and symbol != "UNKNOWN":
+                company, financials, events, corp_actions, ownership, documents = store.get_timeline(symbol, as_of=as_of)
+                fin_count = len(financials)
+                has_ownership = 1.0 if len(ownership) > 0 else 0.0
+        except Exception:
+            pass
+
+        fin_score = min(1.0, fin_count / 8.0)
+        data_confidence_score = round((0.3 * has_quote) + (0.5 * fin_score) + (0.2 * has_ownership), 2)
 
         now_str = get_ist_now_str()
         meta = MetaHeader(

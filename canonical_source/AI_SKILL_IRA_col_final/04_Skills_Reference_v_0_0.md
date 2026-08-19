@@ -1,3 +1,13 @@
+<!-- IERL-CANONICAL-METADATA v1.2 -->
+> **Canonical retrieval label:** 04 Skills Reference  
+> **Role:** Executable workflow skill  
+> **Use when:** Use when the request matches this skill's method, then execute its stated gates and output format.  
+> **Cognitive mode:** Gate-based diagnostic execution: test the thesis, its counter-case, and its invalidation before a conclusion.  
+> **Evidence rule:** Date material facts, distinguish fact/calculation/assumption/inference, and disclose missing inputs.  
+> **Handoff: Project Instructions → Confidence Standard → Quality Audit → relevant knowledge domains.**
+> **Minimum skill output:** objective/horizon and as-of date · inputs and gaps · completed gates · conclusion and counter-case · material risks/invalidation · confidence and next verification step.  
+
+
 # IERL — Skills Reference
 ## Document 04: 25 Execution Modules — Complete Specifications (V5.1)
 
@@ -99,6 +109,24 @@ Claude maps intent to skill automatically:
 | "Concall analysis" / "What did management say?" | Skill 13 |
 | "Buyback / bonus / rights analysis" | Skill 14 |
 | "Pre-investment checklist for [Company]" | Skill 15 |
+| "VCP analysis" / "volatility contraction" / "Minervini pattern" | Domain 46 + AI_18_Expert_Strategies_Execution_Skill (Module B5) |
+| "Trend template" / "8-step Minervini" / "stage 2 uptrend check" | Domain 46 + AI_18_Expert_Strategies_Execution_Skill (Module B6) |
+| "Stage analysis" / "Weinstein" / "which stage is this stock in" | Domain 46 + AI_18_Expert_Strategies_Execution_Skill (Module B7) |
+| "SEPA" / "pivot point entry" / "Minervini entry" | Domain 46 + AI_18_Expert_Strategies_Execution_Skill (Module B8) |
+| "Reverse DCF" / "what does the market expect" / "proof by contradiction" | Domain 47 + AI_18_Expert_Strategies_Execution_Skill (Module C9) |
+| "Variant perception" / "consensus vs my view" / "what's the trigger catalyst" | Domain 47 + AI_18_Expert_Strategies_Execution_Skill (Module C10) |
+| "Cyclical bottom" / "P/B trough" / "commodity bottom buy" | Domain 47 + AI_18_Expert_Strategies_Execution_Skill (Module C11) |
+| "Capital light" / "asset light" / "high ROIC low capex" / "IP business" | Domain 47 + AI_18_Expert_Strategies_Execution_Skill (Module C12) |
+| "Misunderstood stalwart" / "expanding ROE large cap" | Domain 47 + AI_18_Expert_Strategies_Execution_Skill (Module C13) |
+| "NCLT turnaround" / "distressed acquisition" / "bankrupt company revival" | Domain 47 + AI_18_Expert_Strategies_Execution_Skill (Module C14) |
+| "All-time high strategy" / "ATH momentum" / "quant momentum" | Domain 48 + AI_18_Expert_Strategies_Execution_Skill (Module D15) |
+| "Triple filter momentum" / "ATH profit filter" / "relative strength filter" | Domain 48 + AI_18_Expert_Strategies_Execution_Skill (Module D16) |
+| "Position sizing" / "200 EMA exit calculation" / "how much to allocate" | Domain 48 + AI_18_Expert_Strategies_Execution_Skill (Module D17) |
+| "Saatvik filter" / "ethical screen" / "sin stock exclusion" / "Jain investing" | Domain 48 + AI_18_Expert_Strategies_Execution_Skill (Module D18) |
+| "Straddle selling" / "theta decay" / "9:20 straddle" | Domain 45 + AI_18_Expert_Strategies_Execution_Skill (Module A3) |
+| "Option arbitrage" / "panic spread" / "ratio spread" | Domain 45 + AI_18_Expert_Strategies_Execution_Skill (Module A1) |
+| "Range selling" / "OTM option selling" / "Nifty 0-DTE" | Domain 45 + AI_18_Expert_Strategies_Execution_Skill (Module A2) |
+| "SuperTrend futures" / "trend following" / "synthetic futures" | Domain 45 + AI_18_Expert_Strategies_Execution_Skill (Module A4) |
 
 ### Method 3 — By Artifact
 Some artifacts auto-trigger skills when opened. See Document 05.
@@ -135,6 +163,14 @@ IPO CHAIN:
   Skill 10 (IPO Analyzer)
       → Skill 15 (Pre-Investment Checklist) [if applying]
       → Skill 07 (Valuation Comparator) [vs listed peers]
+
+EXPERT STRATEGY CHAIN:
+  Module D18 (Saatvik Ethical Filter — Mandatory First Step)
+      → Domain 24 (Forensic Gate — Hard Screen before any setup)
+      → AI_18_Expert_Strategies_Execution_Skill (Strategy Selection: Category A / B / C / D)
+      → Module D17 (Risk-Based Position Sizing — mandatory before entry)
+      → Module D15 or D16 (Quant Momentum — if long equity)
+      → Module A1–A4 (Derivatives Setup — if options/futures execution)
 
 SECTOR DEEP-DIVE CHAIN:
   Skill 01 (Master Research) or Skill 08 (Sector Rotation)

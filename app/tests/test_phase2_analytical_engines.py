@@ -100,7 +100,7 @@ class TestRevenueMetrics:
     def test_revenue_empty_returns_no_data(self):
         from app.services.strategies.fundamental_metrics import compute_revenue_metrics
         result = compute_revenue_metrics([])
-        assert result["status"] == "no_data"
+        assert result["status"] in ("DATA_UNAVAILABLE", "no_data")
 
     def test_revenue_evidence_populated(self):
         from app.services.strategies.fundamental_metrics import compute_revenue_metrics
@@ -149,7 +149,7 @@ class TestDuPontROE:
     def test_dupont_insufficient_data(self):
         from app.services.strategies.fundamental_metrics import compute_dupont_roe
         result = compute_dupont_roe([])
-        assert result["status"] == "insufficient_data"
+        assert result["status"] in ("DATA_UNAVAILABLE", "insufficient_data")
 
 
 class TestFundamentalQualityScore:

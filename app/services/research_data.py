@@ -50,6 +50,24 @@ def _parse_datetime(value: str) -> datetime:
     return parsed if parsed.tzinfo else parsed.replace(tzinfo=timezone.utc)
 
 
+def get_source_tier(source_name: str, confidence: float) -> str:
+    """Assign data provenance Tier A-D based on source name and confidence level.
+
+    Tier A (0.95–1.00): Regulatory exchange filings (BSE/NSE statutory disclosures, annual reports).
+    Tier B (0.85–0.94): Primary market data APIs (yfinance, verified data feeds).
+    Tier C (0.70–0.84): Aggregated financial research portals / news disclosures.
+    Tier D (< 0.70): Unverified or estimated data.
+    """
+    name_upper = (source_name or "").upper()
+    if "BSE" in name_upper or "NSE" in name_upper or "ANNUAL" in name_upper or confidence >= 0.95:
+        return "Tier A"
+    elif "YFINANCE" in name_upper or "PROPRIETARY" in name_upper or confidence >= 0.85:
+        return "Tier B"
+    elif "NEWS" in name_upper or confidence >= 0.70:
+        return "Tier C"
+    return "Tier D"
+
+
 class ResearchDataStore:
     def __init__(self, database_path: Optional[str] = None):
         self.database_path = Path(database_path or settings.DATA_STORE_PATH)
@@ -262,11 +280,18 @@ class ResearchDataStore:
                 ),
             )
             observation_id = cursor.lastrowid
+        if not request.source_tier:
+            request.source_tier = get_source_tier(request.source_name, request.confidence)
         return FinancialObservationResponse(id=observation_id, ingested_at=_parse_datetime(now), **request.model_dump())
 
     upsert_financial_observation = add_financial_observation
 
-    def add_business_event(self, request: BusinessEventIn) -> BusinessEventResponse:
+    def add_business_event(self, request: Any) -> BusinessEventResponse:
+        if isinstance(request, dict):
+            try:
+                request = BusinessEventIn(**request)
+            except Exception as exc:
+                raise HTTPException(status_code=400, detail=f"Invalid business event fields: {exc}")
         symbol = normalize_symbol(request.symbol)
         self.get_company(symbol)
         now = _utc_now().isoformat()
@@ -288,7 +313,12 @@ class ResearchDataStore:
             event_id = cursor.lastrowid
         return BusinessEventResponse(id=event_id, ingested_at=_parse_datetime(now), **request.model_dump())
 
-    def add_corporate_action(self, request: CorporateActionIn) -> CorporateActionResponse:
+    def add_corporate_action(self, request: Any) -> CorporateActionResponse:
+        if isinstance(request, dict):
+            try:
+                request = CorporateActionIn(**request)
+            except Exception as exc:
+                raise HTTPException(status_code=400, detail=f"Invalid corporate action fields: {exc}")
         symbol = normalize_symbol(request.symbol)
         self.get_company(symbol)
         now = _utc_now().isoformat()
@@ -313,7 +343,12 @@ class ResearchDataStore:
             id=action_id, ingested_at=_parse_datetime(now), adjustment_factor=1.0, **request.model_dump()
         )
 
-    def add_ownership_snapshot(self, request: OwnershipSnapshotIn) -> OwnershipSnapshotResponse:
+    def add_ownership_snapshot(self, request: Any) -> OwnershipSnapshotResponse:
+        if isinstance(request, dict):
+            try:
+                request = OwnershipSnapshotIn(**request)
+            except Exception as exc:
+                raise HTTPException(status_code=400, detail=f"Invalid ownership snapshot fields: {exc}")
         symbol = normalize_symbol(request.symbol)
         self.get_company(symbol)
         now = _utc_now().isoformat()
@@ -336,7 +371,12 @@ class ResearchDataStore:
             snapshot_id = cursor.lastrowid
         return OwnershipSnapshotResponse(id=snapshot_id, ingested_at=_parse_datetime(now), **request.model_dump())
 
-    def add_document_metadata(self, request: DocumentMetadataIn) -> DocumentMetadataResponse:
+    def add_document_metadata(self, request: Any) -> DocumentMetadataResponse:
+        if isinstance(request, dict):
+            try:
+                request = DocumentMetadataIn(**request)
+            except Exception as exc:
+                raise HTTPException(status_code=400, detail=f"Invalid document metadata fields: {exc}")
         symbol = normalize_symbol(request.symbol)
         self.get_company(symbol)
         now = _utc_now().isoformat()
@@ -358,7 +398,12 @@ class ResearchDataStore:
             doc_id = cursor.lastrowid
         return DocumentMetadataResponse(id=doc_id, ingested_at=_parse_datetime(now), **request.model_dump())
 
-    def add_market_daily_snapshot(self, request: MarketDailySnapshotIn) -> MarketDailySnapshotResponse:
+    def add_market_daily_snapshot(self, request: Any) -> MarketDailySnapshotResponse:
+        if isinstance(request, dict):
+            try:
+                request = MarketDailySnapshotIn(**request)
+            except Exception as exc:
+                raise HTTPException(status_code=400, detail=f"Invalid market snapshot fields: {exc}")
         symbol = normalize_symbol(request.symbol)
         self.get_company(symbol)
         now = _utc_now().isoformat()
@@ -424,7 +469,8 @@ class ResearchDataStore:
                 currency=row["currency"], period_end=row["period_end"], period_type=row["period_type"],
                 statement_scope=row["statement_scope"], published_at=_parse_datetime(row["published_at"]),
                 source_name=row["source_name"], source_url=row["source_url"], source_reference=row["source_reference"],
-                confidence=row["confidence"], notes=row["notes"], ingested_at=_parse_datetime(row["ingested_at"]),
+                confidence=row["confidence"], source_tier=get_source_tier(row["source_name"], row["confidence"]),
+                notes=row["notes"], ingested_at=_parse_datetime(row["ingested_at"]),
             ) for row in financial_rows
         ]
         events = [

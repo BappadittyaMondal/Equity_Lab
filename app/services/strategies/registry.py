@@ -40,7 +40,7 @@ STRATEGY_MODULES: Dict[str, StrategyModule] = {
         name="Zero-DTE Range Option Selling Engine",
         category="Options Arbitrage",
         description="Calculates probability density, expected value (EV), breakevens, and risk-controlled lot sizing for short strangles.",
-        status="production",
+        status="suspended",
         required_inputs=["underlying", "lower_strike", "upper_strike", "call_premium", "put_premium"],
         universe="NIFTY / BANKNIFTY 0-DTE",
         metrics=["probability_of_profit", "expected_value", "breakeven_points", "max_loss"],
@@ -302,6 +302,18 @@ RESEARCH_ENGINES: Dict[str, StrategyModule] = {
         metrics=["growth_arbitrage_gap", "intrinsic_value_dcf", "composite_score", "risk_rating"],
         risk_warnings=["Quantitative valuation model relies on published financial statement observation history."],
         methodology="10-pillar weighted composite score, reverse DCF implied growth gap, and non-parametric multi-horizon return probability bands."
+    ),
+    "E6": StrategyModule(
+        id="E6",
+        name="Quality-Growth Candidate Screener (Pre-Filter)",
+        category="Universe Compounder Pre-Filter",
+        description="Screens investment universe against 28 quantitative and fundamental quality-growth conditions before passing candidates to the Arbiter.",
+        status="production",
+        required_inputs=["symbol"],
+        universe="NSE All Equities",
+        metrics=["total_conditions", "conditions_passed", "conditions_failed", "conditions_unavailable"],
+        risk_warnings=["Pre-filter screening only — does NOT generate final BUY recommendation."],
+        methodology="28-condition quantitative and fundamental threshold screen with condition-level audit trail."
     )
 }
 
@@ -464,6 +476,32 @@ def run_strategy_module(strategy_id: str, symbol: str = "RELIANCE") -> StrategyR
             disclaimer=res5.disclaimer,
             meta=res5.meta
         )
+    elif module.id == "E6":
+        from app.services.strategies.quality_growth_screener import run_quality_growth_screener
+        res6 = run_quality_growth_screener(symbol)
+        return StrategyRunResponse(
+            strategy_id="E6",
+            strategy_name=module.name,
+            status="production",
+            executed_at=res6.meta.retrieved_at,
+            symbol=res6.symbol,
+            passed_gates=(res6.screening_status == "PASS"),
+            results={
+                "screening_status": res6.screening_status,
+                "total_conditions": res6.total_conditions,
+                "conditions_passed": res6.conditions_passed,
+                "conditions_failed": res6.conditions_failed,
+                "conditions_unavailable": res6.conditions_unavailable,
+                "quality_growth_profile": res6.quality_growth_profile
+            },
+            metrics={
+                "passed_pct": (res6.conditions_passed / res6.total_conditions * 100.0) if res6.total_conditions > 0 else 0.0,
+                "failed_pct": (res6.conditions_failed / res6.total_conditions * 100.0) if res6.total_conditions > 0 else 0.0
+            },
+            risk_warnings=module.risk_warnings,
+            disclaimer="Quality-Growth Candidate Screener pre-filter assessment.",
+            meta=res6.meta
+        )
     elif module.id == "C13":
         from app.services.strategies.governance_quality import evaluate_governance_quality
         res_c13 = evaluate_governance_quality(symbol)
@@ -496,17 +534,23 @@ def run_strategy_module(strategy_id: str, symbol: str = "RELIANCE") -> StrategyR
             call_premium=45.0,
             put_premium=55.0
         ))
+        warnings = list(a2_res.risk_warnings or [])
+        warnings.append(
+            "STRATEGY SUSPENDED: Option chain data pipeline inactive. "
+            "Option strike prices (22200/22700) and premiums are placeholder inputs for testing only."
+        )
         return StrategyRunResponse(
             strategy_id="A2",
             strategy_name=module.name,
-            status="production",
+            status=module.status,
             executed_at=a2_res.meta.retrieved_at,
             symbol=a2_res.underlying,
-            passed_gates=True,
+            passed_gates=False,
             results={
                 "total_credit_per_lot": a2_res.total_credit_per_lot,
                 "breakevens": f"{a2_res.breakeven_lower} - {a2_res.breakeven_upper}",
-                "expected_value_per_lot": a2_res.expected_value_per_lot
+                "expected_value_per_lot": a2_res.expected_value_per_lot,
+                "placeholder_notice": "Strikes 22200/22700 are synthetic inputs"
             },
             metrics={
                 "spot_price": a2_res.spot_price,
@@ -514,8 +558,8 @@ def run_strategy_module(strategy_id: str, symbol: str = "RELIANCE") -> StrategyR
                 "max_profit": a2_res.max_profit,
                 "max_loss": a2_res.max_loss
             },
-            risk_warnings=a2_res.risk_warnings,
-            disclaimer="A2 Short Strangle options strategy payoff model.",
+            risk_warnings=warnings,
+            disclaimer="A2 Short Strangle options strategy payoff model (SUSPENDED - Placeholder Strike Inputs).",
             meta=a2_res.meta
         )
     elif module.id == "D18":

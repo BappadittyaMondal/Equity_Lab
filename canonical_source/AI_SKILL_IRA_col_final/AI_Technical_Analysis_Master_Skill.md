@@ -475,7 +475,7 @@ FEEDS INTO: [Which calling skill this read supports — Swing/Uptrend/Positional
 Opportunity Finder), Skill 08 (Sector Rotation Analyzer), AI_Volume_Delivery_Analysis_Skill*
 # Technical Analysis — Data Input Template (Addendum v_0.0)
 
-**Paste Target:** AI_Technical_Analysis_Master_Skill_v_0_0.md — insert as new "Pre-Flight Data Requirements" section, right after the existing "Pre-Flight Requirements"
+**Paste Target:** AI_Technical_Analysis_Master_Skill.md — insert as new "Pre-Flight Data Requirements" section, right after the existing "Pre-Flight Requirements"
 
 ---
 
@@ -547,5 +547,5 @@ This addendum makes the existing indicator modules usable with pasted historical
 
 **Document:** Technical_Analysis_Data_Input_Template_v_0.0.md
 **Version:** v_0.0
-**Paste Into:** AI_Technical_Analysis_Master_Skill_v_0_0.md (after Pre-Flight Requirements)
+**Paste Into:** AI_Technical_Analysis_Master_Skill.md (after Pre-Flight Requirements)
 

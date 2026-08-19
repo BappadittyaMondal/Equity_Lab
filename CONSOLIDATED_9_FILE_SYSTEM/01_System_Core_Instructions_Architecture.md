@@ -1,8 +1,8 @@
 # 01_System_Core_Instructions_Architecture
 
 > **IERL AI Equity OS — curated upload artifact**  
-> Project Version: `0.4.0` · Bundle Version: `2.0` · Source Commit: `54533de`  
-> Generated At: `2026-08-17T08:07:50.930453+00:00` · Source Hash: `311073031dcedc44` · Compiler: `consolidate_project.py` v2.0
+> Project Version: `0.4.0` · Bundle Version: `2.0` · Source Commit: `871475a`  
+> Generated At: `2026-08-19T05:46:16.944746+00:00` · Source Hash: `c8d950da0665d4c0` · Compiler: `consolidate_project.py` v2.0
 
 ## Operating contract
 
@@ -40,7 +40,7 @@ The SHA-256 values cover the exact UTF-8 source payload, not this wrapper. Use t
 
 | # | Source document | UTF-8 bytes | SHA-256 |
 |---:|---|---:|---|
-| 1 | `AI_Project_Instructions_v_0_0.md` | 5,681 | `0f7bc06c1404a61102226a5837d0f8452e83046c99efd45a503cd5e02cf577c9` |
+| 1 | `AI_Project_Instructions_v_0_0.md` | 5,658 | `06a035b01d7dc720c71973c26c0228a8c8661b345351d4ee02af1f1f18a68988` |
 | 2 | `AI_Architecture_Overview_v_0_0.md` | 44,635 | `723f1b6f9145f0da08137a30de2624b7f04c6c347347f2cae159bf21252495a2` |
 | 3 | `AI_Pipeline_Specification_v_0_0.md` | 13,093 | `3cd2c5abf48b617bce1402de8bec156a41ebab116b281449770f1d8660e473dc` |
 | 4 | `AI_Task_Orchestrator_v_0_0.md` | 28,810 | `bd87c94df4e323367a224d8f259f05336f10ae19533673beff6cd7d607e4f7e0` |
@@ -51,7 +51,7 @@ The SHA-256 values cover the exact UTF-8 source payload, not this wrapper. Use t
 
 ---
 
-<!-- BEGIN SYSTEM FILE 1: AI_Project_Instructions_v_0_0.md | SHA256: 0f7bc06c1404a61102226a5837d0f8452e83046c99efd45a503cd5e02cf577c9 -->
+<!-- BEGIN SYSTEM FILE 1: AI_Project_Instructions_v_0_0.md | SHA256: 06a035b01d7dc720c71973c26c0228a8c8661b345351d4ee02af1f1f18a68988 -->
 ## Embedded source 1: AI Project Instructions
 
 <!-- IERL-CANONICAL-METADATA v1.2 -->
@@ -136,7 +136,7 @@ Do not turn a relative comparison, screen, or model output into personalised fin
 
 ## 7. Source maintenance rules
 
-The 89 sources in `Not_Required_Upload/Canonical_Source_84` are the editable source of truth. The 5- and 9-file folders are generated upload artifacts. Update a canonical source, run the compiler, then verify source manifests before uploading. Credentials and local integration files remain outside both source and upload bundles.
+The 89 sources in `canonical_source` are the editable source of truth. The 5- and 9-file folders are generated upload artifacts. Update a canonical source, run the compiler, then verify source manifests before uploading. Credentials and local integration files remain outside both source and upload bundles.
 <!-- END SYSTEM FILE 1: AI_Project_Instructions_v_0_0.md -->
 
 ---

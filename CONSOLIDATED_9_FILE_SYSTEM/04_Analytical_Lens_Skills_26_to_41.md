@@ -1,8 +1,8 @@
 # 04_Analytical_Lens_Skills_26_to_41
 
 > **IERL AI Equity OS — curated upload artifact**  
-> Project Version: `0.4.0` · Bundle Version: `2.0` · Source Commit: `54533de`  
-> Generated At: `2026-08-17T08:07:50.930453+00:00` · Source Hash: `311073031dcedc44` · Compiler: `consolidate_project.py` v2.0
+> Project Version: `0.4.0` · Bundle Version: `2.0` · Source Commit: `871475a`  
+> Generated At: `2026-08-19T05:46:16.944746+00:00` · Source Hash: `c8d950da0665d4c0` · Compiler: `consolidate_project.py` v2.0
 
 ## Operating contract
 
@@ -47,13 +47,13 @@ The SHA-256 values cover the exact UTF-8 source payload, not this wrapper. Use t
 | 5 | `AI_Forensic_Accounting_Skill.md` | 25,682 | `63bf46b31f887babd31b1d468c7ce673ac76bee184596cbc199829df6a98db86` |
 | 6 | `AI_Fundamental_Analysis_Core_Skill.md` | 19,520 | `e3ecd22e85697df038889cb69b5b3f39efb9195fd96ab920bb8b31cd6050b693` |
 | 7 | `AI_Future_Growth_Skill.md` | 15,062 | `f76aca49aba770c2172ecd42d012ab364949724a04291c7431ea03fe8e006e9b` |
-| 8 | `AI_Multibagger_Discovery_Skill.md` | 27,481 | `409352a2f3b16151f09ec3b1e609725fde7955bceaf2da4134c2fd99cc29062c` |
+| 8 | `AI_Multibagger_Discovery_Skill.md` | 27,475 | `878527ee349beef9892136e892818f2e5b1bee3df3de518a21398964a490888b` |
 | 9 | `AI_MultiSector_Momentum_Value_Style_Thinking_Skill.md` | 15,351 | `cccd6bb37a97037adc43532ab84d9be5698b19eecb427ea4afbd9da49a629cae` |
 | 10 | `AI_Options_Data_Skill.md` | 15,645 | `0cbf74e08253796a4cde2ad3f0c7237b3f6b14a10c43b573ee8b9346cc33a6e0` |
 | 11 | `AI_Portfolio_Construction_Skill.md` | 17,722 | `956392fffa8ccf7af50df6737415ffdd09d8914ec370884d15f6204823ad8189` |
 | 12 | `AI_Small_to_Mid_Cap_SIP_Stocks_Analysis_Skill.md` | 18,336 | `47d95e38d502403ad70582c96d8265db2e4cc23dd52d6bd808c80d90efdb8660` |
 | 13 | `AI_Swing_Trading_Skill.md` | 22,833 | `3719df5eb93f4dd027bbfb56825649a6db6a5462cae4af9096689d733da21172` |
-| 14 | `AI_Technical_Analysis_Master_Skill_v_0_0.md` | 27,475 | `826408f4f1a56bd6f605255b92d55676f2348c676521e472e6cea85430160ece` |
+| 14 | `AI_Technical_Analysis_Master_Skill.md` | 27,463 | `9bfe81ec5dc5b63663b094128987dcc6ebce2654bbc51c8419fb7a74ef65458f` |
 | 15 | `AI_Turnaround_Analysis_Skill.md` | 14,942 | `acaa4c25f8f169e9eaa1a23f0cc74632aa836ea2293c31c3851828097e91b124` |
 | 16 | `AI_Uptrend_Momentum_Stock_Skill.md` | 17,985 | `22d53163913f3eb56761046a7dea391ab72457e8d2b153d08bfb94416e3c87c4` |
 | 17 | `AI_Volume_Delivery_Analysis_Skill.md` | 13,617 | `a5d06dfab9833ebb5788345cfb0359f7b977f38ea1198483f4789e5d8525a9bb` |
@@ -2718,7 +2718,7 @@ AI_Multibagger_Discovery_Skill, AI_DCF_Valuation_Skill, Skill 13 (Concall Analyz
 
 ---
 
-<!-- BEGIN SYSTEM FILE 8: AI_Multibagger_Discovery_Skill.md | SHA256: 409352a2f3b16151f09ec3b1e609725fde7955bceaf2da4134c2fd99cc29062c -->
+<!-- BEGIN SYSTEM FILE 8: AI_Multibagger_Discovery_Skill.md | SHA256: 878527ee349beef9892136e892818f2e5b1bee3df3de518a21398964a490888b -->
 ## Embedded source 8: AI Multibagger Discovery Skill
 
 <!-- IERL-CANONICAL-METADATA v1.2 -->
@@ -3272,7 +3272,7 @@ Category 2/3/4 matches → each confirmed check adds up to +2 points to the
 
 - ✓ Only 12 of 250+ possible combinations included — the 4 highest-priority categories per the source document's own stated hierarchy
 - ✓ No new scoring category created — Category 1 reinforces the existing Financial Quality Gates (Module 5); Categories 2–4 refine the existing Financial Quality scoring line rather than adding a new axis
-- ✓ Explicitly skips Valuation and Technical combination libraries — those already live in `AI_DCF_Valuation_Skill.md` and `AI_Technical_Analysis_Master_Skill_v_0_0.md` respectively
+- ✓ Explicitly skips Valuation and Technical combination libraries — those already live in `AI_DCF_Valuation_Skill.md` and `AI_Technical_Analysis_Master_Skill.md` respectively
 
 ---
 
@@ -5053,7 +5053,7 @@ Skill 12 (Watchlist Prioritizer for post-trade monitoring), Skill 09 (Risk Audit
 
 ---
 
-<!-- BEGIN SYSTEM FILE 14: AI_Technical_Analysis_Master_Skill_v_0_0.md | SHA256: 826408f4f1a56bd6f605255b92d55676f2348c676521e472e6cea85430160ece -->
+<!-- BEGIN SYSTEM FILE 14: AI_Technical_Analysis_Master_Skill.md | SHA256: 9bfe81ec5dc5b63663b094128987dcc6ebce2654bbc51c8419fb7a74ef65458f -->
 ## Embedded source 14: AI Technical Analysis Master Skill
 
 <!-- IERL-CANONICAL-METADATA v1.2 -->
@@ -5533,7 +5533,7 @@ FEEDS INTO: [Which calling skill this read supports — Swing/Uptrend/Positional
 Opportunity Finder), Skill 08 (Sector Rotation Analyzer), AI_Volume_Delivery_Analysis_Skill*
 # Technical Analysis — Data Input Template (Addendum v_0.0)
 
-**Paste Target:** AI_Technical_Analysis_Master_Skill_v_0_0.md — insert as new "Pre-Flight Data Requirements" section, right after the existing "Pre-Flight Requirements"
+**Paste Target:** AI_Technical_Analysis_Master_Skill.md — insert as new "Pre-Flight Data Requirements" section, right after the existing "Pre-Flight Requirements"
 
 ---
 
@@ -5605,9 +5605,9 @@ This addendum makes the existing indicator modules usable with pasted historical
 
 **Document:** Technical_Analysis_Data_Input_Template_v_0.0.md
 **Version:** v_0.0
-**Paste Into:** AI_Technical_Analysis_Master_Skill_v_0_0.md (after Pre-Flight Requirements)
+**Paste Into:** AI_Technical_Analysis_Master_Skill.md (after Pre-Flight Requirements)
 
-<!-- END SYSTEM FILE 14: AI_Technical_Analysis_Master_Skill_v_0_0.md -->
+<!-- END SYSTEM FILE 14: AI_Technical_Analysis_Master_Skill.md -->
 
 ---
 

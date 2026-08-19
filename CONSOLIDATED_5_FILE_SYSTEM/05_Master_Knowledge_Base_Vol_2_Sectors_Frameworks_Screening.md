@@ -1,8 +1,8 @@
 # 05_Master_Knowledge_Base_Vol_2_Sectors_Frameworks_Screening
 
 > **IERL AI Equity OS — curated upload artifact**  
-> Project Version: `0.4.0` · Bundle Version: `2.0` · Source Commit: `54533de`  
-> Generated At: `2026-08-17T08:07:50.930453+00:00` · Source Hash: `311073031dcedc44` · Compiler: `consolidate_project.py` v2.0
+> Project Version: `0.4.0` · Bundle Version: `2.0` · Source Commit: `871475a`  
+> Generated At: `2026-08-19T05:46:16.944746+00:00` · Source Hash: `c8d950da0665d4c0` · Compiler: `consolidate_project.py` v2.0
 
 ## Operating contract
 

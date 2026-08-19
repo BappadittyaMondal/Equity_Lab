@@ -41,8 +41,8 @@ The system first **synthesizes** market data using `DataSynthesizer` which aggre
 
 ### Knowledge‑Base Changelogs
 
-- [Domain 19 Derivatives & Options Changelog](Not_Required_Upload/Canonical_Source_84/Knowledge_IRA_COL_FINAL/Domain_19_Derivatives_Options.md#changelog)
-- [Domain 24 Forensic Accounting Changelog](Not_Required_Upload/Canonical_Source_84/Knowledge_IRA_COL_FINAL/Domain_24_Forensic_Accounting.md#changelog)
+- [Domain 19 Derivatives & Options Changelog](canonical_source/Knowledge_IRA_COL_FINAL/Domain_19_Derivatives_Options.md#changelog)
+- [Domain 24 Forensic Accounting Changelog](canonical_source/Knowledge_IRA_COL_FINAL/Domain_24_Forensic_Accounting.md#changelog)
 - Additional volumes have their own `CHANGELOG.md` files linked from the respective Knowledge‑Base directories.
 
 ---

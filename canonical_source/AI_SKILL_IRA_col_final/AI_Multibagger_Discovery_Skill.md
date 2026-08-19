@@ -549,7 +549,7 @@ Category 2/3/4 matches → each confirmed check adds up to +2 points to the
 
 - ✓ Only 12 of 250+ possible combinations included — the 4 highest-priority categories per the source document's own stated hierarchy
 - ✓ No new scoring category created — Category 1 reinforces the existing Financial Quality Gates (Module 5); Categories 2–4 refine the existing Financial Quality scoring line rather than adding a new axis
-- ✓ Explicitly skips Valuation and Technical combination libraries — those already live in `AI_DCF_Valuation_Skill.md` and `AI_Technical_Analysis_Master_Skill_v_0_0.md` respectively
+- ✓ Explicitly skips Valuation and Technical combination libraries — those already live in `AI_DCF_Valuation_Skill.md` and `AI_Technical_Analysis_Master_Skill.md` respectively
 
 ---
 

@@ -1,3 +1,13 @@
+<!-- IERL-CANONICAL-METADATA v1.2 -->
+> **Canonical retrieval label:** AI Forensic Accounting Skill  
+> **Role:** Executable workflow skill  
+> **Use when:** Use when the request matches this skill's method, then execute its stated gates and output format.  
+> **Cognitive mode:** Gate-based diagnostic execution: test the thesis, its counter-case, and its invalidation before a conclusion.  
+> **Evidence rule:** Date material facts, distinguish fact/calculation/assumption/inference, and disclose missing inputs.  
+> **Handoff: Project Instructions → Confidence Standard → Quality Audit → relevant knowledge domains.**
+> **Minimum skill output:** objective/horizon and as-of date · inputs and gaps · completed gates · conclusion and counter-case · material risks/invalidation · confidence and next verification step.  
+
+
 # AI Forensic Accounting Skill
 **Version:** v_0.0 | **Status:** Production Ready | **Last Updated:** July 2025
 **Category:** Universal — Applies to ALL company analyses regardless of sector

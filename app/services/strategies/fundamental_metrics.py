@@ -1,7 +1,7 @@
-"""Fundamental Metrics Library — Phase 2, Layer 4.
+"""Fundamental Metrics Library — Phase 2 & 6, Layer 4.
 
 Provides deterministic calculation functions for all institutional-grade
-fundamental metrics. Used by E1/E2/E3/E4 engines and the Arbiter.
+fundamental metrics. Used by E1/E2/E3/E4/E6 engines and the Arbiter.
 
 All functions accept lists of financial observations from ResearchDataStore
 and return computed metrics with evidence strings. No synthetic fallbacks.
@@ -19,9 +19,9 @@ def _extract_series(
     observations: List[Any], metric_names: List[str]
 ) -> List[Tuple[str, float]]:
     """Extract (period_end, value) pairs for a list of metric name aliases."""
-    obs = [o for o in observations if o.metric in metric_names]
-    obs.sort(key=lambda x: str(x.period_end))
-    return [(str(o.period_end), float(o.value)) for o in obs]
+    obs = [o for o in observations if getattr(o, "metric", "").lower() in [m.lower() for m in metric_names]]
+    obs.sort(key=lambda x: str(getattr(x, "period_end", "")))
+    return [(str(getattr(o, "period_end", "")), float(getattr(o, "value", 0.0))) for o in obs]
 
 
 def _pct_change(current: float, previous: float) -> Optional[float]:
@@ -50,17 +50,17 @@ def _cagr(series: List[Tuple[str, float]], periods: int) -> Optional[float]:
 
 
 # ─────────────────────────────────────────────────────────────────────────────
-# Layer 4 Metrics
+# Core Layer 4 Metrics
 # ─────────────────────────────────────────────────────────────────────────────
 
 def compute_revenue_metrics(financials: List[Any]) -> Dict[str, Any]:
     """Revenue growth: QoQ, YoY, 3Y CAGR, acceleration flag."""
     series = _extract_series(financials, ["revenue", "total_revenue", "operating_revenue"])
     if not series:
-        return {"status": "no_data", "evidence": []}
+        return {"status": "DATA_UNAVAILABLE", "evidence": ["DATA_UNAVAILABLE: No revenue series found."]}
 
     evidence = []
-    result: Dict[str, Any] = {}
+    result: Dict[str, Any] = {"status": "PRODUCTION"}
 
     if len(series) >= 2:
         qoq = _pct_change(series[-1][1], series[-2][1])
@@ -95,7 +95,7 @@ def compute_revenue_metrics(financials: List[Any]) -> Dict[str, Any]:
 
 def compute_profitability_metrics(financials: List[Any]) -> Dict[str, Any]:
     """PAT, operating margin, EBITDA margin, earnings quality."""
-    result: Dict[str, Any] = {}
+    result: Dict[str, Any] = {"status": "PRODUCTION"}
     evidence = []
 
     # Net income / PAT
@@ -109,12 +109,11 @@ def compute_profitability_metrics(financials: List[Any]) -> Dict[str, Any]:
         if cagr is not None:
             result["pat_3y_cagr_pct"] = round(cagr, 2)
 
-    # Operating margin (if stored as ratio)
+    # Operating margin
     margin_series = _extract_series(financials, ["operating_margin", "operating_income"])
     rev_series = _extract_series(financials, ["revenue", "total_revenue"])
     if margin_series and rev_series and len(margin_series) >= 2:
-        # If operating_income, compute margin
-        if margin_series[-1][1] > 5.0:  # likely operating income value, not %
+        if margin_series[-1][1] > 5.0:
             if rev_series and rev_series[-1][1] > 0:
                 margin_pct = (margin_series[-1][1] / rev_series[-1][1]) * 100.0
                 prev_margin_pct = (margin_series[-2][1] / rev_series[-2][1]) * 100.0 if rev_series[-2][1] > 0 else margin_pct
@@ -126,14 +125,13 @@ def compute_profitability_metrics(financials: List[Any]) -> Dict[str, Any]:
                 elif diff < -1.0:
                     evidence.append(f"Operating margin contracting: {prev_margin_pct:.1f}% → {margin_pct:.1f}% ({diff:.1f}bps)")
 
-    # Margin stability (std dev over last 8 quarters)
     if len(margin_series) >= 4:
         recent_margins = [v for _, v in margin_series[-8:]]
-        if all(v > 5.0 for v in recent_margins) and rev_series:
-            # Compute as pct if values are absolute
-            pass  # already handled above
         stability = statistics.stdev(recent_margins) if len(recent_margins) >= 2 else 0.0
         result["margin_stability_stddev"] = round(stability, 2)
+
+    if not pat_series and not margin_series:
+        return {"status": "DATA_UNAVAILABLE", "evidence": ["DATA_UNAVAILABLE: Insufficient profitability observation data."]}
 
     result["evidence"] = evidence
     return result
@@ -141,7 +139,7 @@ def compute_profitability_metrics(financials: List[Any]) -> Dict[str, Any]:
 
 def compute_balance_sheet_metrics(financials: List[Any]) -> Dict[str, Any]:
     """D/E ratio, working capital trend, net debt."""
-    result: Dict[str, Any] = {}
+    result: Dict[str, Any] = {"status": "PRODUCTION"}
     evidence = []
 
     debt_series = _extract_series(financials, ["total_debt", "net_debt"])
@@ -161,7 +159,6 @@ def compute_balance_sheet_metrics(financials: List[Any]) -> Dict[str, Any]:
             else:
                 evidence.append(f"High leverage: D/E = {de_ratio}x — monitor carefully")
 
-        # Trend: is debt declining?
         if len(debt_series) >= 4:
             debt_trend = _pct_change(debt_series[-1][1], debt_series[-4][1])
             if debt_trend is not None:
@@ -176,21 +173,22 @@ def compute_balance_sheet_metrics(financials: List[Any]) -> Dict[str, Any]:
         if wc_change is not None:
             result["working_capital_change_pct"] = round(wc_change, 2)
 
+    if not debt_series and not equity_series and not wc_series:
+        return {"status": "DATA_UNAVAILABLE", "evidence": ["DATA_UNAVAILABLE: Balance sheet observations unavailable."]}
+
     result["evidence"] = evidence
     return result
 
 
 def compute_cashflow_metrics(financials: List[Any]) -> Dict[str, Any]:
     """FCF, CFO/PAT earnings quality, capital expenditure."""
-    result: Dict[str, Any] = {}
+    result: Dict[str, Any] = {"status": "PRODUCTION"}
     evidence = []
 
     cfo_series = _extract_series(financials, ["operating_cash_flow", "cfo"])
     fcf_series = _extract_series(financials, ["free_cash_flow", "fcf"])
     pat_series = _extract_series(financials, ["net_income", "pat"])
-    capex_series = _extract_series(financials, ["capital_expenditure"])
 
-    # Earnings quality: CFO / PAT
     if cfo_series and pat_series:
         cfo = cfo_series[-1][1]
         pat = pat_series[-1][1]
@@ -206,7 +204,6 @@ def compute_cashflow_metrics(financials: List[Any]) -> Dict[str, Any]:
             else:
                 evidence.append(f"Low earnings quality: CFO/PAT = {quality_ratio}x")
 
-    # FCF trend
     if fcf_series and len(fcf_series) >= 2:
         latest_fcf = fcf_series[-1][1]
         prev_fcf = fcf_series[-2][1]
@@ -219,13 +216,105 @@ def compute_cashflow_metrics(financials: List[Any]) -> Dict[str, Any]:
         elif latest_fcf < 0:
             evidence.append(f"Negative FCF: {latest_fcf:,.0f} — company is cash-consuming")
 
+    if not cfo_series and not fcf_series:
+        return {"status": "DATA_UNAVAILABLE", "evidence": ["DATA_UNAVAILABLE: Cash flow observations unavailable."]}
+
     result["evidence"] = evidence
     return result
 
 
+def compute_working_capital_turnover(financials: List[Any]) -> Dict[str, Any]:
+    """Working Capital Turnover = Revenue / Working Capital."""
+    rev_series = _extract_series(financials, ["revenue", "total_revenue", "operating_revenue"])
+    wc_series = _extract_series(financials, ["working_capital"])
+
+    if not rev_series or not wc_series:
+        return {"status": "DATA_UNAVAILABLE", "working_capital_turnover": None, "evidence": ["DATA_UNAVAILABLE: Revenue or Working Capital missing."]}
+
+    rev = rev_series[-1][1]
+    wc = wc_series[-1][1]
+
+    if wc <= 0:
+        return {
+            "status": "PRODUCTION",
+            "working_capital_turnover": None,
+            "evidence": [f"Working Capital is non-positive ({wc:,.2f}); turnover ratio not defined."]
+        }
+
+    turnover = round(rev / wc, 2)
+    return {
+        "status": "PRODUCTION",
+        "working_capital_turnover": turnover,
+        "evidence": [f"Working Capital Turnover: {turnover:.2f}x (Revenue ₹{rev:,.0f} / WC ₹{wc:,.0f})"]
+    }
+
+
+def compute_roic_wacc_spread(financials: List[Any], wacc: float = 11.5) -> Dict[str, Any]:
+    """ROIC vs Cost of Capital (WACC) Spread = ROIC (%) - WACC (%)."""
+    roic_series = _extract_series(financials, ["roic", "roce", "return_on_capital_employed"])
+
+    if not roic_series:
+        return {"status": "DATA_UNAVAILABLE", "spread_pct": None, "evidence": ["DATA_UNAVAILABLE: ROIC/ROCE observations missing."]}
+
+    roic = roic_series[-1][1]
+    spread = round(roic - wacc, 2)
+
+    return {
+        "status": "PRODUCTION",
+        "roic_pct": round(roic, 2),
+        "wacc_pct": round(wacc, 2),
+        "spread_pct": spread,
+        "value_creating": spread > 0,
+        "evidence": [f"ROIC vs WACC Spread: {spread:+.2f}% points (ROIC {roic:.1f}% vs Cost of Capital {wacc:.1f}%)"]
+    }
+
+
+def compute_debt_ebitda(financials: List[Any]) -> Dict[str, Any]:
+    """Debt / EBITDA Ratio."""
+    debt_series = _extract_series(financials, ["total_debt", "net_debt"])
+    ebitda_series = _extract_series(financials, ["ebitda", "operating_income"])
+
+    if not debt_series or not ebitda_series:
+        return {"status": "DATA_UNAVAILABLE", "debt_ebitda_ratio": None, "evidence": ["DATA_UNAVAILABLE: Debt or EBITDA observations missing."]}
+
+    debt = debt_series[-1][1]
+    ebitda = ebitda_series[-1][1]
+
+    if ebitda <= 0:
+        return {
+            "status": "PRODUCTION",
+            "debt_ebitda_ratio": None,
+            "evidence": [f"EBITDA is non-positive ({ebitda:,.2f}); Debt/EBITDA not defined."]
+        }
+
+    ratio = round(debt / ebitda, 2)
+    return {
+        "status": "PRODUCTION",
+        "debt_ebitda_ratio": ratio,
+        "evidence": [f"Debt / EBITDA: {ratio:.2f}x (Total Debt ₹{debt:,.0f} / EBITDA ₹{ebitda:,.0f})"]
+    }
+
+
+def compute_ocf_yield(financials: List[Any], market_cap: Optional[float] = None) -> Dict[str, Any]:
+    """Operating Cash Flow Yield = CFO / Market Capitalization."""
+    cfo_series = _extract_series(financials, ["operating_cash_flow", "cfo"])
+
+    if not cfo_series or market_cap is None or market_cap <= 0:
+        return {"status": "DATA_UNAVAILABLE", "ocf_yield_pct": None, "evidence": ["DATA_UNAVAILABLE: CFO observations or Market Cap missing."]}
+
+    cfo = cfo_series[-1][1]
+    ocf_yield = round((cfo / market_cap) * 100.0, 2)
+
+    return {
+        "status": "PRODUCTION",
+        "ocf_yield_pct": ocf_yield,
+        "evidence": [f"Operating Cash Flow Yield: {ocf_yield:.2f}% (CFO ₹{cfo:,.0f} / Market Cap ₹{market_cap:,.0f})"]
+    }
+
+
 def compute_dupont_roe(financials: List[Any]) -> Dict[str, Any]:
     """DuPont ROE decomposition: Net Margin × Asset Turnover × Equity Multiplier."""
-    result: Dict[str, Any] = {}
+    result: Dict[str, Any] = {"status": "PRODUCTION"}
     evidence = []
 
     pat_series = _extract_series(financials, ["net_income", "pat"])
@@ -234,7 +323,7 @@ def compute_dupont_roe(financials: List[Any]) -> Dict[str, Any]:
     equity_series = _extract_series(financials, ["total_equity"])
 
     if not (pat_series and rev_series and asset_series and equity_series):
-        return {"status": "insufficient_data", "evidence": []}
+        return {"status": "DATA_UNAVAILABLE", "evidence": ["DATA_UNAVAILABLE: Insufficient observations for DuPont ROE."]}
 
     pat = pat_series[-1][1]
     rev = rev_series[-1][1]

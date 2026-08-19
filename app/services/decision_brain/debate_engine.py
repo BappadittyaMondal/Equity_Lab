@@ -26,7 +26,7 @@ logger = logging.getLogger(__name__)
 # Engine category mapping for severity calculation
 ENGINE_CATEGORIES: Dict[str, str] = {
     "E1": "FUNDAMENTAL", "E2": "FUNDAMENTAL", "E3": "FUNDAMENTAL",
-    "E4": "FUNDAMENTAL", "E5": "FUNDAMENTAL",
+    "E4": "FUNDAMENTAL", "E5": "FUNDAMENTAL", "E6": "FUNDAMENTAL",
     "B4": "TECHNICAL", "B5": "TECHNICAL", "B6": "TECHNICAL",
     "B7": "TECHNICAL", "B8": "TECHNICAL",
     "C9": "VALUATION", "DCF_FWD": "VALUATION",

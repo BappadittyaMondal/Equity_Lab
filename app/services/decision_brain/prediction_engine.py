@@ -85,7 +85,7 @@ def _risk_metrics(rets: np.ndarray, horizon_label: str) -> Dict[str, Any]:
 
 def _fundamental_return_estimate(
     financials: List[Any],
-    current_pe: float,
+    current_pe: Optional[float],
     horizon_years: float,
 ) -> Optional[float]:
     """Estimate expected return from earnings growth × multiple expansion.
@@ -110,11 +110,11 @@ def _fundamental_return_estimate(
     # Approximate dividend yield from India market (2% average)
     div_yield = 0.02
 
-    # Multiple change: if current P/E > 25, expect slight compression; < 15, expansion
+    # Multiple change: if current P/E > 30, expect slight compression; < 15, expansion
     multiple_change_annual = 0.0
-    if current_pe > 30:
+    if current_pe is not None and current_pe > 30:
         multiple_change_annual = -0.02  # 2% annual multiple compression
-    elif current_pe < 15:
+    elif current_pe is not None and current_pe < 15:
         multiple_change_annual = 0.02   # 2% annual multiple expansion
 
     annual_return = (eps_cagr / 100.0) + div_yield + multiple_change_annual
@@ -227,7 +227,7 @@ def _build_scenario_tree(
     bear_return = min(empirical_p25, base_return * 0.5)
 
     def _price_target(ret_pct: float) -> float:
-        return round(current_price * (1 + ret_pct / 100.0), 2)
+        return round(current_price * (1 + ret_pct / 100.0), 2) if current_price > 0 else 0.0
 
     prob_bull, prob_base, prob_bear = 0.25, 0.50, 0.25
     expected_return = (
@@ -356,7 +356,7 @@ def generate_prediction_summary(
     closes = np.array([])
     price_history_days = 0
     current_price = 0.0
-    current_pe = 25.0
+    current_pe = None
 
     try:
         hist = get_history(norm, period="5y", interval="1d")
@@ -370,8 +370,12 @@ def generate_prediction_summary(
 
     try:
         quote = get_quote(norm)
-        current_price = float(getattr(quote, "price", None) or (quote.get("price") if isinstance(quote, dict) else current_price) or current_price)
-        current_pe = float(getattr(quote, "pe_ratio", None) or (quote.get("pe_ratio") if isinstance(quote, dict) else 25.0) or 25.0)
+        p_val = getattr(quote, "price", None) or (quote.get("price") if isinstance(quote, dict) else None)
+        if p_val and float(p_val) > 0:
+            current_price = float(p_val)
+        pe_val = getattr(quote, "pe_ratio", None) or (quote.get("pe_ratio") if isinstance(quote, dict) else None)
+        if pe_val and float(pe_val) > 0:
+            current_pe = float(pe_val)
     except Exception:
         pass
 
@@ -406,7 +410,7 @@ def generate_prediction_summary(
         elif len(rets) > 0:
             blended = float(np.median(rets))
         else:
-            blended = NIFTY_LONG_TERM_CAGR * (months / 12.0) * 100
+            blended = 0.0
 
         p25 = risk.get("p25_return_pct", blended * 0.5)
         p50 = risk.get("median_return_pct", blended)
@@ -420,6 +424,7 @@ def generate_prediction_summary(
             "valuation_contrib_pct":    valuation_contrib,
             "risk_metrics":             risk,
             "scenario_tree":            scenario,
+            "data_status":              "PRODUCTION" if (len(rets) > 0 or fundamental_est is not None) else "DATA_UNAVAILABLE",
         }
         risk_summary[label] = {
             "prob_loss_20pct":           risk.get("prob_loss_20pct"),

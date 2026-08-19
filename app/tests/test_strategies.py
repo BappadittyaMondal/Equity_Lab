@@ -18,6 +18,6 @@ def test_strategy_production_vs_coming_soon():
     all_ids = ["A1", "A2", "A3", "B4", "B6", "B7", "C10", "C11", "C12", "D16", "D17"]
     for sid in all_ids:
         m = get_strategy_module(sid)
-        assert m.status in ["production", "coming_soon"]
+        assert m.status in ["production", "coming_soon", "suspended"]
 
 

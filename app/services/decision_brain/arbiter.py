@@ -60,9 +60,18 @@ def _ensure_table():
             contributing_engines TEXT,
             contradicting_engines TEXT,
             confidence_tier TEXT,
-            created_at TEXT NOT NULL
+            created_at TEXT NOT NULL,
+            data_backed BOOLEAN DEFAULT 0
         )
     """)
+    # Auto-migration: ensure data_backed column exists and backfill 0
+    try:
+        cols = [r[1] for r in conn.execute("PRAGMA table_info(conviction_calls)").fetchall()]
+        if "data_backed" not in cols:
+            conn.execute("ALTER TABLE conviction_calls ADD COLUMN data_backed BOOLEAN DEFAULT 0")
+            conn.execute("UPDATE conviction_calls SET data_backed = 0 WHERE data_backed IS NULL")
+    except Exception:
+        pass
     conn.execute("""
         CREATE TABLE IF NOT EXISTS thesis_drift_events (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -110,14 +119,21 @@ class Arbiter:
     # ──────────────────────────────────────────────────────────────────────
     # 1. Collect engine outputs
     # ──────────────────────────────────────────────────────────────────────
-    def _collect_engine_outputs(self, symbol: str) -> List[Dict[str, Any]]:
+    def _collect_engine_outputs(
+        self, symbol: str, snap: Optional[Any] = None, as_of: Optional[datetime] = None
+    ) -> List[Dict[str, Any]]:
         from app.services.strategies import registry
         from app.services.strategies.registry import run_strategy_module
+
+        if snap is None:
+            snap = self.synthesizer.synthesize(symbol, as_of=as_of)
+        confidence = int(snap.data_confidence_score * 100)
 
         regime = self.macro_context.regime.regime
         outputs = []
 
-        for engine_id, module in registry.STRATEGY_MODULES.items():
+        all_modules = {**registry.STRATEGY_MODULES, **registry.RESEARCH_ENGINES}
+        for engine_id, module in all_modules.items():
             if module.status != "production":
                 continue
             try:
@@ -127,10 +143,6 @@ class Arbiter:
                 continue
 
             verdict = "Buy" if resp.passed_gates else "Avoid"
-
-            # Per-engine confidence from data synthesis
-            snap = self.synthesizer.synthesize(symbol)
-            confidence = int(snap.data_confidence_score * 100)
 
             outputs.append({
                 "engine_id":  engine_id,
@@ -273,8 +285,10 @@ class Arbiter:
     # 5. Contradiction report (delegates to debate engine)
     # ──────────────────────────────────────────────────────────────────────
     def generate_contradiction_report(self, symbol: str, outputs: List[Dict[str, Any]]) -> ContradictionReport:
+        from app.services.market_data import normalize_symbol
+        norm = normalize_symbol(symbol)
         regime = self.macro_context.regime.regime if self._macro_context else "CALM"
-        return generate_debate(symbol, outputs, macro_regime=regime)
+        return generate_debate(norm, outputs, macro_regime=regime)
 
     # ──────────────────────────────────────────────────────────────────────
     # 6. Score → Verdict (5 tiers)
@@ -337,26 +351,28 @@ class Arbiter:
     # ──────────────────────────────────────────────────────────────────────
     # 9. Persist conviction call
     # ──────────────────────────────────────────────────────────────────────
-    def _persist(self, call: ConvictionCall) -> None:
+    def _persist(self, call: ConvictionCall) -> Optional[int]:
         conn = _get_connection()
-        conn.execute(
+        cursor = conn.execute(
             "INSERT INTO conviction_calls (symbol, verdict, conviction_score, primary_thesis, "
-            "contributing_engines, contradicting_engines, confidence_tier, created_at) "
-            "VALUES (?, ?, ?, ?, ?, ?, ?, ?)",
+            "contributing_engines, contradicting_engines, confidence_tier, created_at, data_backed) "
+            "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)",
             (
                 call.symbol, call.verdict, call.conviction_score, call.primary_thesis,
                 json.dumps(call.contributing_engines), json.dumps(call.contradicting_engines),
-                call.confidence_tier, call.timestamp,
+                call.confidence_tier, call.timestamp, 1 if call.data_backed else 0,
             ),
         )
+        call_id = cursor.lastrowid
         conn.commit()
         conn.close()
+        return call_id
 
     # ──────────────────────────────────────────────────────────────────────
     # 10. Auto-log to prediction ledger (Phase 5 prerequisite)
     # ──────────────────────────────────────────────────────────────────────
     def _log_to_prediction_ledger(
-        self, call: ConvictionCall, reference_price: Optional[float]
+        self, call: ConvictionCall, reference_price: Optional[float], conviction_call_id: Optional[int] = None
     ) -> None:
         """Auto-log conviction call so Phase 5 can track outcomes."""
         try:
@@ -370,6 +386,7 @@ class Arbiter:
                 thesis=call.primary_thesis[:500],
                 reference_price=reference_price,
                 model_version=MODEL_VERSION,
+                conviction_call_id=conviction_call_id,
             )
         except Exception as e:
             logger.warning("Failed to log to prediction ledger: %s", e)
@@ -377,7 +394,7 @@ class Arbiter:
     # ──────────────────────────────────────────────────────────────────────
     # 11. Public: arbitrate() — the canonical entry point
     # ──────────────────────────────────────────────────────────────────────
-    def arbitrate(self, symbol: str) -> ConvictionCall:
+    def arbitrate(self, symbol: str, as_of: Optional[datetime] = None) -> ConvictionCall:
         """Full Phase 4 arbitration pipeline.
 
         DATA → RESEARCH → REASONING → DEBATE → PREDICTION → CONVICTION → AUDIT
@@ -387,8 +404,12 @@ class Arbiter:
         regime = self.macro_context.regime.regime
         india_vix = getattr(self.macro_context, "india_vix", None)
 
+        # Single synthesis call per arbitrate run
+        snap = self.synthesizer.synthesize(normalized, as_of=as_of)
+        is_data_backed = bool(snap.data_confidence_score >= 0.3)
+
         # Step 1: Collect all engine outputs
-        outputs = self._collect_engine_outputs(normalized)
+        outputs = self._collect_engine_outputs(normalized, snap=snap, as_of=as_of)
 
         # Step 2: Governance veto check (before scoring)
         veto = self._apply_governance_veto(outputs)
@@ -430,10 +451,11 @@ class Arbiter:
             contributing_engines=[o["engine_id"] for o in outputs if o["verdict"] == "Buy"],
             contradicting_engines=contradictions,
             confidence_tier=confidence_tier,
+            data_backed=is_data_backed,
         )
 
-        # Step 8: Persist conviction call
-        self._persist(call)
+        # Step 8: Persist conviction call and get FK id
+        call_id = self._persist(call)
 
         # Step 9: Auto-log to prediction ledger (Phase 5 prep)
         ref_price = None
@@ -443,7 +465,7 @@ class Arbiter:
             ref_price = float(getattr(q, "price", None) or (q.get("price") if isinstance(q, dict) else None) or 0.0) or None
         except Exception:
             pass
-        self._log_to_prediction_ledger(call, ref_price)
+        self._log_to_prediction_ledger(call, ref_price, conviction_call_id=call_id)
 
         # Step 10: Build and persist full DecisionAuditTrail (Layer 14)
         try:
