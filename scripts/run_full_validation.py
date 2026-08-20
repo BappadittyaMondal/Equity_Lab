@@ -17,7 +17,7 @@ sys.path.insert(0, str(root_dir))
 from app.core.config import settings
 from app.services.backtesting.replay_engine import PointInTimeReplayEngine
 from app.services.backtesting.walk_forward import WalkForwardBacktester
-from app.services.backtesting.score_calibration import ScoreCalibrator
+from app.services.backtesting.score_bucket_analysis import ScoreCalibrator
 
 DOCS_DIR = root_dir / "docs"
 DOCS_DIR.mkdir(parents=True, exist_ok=True)

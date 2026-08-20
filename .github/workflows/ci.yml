@@ -27,6 +27,10 @@ jobs:
           pip install -r requirements.txt
           pip install pip-audit
 
+      - name: Run Secret & Credential Exposure Audit
+        run: |
+          python scripts/check_no_real_secrets.py
+
       - name: Run Integrity Preflight Gate
         run: |
           python scripts/preflight_check.py

@@ -210,6 +210,80 @@ def _ensure_tables() -> None:
     )
     conn.execute("CREATE INDEX IF NOT EXISTS idx_estimates_sym_period ON earnings_estimates(symbol, fiscal_period)")
 
+    conn.execute(
+        """
+        CREATE TABLE IF NOT EXISTS quarterly_financials (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            symbol TEXT NOT NULL,
+            period_ended TEXT NOT NULL,
+            revenue REAL,
+            operating_profit REAL,
+            net_profit REAL,
+            eps REAL,
+            operating_margin_pct REAL,
+            net_margin_pct REAL,
+            roce_pct REAL,
+            roe_pct REAL,
+            as_of_date TEXT NOT NULL,
+            source TEXT NOT NULL,
+            UNIQUE(symbol, period_ended)
+        )
+        """
+    )
+    conn.execute("CREATE INDEX IF NOT EXISTS idx_qtr_fin_sym ON quarterly_financials(symbol, period_ended)")
+
+    conn.execute(
+        """
+        CREATE TABLE IF NOT EXISTS promoter_shareholding (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            symbol TEXT NOT NULL,
+            period_ended TEXT NOT NULL,
+            promoter_holding_pct REAL NOT NULL,
+            pledged_pct REAL DEFAULT 0.0,
+            institutional_holding_pct REAL DEFAULT 0.0,
+            as_of_date TEXT NOT NULL,
+            source TEXT NOT NULL,
+            UNIQUE(symbol, period_ended)
+        )
+        """
+    )
+    conn.execute("CREATE INDEX IF NOT EXISTS idx_promoter_sym ON promoter_shareholding(symbol, period_ended)")
+
+    conn.execute(
+        """
+        CREATE TABLE IF NOT EXISTS market_corporate_actions (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            symbol TEXT NOT NULL,
+            action_type TEXT NOT NULL,
+            ex_date TEXT NOT NULL,
+            ratio_or_amount REAL NOT NULL,
+            details TEXT,
+            as_of_date TEXT NOT NULL,
+            UNIQUE(symbol, action_type, ex_date)
+        )
+        """
+    )
+    conn.execute("CREATE INDEX IF NOT EXISTS idx_corp_act_sym ON market_corporate_actions(symbol)")
+
+    conn.execute(
+        """
+        CREATE TABLE IF NOT EXISTS historical_prices (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            symbol TEXT NOT NULL,
+            date TEXT NOT NULL,
+            open REAL NOT NULL,
+            high REAL NOT NULL,
+            low REAL NOT NULL,
+            close REAL NOT NULL,
+            volume INTEGER NOT NULL,
+            adjusted_close REAL NOT NULL,
+            as_of_date TEXT NOT NULL,
+            UNIQUE(symbol, date)
+        )
+        """
+    )
+    conn.execute("CREATE INDEX IF NOT EXISTS idx_hist_px_sym_date ON historical_prices(symbol, date)")
+
     conn.commit()
     conn.close()
 
