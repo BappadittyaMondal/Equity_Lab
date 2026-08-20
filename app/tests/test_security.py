@@ -59,6 +59,19 @@ def test_api_key_authentication_on_product_endpoints(monkeypatch):
     assert res_auth.json()["symbol"] in ("RELIANCE", "RELIANCE.NS")
 
 
+def test_portfolio_router_authentication(monkeypatch):
+    monkeypatch.setattr(settings, "REQUIRE_AUTH", True)
+    monkeypatch.setattr(settings, "API_KEY_SECRET", "valid-secret-key")
+
+    res_unauth = client.get("/api/v1/portfolio/")
+    assert res_unauth.status_code == 401
+
+    res_auth = client.get("/api/v1/portfolio/", headers={"X-API-Key": "valid-secret-key"})
+    assert res_auth.status_code == 200
+    assert "symbols" in res_auth.json()
+
+
+
 
 def test_a2_endpoint_is_suspended_by_default(monkeypatch):
     monkeypatch.setattr(settings, "ENABLE_OPTIONS_A2", False)
