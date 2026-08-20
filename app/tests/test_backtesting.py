@@ -31,6 +31,29 @@ def test_point_in_time_replay_engine(temp_db_path):
     assert res.data_snapshot.as_of == as_of
 
 
+def test_replay_engine_passes_as_of_to_arbiter(monkeypatch):
+    from unittest.mock import MagicMock
+    replay = PointInTimeReplayEngine()
+    mock_arbiter = MagicMock()
+    fake_call = MagicMock(
+        conviction_score=80,
+        verdict="Buy",
+        confidence_tier="Confirmed",
+        contributing_engines=["E1"],
+        contradicting_engines=[],
+    )
+    mock_arbiter.arbitrate.return_value = fake_call
+    replay.arbiter = mock_arbiter
+
+    as_of = datetime(2025, 1, 15, 12, 0, 0, tzinfo=timezone.utc)
+    res = replay.replay_analysis("INFY", as_of)
+
+    mock_arbiter.arbitrate.assert_called_once_with("INFY.NS", as_of=as_of)
+    assert res.analysis_date == as_of.isoformat()
+    assert res.historical_score == 80
+
+
+
 def test_walk_forward_backtester():
     tester = WalkForwardBacktester()
     samples = [

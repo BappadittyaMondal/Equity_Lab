@@ -14,7 +14,7 @@ app_dir = os.path.abspath(os.path.dirname(__file__))
 if app_dir not in sys.path:
     sys.path.insert(0, app_dir)
 
-from fastapi import FastAPI, Request, status
+from fastapi import FastAPI, Request, Depends, status
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 from fastapi.responses import FileResponse, JSONResponse
@@ -23,14 +23,14 @@ try:
     from app.core.config import settings
     # Validate CORS settings for production environment
     settings._validate_cors_settings()
-    from app.core.security import ApiSecurityMiddleware, SecurityHeadersMiddleware
-    from app.api import health, market, comparison, probability, options, strategies, query, research_data, watchlist, decision, watchlist_digest, monitoring
+    from app.core.security import ApiSecurityMiddleware, SecurityHeadersMiddleware, verify_api_key
+    from app.api import health, market, comparison, probability, options, strategies, query, research_data, watchlist, decision, watchlist_digest, monitoring, admin
 except ModuleNotFoundError:
     from core.config import settings
     # Validate CORS settings for production environment
     settings._validate_cors_settings()
-    from core.security import ApiSecurityMiddleware, SecurityHeadersMiddleware
-    from api import health, market, comparison, probability, options, strategies, query, research_data, watchlist, decision, watchlist_digest, monitoring
+    from core.security import ApiSecurityMiddleware, SecurityHeadersMiddleware, verify_api_key
+    from api import health, market, comparison, probability, options, strategies, query, research_data, watchlist, decision, watchlist_digest, monitoring, admin
 
 app = FastAPI(
     title=settings.PROJECT_NAME,
@@ -65,18 +65,23 @@ async def global_exception_handler(request: Request, exc: Exception):
     )
 
 # Include API Routers under /api/v1
+# Health check endpoints stay unauthenticated for infrastructure monitoring / readiness probes
 app.include_router(health.router)
-app.include_router(market.router)
-app.include_router(comparison.router)
-app.include_router(probability.router)
-app.include_router(options.router)
-app.include_router(strategies.router)
-app.include_router(query.router)
-app.include_router(research_data.router)
-app.include_router(watchlist.router)
-app.include_router(decision.router)
-app.include_router(watchlist_digest.router)
-app.include_router(monitoring.router)
+
+# All product API routers require API key authentication
+auth_deps = [Depends(verify_api_key)]
+app.include_router(market.router, dependencies=auth_deps)
+app.include_router(comparison.router, dependencies=auth_deps)
+app.include_router(probability.router, dependencies=auth_deps)
+app.include_router(options.router, dependencies=auth_deps)
+app.include_router(strategies.router, dependencies=auth_deps)
+app.include_router(query.router, dependencies=auth_deps)
+app.include_router(research_data.router, dependencies=auth_deps)
+app.include_router(watchlist.router, dependencies=auth_deps)
+app.include_router(decision.router, dependencies=auth_deps)
+app.include_router(watchlist_digest.router, dependencies=auth_deps)
+app.include_router(monitoring.router, dependencies=auth_deps)
+app.include_router(admin.router)
 
 # Mount Frontend Assets
 frontend_dir = os.path.join(os.path.dirname(__file__), "../frontend_deploy")

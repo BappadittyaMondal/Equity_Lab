@@ -77,8 +77,8 @@ class PointInTimeReplayEngine:
         # Enforce point-in-time timeline filter
         snapshot = self.get_point_in_time_data(normalized, as_of)
 
-        # Run real production Arbiter engine
-        call = self.arbiter.arbitrate(normalized)
+        # Run real production Arbiter engine with point-in-time date T
+        call = self.arbiter.arbitrate(normalized, as_of=as_of)
 
         return HistoricalReplayResult(
             symbol=normalized,

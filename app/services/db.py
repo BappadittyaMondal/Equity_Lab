@@ -124,6 +124,8 @@ def _ensure_tables() -> None:
     )
     conn.execute("CREATE INDEX IF NOT EXISTS idx_alerts_sym ON system_alerts(symbol)")
 
+    # NOTE (Leakage Fix Audit): Records created prior to point-in-time leakage remediation (2026-08-20)
+    # are marked pre_fix_unverified = 1 to prevent invalid backtest calibration baselines.
     conn.execute(
         """
         CREATE TABLE IF NOT EXISTS prediction_ledger (
@@ -137,15 +139,20 @@ def _ensure_tables() -> None:
             thesis TEXT,
             model_version TEXT NOT NULL DEFAULT '1.0',
             created_at TEXT NOT NULL,
-            conviction_call_id INTEGER REFERENCES conviction_calls(id)
+            conviction_call_id INTEGER REFERENCES conviction_calls(id),
+            pre_fix_unverified BOOLEAN DEFAULT 0
         )
         """
     )
-    # Check if conviction_call_id column exists in prediction_ledger, migrate if missing
+    # Check if conviction_call_id and pre_fix_unverified columns exist in prediction_ledger, migrate if missing
     try:
         existing_cols = [r[1] for r in conn.execute("PRAGMA table_info(prediction_ledger)").fetchall()]
         if "conviction_call_id" not in existing_cols:
             conn.execute("ALTER TABLE prediction_ledger ADD COLUMN conviction_call_id INTEGER REFERENCES conviction_calls(id)")
+        if "pre_fix_unverified" not in existing_cols:
+            conn.execute("ALTER TABLE prediction_ledger ADD COLUMN pre_fix_unverified BOOLEAN DEFAULT 0")
+            # Flag all legacy records created prior to point-in-time leakage fix as pre_fix_unverified = 1
+            conn.execute("UPDATE prediction_ledger SET pre_fix_unverified = 1 WHERE pre_fix_unverified IS NULL OR pre_fix_unverified = 0")
     except Exception:
         pass
     conn.execute("CREATE INDEX IF NOT EXISTS idx_pred_sym ON prediction_ledger(symbol)")
@@ -162,10 +169,18 @@ def _ensure_tables() -> None:
             excess_return_pct REAL NOT NULL,
             outcome_class TEXT NOT NULL,
             recorded_at TEXT NOT NULL,
+            pre_fix_unverified BOOLEAN DEFAULT 0,
             FOREIGN KEY (prediction_id) REFERENCES prediction_ledger(id)
         )
         """
     )
+    try:
+        existing_outcome_cols = [r[1] for r in conn.execute("PRAGMA table_info(outcome_ledger)").fetchall()]
+        if "pre_fix_unverified" not in existing_outcome_cols:
+            conn.execute("ALTER TABLE outcome_ledger ADD COLUMN pre_fix_unverified BOOLEAN DEFAULT 0")
+            conn.execute("UPDATE outcome_ledger SET pre_fix_unverified = 1 WHERE pre_fix_unverified IS NULL OR pre_fix_unverified = 0")
+    except Exception:
+        pass
 
     conn.execute(
         """

@@ -4,10 +4,26 @@
 import time
 import hmac
 from typing import Dict
-from fastapi import Request, HTTPException, status
+from fastapi import Request, HTTPException, Header, status
 from starlette.middleware.base import BaseHTTPMiddleware
 from starlette.responses import JSONResponse, Response
 from app.core.config import settings
+
+
+def verify_api_key(x_api_key: str = Header(default="")) -> bool:
+    """Verifies that incoming requests contain a valid API key header.
+    
+    Checks X-API-Key against settings.API_KEY_SECRET or settings.ADMIN_API_KEY.
+    If REQUIRE_AUTH is true or API keys are configured, validates the header.
+    """
+    valid_keys = [k for k in [settings.API_KEY_SECRET, settings.ADMIN_API_KEY] if k]
+    if settings.REQUIRE_AUTH or valid_keys:
+        if not x_api_key or not any(hmac.compare_digest(x_api_key, k) for k in valid_keys):
+            raise HTTPException(
+                status_code=status.HTTP_401_UNAUTHORIZED,
+                detail="Valid API authentication key required."
+            )
+    return True
 
 
 class SecurityHeadersMiddleware(BaseHTTPMiddleware):

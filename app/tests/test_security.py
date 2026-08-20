@@ -45,6 +45,21 @@ def test_authentication_is_enforced_when_enabled(monkeypatch):
     assert rejected_key.status_code == 401
 
 
+def test_api_key_authentication_on_product_endpoints(monkeypatch):
+    monkeypatch.setattr(settings, "REQUIRE_AUTH", True)
+    monkeypatch.setattr(settings, "API_KEY_SECRET", "valid-secret-key")
+
+    # Unauthenticated request to decision endpoint returns 401
+    res_unauth = client.get("/api/v1/decision/RELIANCE")
+    assert res_unauth.status_code == 401
+
+    # Authenticated request with valid key succeeds (status 200)
+    res_auth = client.get("/api/v1/decision/RELIANCE", headers={"X-API-Key": "valid-secret-key"})
+    assert res_auth.status_code == 200
+    assert res_auth.json()["symbol"] in ("RELIANCE", "RELIANCE.NS")
+
+
+
 def test_a2_endpoint_is_suspended_by_default(monkeypatch):
     monkeypatch.setattr(settings, "ENABLE_OPTIONS_A2", False)
     res = client.post("/api/v1/options/a2-payoff", json={

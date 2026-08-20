@@ -458,13 +458,14 @@ class Arbiter:
         call_id = self._persist(call)
 
         # Step 9: Auto-log to prediction ledger (Phase 5 prep)
-        ref_price = None
-        try:
-            from app.services.market_data import get_quote
-            q = get_quote(normalized)
-            ref_price = float(getattr(q, "price", None) or (q.get("price") if isinstance(q, dict) else None) or 0.0) or None
-        except Exception:
-            pass
+        ref_price = snap.consensus_price if (snap and snap.consensus_price) else None
+        if ref_price is None and as_of is None:
+            try:
+                from app.services.market_data import get_quote
+                q = get_quote(normalized)
+                ref_price = float(getattr(q, "price", None) or (q.get("price") if isinstance(q, dict) else None) or 0.0) or None
+            except Exception:
+                pass
         self._log_to_prediction_ledger(call, ref_price, conviction_call_id=call_id)
 
         # Step 10: Build and persist full DecisionAuditTrail (Layer 14)

@@ -337,3 +337,16 @@ Top 10 Mandatory Improvements:
 Target Score After Improvements:
 93.50 / 100
 ```
+
+---
+
+## DATED ADDENDUM (2026-08-20 Release Engineering Pass)
+
+> [!NOTE]
+> **REMEDIATION STATUS**: This addendum documents critical security and point-in-time data integrity fixes applied to `Equity_final_claude_v_0.3` on 2026-08-20:
+>
+> 1. **Point-in-Time Data Leakage Remediated**: `app/services/backtesting/replay_engine.py` has been updated to explicitly pass `as_of=as_of` to `self.arbiter.arbitrate()`. Historical backtesting now evaluates candidates using strictly point-in-time snapshot data without look-ahead bias to live quotes.
+> 2. **Legacy Data Baselining**: All 2,796 historical prediction/outcome records generated prior to this fix have been migrated and flagged with `pre_fix_unverified = 1` in `app/services/db.py`. Future backtests and calibration reports will exclude these legacy records.
+> 3. **API Key Authentication Enforced**: Shared authentication (`verify_api_key` enforcing `X-API-Key`) has been extended across all product API routers in `app/main.py`. Only infrastructure health-check endpoints (`/api/v1/health*`) remain unauthenticated for uptime monitoring.
+> 4. **Superseded Audit Baseline**: The prior score of 68.52/100 is now considered superseded pending formal re-calibration against post-fix backtest datasets.
+

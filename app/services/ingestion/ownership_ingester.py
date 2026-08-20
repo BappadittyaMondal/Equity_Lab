@@ -26,9 +26,10 @@ class OwnershipIngester:
     def fetch_ownership_data(self, symbol: str) -> Optional[Dict[str, Any]]:
         """Fetch official shareholding pattern and promoter pledge data for a symbol.
 
-        # TODO: source not yet connected
-        No live shareholding-pattern or promoter-pledge data feed (e.g., BSE/NSE exchange API)
-        is currently connected. Returning None rather than fabricating ownership numbers.
+        DEFERRAL SCOPE NOTE (Release Pass): Live exchange APIs for shareholding patterns
+        (BSE/NSE XBRL filings) are deliberately deferred to a post-v0.3 release cycle.
+        Returning None guarantees that missing ownership data gracefully reduces the
+        Synthesizer data_confidence_score (has_ownership=0.0) without fabricating numbers.
         """
         logger.warning("Ownership data source not yet connected for %s", symbol)
         return None
