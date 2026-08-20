@@ -6,7 +6,7 @@ import pytest
 
 from app.services.backtesting.replay_engine import PointInTimeReplayEngine
 from app.services.backtesting.walk_forward import WalkForwardBacktester
-from app.services.backtesting.score_calibration import ScoreCalibrator
+from app.services.backtesting.score_bucket_analysis import ScoreCalibrator
 from app.core.config import settings
 
 
