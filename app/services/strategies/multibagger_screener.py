@@ -102,7 +102,7 @@ def evaluate_multibagger_score(
     if not saatvik_passed:
         key_risks.append("Saatvik Ethical Screen Gate: Excluded due to business category or financial sanity check.")
 
-    confidence = round((res_e1.confidence + res_e2.success_probability_pct) / 2.0, 1)
+    confidence = round((res_e1.heuristic_confidence + res_e2.success_probability_pct) / 2.0, 1)
 
     components = {
         "growth_inflection_score": score_e1,
@@ -121,7 +121,7 @@ def evaluate_multibagger_score(
         executed_at=datetime.now().isoformat(),
         multibagger_score=final_score,
         conviction_category=category,
-        confidence_pct=confidence,
+        heuristic_confidence=confidence,
         key_drivers=key_drivers or ["Baseline fundamental performance."],
         key_risks=key_risks or ["Standard market equity risk."],
         component_scores=components,

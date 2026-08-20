@@ -2,7 +2,7 @@
 
 **Audit Date:** August 19, 2026  
 **Auditor Role:** Senior Institutional AI Architect + Quant Research Lead + ML Engineer + Financial Data Engineer + MLOps Engineer + Cybersecurity Auditor + DevOps Architect + Indian Equity Research / CIO Reviewer  
-**Target Repository:** `Equity_final_claude_v_0.3`  
+**Target Repository:** `Equity_Lab`  
 **Core Question:** Is this project genuinely ready to move from backend/research-engine development into frontend product design?
 
 ---

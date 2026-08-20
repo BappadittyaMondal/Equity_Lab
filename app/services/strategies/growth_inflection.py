@@ -32,7 +32,7 @@ def evaluate_growth_inflection(
             executed_at=datetime.now().isoformat(),
             growth_inflection_score=0.0,
             stage="Insufficient Data",
-            confidence=0.0,
+            heuristic_confidence=0.0,
             evidence=["No point-in-time financial observation history found for symbol."],
             metrics_summary={"status": "INSUFFICIENT_DATA"},
             meta=create_meta_header(source="Growth Inflection Engine (E1)")
@@ -183,7 +183,7 @@ def evaluate_growth_inflection(
         executed_at=datetime.now().isoformat(),
         growth_inflection_score=final_score,
         stage=stage,
-        confidence=confidence,
+        heuristic_confidence=confidence,
         evidence=evidence or ["Baseline growth performance."],
         metrics_summary=summary,
         meta=create_meta_header(source="Growth Inflection Engine (E1)")

@@ -2,7 +2,7 @@
 
 **Timestamp**: 2026-08-18T22:44:33+05:30  
 **Authority**: IERL Implementation and Verification AI  
-**Repository Identity**: `Equity_final_claude_v_0.3` (`d:\bappa_oldPC\01_Indian_Equity_Project\Equity_final_claude_v_0.3`)
+**Repository Identity**: `Equity_Lab` (`d:\bappa_oldPC\01_Indian_Equity_Project\Equity_Lab`)
 
 ---
 
@@ -33,8 +33,8 @@ numpy>=1.26.0
 
 ## 3. Configuration & System Settings (`app/core/config.py`)
 
-- **Project Name**: IERL AI Equity Intelligence OS Engine
-- **Active Model Version**: `0.4.0`
+- **Project Name**: Equity Lab
+- **Active Model Version**: `0.0.0`
 - **Primary Data Store**: SQLite database (`data/ierl_equity.sqlite3`)
 - **Primary Market Data Provider**: `yfinance` with caching TTL (quote 60s, fundamentals 300s)
 - **LLM Provider Chain**: Gemini (`google-generativeai`), Groq, Anthropic, DeepSeek

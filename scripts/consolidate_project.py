@@ -14,7 +14,7 @@ from pathlib import Path
 BASE_DIR = Path(__file__).resolve().parent.parent
 SOURCE_DIR = BASE_DIR / "canonical_source"
 COMPILER_VERSION = "2.0"
-PROJECT_VERSION = "0.4.0"
+PROJECT_VERSION = "0.0.0"
 SCHEMA_VERSION = "1.0"
 
 

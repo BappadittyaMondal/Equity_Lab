@@ -6,7 +6,7 @@ This is the FastAPI backend service for the **IERL AI Equity OS**. It handles li
 
 ## 🏃 How to Run Locally (Testing on Your PC)
 
-1. Open PowerShell terminal in `d:\bappa_oldPC\Indian_Equity_Project\Equity_final_claude_v_0.3\app`:
+1. Open PowerShell terminal in `d:\bappa_oldPC\Indian_Equity_Project\Equity_Lab\app`:
 ```powershell
 pip install -r requirements.txt
 python -m uvicorn main:app --reload --port 8000

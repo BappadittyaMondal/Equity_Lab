@@ -383,7 +383,7 @@ class GrowthInflectionResponse(BaseModel):
     executed_at: str
     growth_inflection_score: float = Field(..., ge=0.0, le=100.0)
     stage: Literal["Early", "Developing", "Confirmed", "Exhausting", "Insufficient Data"]
-    confidence: float = Field(..., ge=0.0, le=100.0)
+    heuristic_confidence: float = Field(..., ge=0.0, le=100.0, description="Rule-based confidence estimate, not a statistically calibrated probability.")
     evidence: List[str]
     metrics_summary: Dict[str, Any]
     meta: MetaHeader
@@ -442,7 +442,7 @@ class ExpectationGapResponse(BaseModel):
         "NEGATIVE_EXPECTATION_GAP",
         "DATA_INSUFFICIENT"
     ]
-    confidence_score: float = Field(..., ge=0.0, le=100.0)
+    heuristic_confidence: float = Field(..., ge=0.0, le=100.0, description="Rule-based confidence estimate, not a statistically calibrated probability.")
     data_insufficient: bool = False
     evidence: List[str]
     cagr_components: Dict[str, Optional[float]]
@@ -461,7 +461,7 @@ class MultibaggerScreenerResponse(BaseModel):
         "AVOID_OR_HIGH_RISK",
         "INSUFFICIENT_DATA"
     ]
-    confidence_pct: float = Field(..., ge=0.0, le=100.0)
+    heuristic_confidence: float = Field(..., ge=0.0, le=100.0, description="Rule-based confidence estimate, not a statistically calibrated probability.")
     key_drivers: List[str]
     key_risks: List[str]
     component_scores: Dict[str, Any]

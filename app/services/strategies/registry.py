@@ -388,7 +388,7 @@ def run_strategy_module(strategy_id: str, symbol: str = "RELIANCE") -> StrategyR
             passed_gates=(res1.growth_inflection_score >= 50.0),
             results={
                 "stage": res1.stage,
-                "confidence": res1.confidence,
+                "heuristic_confidence": res1.heuristic_confidence,
                 "evidence": res1.evidence
             },
             metrics=res1.metrics_summary,
@@ -527,7 +527,7 @@ def run_strategy_module(strategy_id: str, symbol: str = "RELIANCE") -> StrategyR
             results={
                 "expectation_gap": res7.expectation_gap,
                 "gap_classification": res7.gap_classification,
-                "confidence_score": res7.confidence_score,
+                "heuristic_confidence": res7.heuristic_confidence,
                 "evidence": res7.evidence
             },
             metrics={

@@ -10,7 +10,7 @@
 
 ## Repository Context
 
-- **Repo**: `Equity_final_claude_v_0.3` (post-P0 remediation, version 0.4.0)
+- **Repo**: `Equity_Lab` (rebranded baseline, version 0.0.0)
 - **Stack**: Python 3.14 / FastAPI / SQLite / Pydantic V2
 - **Backend**: `app/` — services, models, API routes, tests
 - **Knowledge Corpus**: `CONSOLIDATED_9_FILE_SYSTEM/` — 9 markdown files (~1.4 MB) encoding domain skills, analytical frameworks, and market knowledge

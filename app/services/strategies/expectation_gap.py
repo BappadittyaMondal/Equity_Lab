@@ -142,7 +142,7 @@ def run_expectation_gap_engine(
             internal_forecast_growth=0.0,
             expectation_gap=0.0,
             gap_classification="DATA_INSUFFICIENT",
-            confidence_score=0.0,
+            heuristic_confidence=0.0,
             data_insufficient=True,
             evidence=evidence,
             cagr_components=cagr_components,
@@ -155,15 +155,15 @@ def run_expectation_gap_engine(
     # Classification logic based on explicit framework thresholds
     if expectation_gap >= 5.0:
         gap_classification = "POSITIVE_EXPECTATION_GAP"
-        confidence_score = 85.0 if valid_cagrs else 65.0
+        heuristic_confidence = 85.0 if valid_cagrs else 65.0
         class_desc = "POSITIVE EXPECTATION GAP: Internal forecast exceeds market-implied growth assumptions (Re-rating potential)."
     elif expectation_gap <= -5.0:
         gap_classification = "NEGATIVE_EXPECTATION_GAP"
-        confidence_score = 85.0 if valid_cagrs else 65.0
+        heuristic_confidence = 85.0 if valid_cagrs else 65.0
         class_desc = "NEGATIVE EXPECTATION GAP: Market P/E assumes higher growth than internal forecast (De-rating risk)."
     else:
         gap_classification = "BALANCED_EXPECTATION"
-        confidence_score = 80.0 if valid_cagrs else 60.0
+        heuristic_confidence = 80.0 if valid_cagrs else 60.0
         class_desc = "BALANCED EXPECTATION: Market price expectations are aligned with internal forecast trajectory."
 
     evidence = [
@@ -180,7 +180,7 @@ def run_expectation_gap_engine(
         internal_forecast_growth=internal_forecast_growth,
         expectation_gap=expectation_gap,
         gap_classification=gap_classification,
-        confidence_score=confidence_score,
+        heuristic_confidence=heuristic_confidence,
         data_insufficient=False,
         evidence=evidence,
         cagr_components=cagr_components,

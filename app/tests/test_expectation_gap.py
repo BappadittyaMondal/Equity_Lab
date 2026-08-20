@@ -115,7 +115,7 @@ def test_expectation_gap_data_insufficient():
         assert isinstance(res, ExpectationGapResponse)
         assert res.data_insufficient is True
         assert res.gap_classification == "DATA_INSUFFICIENT"
-        assert res.confidence_score == 0.0
+        assert res.heuristic_confidence == 0.0
 
 
 def test_expectation_gap_registry_integration():
