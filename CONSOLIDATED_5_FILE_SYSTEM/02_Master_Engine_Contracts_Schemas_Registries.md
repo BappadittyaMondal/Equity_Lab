@@ -1,8 +1,8 @@
 # 02_Master_Engine_Contracts_Schemas_Registries
 
 > **IERL AI Equity OS — curated upload artifact**  
-> Project Version: `0.4.0` · Bundle Version: `2.0` · Source Commit: `2041dc9`  
-> Generated At: `2026-08-19T19:10:50.216780+00:00` · Source Hash: `ef240d8c057f157a` · Compiler: `consolidate_project.py` v2.0
+> Project Version: `0.4.0` · Bundle Version: `2.0` · Source Commit: `bf18fba`  
+> Generated At: `2026-08-20T05:33:40.491946+00:00` · Source Hash: `7f3218e0168ac9b6` · Compiler: `consolidate_project.py` v2.0
 
 ## Operating contract
 
@@ -19,7 +19,7 @@ This is a generated, read-only working volume. The separately maintained source 
 | Upload file | Primary use | Sources |
 |---|---|---:|
 | `01_Master_System_Core_Instructions_Architecture.md` | 01 System Core Instructions Architecture | 8 |
-| `02_Master_Engine_Contracts_Schemas_Registries.md` | 02 Engine Contracts Schemas Registries | 15 |
+| `02_Master_Engine_Contracts_Schemas_Registries.md` | 02 Engine Contracts Schemas Registries | 16 |
 | `03_Master_Skill_Library.md` | 03 Skill Library | 18 |
 | `04_Master_Knowledge_Base_Vol_1_Fundamentals_Valuation_Governance.md` | 04 Knowledge Base Vol 1 Fundamentals Valuation Governance | 24 |
 | `05_Master_Knowledge_Base_Vol_2_Sectors_Frameworks_Screening.md` | 05 Knowledge Base Vol 2 Sectors Frameworks Screening | 27 |
@@ -51,6 +51,7 @@ The SHA-256 values cover the exact UTF-8 source payload, not this wrapper. Use t
 | 13 | `AI_E6_Quality_Growth_Screener_v_0_0.md` | 2,114 | `e951bc9256aaadd04b1cc04940577228e0397f3693291c0ecaba7e145789706e` |
 | 14 | `AI_Causal_Analysis_Engine_v_0_0.md` | 1,969 | `93714b75cdc21b1beef7e71bf381385301251b23c0a1e68dce696f3c55a4f9a8` |
 | 15 | `AI_Geopolitical_Risk_Engine_v_0_0.md` | 1,776 | `04d04e76beaf2f0edd7d95a4314bf83b318197173be9f6325608c4550f7c2272` |
+| 16 | `AI_Expectation_Gap_Engine_v_0_0.md` | 3,075 | `bc25de721f29f328791a5dbc46cd2a5144838e193a5a3975c10cef72ba2371d9` |
 
 ---
 
@@ -9687,6 +9688,59 @@ The engine evaluates macro-economic policy shocks, crude-oil volatility, tariff 
 
 Return `DATA_UNAVAILABLE` when no qualifying trigger is observed. The absence of a stored trigger is not proof that geopolitical risk is absent. Sector profiles are directional sensitivities, not forecasts; the result must be reviewed with current dated evidence, company-specific exposure, and scenario analysis.
 <!-- END SYSTEM FILE 15: AI_Geopolitical_Risk_Engine_v_0_0.md -->
+
+---
+
+<!-- BEGIN SYSTEM FILE 16: AI_Expectation_Gap_Engine_v_0_0.md | SHA256: bc25de721f29f328791a5dbc46cd2a5144838e193a5a3975c10cef72ba2371d9 -->
+## Embedded source 16: AI Expectation Gap Engine
+
+<!-- IERL-CANONICAL-METADATA v1.2 -->
+> **Canonical retrieval label:** Expectation Gap Engine (E7)
+> **Role:** Fundamental valuation strategy engine
+> **Use when:** Evaluating the gap between Reverse DCF market-implied growth rate and internal forecast fundamental growth rate.
+> **Evidence rule:** Explicitly calculate Expectation Gap = Internal Forecast Growth - Reverse DCF Implied Growth. Categorize based on framework thresholds (+5% / -5%).
+
+# Expectation Gap Engine (E7)
+
+**Version:** v_0.0  
+**Status:** Production  
+**Category:** Fundamental Valuation  
+
+## 1. Purpose
+
+The Expectation Gap Engine (`E7`) evaluates the core premise of institutional multibagger stock selection: a stock becomes a multibagger when actual fundamental business performance materially exceeds what the current market share price already assumes. `E7` quantifies this expectation gap by comparing Reverse DCF market-implied growth against empirical internal forecast CAGRs.
+
+## 2. Contract
+
+**Required input:** `symbol`, optional `discount_rate` (default 12%), `terminal_growth` (default 4%), and point-in-time observation history.
+
+**Output:** `ExpectationGapResponse` containing:
+- `market_implied_growth`: 10-year FCF/earnings CAGR implied by current P/E multiple (C9 Reverse DCF).
+- `internal_forecast_growth`: Empirical fundamental CAGR derived across Sales, PAT, EPS, FCF observations.
+- `expectation_gap`: `internal_forecast_growth - market_implied_growth` (in percentage points).
+- `gap_classification`: `POSITIVE_EXPECTATION_GAP`, `BALANCED_EXPECTATION`, `NEGATIVE_EXPECTATION_GAP`, or `DATA_INSUFFICIENT`.
+- `evidence`: Audit trail documenting mathematical basis and classification logic.
+
+## 3. Operating Rules
+
+1. Normalize symbol before execution.
+2. Calculate market-implied growth from Reverse DCF model (`C9`).
+3. Compute internal forecast growth rate using empirical multi-period financial CAGRs from `ResearchDataStore`.
+4. `Expectation Gap = Internal Forecast Growth - Market-Implied Growth`.
+5. Classify according to institutional framework:
+   - `POSITIVE_EXPECTATION_GAP` (Gap >= +5.0%): Market under-prices fundamental growth trajectory (Re-rating opportunity).
+   - `NEGATIVE_EXPECTATION_GAP` (Gap <= -5.0%): Market price requires higher growth than company delivers (De-rating risk).
+   - `BALANCED_EXPECTATION` (-5.0% < Gap < +5.0%): Current valuation fairly reflects internal growth forecast.
+6. When price, P/E, or fundamental inputs are missing, output `DATA_INSUFFICIENT` without synthetic numbers.
+
+## 4. Risk And Governance
+
+A positive expectation gap is a valuation catalyst signal, not a guaranteed return. Materialization depends on management execution, operational delivery, and market re-rating. Analysts must verify forensic hygiene (`C13`), financial health (`C11`/`C12`), and macro regime context (`RegimeEngine`) before acting.
+
+## 5. Failure Handling
+
+If quote or fundamental history is unavailable, flag `data_insufficient = True` and set `confidence_score = 0.0`. Never fabricate baseline growth figures without explicit data lineage warnings.
+<!-- END SYSTEM FILE 16: AI_Expectation_Gap_Engine_v_0_0.md -->
 
 ---
 

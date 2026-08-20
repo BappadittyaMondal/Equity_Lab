@@ -430,6 +430,25 @@ class GovernanceQualityResponse(BaseModel):
 
 
 
+class ExpectationGapResponse(BaseModel):
+    symbol: str
+    executed_at: str
+    market_implied_growth: float
+    internal_forecast_growth: float
+    expectation_gap: float
+    gap_classification: Literal[
+        "POSITIVE_EXPECTATION_GAP",
+        "BALANCED_EXPECTATION",
+        "NEGATIVE_EXPECTATION_GAP",
+        "DATA_INSUFFICIENT"
+    ]
+    confidence_score: float = Field(..., ge=0.0, le=100.0)
+    data_insufficient: bool = False
+    evidence: List[str]
+    cagr_components: Dict[str, Optional[float]]
+    meta: MetaHeader
+
+
 class MultibaggerScreenerResponse(BaseModel):
     symbol: str
     executed_at: str
@@ -503,6 +522,11 @@ class ConvictionCall(BaseModel):
     contributing_engines: List[str] = []
     contradicting_engines: List[str] = []
     confidence_tier: Literal["Confirmed", "Model-dependent", "Contested"] = "Model-dependent"
+    consensus_view: Optional[str] = Field(default=None, description="Current consensus/market pricing view")
+    variant_view: Optional[str] = Field(default=None, description="Independent internal research thesis / variant perception")
+    supporting_evidence: Optional[List[str]] = Field(default=None, description="Empirical evidence supporting variant view")
+    invalidation_condition: Optional[str] = Field(default=None, description="Specific measurable condition that invalidates thesis")
+    catalyst_timing: Optional[str] = Field(default=None, description="Estimated timing horizon for catalyst re-rating")
     timestamp: str = Field(
         default_factory=lambda: datetime.now(timezone.utc).isoformat(),
         description="UTC timestamp when the conviction was generated",

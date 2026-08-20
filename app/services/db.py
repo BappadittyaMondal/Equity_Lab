@@ -194,6 +194,22 @@ def _ensure_tables() -> None:
         """
     )
 
+    conn.execute(
+        """
+        CREATE TABLE IF NOT EXISTS earnings_estimates (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            symbol TEXT NOT NULL,
+            fiscal_period TEXT NOT NULL,
+            estimate_type TEXT NOT NULL,
+            estimate_value REAL NOT NULL,
+            as_of_date TEXT NOT NULL,
+            source TEXT NOT NULL,
+            revision_of INTEGER REFERENCES earnings_estimates(id)
+        )
+        """
+    )
+    conn.execute("CREATE INDEX IF NOT EXISTS idx_estimates_sym_period ON earnings_estimates(symbol, fiscal_period)")
+
     conn.commit()
     conn.close()
 

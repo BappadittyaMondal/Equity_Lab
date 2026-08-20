@@ -27,6 +27,7 @@ logger = logging.getLogger(__name__)
 ENGINE_CATEGORIES: Dict[str, str] = {
     "E1": "FUNDAMENTAL", "E2": "FUNDAMENTAL", "E3": "FUNDAMENTAL",
     "E4": "FUNDAMENTAL", "E5": "FUNDAMENTAL", "E6": "FUNDAMENTAL",
+    "E7": "VALUATION",
     "B4": "TECHNICAL", "B5": "TECHNICAL", "B6": "TECHNICAL",
     "B7": "TECHNICAL", "B8": "TECHNICAL",
     "C9": "VALUATION", "DCF_FWD": "VALUATION",

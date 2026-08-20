@@ -314,6 +314,18 @@ RESEARCH_ENGINES: Dict[str, StrategyModule] = {
         metrics=["total_conditions", "conditions_passed", "conditions_failed", "conditions_unavailable"],
         risk_warnings=["Pre-filter screening only — does NOT generate final BUY recommendation."],
         methodology="28-condition quantitative and fundamental threshold screen with condition-level audit trail."
+    ),
+    "E7": StrategyModule(
+        id="E7",
+        name="Expectation Gap Engine",
+        category="Fundamental Valuation",
+        description="Quantifies the Expectation Gap between Reverse DCF market-implied growth expectations and fundamental internal forecast growth.",
+        status="production",
+        required_inputs=["symbol"],
+        universe="NSE All Equities",
+        metrics=["market_implied_growth", "internal_forecast_growth", "expectation_gap", "gap_classification"],
+        risk_warnings=["High expectation gap requires operational execution to materialize as stock re-rating."],
+        methodology="Subtracts Reverse DCF market-implied growth rate from empirical blended internal forecast growth rate."
     )
 }
 
@@ -501,6 +513,32 @@ def run_strategy_module(strategy_id: str, symbol: str = "RELIANCE") -> StrategyR
             risk_warnings=module.risk_warnings,
             disclaimer="Quality-Growth Candidate Screener pre-filter assessment.",
             meta=res6.meta
+        )
+    elif module.id == "E7":
+        from app.services.strategies.expectation_gap import run_expectation_gap_engine
+        res7 = run_expectation_gap_engine(symbol)
+        return StrategyRunResponse(
+            strategy_id="E7",
+            strategy_name=module.name,
+            status="production" if not res7.data_insufficient else "data_insufficient",
+            executed_at=res7.meta.retrieved_at if hasattr(res7, "meta") and hasattr(res7.meta, "retrieved_at") else get_ist_now_str(),
+            symbol=res7.symbol if hasattr(res7, "symbol") else normalize_symbol(symbol),
+            passed_gates=(res7.gap_classification in ["POSITIVE_EXPECTATION_GAP", "BALANCED_EXPECTATION"]),
+            results={
+                "expectation_gap": res7.expectation_gap,
+                "gap_classification": res7.gap_classification,
+                "confidence_score": res7.confidence_score,
+                "evidence": res7.evidence
+            },
+            metrics={
+                "market_implied_growth": res7.market_implied_growth,
+                "internal_forecast_growth": res7.internal_forecast_growth,
+                "expectation_gap": res7.expectation_gap,
+                "cagr_components": res7.cagr_components
+            },
+            risk_warnings=module.risk_warnings,
+            disclaimer="Expectation Gap Engine (E7) valuation assessment.",
+            meta=res7.meta
         )
     elif module.id == "C13":
         from app.services.strategies.governance_quality import evaluate_governance_quality

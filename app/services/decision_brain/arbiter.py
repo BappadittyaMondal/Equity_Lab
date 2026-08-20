@@ -442,6 +442,12 @@ class Arbiter:
         confidence_tier = self._confidence_tier(final_score_f)
         primary_thesis = self._generate_thesis(normalized, outputs, final_verdict, regime)
 
+        # Variant perception synthesis
+        variant_view_str = f"Variant Perception ({confidence_tier}): {primary_thesis}"
+        invalidation_str = debate.falsification_conditions[0] if getattr(debate, "falsification_conditions", None) else f"Thesis invalidated if conviction score drops below 40 or governance alert is triggered."
+        consensus_str = f"Market consensus pricing reflects standard sector baseline."
+        evidence_list = [f"{o['engine_id']}: {o.get('score_0_100', 50)}/100" for o in outputs if o.get("verdict") == "Buy"]
+
         # Step 7: Build ConvictionCall
         call = ConvictionCall(
             symbol=normalized,
@@ -451,6 +457,11 @@ class Arbiter:
             contributing_engines=[o["engine_id"] for o in outputs if o["verdict"] == "Buy"],
             contradicting_engines=contradictions,
             confidence_tier=confidence_tier,
+            consensus_view=consensus_str,
+            variant_view=variant_view_str,
+            supporting_evidence=evidence_list,
+            invalidation_condition=invalidation_str,
+            catalyst_timing="12-24 Months",
             data_backed=is_data_backed,
         )
 
