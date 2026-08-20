@@ -1,0 +1,6222 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "Equity Lab",
+    "description": "Institutional Indian Equity Research, Options Arbitrage, and Return Probability Engine",
+    "version": "0.0.0"
+  },
+  "paths": {
+    "/api/v1/health": {
+      "get": {
+        "tags": [
+          "Health & Diagnostics"
+        ],
+        "summary": "Get Health Status",
+        "description": "Runs actual connectivity verification across data feeds and LLM providers.",
+        "operationId": "get_health_status_api_v1_health_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/readiness": {
+      "get": {
+        "tags": [
+          "Health & Diagnostics"
+        ],
+        "summary": "Get Readiness Status",
+        "description": "Verify application readiness, database lock status, and dependency connectivity.",
+        "operationId": "get_readiness_status_api_v1_readiness_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/ticker/{symbol}": {
+      "get": {
+        "tags": [
+          "Market Data"
+        ],
+        "summary": "Fetch Ticker Quote",
+        "description": "Fetches real-time price & metrics for any NSE/BSE stock or index.",
+        "operationId": "fetch_ticker_quote_api_v1_ticker__symbol__get",
+        "parameters": [
+          {
+            "name": "symbol",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Symbol"
+            }
+          },
+          {
+            "name": "x-api-key",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "default": "",
+              "title": "X-Api-Key"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TickerQuoteResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/regime": {
+      "get": {
+        "tags": [
+          "Market Data"
+        ],
+        "summary": "Fetch Market Regime",
+        "description": "Evaluates live India VIX and Nifty volatility regime.",
+        "operationId": "fetch_market_regime_api_v1_regime_get",
+        "parameters": [
+          {
+            "name": "x-api-key",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "default": "",
+              "title": "X-Api-Key"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MarketRegimeResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/ticker-strip": {
+      "get": {
+        "tags": [
+          "Market Data"
+        ],
+        "summary": "Fetch Ticker Strip",
+        "description": "Fetches quotes for live ticker tape strip.",
+        "operationId": "fetch_ticker_strip_api_v1_ticker_strip_get",
+        "parameters": [
+          {
+            "name": "x-api-key",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "default": "",
+              "title": "X-Api-Key"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/TickerQuoteResponse"
+                  },
+                  "title": "Response Fetch Ticker Strip Api V1 Ticker Strip Get"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/ticker/{symbol}/history": {
+      "get": {
+        "tags": [
+          "Market Data"
+        ],
+        "summary": "Fetch Ticker History",
+        "description": "Fetches historical OHLCV data for charting.",
+        "operationId": "fetch_ticker_history_api_v1_ticker__symbol__history_get",
+        "parameters": [
+          {
+            "name": "symbol",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Symbol"
+            }
+          },
+          {
+            "name": "period",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "default": "1y",
+              "title": "Period"
+            }
+          },
+          {
+            "name": "interval",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "default": "1d",
+              "title": "Interval"
+            }
+          },
+          {
+            "name": "x-api-key",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "default": "",
+              "title": "X-Api-Key"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/compare": {
+      "post": {
+        "tags": [
+          "Stock Comparison"
+        ],
+        "summary": "Execute Stock Comparison",
+        "description": "Executes side-by-side metric comparison across 2-5 stock tickers.",
+        "operationId": "execute_stock_comparison_api_v1_compare_post",
+        "parameters": [
+          {
+            "name": "x-api-key",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "default": "",
+              "title": "X-Api-Key"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ComparisonRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ComparisonResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/return-probability": {
+      "post": {
+        "tags": [
+          "Return Probability Analysis"
+        ],
+        "summary": "Execute Return Probability",
+        "description": "Calculates empirical return probability distribution over holding horizon.",
+        "operationId": "execute_return_probability_api_v1_return_probability_post",
+        "parameters": [
+          {
+            "name": "x-api-key",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "default": "",
+              "title": "X-Api-Key"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ReturnProbabilityRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ReturnProbabilityResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/options/a2-payoff": {
+      "post": {
+        "tags": [
+          "Options Strategy Engine"
+        ],
+        "summary": "Execute A2 Options Payoff",
+        "description": "Calculates A2 0-DTE Short Strangle range selling payoff, EV, and risk limits.",
+        "operationId": "execute_a2_options_payoff_api_v1_options_a2_payoff_post",
+        "parameters": [
+          {
+            "name": "x-api-key",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "default": "",
+              "title": "X-Api-Key"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/OptionsA2Request"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OptionsA2Response"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/strategies": {
+      "get": {
+        "tags": [
+          "Expert Strategy & Research Engines"
+        ],
+        "summary": "Fetch All Strategies",
+        "description": "Returns list of all strategy modules and production status.",
+        "operationId": "fetch_all_strategies_api_v1_strategies_get",
+        "parameters": [
+          {
+            "name": "x-api-key",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "default": "",
+              "title": "X-Api-Key"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/StrategyModule"
+                  },
+                  "title": "Response Fetch All Strategies Api V1 Strategies Get"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/strategies/{strategy_id}": {
+      "get": {
+        "tags": [
+          "Expert Strategy & Research Engines"
+        ],
+        "summary": "Fetch Strategy Detail",
+        "description": "Returns details for a specific strategy module.",
+        "operationId": "fetch_strategy_detail_api_v1_strategies__strategy_id__get",
+        "parameters": [
+          {
+            "name": "strategy_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Strategy Id"
+            }
+          },
+          {
+            "name": "x-api-key",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "default": "",
+              "title": "X-Api-Key"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StrategyModule"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/strategies/{strategy_id}/run": {
+      "post": {
+        "tags": [
+          "Expert Strategy & Research Engines"
+        ],
+        "summary": "Run Strategy",
+        "description": "Runs screening or diagnostic analysis for a specific strategy module.",
+        "operationId": "run_strategy_api_v1_strategies__strategy_id__run_post",
+        "parameters": [
+          {
+            "name": "strategy_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Strategy Id"
+            }
+          },
+          {
+            "name": "x-api-key",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "default": "",
+              "title": "X-Api-Key"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/StrategyRunRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StrategyRunResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/research/growth-inflection": {
+      "get": {
+        "tags": [
+          "Expert Strategy & Research Engines"
+        ],
+        "summary": "Run Growth Inflection",
+        "description": "Executes Strategy E1: Growth Inflection Engine (Revenue, Profit, EPS, Margin, ROCE, FCF acceleration).",
+        "operationId": "run_growth_inflection_api_v1_research_growth_inflection_get",
+        "parameters": [
+          {
+            "name": "symbol",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "description": "Stock symbol (e.g. RELIANCE)",
+              "title": "Symbol"
+            },
+            "description": "Stock symbol (e.g. RELIANCE)"
+          },
+          {
+            "name": "as_of",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "format": "date-time"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "As Of"
+            }
+          },
+          {
+            "name": "x-api-key",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "default": "",
+              "title": "X-Api-Key"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GrowthInflectionResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/research/turnaround-stage": {
+      "get": {
+        "tags": [
+          "Expert Strategy & Research Engines"
+        ],
+        "summary": "Run Turnaround Stage",
+        "description": "Executes Strategy E2: Turnaround Stage Engine (Distress to Recovery lifecycle & False Turnaround detection).",
+        "operationId": "run_turnaround_stage_api_v1_research_turnaround_stage_get",
+        "parameters": [
+          {
+            "name": "symbol",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "description": "Stock symbol (e.g. RELIANCE)",
+              "title": "Symbol"
+            },
+            "description": "Stock symbol (e.g. RELIANCE)"
+          },
+          {
+            "name": "as_of",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "format": "date-time"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "As Of"
+            }
+          },
+          {
+            "name": "x-api-key",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "default": "",
+              "title": "X-Api-Key"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TurnaroundStageResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/research/growth-market-gap": {
+      "get": {
+        "tags": [
+          "Expert Strategy & Research Engines"
+        ],
+        "summary": "Run Growth Market Gap",
+        "description": "Executes Strategy E3: Growth vs Market Recognition Gap Engine (Business growth CAGR vs Stock price CAGR).",
+        "operationId": "run_growth_market_gap_api_v1_research_growth_market_gap_get",
+        "parameters": [
+          {
+            "name": "symbol",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "description": "Stock symbol (e.g. RELIANCE)",
+              "title": "Symbol"
+            },
+            "description": "Stock symbol (e.g. RELIANCE)"
+          },
+          {
+            "name": "as_of",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "format": "date-time"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "As Of"
+            }
+          },
+          {
+            "name": "x-api-key",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "default": "",
+              "title": "X-Api-Key"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GrowthMarketGapResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/research/governance-quality": {
+      "get": {
+        "tags": [
+          "Expert Strategy & Research Engines"
+        ],
+        "summary": "Run Governance Quality",
+        "description": "Evaluates Governance & Management Quality (Promoter pledge, CFO/PAT hygiene, governance events).",
+        "operationId": "run_governance_quality_api_v1_research_governance_quality_get",
+        "parameters": [
+          {
+            "name": "symbol",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "description": "Stock symbol (e.g. RELIANCE)",
+              "title": "Symbol"
+            },
+            "description": "Stock symbol (e.g. RELIANCE)"
+          },
+          {
+            "name": "as_of",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "format": "date-time"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "As Of"
+            }
+          },
+          {
+            "name": "x-api-key",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "default": "",
+              "title": "X-Api-Key"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GovernanceQualityResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/research/multibagger-screener": {
+      "get": {
+        "tags": [
+          "Expert Strategy & Research Engines"
+        ],
+        "summary": "Run Multibagger Screener",
+        "description": "Executes Strategy E4: Multi-Factor Multibagger Intelligence & Screening Engine.",
+        "operationId": "run_multibagger_screener_api_v1_research_multibagger_screener_get",
+        "parameters": [
+          {
+            "name": "symbol",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "description": "Stock symbol (e.g. RELIANCE)",
+              "title": "Symbol"
+            },
+            "description": "Stock symbol (e.g. RELIANCE)"
+          },
+          {
+            "name": "as_of",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "format": "date-time"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "As Of"
+            }
+          },
+          {
+            "name": "x-api-key",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "default": "",
+              "title": "X-Api-Key"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MultibaggerScreenerResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/research/growth-arbitrage": {
+      "get": {
+        "tags": [
+          "Expert Strategy & Research Engines"
+        ],
+        "summary": "Run Growth Arbitrage",
+        "description": "Executes Strategy E5: AI Growth Arbitrage & DCF Valuation Engine (Institutional Grade).",
+        "operationId": "run_growth_arbitrage_api_v1_research_growth_arbitrage_get",
+        "parameters": [
+          {
+            "name": "symbol",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "description": "Stock symbol (e.g. RELIANCE)",
+              "title": "Symbol"
+            },
+            "description": "Stock symbol (e.g. RELIANCE)"
+          },
+          {
+            "name": "as_of",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "format": "date-time"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "As Of"
+            }
+          },
+          {
+            "name": "x-api-key",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "default": "",
+              "title": "X-Api-Key"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GrowthArbitrageResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/query": {
+      "post": {
+        "tags": [
+          "AI Strategy Assistant"
+        ],
+        "summary": "Handle Ai Query",
+        "description": "Processes research queries through verified LLM or deterministic analytical engine.",
+        "operationId": "handle_ai_query_api_v1_query_post",
+        "parameters": [
+          {
+            "name": "x-api-key",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "default": "",
+              "title": "X-Api-Key"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/QueryRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/QueryResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/data/companies": {
+      "post": {
+        "tags": [
+          "Point-in-Time Research Data"
+        ],
+        "summary": "Upsert Company",
+        "operationId": "upsert_company_api_v1_data_companies_post",
+        "parameters": [
+          {
+            "name": "x-data-write-key",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "default": "",
+              "title": "X-Data-Write-Key"
+            }
+          },
+          {
+            "name": "x-api-key",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "default": "",
+              "title": "X-Api-Key"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CompanyUpsertRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CompanyResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/data/financial-observations": {
+      "post": {
+        "tags": [
+          "Point-in-Time Research Data"
+        ],
+        "summary": "Add Financial Observation",
+        "operationId": "add_financial_observation_api_v1_data_financial_observations_post",
+        "parameters": [
+          {
+            "name": "x-data-write-key",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "default": "",
+              "title": "X-Data-Write-Key"
+            }
+          },
+          {
+            "name": "x-api-key",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "default": "",
+              "title": "X-Api-Key"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/FinancialObservationIn"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FinancialObservationResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/data/business-events": {
+      "post": {
+        "tags": [
+          "Point-in-Time Research Data"
+        ],
+        "summary": "Add Business Event",
+        "operationId": "add_business_event_api_v1_data_business_events_post",
+        "parameters": [
+          {
+            "name": "x-data-write-key",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "default": "",
+              "title": "X-Data-Write-Key"
+            }
+          },
+          {
+            "name": "x-api-key",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "default": "",
+              "title": "X-Api-Key"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/BusinessEventIn"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BusinessEventResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/data/corporate-actions": {
+      "post": {
+        "tags": [
+          "Point-in-Time Research Data"
+        ],
+        "summary": "Add Corporate Action",
+        "operationId": "add_corporate_action_api_v1_data_corporate_actions_post",
+        "parameters": [
+          {
+            "name": "x-data-write-key",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "default": "",
+              "title": "X-Data-Write-Key"
+            }
+          },
+          {
+            "name": "x-api-key",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "default": "",
+              "title": "X-Api-Key"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CorporateActionIn"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CorporateActionResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/data/ownership-snapshots": {
+      "post": {
+        "tags": [
+          "Point-in-Time Research Data"
+        ],
+        "summary": "Add Ownership Snapshot",
+        "operationId": "add_ownership_snapshot_api_v1_data_ownership_snapshots_post",
+        "parameters": [
+          {
+            "name": "x-data-write-key",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "default": "",
+              "title": "X-Data-Write-Key"
+            }
+          },
+          {
+            "name": "x-api-key",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "default": "",
+              "title": "X-Api-Key"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/OwnershipSnapshotIn"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OwnershipSnapshotResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/data/document-metadata": {
+      "post": {
+        "tags": [
+          "Point-in-Time Research Data"
+        ],
+        "summary": "Add Document Metadata",
+        "operationId": "add_document_metadata_api_v1_data_document_metadata_post",
+        "parameters": [
+          {
+            "name": "x-data-write-key",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "default": "",
+              "title": "X-Data-Write-Key"
+            }
+          },
+          {
+            "name": "x-api-key",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "default": "",
+              "title": "X-Api-Key"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/DocumentMetadataIn"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DocumentMetadataResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/data/market-snapshots": {
+      "post": {
+        "tags": [
+          "Point-in-Time Research Data"
+        ],
+        "summary": "Add Market Daily Snapshot",
+        "operationId": "add_market_daily_snapshot_api_v1_data_market_snapshots_post",
+        "parameters": [
+          {
+            "name": "x-data-write-key",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "default": "",
+              "title": "X-Data-Write-Key"
+            }
+          },
+          {
+            "name": "x-api-key",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "default": "",
+              "title": "X-Api-Key"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/MarketDailySnapshotIn"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MarketDailySnapshotResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/data/companies/{symbol}/timeline": {
+      "get": {
+        "tags": [
+          "Point-in-Time Research Data"
+        ],
+        "summary": "Get Company Timeline",
+        "operationId": "get_company_timeline_api_v1_data_companies__symbol__timeline_get",
+        "parameters": [
+          {
+            "name": "symbol",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Symbol"
+            }
+          },
+          {
+            "name": "as_of",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "format": "date-time"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "As Of"
+            }
+          },
+          {
+            "name": "x-api-key",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "default": "",
+              "title": "X-Api-Key"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CompanyTimelineResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/data/lifecycle/{symbol}": {
+      "get": {
+        "tags": [
+          "Point-in-Time Research Data"
+        ],
+        "summary": "Get Lifecycle State",
+        "operationId": "get_lifecycle_state_api_v1_data_lifecycle__symbol__get",
+        "parameters": [
+          {
+            "name": "symbol",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Symbol"
+            }
+          },
+          {
+            "name": "x-api-key",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "default": "",
+              "title": "X-Api-Key"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/data/thesis/{symbol}": {
+      "get": {
+        "tags": [
+          "Point-in-Time Research Data"
+        ],
+        "summary": "Get Thesis State",
+        "operationId": "get_thesis_state_api_v1_data_thesis__symbol__get",
+        "parameters": [
+          {
+            "name": "symbol",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Symbol"
+            }
+          },
+          {
+            "name": "x-api-key",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "default": "",
+              "title": "X-Api-Key"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/data/alerts": {
+      "get": {
+        "tags": [
+          "Point-in-Time Research Data"
+        ],
+        "summary": "Get Alerts",
+        "operationId": "get_alerts_api_v1_data_alerts_get",
+        "parameters": [
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "default": 50,
+              "title": "Limit"
+            }
+          },
+          {
+            "name": "symbol",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Symbol"
+            }
+          },
+          {
+            "name": "x-api-key",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "default": "",
+              "title": "X-Api-Key"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/watchlist": {
+      "get": {
+        "tags": [
+          "Watchlist"
+        ],
+        "summary": "Get Watchlist",
+        "description": "Retrieves all watchlist items enriched with live quote data.",
+        "operationId": "get_watchlist_api_v1_watchlist_get",
+        "parameters": [
+          {
+            "name": "x-api-key",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "default": "",
+              "title": "X-Api-Key"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/WatchlistListResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "Watchlist"
+        ],
+        "summary": "Add To Watchlist",
+        "description": "Adds or updates a security in the user watchlist.",
+        "operationId": "add_to_watchlist_api_v1_watchlist_post",
+        "parameters": [
+          {
+            "name": "x-api-key",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "default": "",
+              "title": "X-Api-Key"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/WatchlistItemRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/WatchlistItemResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/watchlist/{symbol}": {
+      "delete": {
+        "tags": [
+          "Watchlist"
+        ],
+        "summary": "Delete From Watchlist",
+        "description": "Removes a security from the user watchlist.",
+        "operationId": "delete_from_watchlist_api_v1_watchlist__symbol__delete",
+        "parameters": [
+          {
+            "name": "symbol",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Symbol"
+            }
+          },
+          {
+            "name": "x-api-key",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "default": "",
+              "title": "X-Api-Key"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/decision/{symbol}": {
+      "get": {
+        "tags": [
+          "Decision"
+        ],
+        "summary": "Get Decision",
+        "operationId": "get_decision_api_v1_decision__symbol__get",
+        "parameters": [
+          {
+            "name": "symbol",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Symbol"
+            }
+          },
+          {
+            "name": "x-api-key",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "default": "",
+              "title": "X-Api-Key"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ConvictionCall"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/digest/watchlist": {
+      "get": {
+        "tags": [
+          "Digest"
+        ],
+        "summary": "Get Watchlist Digest",
+        "description": "Return the watchlist digest JSON generated by the nightly cron.\nThe file is stored under `frontend_deploy/data/digests/watchlist_digest.json`.",
+        "operationId": "get_watchlist_digest_api_v1_digest_watchlist_get",
+        "parameters": [
+          {
+            "name": "x-api-key",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "default": "",
+              "title": "X-Api-Key"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/monitoring/prediction-ledger": {
+      "get": {
+        "tags": [
+          "Live Monitoring & Calibration"
+        ],
+        "summary": "Get Prediction Ledger",
+        "description": "Fetch recorded historical decisions from prediction ledger.",
+        "operationId": "get_prediction_ledger_api_v1_monitoring_prediction_ledger_get",
+        "parameters": [
+          {
+            "name": "symbol",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Symbol"
+            }
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "maximum": 200,
+              "minimum": 1,
+              "default": 50,
+              "title": "Limit"
+            }
+          },
+          {
+            "name": "x-api-key",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "default": "",
+              "title": "X-Api-Key"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/PredictionRecord"
+                  },
+                  "title": "Response Get Prediction Ledger Api V1 Monitoring Prediction Ledger Get"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "Live Monitoring & Calibration"
+        ],
+        "summary": "Log Prediction",
+        "description": "Log a new live conviction decision into the prediction ledger.",
+        "operationId": "log_prediction_api_v1_monitoring_prediction_ledger_post",
+        "parameters": [
+          {
+            "name": "x-api-key",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "default": "",
+              "title": "X-Api-Key"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/LogPredictionRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PredictionRecord"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/monitoring/outcome": {
+      "post": {
+        "tags": [
+          "Live Monitoring & Calibration"
+        ],
+        "summary": "Record Outcome",
+        "description": "Record forward actual return outcome for a prediction.",
+        "operationId": "record_outcome_api_v1_monitoring_outcome_post",
+        "parameters": [
+          {
+            "name": "x-api-key",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "default": "",
+              "title": "X-Api-Key"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RecordOutcomeRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OutcomeRecord"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/monitoring/drift": {
+      "get": {
+        "tags": [
+          "Live Monitoring & Calibration"
+        ],
+        "summary": "Get Model Drift Status",
+        "description": "Evaluate current model drift, score monotonicity, and predictive decay.",
+        "operationId": "get_model_drift_status_api_v1_monitoring_drift_get",
+        "parameters": [
+          {
+            "name": "x-api-key",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "default": "",
+              "title": "X-Api-Key"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DriftReport"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/monitoring/strategy-health": {
+      "get": {
+        "tags": [
+          "Live Monitoring & Calibration"
+        ],
+        "summary": "Get Strategy Health Summary",
+        "description": "Get system-level strategy engine accuracy and calibration health summary.",
+        "operationId": "get_strategy_health_summary_api_v1_monitoring_strategy_health_get",
+        "parameters": [
+          {
+            "name": "x-api-key",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "default": "",
+              "title": "X-Api-Key"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/portfolio/": {
+      "get": {
+        "tags": [
+          "Portfolio"
+        ],
+        "summary": "Get Portfolio",
+        "operationId": "get_portfolio_api_v1_portfolio__get",
+        "parameters": [
+          {
+            "name": "x-api-key",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "default": "",
+              "title": "X-Api-Key"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PortfolioSnapshot"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/portfolio/narrate/{symbol}": {
+      "get": {
+        "tags": [
+          "Portfolio"
+        ],
+        "summary": "Narrate",
+        "operationId": "narrate_api_v1_portfolio_narrate__symbol__get",
+        "parameters": [
+          {
+            "name": "symbol",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Symbol"
+            }
+          },
+          {
+            "name": "x-api-key",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "default": "",
+              "title": "X-Api-Key"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "string",
+                  "title": "Response Narrate Api V1 Portfolio Narrate  Symbol  Get"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/admin/llm-usage": {
+      "get": {
+        "tags": [
+          "Admin"
+        ],
+        "summary": "Get Llm Usage",
+        "operationId": "get_llm_usage_api_v1_admin_llm_usage_get",
+        "parameters": [
+          {
+            "name": "x-api-key",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "X-Api-Key"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/admin/request-stats": {
+      "get": {
+        "tags": [
+          "Admin"
+        ],
+        "summary": "Get Request Stats",
+        "operationId": "get_request_stats_api_v1_admin_request_stats_get",
+        "parameters": [
+          {
+            "name": "x-api-key",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "X-Api-Key"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "BusinessEventIn": {
+        "properties": {
+          "symbol": {
+            "type": "string",
+            "maxLength": 30,
+            "minLength": 1,
+            "title": "Symbol"
+          },
+          "event_type": {
+            "type": "string",
+            "enum": [
+              "capacity_expansion",
+              "capacity_commissioned",
+              "order_won",
+              "order_cancelled",
+              "new_customer",
+              "new_segment",
+              "new_geography",
+              "management_guidance",
+              "guidance_outcome",
+              "debt_reduction",
+              "promoter_transaction",
+              "governance_alert",
+              "large_contract",
+              "acquisition",
+              "strategic_partnership",
+              "export_expansion",
+              "regulatory_approval"
+            ],
+            "title": "Event Type"
+          },
+          "announced_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Announced At",
+            "description": "When the event became public."
+          },
+          "effective_date": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Effective Date",
+            "description": "Known or expected business-effective date."
+          },
+          "title": {
+            "type": "string",
+            "maxLength": 300,
+            "minLength": 3,
+            "title": "Title"
+          },
+          "summary": {
+            "type": "string",
+            "maxLength": 4000,
+            "minLength": 10,
+            "title": "Summary"
+          },
+          "value": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Value"
+          },
+          "unit": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 32
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Unit"
+          },
+          "source_name": {
+            "type": "string",
+            "maxLength": 120,
+            "minLength": 2,
+            "title": "Source Name"
+          },
+          "source_url": {
+            "type": "string",
+            "maxLength": 2083,
+            "minLength": 1,
+            "format": "uri",
+            "title": "Source Url"
+          },
+          "source_reference": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 250
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Source Reference"
+          },
+          "confidence": {
+            "type": "number",
+            "maximum": 1.0,
+            "minimum": 0.0,
+            "title": "Confidence",
+            "default": 1.0
+          }
+        },
+        "type": "object",
+        "required": [
+          "symbol",
+          "event_type",
+          "announced_at",
+          "title",
+          "summary",
+          "source_name",
+          "source_url"
+        ],
+        "title": "BusinessEventIn"
+      },
+      "BusinessEventResponse": {
+        "properties": {
+          "symbol": {
+            "type": "string",
+            "maxLength": 30,
+            "minLength": 1,
+            "title": "Symbol"
+          },
+          "event_type": {
+            "type": "string",
+            "enum": [
+              "capacity_expansion",
+              "capacity_commissioned",
+              "order_won",
+              "order_cancelled",
+              "new_customer",
+              "new_segment",
+              "new_geography",
+              "management_guidance",
+              "guidance_outcome",
+              "debt_reduction",
+              "promoter_transaction",
+              "governance_alert",
+              "large_contract",
+              "acquisition",
+              "strategic_partnership",
+              "export_expansion",
+              "regulatory_approval"
+            ],
+            "title": "Event Type"
+          },
+          "announced_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Announced At",
+            "description": "When the event became public."
+          },
+          "effective_date": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Effective Date",
+            "description": "Known or expected business-effective date."
+          },
+          "title": {
+            "type": "string",
+            "maxLength": 300,
+            "minLength": 3,
+            "title": "Title"
+          },
+          "summary": {
+            "type": "string",
+            "maxLength": 4000,
+            "minLength": 10,
+            "title": "Summary"
+          },
+          "value": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Value"
+          },
+          "unit": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 32
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Unit"
+          },
+          "source_name": {
+            "type": "string",
+            "maxLength": 120,
+            "minLength": 2,
+            "title": "Source Name"
+          },
+          "source_url": {
+            "type": "string",
+            "maxLength": 2083,
+            "minLength": 1,
+            "format": "uri",
+            "title": "Source Url"
+          },
+          "source_reference": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 250
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Source Reference"
+          },
+          "confidence": {
+            "type": "number",
+            "maximum": 1.0,
+            "minimum": 0.0,
+            "title": "Confidence",
+            "default": 1.0
+          },
+          "id": {
+            "type": "integer",
+            "title": "Id"
+          },
+          "ingested_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Ingested At"
+          }
+        },
+        "type": "object",
+        "required": [
+          "symbol",
+          "event_type",
+          "announced_at",
+          "title",
+          "summary",
+          "source_name",
+          "source_url",
+          "id",
+          "ingested_at"
+        ],
+        "title": "BusinessEventResponse"
+      },
+      "CompanyResponse": {
+        "properties": {
+          "symbol": {
+            "type": "string",
+            "title": "Symbol"
+          },
+          "legal_name": {
+            "type": "string",
+            "title": "Legal Name"
+          },
+          "sector": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Sector"
+          },
+          "industry": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Industry"
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Created At"
+          }
+        },
+        "type": "object",
+        "required": [
+          "symbol",
+          "legal_name",
+          "created_at"
+        ],
+        "title": "CompanyResponse"
+      },
+      "CompanyTimelineResponse": {
+        "properties": {
+          "company": {
+            "$ref": "#/components/schemas/CompanyResponse"
+          },
+          "as_of": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date-time"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "As Of",
+            "description": "Only records public by this timestamp are included."
+          },
+          "financial_observations": {
+            "items": {
+              "$ref": "#/components/schemas/FinancialObservationResponse"
+            },
+            "type": "array",
+            "title": "Financial Observations"
+          },
+          "business_events": {
+            "items": {
+              "$ref": "#/components/schemas/BusinessEventResponse"
+            },
+            "type": "array",
+            "title": "Business Events"
+          },
+          "corporate_actions": {
+            "items": {
+              "$ref": "#/components/schemas/CorporateActionResponse"
+            },
+            "type": "array",
+            "title": "Corporate Actions"
+          },
+          "ownership_snapshots": {
+            "items": {
+              "$ref": "#/components/schemas/OwnershipSnapshotResponse"
+            },
+            "type": "array",
+            "title": "Ownership Snapshots"
+          },
+          "document_metadata": {
+            "items": {
+              "$ref": "#/components/schemas/DocumentMetadataResponse"
+            },
+            "type": "array",
+            "title": "Document Metadata"
+          },
+          "meta": {
+            "$ref": "#/components/schemas/MetaHeader"
+          }
+        },
+        "type": "object",
+        "required": [
+          "company",
+          "financial_observations",
+          "business_events",
+          "meta"
+        ],
+        "title": "CompanyTimelineResponse"
+      },
+      "CompanyUpsertRequest": {
+        "properties": {
+          "symbol": {
+            "type": "string",
+            "maxLength": 30,
+            "minLength": 1,
+            "title": "Symbol"
+          },
+          "legal_name": {
+            "type": "string",
+            "maxLength": 250,
+            "minLength": 2,
+            "title": "Legal Name"
+          },
+          "sector": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 120
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Sector"
+          },
+          "industry": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 120
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Industry"
+          }
+        },
+        "type": "object",
+        "required": [
+          "symbol",
+          "legal_name"
+        ],
+        "title": "CompanyUpsertRequest"
+      },
+      "ComparisonRequest": {
+        "properties": {
+          "symbols": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "maxItems": 5,
+            "minItems": 2,
+            "title": "Symbols",
+            "description": "2 to 5 stock ticker symbols"
+          },
+          "period": {
+            "type": "string",
+            "title": "Period",
+            "description": "Analysis period (e.g. 3m, 6m, 1y, 2y)",
+            "default": "1y"
+          },
+          "benchmark": {
+            "type": "string",
+            "title": "Benchmark",
+            "description": "Benchmark index symbol (default ^NSEI for Nifty 50)",
+            "default": "^NSEI"
+          },
+          "metrics": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Metrics",
+            "description": "List of requested metrics",
+            "default": [
+              "price_return",
+              "volatility",
+              "drawdown",
+              "pe",
+              "market_cap"
+            ]
+          }
+        },
+        "type": "object",
+        "required": [
+          "symbols"
+        ],
+        "title": "ComparisonRequest"
+      },
+      "ComparisonResponse": {
+        "properties": {
+          "symbols": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Symbols"
+          },
+          "period": {
+            "type": "string",
+            "title": "Period"
+          },
+          "benchmark": {
+            "type": "string",
+            "title": "Benchmark"
+          },
+          "benchmark_return_pct": {
+            "type": "number",
+            "title": "Benchmark Return Pct"
+          },
+          "metrics_data": {
+            "additionalProperties": {
+              "additionalProperties": true,
+              "type": "object"
+            },
+            "type": "object",
+            "title": "Metrics Data"
+          },
+          "formula_explanations": {
+            "additionalProperties": {
+              "type": "string"
+            },
+            "type": "object",
+            "title": "Formula Explanations"
+          },
+          "score_breakdown": {
+            "anyOf": [
+              {
+                "additionalProperties": {
+                  "additionalProperties": true,
+                  "type": "object"
+                },
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Score Breakdown"
+          },
+          "disclaimer": {
+            "type": "string",
+            "title": "Disclaimer"
+          },
+          "meta": {
+            "$ref": "#/components/schemas/MetaHeader"
+          }
+        },
+        "type": "object",
+        "required": [
+          "symbols",
+          "period",
+          "benchmark",
+          "benchmark_return_pct",
+          "metrics_data",
+          "formula_explanations",
+          "disclaimer",
+          "meta"
+        ],
+        "title": "ComparisonResponse"
+      },
+      "ConvictionCall": {
+        "properties": {
+          "symbol": {
+            "type": "string",
+            "title": "Symbol"
+          },
+          "verdict": {
+            "type": "string",
+            "enum": [
+              "Strong Buy",
+              "Buy",
+              "Accumulate",
+              "Watch",
+              "Avoid"
+            ],
+            "title": "Verdict"
+          },
+          "conviction_score": {
+            "type": "integer",
+            "maximum": 100.0,
+            "minimum": 0.0,
+            "title": "Conviction Score"
+          },
+          "primary_thesis": {
+            "type": "string",
+            "title": "Primary Thesis"
+          },
+          "contributing_engines": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Contributing Engines",
+            "default": []
+          },
+          "contradicting_engines": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Contradicting Engines",
+            "default": []
+          },
+          "confidence_tier": {
+            "type": "string",
+            "enum": [
+              "Confirmed",
+              "Model-dependent",
+              "Contested"
+            ],
+            "title": "Confidence Tier",
+            "default": "Model-dependent"
+          },
+          "consensus_view": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Consensus View",
+            "description": "Current consensus/market pricing view"
+          },
+          "variant_view": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Variant View",
+            "description": "Independent internal research thesis / variant perception"
+          },
+          "supporting_evidence": {
+            "anyOf": [
+              {
+                "items": {
+                  "type": "string"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Supporting Evidence",
+            "description": "Empirical evidence supporting variant view"
+          },
+          "invalidation_condition": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Invalidation Condition",
+            "description": "Specific measurable condition that invalidates thesis"
+          },
+          "catalyst_timing": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Catalyst Timing",
+            "description": "Estimated timing horizon for catalyst re-rating"
+          },
+          "timestamp": {
+            "type": "string",
+            "title": "Timestamp",
+            "description": "UTC timestamp when the conviction was generated"
+          },
+          "data_backed": {
+            "type": "boolean",
+            "title": "Data Backed",
+            "description": "True if based on empirical ResearchDataStore observations (confidence >= 0.3)",
+            "default": false
+          }
+        },
+        "type": "object",
+        "required": [
+          "symbol",
+          "verdict",
+          "conviction_score",
+          "primary_thesis"
+        ],
+        "title": "ConvictionCall",
+        "description": "Arbitrated decision for a ticker."
+      },
+      "CorporateActionIn": {
+        "properties": {
+          "symbol": {
+            "type": "string",
+            "maxLength": 30,
+            "minLength": 1,
+            "title": "Symbol"
+          },
+          "action_type": {
+            "type": "string",
+            "enum": [
+              "split",
+              "bonus",
+              "rights",
+              "dividend",
+              "buyback",
+              "merger",
+              "demerger",
+              "preferential_issue",
+              "qip",
+              "warrants",
+              "dilution"
+            ],
+            "title": "Action Type"
+          },
+          "ratio_numerator": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Ratio Numerator",
+            "description": "E.g., 5 for 5:1 split or 1:2 bonus"
+          },
+          "ratio_denominator": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Ratio Denominator",
+            "description": "E.g., 1 for 5:1 split"
+          },
+          "amount_per_share": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Amount Per Share",
+            "description": "Dividend amount or buyback price"
+          },
+          "ex_date": {
+            "type": "string",
+            "format": "date",
+            "title": "Ex Date",
+            "description": "Ex-action date"
+          },
+          "record_date": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Record Date"
+          },
+          "announced_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Announced At",
+            "description": "Filing announcement timestamp"
+          },
+          "source_name": {
+            "type": "string",
+            "maxLength": 120,
+            "minLength": 2,
+            "title": "Source Name"
+          },
+          "source_url": {
+            "type": "string",
+            "maxLength": 2083,
+            "minLength": 1,
+            "format": "uri",
+            "title": "Source Url"
+          },
+          "confidence": {
+            "type": "number",
+            "maximum": 1.0,
+            "minimum": 0.0,
+            "title": "Confidence",
+            "default": 1.0
+          }
+        },
+        "type": "object",
+        "required": [
+          "symbol",
+          "action_type",
+          "ex_date",
+          "announced_at",
+          "source_name",
+          "source_url"
+        ],
+        "title": "CorporateActionIn"
+      },
+      "CorporateActionResponse": {
+        "properties": {
+          "symbol": {
+            "type": "string",
+            "maxLength": 30,
+            "minLength": 1,
+            "title": "Symbol"
+          },
+          "action_type": {
+            "type": "string",
+            "enum": [
+              "split",
+              "bonus",
+              "rights",
+              "dividend",
+              "buyback",
+              "merger",
+              "demerger",
+              "preferential_issue",
+              "qip",
+              "warrants",
+              "dilution"
+            ],
+            "title": "Action Type"
+          },
+          "ratio_numerator": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Ratio Numerator",
+            "description": "E.g., 5 for 5:1 split or 1:2 bonus"
+          },
+          "ratio_denominator": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Ratio Denominator",
+            "description": "E.g., 1 for 5:1 split"
+          },
+          "amount_per_share": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Amount Per Share",
+            "description": "Dividend amount or buyback price"
+          },
+          "ex_date": {
+            "type": "string",
+            "format": "date",
+            "title": "Ex Date",
+            "description": "Ex-action date"
+          },
+          "record_date": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Record Date"
+          },
+          "announced_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Announced At",
+            "description": "Filing announcement timestamp"
+          },
+          "source_name": {
+            "type": "string",
+            "maxLength": 120,
+            "minLength": 2,
+            "title": "Source Name"
+          },
+          "source_url": {
+            "type": "string",
+            "maxLength": 2083,
+            "minLength": 1,
+            "format": "uri",
+            "title": "Source Url"
+          },
+          "confidence": {
+            "type": "number",
+            "maximum": 1.0,
+            "minimum": 0.0,
+            "title": "Confidence",
+            "default": 1.0
+          },
+          "id": {
+            "type": "integer",
+            "title": "Id"
+          },
+          "ingested_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Ingested At"
+          },
+          "adjustment_factor": {
+            "type": "number",
+            "title": "Adjustment Factor",
+            "default": 1.0
+          }
+        },
+        "type": "object",
+        "required": [
+          "symbol",
+          "action_type",
+          "ex_date",
+          "announced_at",
+          "source_name",
+          "source_url",
+          "id",
+          "ingested_at"
+        ],
+        "title": "CorporateActionResponse"
+      },
+      "DocumentMetadataIn": {
+        "properties": {
+          "symbol": {
+            "type": "string",
+            "maxLength": 30,
+            "minLength": 1,
+            "title": "Symbol"
+          },
+          "document_type": {
+            "type": "string",
+            "enum": [
+              "annual_report",
+              "quarterly_results",
+              "investor_presentation",
+              "concall_transcript",
+              "exchange_filing",
+              "corporate_announcement"
+            ],
+            "title": "Document Type"
+          },
+          "title": {
+            "type": "string",
+            "maxLength": 300,
+            "minLength": 3,
+            "title": "Title"
+          },
+          "financial_period": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 30
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Financial Period",
+            "description": "E.g., FY2024 or Q3FY24"
+          },
+          "document_date": {
+            "type": "string",
+            "format": "date",
+            "title": "Document Date"
+          },
+          "publication_date": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Publication Date",
+            "description": "When document was published"
+          },
+          "source_name": {
+            "type": "string",
+            "maxLength": 120,
+            "minLength": 2,
+            "title": "Source Name"
+          },
+          "source_url": {
+            "type": "string",
+            "maxLength": 2083,
+            "minLength": 1,
+            "format": "uri",
+            "title": "Source Url"
+          },
+          "confidence": {
+            "type": "number",
+            "maximum": 1.0,
+            "minimum": 0.0,
+            "title": "Confidence",
+            "default": 1.0
+          },
+          "metadata_json": {
+            "anyOf": [
+              {
+                "additionalProperties": true,
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Metadata Json"
+          }
+        },
+        "type": "object",
+        "required": [
+          "symbol",
+          "document_type",
+          "title",
+          "document_date",
+          "publication_date",
+          "source_name",
+          "source_url"
+        ],
+        "title": "DocumentMetadataIn"
+      },
+      "DocumentMetadataResponse": {
+        "properties": {
+          "symbol": {
+            "type": "string",
+            "maxLength": 30,
+            "minLength": 1,
+            "title": "Symbol"
+          },
+          "document_type": {
+            "type": "string",
+            "enum": [
+              "annual_report",
+              "quarterly_results",
+              "investor_presentation",
+              "concall_transcript",
+              "exchange_filing",
+              "corporate_announcement"
+            ],
+            "title": "Document Type"
+          },
+          "title": {
+            "type": "string",
+            "maxLength": 300,
+            "minLength": 3,
+            "title": "Title"
+          },
+          "financial_period": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 30
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Financial Period",
+            "description": "E.g., FY2024 or Q3FY24"
+          },
+          "document_date": {
+            "type": "string",
+            "format": "date",
+            "title": "Document Date"
+          },
+          "publication_date": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Publication Date",
+            "description": "When document was published"
+          },
+          "source_name": {
+            "type": "string",
+            "maxLength": 120,
+            "minLength": 2,
+            "title": "Source Name"
+          },
+          "source_url": {
+            "type": "string",
+            "maxLength": 2083,
+            "minLength": 1,
+            "format": "uri",
+            "title": "Source Url"
+          },
+          "confidence": {
+            "type": "number",
+            "maximum": 1.0,
+            "minimum": 0.0,
+            "title": "Confidence",
+            "default": 1.0
+          },
+          "metadata_json": {
+            "anyOf": [
+              {
+                "additionalProperties": true,
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Metadata Json"
+          },
+          "id": {
+            "type": "integer",
+            "title": "Id"
+          },
+          "ingested_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Ingested At"
+          }
+        },
+        "type": "object",
+        "required": [
+          "symbol",
+          "document_type",
+          "title",
+          "document_date",
+          "publication_date",
+          "source_name",
+          "source_url",
+          "id",
+          "ingested_at"
+        ],
+        "title": "DocumentMetadataResponse"
+      },
+      "DriftReport": {
+        "properties": {
+          "total_predictions_evaluated": {
+            "type": "integer",
+            "title": "Total Predictions Evaluated"
+          },
+          "rolling_30d_accuracy_pct": {
+            "type": "number",
+            "title": "Rolling 30D Accuracy Pct"
+          },
+          "rolling_90d_accuracy_pct": {
+            "type": "number",
+            "title": "Rolling 90D Accuracy Pct"
+          },
+          "high_score_decay_detected": {
+            "type": "boolean",
+            "title": "High Score Decay Detected"
+          },
+          "score_monotonicity_status": {
+            "type": "string",
+            "title": "Score Monotonicity Status"
+          },
+          "drift_alert_level": {
+            "type": "string",
+            "title": "Drift Alert Level"
+          },
+          "action_required": {
+            "type": "string",
+            "title": "Action Required"
+          }
+        },
+        "type": "object",
+        "required": [
+          "total_predictions_evaluated",
+          "rolling_30d_accuracy_pct",
+          "rolling_90d_accuracy_pct",
+          "high_score_decay_detected",
+          "score_monotonicity_status",
+          "drift_alert_level",
+          "action_required"
+        ],
+        "title": "DriftReport",
+        "description": "Model & strategy drift audit summary."
+      },
+      "FinancialObservationIn": {
+        "properties": {
+          "symbol": {
+            "type": "string",
+            "maxLength": 30,
+            "minLength": 1,
+            "title": "Symbol"
+          },
+          "metric": {
+            "type": "string",
+            "enum": [
+              "revenue",
+              "ebitda",
+              "ebit",
+              "pat",
+              "eps",
+              "cfo",
+              "fcf",
+              "roce",
+              "roic",
+              "roe",
+              "operating_margin",
+              "net_debt",
+              "gross_debt",
+              "order_book",
+              "capacity",
+              "capacity_utilisation",
+              "receivables",
+              "inventory",
+              "working_capital",
+              "capex",
+              "cash"
+            ],
+            "title": "Metric"
+          },
+          "value": {
+            "type": "number",
+            "title": "Value"
+          },
+          "unit": {
+            "type": "string",
+            "maxLength": 32,
+            "minLength": 1,
+            "title": "Unit",
+            "description": "For example INR_CRORE, INR, PERCENT, or COUNT."
+          },
+          "currency": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 3,
+                "minLength": 3
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Currency",
+            "default": "INR"
+          },
+          "period_end": {
+            "type": "string",
+            "format": "date",
+            "title": "Period End"
+          },
+          "period_type": {
+            "type": "string",
+            "enum": [
+              "quarterly",
+              "annual",
+              "ttm"
+            ],
+            "title": "Period Type"
+          },
+          "statement_scope": {
+            "type": "string",
+            "enum": [
+              "consolidated",
+              "standalone"
+            ],
+            "title": "Statement Scope",
+            "default": "consolidated"
+          },
+          "published_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Published At",
+            "description": "When this value first became public; used to prevent look-ahead bias."
+          },
+          "source_name": {
+            "type": "string",
+            "maxLength": 120,
+            "minLength": 2,
+            "title": "Source Name"
+          },
+          "source_url": {
+            "type": "string",
+            "maxLength": 2083,
+            "minLength": 1,
+            "format": "uri",
+            "title": "Source Url"
+          },
+          "source_reference": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 250
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Source Reference",
+            "description": "Filing page, table, or document identifier."
+          },
+          "confidence": {
+            "type": "number",
+            "maximum": 1.0,
+            "minimum": 0.0,
+            "title": "Confidence",
+            "default": 1.0
+          },
+          "source_tier": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Source Tier",
+            "description": "Data provenance tier: Tier A (Regulatory), Tier B (Primary API), Tier C (Aggregated), Tier D (Unverified)"
+          },
+          "notes": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 2000
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Notes"
+          }
+        },
+        "type": "object",
+        "required": [
+          "symbol",
+          "metric",
+          "value",
+          "unit",
+          "period_end",
+          "period_type",
+          "published_at",
+          "source_name",
+          "source_url"
+        ],
+        "title": "FinancialObservationIn"
+      },
+      "FinancialObservationResponse": {
+        "properties": {
+          "symbol": {
+            "type": "string",
+            "maxLength": 30,
+            "minLength": 1,
+            "title": "Symbol"
+          },
+          "metric": {
+            "type": "string",
+            "enum": [
+              "revenue",
+              "ebitda",
+              "ebit",
+              "pat",
+              "eps",
+              "cfo",
+              "fcf",
+              "roce",
+              "roic",
+              "roe",
+              "operating_margin",
+              "net_debt",
+              "gross_debt",
+              "order_book",
+              "capacity",
+              "capacity_utilisation",
+              "receivables",
+              "inventory",
+              "working_capital",
+              "capex",
+              "cash"
+            ],
+            "title": "Metric"
+          },
+          "value": {
+            "type": "number",
+            "title": "Value"
+          },
+          "unit": {
+            "type": "string",
+            "maxLength": 32,
+            "minLength": 1,
+            "title": "Unit",
+            "description": "For example INR_CRORE, INR, PERCENT, or COUNT."
+          },
+          "currency": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 3,
+                "minLength": 3
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Currency",
+            "default": "INR"
+          },
+          "period_end": {
+            "type": "string",
+            "format": "date",
+            "title": "Period End"
+          },
+          "period_type": {
+            "type": "string",
+            "enum": [
+              "quarterly",
+              "annual",
+              "ttm"
+            ],
+            "title": "Period Type"
+          },
+          "statement_scope": {
+            "type": "string",
+            "enum": [
+              "consolidated",
+              "standalone"
+            ],
+            "title": "Statement Scope",
+            "default": "consolidated"
+          },
+          "published_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Published At",
+            "description": "When this value first became public; used to prevent look-ahead bias."
+          },
+          "source_name": {
+            "type": "string",
+            "maxLength": 120,
+            "minLength": 2,
+            "title": "Source Name"
+          },
+          "source_url": {
+            "type": "string",
+            "maxLength": 2083,
+            "minLength": 1,
+            "format": "uri",
+            "title": "Source Url"
+          },
+          "source_reference": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 250
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Source Reference",
+            "description": "Filing page, table, or document identifier."
+          },
+          "confidence": {
+            "type": "number",
+            "maximum": 1.0,
+            "minimum": 0.0,
+            "title": "Confidence",
+            "default": 1.0
+          },
+          "source_tier": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Source Tier",
+            "description": "Data provenance tier: Tier A (Regulatory), Tier B (Primary API), Tier C (Aggregated), Tier D (Unverified)"
+          },
+          "notes": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 2000
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Notes"
+          },
+          "id": {
+            "type": "integer",
+            "title": "Id"
+          },
+          "ingested_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Ingested At"
+          }
+        },
+        "type": "object",
+        "required": [
+          "symbol",
+          "metric",
+          "value",
+          "unit",
+          "period_end",
+          "period_type",
+          "published_at",
+          "source_name",
+          "source_url",
+          "id",
+          "ingested_at"
+        ],
+        "title": "FinancialObservationResponse"
+      },
+      "GovernanceQualityResponse": {
+        "properties": {
+          "symbol": {
+            "type": "string",
+            "title": "Symbol"
+          },
+          "executed_at": {
+            "type": "string",
+            "title": "Executed At"
+          },
+          "governance_score": {
+            "type": "number",
+            "maximum": 100.0,
+            "minimum": 0.0,
+            "title": "Governance Score"
+          },
+          "governance_grade": {
+            "type": "string",
+            "enum": [
+              "EXCELLENT",
+              "GOOD",
+              "ADEQUATE",
+              "POOR",
+              "UNKNOWN"
+            ],
+            "title": "Governance Grade"
+          },
+          "accounting_hygiene_flag": {
+            "type": "string",
+            "enum": [
+              "PASS",
+              "WARNING",
+              "FAIL",
+              "UNKNOWN"
+            ],
+            "title": "Accounting Hygiene Flag"
+          },
+          "promoter_pledge_risk": {
+            "type": "string",
+            "enum": [
+              "LOW",
+              "MODERATE",
+              "HIGH",
+              "CRITICAL",
+              "UNKNOWN"
+            ],
+            "title": "Promoter Pledge Risk"
+          },
+          "promoter_holding_pct": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Promoter Holding Pct"
+          },
+          "promoter_pledge_pct": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Promoter Pledge Pct"
+          },
+          "cfo_pat_ratio": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Cfo Pat Ratio"
+          },
+          "evidence": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Evidence"
+          },
+          "metrics_summary": {
+            "additionalProperties": true,
+            "type": "object",
+            "title": "Metrics Summary"
+          },
+          "meta": {
+            "$ref": "#/components/schemas/MetaHeader"
+          }
+        },
+        "type": "object",
+        "required": [
+          "symbol",
+          "executed_at",
+          "governance_score",
+          "governance_grade",
+          "accounting_hygiene_flag",
+          "promoter_pledge_risk",
+          "evidence",
+          "metrics_summary",
+          "meta"
+        ],
+        "title": "GovernanceQualityResponse"
+      },
+      "GrowthArbitrageResponse": {
+        "properties": {
+          "symbol": {
+            "type": "string",
+            "title": "Symbol"
+          },
+          "executed_at": {
+            "type": "string",
+            "title": "Executed At"
+          },
+          "current_price": {
+            "type": "number",
+            "title": "Current Price"
+          },
+          "pe_ratio": {
+            "type": "number",
+            "title": "Pe Ratio"
+          },
+          "expected_growth_rate": {
+            "type": "number",
+            "title": "Expected Growth Rate"
+          },
+          "market_implied_growth": {
+            "type": "number",
+            "title": "Market Implied Growth"
+          },
+          "growth_arbitrage_gap": {
+            "type": "number",
+            "title": "Growth Arbitrage Gap"
+          },
+          "intrinsic_value_dcf": {
+            "type": "number",
+            "title": "Intrinsic Value Dcf"
+          },
+          "fair_value_range": {
+            "additionalProperties": {
+              "type": "number"
+            },
+            "type": "object",
+            "title": "Fair Value Range"
+          },
+          "composite_score": {
+            "type": "number",
+            "maximum": 100.0,
+            "minimum": 0.0,
+            "title": "Composite Score"
+          },
+          "recommendation": {
+            "type": "string",
+            "enum": [
+              "STRONG_BUY",
+              "BUY",
+              "ACCUMULATE",
+              "HOLD",
+              "AVOID"
+            ],
+            "title": "Recommendation"
+          },
+          "risk_rating": {
+            "type": "string",
+            "enum": [
+              "LOW",
+              "MEDIUM",
+              "HIGH",
+              "EXTREME"
+            ],
+            "title": "Risk Rating"
+          },
+          "pillar_scores": {
+            "additionalProperties": {
+              "type": "number"
+            },
+            "type": "object",
+            "title": "Pillar Scores"
+          },
+          "horizon_forecasts": {
+            "additionalProperties": {
+              "additionalProperties": {
+                "type": "number"
+              },
+              "type": "object"
+            },
+            "type": "object",
+            "title": "Horizon Forecasts"
+          },
+          "key_drivers": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Key Drivers"
+          },
+          "key_risks": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Key Risks"
+          },
+          "disclaimer": {
+            "type": "string",
+            "title": "Disclaimer"
+          },
+          "meta": {
+            "$ref": "#/components/schemas/MetaHeader"
+          }
+        },
+        "type": "object",
+        "required": [
+          "symbol",
+          "executed_at",
+          "current_price",
+          "pe_ratio",
+          "expected_growth_rate",
+          "market_implied_growth",
+          "growth_arbitrage_gap",
+          "intrinsic_value_dcf",
+          "fair_value_range",
+          "composite_score",
+          "recommendation",
+          "risk_rating",
+          "pillar_scores",
+          "horizon_forecasts",
+          "key_drivers",
+          "key_risks",
+          "disclaimer",
+          "meta"
+        ],
+        "title": "GrowthArbitrageResponse"
+      },
+      "GrowthInflectionResponse": {
+        "properties": {
+          "symbol": {
+            "type": "string",
+            "title": "Symbol"
+          },
+          "executed_at": {
+            "type": "string",
+            "title": "Executed At"
+          },
+          "growth_inflection_score": {
+            "type": "number",
+            "maximum": 100.0,
+            "minimum": 0.0,
+            "title": "Growth Inflection Score"
+          },
+          "stage": {
+            "type": "string",
+            "enum": [
+              "Early",
+              "Developing",
+              "Confirmed",
+              "Exhausting",
+              "Insufficient Data"
+            ],
+            "title": "Stage"
+          },
+          "heuristic_confidence": {
+            "type": "number",
+            "maximum": 100.0,
+            "minimum": 0.0,
+            "title": "Heuristic Confidence",
+            "description": "Rule-based confidence estimate, not a statistically calibrated probability."
+          },
+          "evidence": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Evidence"
+          },
+          "metrics_summary": {
+            "additionalProperties": true,
+            "type": "object",
+            "title": "Metrics Summary"
+          },
+          "meta": {
+            "$ref": "#/components/schemas/MetaHeader"
+          }
+        },
+        "type": "object",
+        "required": [
+          "symbol",
+          "executed_at",
+          "growth_inflection_score",
+          "stage",
+          "heuristic_confidence",
+          "evidence",
+          "metrics_summary",
+          "meta"
+        ],
+        "title": "GrowthInflectionResponse"
+      },
+      "GrowthMarketGapResponse": {
+        "properties": {
+          "symbol": {
+            "type": "string",
+            "title": "Symbol"
+          },
+          "executed_at": {
+            "type": "string",
+            "title": "Executed At"
+          },
+          "business_growth_score": {
+            "type": "number",
+            "maximum": 100.0,
+            "minimum": 0.0,
+            "title": "Business Growth Score"
+          },
+          "market_recognition_score": {
+            "type": "number",
+            "maximum": 100.0,
+            "minimum": 0.0,
+            "title": "Market Recognition Score"
+          },
+          "growth_recognition_gap": {
+            "type": "number",
+            "title": "Growth Recognition Gap"
+          },
+          "gap_classification": {
+            "type": "string",
+            "enum": [
+              "HIGH_ARBITRAGE",
+              "BALANCED",
+              "PRICED_IN",
+              "OVERVALUED",
+              "INSUFFICIENT_DATA"
+            ],
+            "title": "Gap Classification"
+          },
+          "potential_rerating_score": {
+            "type": "number",
+            "maximum": 100.0,
+            "minimum": 0.0,
+            "title": "Potential Rerating Score"
+          },
+          "cagr_comparison": {
+            "additionalProperties": {
+              "anyOf": [
+                {
+                  "type": "number"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "type": "object",
+            "title": "Cagr Comparison"
+          },
+          "evidence": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Evidence"
+          },
+          "meta": {
+            "$ref": "#/components/schemas/MetaHeader"
+          }
+        },
+        "type": "object",
+        "required": [
+          "symbol",
+          "executed_at",
+          "business_growth_score",
+          "market_recognition_score",
+          "growth_recognition_gap",
+          "gap_classification",
+          "potential_rerating_score",
+          "cagr_comparison",
+          "evidence",
+          "meta"
+        ],
+        "title": "GrowthMarketGapResponse"
+      },
+      "HTTPValidationError": {
+        "properties": {
+          "detail": {
+            "items": {
+              "$ref": "#/components/schemas/ValidationError"
+            },
+            "type": "array",
+            "title": "Detail"
+          }
+        },
+        "type": "object",
+        "title": "HTTPValidationError"
+      },
+      "LogPredictionRequest": {
+        "properties": {
+          "symbol": {
+            "type": "string",
+            "maxLength": 30,
+            "minLength": 1,
+            "title": "Symbol"
+          },
+          "score": {
+            "type": "integer",
+            "maximum": 100.0,
+            "minimum": 0.0,
+            "title": "Score"
+          },
+          "verdict": {
+            "type": "string",
+            "title": "Verdict"
+          },
+          "confidence": {
+            "type": "string",
+            "title": "Confidence"
+          },
+          "thesis": {
+            "type": "string",
+            "title": "Thesis"
+          },
+          "reference_price": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Reference Price"
+          },
+          "model_version": {
+            "type": "string",
+            "title": "Model Version",
+            "default": "1.0"
+          }
+        },
+        "type": "object",
+        "required": [
+          "symbol",
+          "score",
+          "verdict",
+          "confidence",
+          "thesis"
+        ],
+        "title": "LogPredictionRequest"
+      },
+      "MarketDailySnapshotIn": {
+        "properties": {
+          "symbol": {
+            "type": "string",
+            "maxLength": 30,
+            "minLength": 1,
+            "title": "Symbol"
+          },
+          "trading_date": {
+            "type": "string",
+            "format": "date",
+            "title": "Trading Date"
+          },
+          "open_price": {
+            "type": "number",
+            "exclusiveMinimum": 0.0,
+            "title": "Open Price"
+          },
+          "high_price": {
+            "type": "number",
+            "exclusiveMinimum": 0.0,
+            "title": "High Price"
+          },
+          "low_price": {
+            "type": "number",
+            "exclusiveMinimum": 0.0,
+            "title": "Low Price"
+          },
+          "close_price": {
+            "type": "number",
+            "exclusiveMinimum": 0.0,
+            "title": "Close Price"
+          },
+          "volume": {
+            "type": "integer",
+            "minimum": 0.0,
+            "title": "Volume"
+          },
+          "delivery_volume": {
+            "anyOf": [
+              {
+                "type": "integer",
+                "minimum": 0.0
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Delivery Volume"
+          },
+          "delivery_pct": {
+            "anyOf": [
+              {
+                "type": "number",
+                "maximum": 100.0,
+                "minimum": 0.0
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Delivery Pct"
+          },
+          "market_cap": {
+            "anyOf": [
+              {
+                "type": "number",
+                "minimum": 0.0
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Market Cap"
+          },
+          "published_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Published At",
+            "description": "When data became publicly available"
+          },
+          "source_name": {
+            "type": "string",
+            "maxLength": 120,
+            "title": "Source Name",
+            "default": "NSE/BSE Data Feed"
+          },
+          "source_url": {
+            "type": "string",
+            "maxLength": 2083,
+            "minLength": 1,
+            "format": "uri",
+            "title": "Source Url",
+            "default": "https://www.nseindia.com"
+          }
+        },
+        "type": "object",
+        "required": [
+          "symbol",
+          "trading_date",
+          "open_price",
+          "high_price",
+          "low_price",
+          "close_price",
+          "volume",
+          "published_at"
+        ],
+        "title": "MarketDailySnapshotIn"
+      },
+      "MarketDailySnapshotResponse": {
+        "properties": {
+          "symbol": {
+            "type": "string",
+            "maxLength": 30,
+            "minLength": 1,
+            "title": "Symbol"
+          },
+          "trading_date": {
+            "type": "string",
+            "format": "date",
+            "title": "Trading Date"
+          },
+          "open_price": {
+            "type": "number",
+            "exclusiveMinimum": 0.0,
+            "title": "Open Price"
+          },
+          "high_price": {
+            "type": "number",
+            "exclusiveMinimum": 0.0,
+            "title": "High Price"
+          },
+          "low_price": {
+            "type": "number",
+            "exclusiveMinimum": 0.0,
+            "title": "Low Price"
+          },
+          "close_price": {
+            "type": "number",
+            "exclusiveMinimum": 0.0,
+            "title": "Close Price"
+          },
+          "volume": {
+            "type": "integer",
+            "minimum": 0.0,
+            "title": "Volume"
+          },
+          "delivery_volume": {
+            "anyOf": [
+              {
+                "type": "integer",
+                "minimum": 0.0
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Delivery Volume"
+          },
+          "delivery_pct": {
+            "anyOf": [
+              {
+                "type": "number",
+                "maximum": 100.0,
+                "minimum": 0.0
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Delivery Pct"
+          },
+          "market_cap": {
+            "anyOf": [
+              {
+                "type": "number",
+                "minimum": 0.0
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Market Cap"
+          },
+          "published_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Published At",
+            "description": "When data became publicly available"
+          },
+          "source_name": {
+            "type": "string",
+            "maxLength": 120,
+            "title": "Source Name",
+            "default": "NSE/BSE Data Feed"
+          },
+          "source_url": {
+            "type": "string",
+            "maxLength": 2083,
+            "minLength": 1,
+            "format": "uri",
+            "title": "Source Url",
+            "default": "https://www.nseindia.com"
+          },
+          "id": {
+            "type": "integer",
+            "title": "Id"
+          },
+          "adj_close_price": {
+            "type": "number",
+            "title": "Adj Close Price"
+          },
+          "adjustment_factor": {
+            "type": "number",
+            "title": "Adjustment Factor"
+          },
+          "ingested_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Ingested At"
+          }
+        },
+        "type": "object",
+        "required": [
+          "symbol",
+          "trading_date",
+          "open_price",
+          "high_price",
+          "low_price",
+          "close_price",
+          "volume",
+          "published_at",
+          "id",
+          "adj_close_price",
+          "adjustment_factor",
+          "ingested_at"
+        ],
+        "title": "MarketDailySnapshotResponse"
+      },
+      "MarketRegimeResponse": {
+        "properties": {
+          "vix_level": {
+            "type": "number",
+            "title": "Vix Level"
+          },
+          "regime": {
+            "type": "string",
+            "title": "Regime"
+          },
+          "score": {
+            "type": "integer",
+            "title": "Score"
+          },
+          "a2_suitability": {
+            "type": "string",
+            "title": "A2 Suitability"
+          },
+          "observation": {
+            "type": "string",
+            "title": "Observation"
+          },
+          "nifty_spot": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Nifty Spot"
+          },
+          "meta": {
+            "$ref": "#/components/schemas/MetaHeader"
+          }
+        },
+        "type": "object",
+        "required": [
+          "vix_level",
+          "regime",
+          "score",
+          "a2_suitability",
+          "observation",
+          "meta"
+        ],
+        "title": "MarketRegimeResponse"
+      },
+      "MetaHeader": {
+        "properties": {
+          "source": {
+            "type": "string",
+            "title": "Source",
+            "description": "Name of the underlying market data feed/provider"
+          },
+          "as_of": {
+            "type": "string",
+            "title": "As Of",
+            "description": "Timestamp in IST (Asia/Kolkata) when market data was generated"
+          },
+          "retrieved_at": {
+            "type": "string",
+            "title": "Retrieved At",
+            "description": "Timestamp in IST when backend fetched the data"
+          },
+          "market_data_type": {
+            "type": "string",
+            "title": "Market Data Type",
+            "description": "'realtime', 'delayed', or 'end_of_day'"
+          },
+          "stale": {
+            "type": "boolean",
+            "title": "Stale",
+            "description": "True if data is older than expected TTL",
+            "default": false
+          },
+          "limitations": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Limitations",
+            "description": "Explicit limits, disclaimers, or notices"
+          }
+        },
+        "type": "object",
+        "required": [
+          "source",
+          "as_of",
+          "retrieved_at",
+          "market_data_type"
+        ],
+        "title": "MetaHeader"
+      },
+      "MultibaggerScreenerResponse": {
+        "properties": {
+          "symbol": {
+            "type": "string",
+            "title": "Symbol"
+          },
+          "executed_at": {
+            "type": "string",
+            "title": "Executed At"
+          },
+          "multibagger_score": {
+            "type": "number",
+            "maximum": 100.0,
+            "minimum": 0.0,
+            "title": "Multibagger Score"
+          },
+          "conviction_category": {
+            "type": "string",
+            "enum": [
+              "HIGH_CONVICTION_EARLY_MULTIBAGGER",
+              "HIGH_GROWTH_REVALUATION_CANDIDATE",
+              "SPECULATIVE_TURNAROUND",
+              "MONITOR_LIST",
+              "AVOID_OR_HIGH_RISK",
+              "INSUFFICIENT_DATA"
+            ],
+            "title": "Conviction Category"
+          },
+          "heuristic_confidence": {
+            "type": "number",
+            "maximum": 100.0,
+            "minimum": 0.0,
+            "title": "Heuristic Confidence",
+            "description": "Rule-based confidence estimate, not a statistically calibrated probability."
+          },
+          "key_drivers": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Key Drivers"
+          },
+          "key_risks": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Key Risks"
+          },
+          "component_scores": {
+            "additionalProperties": true,
+            "type": "object",
+            "title": "Component Scores"
+          },
+          "meta": {
+            "$ref": "#/components/schemas/MetaHeader"
+          }
+        },
+        "type": "object",
+        "required": [
+          "symbol",
+          "executed_at",
+          "multibagger_score",
+          "conviction_category",
+          "heuristic_confidence",
+          "key_drivers",
+          "key_risks",
+          "component_scores",
+          "meta"
+        ],
+        "title": "MultibaggerScreenerResponse"
+      },
+      "OptionsA2Request": {
+        "properties": {
+          "underlying": {
+            "type": "string",
+            "title": "Underlying",
+            "description": "Index or ticker symbol (default ^NSEI)",
+            "default": "^NSEI"
+          },
+          "expiry": {
+            "type": "string",
+            "title": "Expiry",
+            "description": "Expiry label (e.g. 0-DTE, Weekly)",
+            "default": "0-DTE"
+          },
+          "spot_price": {
+            "anyOf": [
+              {
+                "type": "number",
+                "exclusiveMinimum": 0.0
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Spot Price",
+            "description": "Current spot price. If None, fetched live."
+          },
+          "lower_strike": {
+            "type": "number",
+            "exclusiveMinimum": 0.0,
+            "title": "Lower Strike",
+            "description": "Short Put strike price"
+          },
+          "upper_strike": {
+            "type": "number",
+            "exclusiveMinimum": 0.0,
+            "title": "Upper Strike",
+            "description": "Short Call strike price"
+          },
+          "call_premium": {
+            "type": "number",
+            "minimum": 0.0,
+            "title": "Call Premium",
+            "description": "Call option premium collected"
+          },
+          "put_premium": {
+            "type": "number",
+            "minimum": 0.0,
+            "title": "Put Premium",
+            "description": "Put option premium collected"
+          },
+          "lot_size": {
+            "type": "integer",
+            "exclusiveMinimum": 0.0,
+            "title": "Lot Size",
+            "description": "Contract lot size (Nifty default 25)",
+            "default": 25
+          },
+          "risk_limit_amount": {
+            "anyOf": [
+              {
+                "type": "number",
+                "exclusiveMinimum": 0.0
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Risk Limit Amount",
+            "description": "Max total risk capital allocation"
+          }
+        },
+        "type": "object",
+        "required": [
+          "lower_strike",
+          "upper_strike",
+          "call_premium",
+          "put_premium"
+        ],
+        "title": "OptionsA2Request"
+      },
+      "OptionsA2Response": {
+        "properties": {
+          "underlying": {
+            "type": "string",
+            "title": "Underlying"
+          },
+          "expiry": {
+            "type": "string",
+            "title": "Expiry"
+          },
+          "spot_price": {
+            "type": "number",
+            "title": "Spot Price"
+          },
+          "lower_strike": {
+            "type": "number",
+            "title": "Lower Strike"
+          },
+          "upper_strike": {
+            "type": "number",
+            "title": "Upper Strike"
+          },
+          "total_credit_per_lot": {
+            "type": "number",
+            "title": "Total Credit Per Lot"
+          },
+          "max_profit": {
+            "type": "number",
+            "title": "Max Profit"
+          },
+          "max_loss": {
+            "type": "number",
+            "title": "Max Loss"
+          },
+          "breakeven_lower": {
+            "type": "number",
+            "title": "Breakeven Lower"
+          },
+          "breakeven_upper": {
+            "type": "number",
+            "title": "Breakeven Upper"
+          },
+          "probability_of_profit_empirical_pct": {
+            "type": "number",
+            "title": "Probability Of Profit Empirical Pct"
+          },
+          "expected_value_per_lot": {
+            "type": "number",
+            "title": "Expected Value Per Lot"
+          },
+          "risk_reward_ratio": {
+            "type": "number",
+            "title": "Risk Reward Ratio"
+          },
+          "estimated_margin_required": {
+            "type": "number",
+            "title": "Estimated Margin Required"
+          },
+          "recommended_max_lots": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Recommended Max Lots"
+          },
+          "payoff_curve": {
+            "items": {
+              "additionalProperties": {
+                "type": "number"
+              },
+              "type": "object"
+            },
+            "type": "array",
+            "title": "Payoff Curve"
+          },
+          "risk_warnings": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Risk Warnings"
+          },
+          "meta": {
+            "$ref": "#/components/schemas/MetaHeader"
+          }
+        },
+        "type": "object",
+        "required": [
+          "underlying",
+          "expiry",
+          "spot_price",
+          "lower_strike",
+          "upper_strike",
+          "total_credit_per_lot",
+          "max_profit",
+          "max_loss",
+          "breakeven_lower",
+          "breakeven_upper",
+          "probability_of_profit_empirical_pct",
+          "expected_value_per_lot",
+          "risk_reward_ratio",
+          "estimated_margin_required",
+          "payoff_curve",
+          "risk_warnings",
+          "meta"
+        ],
+        "title": "OptionsA2Response"
+      },
+      "OutcomeRecord": {
+        "properties": {
+          "prediction_id": {
+            "type": "integer",
+            "title": "Prediction Id"
+          },
+          "symbol": {
+            "type": "string",
+            "title": "Symbol"
+          },
+          "horizon_months": {
+            "type": "integer",
+            "title": "Horizon Months"
+          },
+          "actual_return_pct": {
+            "type": "number",
+            "title": "Actual Return Pct"
+          },
+          "benchmark_return_pct": {
+            "type": "number",
+            "title": "Benchmark Return Pct"
+          },
+          "excess_return_pct": {
+            "type": "number",
+            "title": "Excess Return Pct"
+          },
+          "outcome_class": {
+            "type": "string",
+            "title": "Outcome Class"
+          }
+        },
+        "type": "object",
+        "required": [
+          "prediction_id",
+          "symbol",
+          "horizon_months",
+          "actual_return_pct",
+          "benchmark_return_pct",
+          "excess_return_pct",
+          "outcome_class"
+        ],
+        "title": "OutcomeRecord",
+        "description": "Container for a tracked outcome return."
+      },
+      "OwnershipSnapshotIn": {
+        "properties": {
+          "symbol": {
+            "type": "string",
+            "maxLength": 30,
+            "minLength": 1,
+            "title": "Symbol"
+          },
+          "period_end": {
+            "type": "string",
+            "format": "date",
+            "title": "Period End",
+            "description": "Quarter end date (e.g. 2024-03-31)"
+          },
+          "promoter_pct": {
+            "type": "number",
+            "maximum": 100.0,
+            "minimum": 0.0,
+            "title": "Promoter Pct"
+          },
+          "fii_pct": {
+            "type": "number",
+            "maximum": 100.0,
+            "minimum": 0.0,
+            "title": "Fii Pct"
+          },
+          "dii_pct": {
+            "type": "number",
+            "maximum": 100.0,
+            "minimum": 0.0,
+            "title": "Dii Pct"
+          },
+          "mutual_fund_pct": {
+            "anyOf": [
+              {
+                "type": "number",
+                "maximum": 100.0,
+                "minimum": 0.0
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Mutual Fund Pct"
+          },
+          "insurance_pct": {
+            "anyOf": [
+              {
+                "type": "number",
+                "maximum": 100.0,
+                "minimum": 0.0
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Insurance Pct"
+          },
+          "public_pct": {
+            "type": "number",
+            "maximum": 100.0,
+            "minimum": 0.0,
+            "title": "Public Pct"
+          },
+          "aif_pct": {
+            "anyOf": [
+              {
+                "type": "number",
+                "maximum": 100.0,
+                "minimum": 0.0
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Aif Pct"
+          },
+          "promoter_pledge_pct": {
+            "anyOf": [
+              {
+                "type": "number",
+                "maximum": 100.0,
+                "minimum": 0.0
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Promoter Pledge Pct"
+          },
+          "published_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Published At",
+            "description": "Timestamp when filing became public"
+          },
+          "source_name": {
+            "type": "string",
+            "maxLength": 120,
+            "minLength": 2,
+            "title": "Source Name"
+          },
+          "source_url": {
+            "type": "string",
+            "maxLength": 2083,
+            "minLength": 1,
+            "format": "uri",
+            "title": "Source Url"
+          },
+          "confidence": {
+            "type": "number",
+            "maximum": 1.0,
+            "minimum": 0.0,
+            "title": "Confidence",
+            "default": 1.0
+          }
+        },
+        "type": "object",
+        "required": [
+          "symbol",
+          "period_end",
+          "promoter_pct",
+          "fii_pct",
+          "dii_pct",
+          "public_pct",
+          "published_at",
+          "source_name",
+          "source_url"
+        ],
+        "title": "OwnershipSnapshotIn"
+      },
+      "OwnershipSnapshotResponse": {
+        "properties": {
+          "symbol": {
+            "type": "string",
+            "maxLength": 30,
+            "minLength": 1,
+            "title": "Symbol"
+          },
+          "period_end": {
+            "type": "string",
+            "format": "date",
+            "title": "Period End",
+            "description": "Quarter end date (e.g. 2024-03-31)"
+          },
+          "promoter_pct": {
+            "type": "number",
+            "maximum": 100.0,
+            "minimum": 0.0,
+            "title": "Promoter Pct"
+          },
+          "fii_pct": {
+            "type": "number",
+            "maximum": 100.0,
+            "minimum": 0.0,
+            "title": "Fii Pct"
+          },
+          "dii_pct": {
+            "type": "number",
+            "maximum": 100.0,
+            "minimum": 0.0,
+            "title": "Dii Pct"
+          },
+          "mutual_fund_pct": {
+            "anyOf": [
+              {
+                "type": "number",
+                "maximum": 100.0,
+                "minimum": 0.0
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Mutual Fund Pct"
+          },
+          "insurance_pct": {
+            "anyOf": [
+              {
+                "type": "number",
+                "maximum": 100.0,
+                "minimum": 0.0
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Insurance Pct"
+          },
+          "public_pct": {
+            "type": "number",
+            "maximum": 100.0,
+            "minimum": 0.0,
+            "title": "Public Pct"
+          },
+          "aif_pct": {
+            "anyOf": [
+              {
+                "type": "number",
+                "maximum": 100.0,
+                "minimum": 0.0
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Aif Pct"
+          },
+          "promoter_pledge_pct": {
+            "anyOf": [
+              {
+                "type": "number",
+                "maximum": 100.0,
+                "minimum": 0.0
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Promoter Pledge Pct"
+          },
+          "published_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Published At",
+            "description": "Timestamp when filing became public"
+          },
+          "source_name": {
+            "type": "string",
+            "maxLength": 120,
+            "minLength": 2,
+            "title": "Source Name"
+          },
+          "source_url": {
+            "type": "string",
+            "maxLength": 2083,
+            "minLength": 1,
+            "format": "uri",
+            "title": "Source Url"
+          },
+          "confidence": {
+            "type": "number",
+            "maximum": 1.0,
+            "minimum": 0.0,
+            "title": "Confidence",
+            "default": 1.0
+          },
+          "id": {
+            "type": "integer",
+            "title": "Id"
+          },
+          "ingested_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Ingested At"
+          }
+        },
+        "type": "object",
+        "required": [
+          "symbol",
+          "period_end",
+          "promoter_pct",
+          "fii_pct",
+          "dii_pct",
+          "public_pct",
+          "published_at",
+          "source_name",
+          "source_url",
+          "id",
+          "ingested_at"
+        ],
+        "title": "OwnershipSnapshotResponse"
+      },
+      "PortfolioSnapshot": {
+        "properties": {
+          "average_score": {
+            "type": "number",
+            "title": "Average Score"
+          },
+          "verdict_counts": {
+            "additionalProperties": {
+              "type": "integer"
+            },
+            "type": "object",
+            "title": "Verdict Counts"
+          },
+          "symbols": {
+            "additionalProperties": {
+              "$ref": "#/components/schemas/ConvictionCall"
+            },
+            "type": "object",
+            "title": "Symbols"
+          },
+          "timestamp": {
+            "type": "string",
+            "title": "Timestamp"
+          }
+        },
+        "type": "object",
+        "required": [
+          "average_score",
+          "verdict_counts",
+          "symbols"
+        ],
+        "title": "PortfolioSnapshot",
+        "description": "Aggregated view of all watch\u2011list symbols."
+      },
+      "PredictionRecord": {
+        "properties": {
+          "id": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Id"
+          },
+          "symbol": {
+            "type": "string",
+            "title": "Symbol"
+          },
+          "timestamp": {
+            "type": "string",
+            "title": "Timestamp"
+          },
+          "score": {
+            "type": "integer",
+            "title": "Score"
+          },
+          "verdict": {
+            "type": "string",
+            "title": "Verdict"
+          },
+          "confidence": {
+            "type": "string",
+            "title": "Confidence"
+          },
+          "reference_price": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Reference Price"
+          },
+          "thesis": {
+            "type": "string",
+            "title": "Thesis"
+          },
+          "model_version": {
+            "type": "string",
+            "title": "Model Version",
+            "default": "1.0"
+          },
+          "conviction_call_id": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Conviction Call Id"
+          }
+        },
+        "type": "object",
+        "required": [
+          "symbol",
+          "timestamp",
+          "score",
+          "verdict",
+          "confidence",
+          "thesis"
+        ],
+        "title": "PredictionRecord",
+        "description": "Container for a logged historical prediction."
+      },
+      "QueryRequest": {
+        "properties": {
+          "query": {
+            "type": "string",
+            "maxLength": 500,
+            "minLength": 2,
+            "title": "Query",
+            "description": "Research prompt or query"
+          },
+          "mode": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Mode",
+            "description": "Query mode: Quick, Research, Technical, Fundamental",
+            "default": "Quick"
+          }
+        },
+        "type": "object",
+        "required": [
+          "query"
+        ],
+        "title": "QueryRequest"
+      },
+      "QueryResponse": {
+        "properties": {
+          "query": {
+            "type": "string",
+            "title": "Query",
+            "description": "Original research prompt"
+          },
+          "mode": {
+            "type": "string",
+            "title": "Mode",
+            "description": "Query mode used",
+            "default": "Quick"
+          },
+          "reply": {
+            "type": "string",
+            "title": "Reply",
+            "description": "Narrative response or deterministic fallback"
+          },
+          "provider": {
+            "type": "string",
+            "title": "Provider",
+            "description": "LLM provider or deterministic engine identifier"
+          },
+          "meta": {
+            "$ref": "#/components/schemas/MetaHeader",
+            "description": "Metadata header with source and timestamps"
+          },
+          "disclaimer": {
+            "type": "string",
+            "title": "Disclaimer",
+            "description": "Legal disclaimer for the response"
+          }
+        },
+        "type": "object",
+        "required": [
+          "query",
+          "reply",
+          "provider",
+          "meta",
+          "disclaimer"
+        ],
+        "title": "QueryResponse",
+        "description": "Response model for AI query endpoint.\n\nMirrors the fields returned by `process_llm_query`."
+      },
+      "RecordOutcomeRequest": {
+        "properties": {
+          "prediction_id": {
+            "type": "integer",
+            "title": "Prediction Id"
+          },
+          "symbol": {
+            "type": "string",
+            "title": "Symbol"
+          },
+          "horizon_months": {
+            "type": "integer",
+            "maximum": 36.0,
+            "minimum": 1.0,
+            "title": "Horizon Months"
+          },
+          "actual_return_pct": {
+            "type": "number",
+            "title": "Actual Return Pct"
+          },
+          "benchmark_return_pct": {
+            "type": "number",
+            "title": "Benchmark Return Pct",
+            "default": 8.0
+          }
+        },
+        "type": "object",
+        "required": [
+          "prediction_id",
+          "symbol",
+          "horizon_months",
+          "actual_return_pct"
+        ],
+        "title": "RecordOutcomeRequest"
+      },
+      "ReturnProbabilityRequest": {
+        "properties": {
+          "symbol": {
+            "type": "string",
+            "title": "Symbol",
+            "description": "Stock symbol (e.g. RELIANCE, TCS)"
+          },
+          "horizon_days": {
+            "type": "integer",
+            "maximum": 365.0,
+            "minimum": 1.0,
+            "title": "Horizon Days",
+            "description": "Holding period in trading days",
+            "default": 30
+          },
+          "return_threshold_pct": {
+            "type": "number",
+            "title": "Return Threshold Pct",
+            "description": "Target return threshold percentage (e.g. 5.0 for 5%)",
+            "default": 5.0
+          },
+          "method": {
+            "type": "string",
+            "enum": [
+              "historical_empirical",
+              "bootstrap"
+            ],
+            "title": "Method",
+            "default": "historical_empirical"
+          }
+        },
+        "type": "object",
+        "required": [
+          "symbol"
+        ],
+        "title": "ReturnProbabilityRequest"
+      },
+      "ReturnProbabilityResponse": {
+        "properties": {
+          "symbol": {
+            "type": "string",
+            "title": "Symbol"
+          },
+          "horizon_days": {
+            "type": "integer",
+            "title": "Horizon Days"
+          },
+          "return_threshold_pct": {
+            "type": "number",
+            "title": "Return Threshold Pct"
+          },
+          "method": {
+            "type": "string",
+            "title": "Method"
+          },
+          "probability_above_threshold_pct": {
+            "type": "number",
+            "title": "Probability Above Threshold Pct"
+          },
+          "probability_negative_return_pct": {
+            "type": "number",
+            "title": "Probability Negative Return Pct"
+          },
+          "median_return_pct": {
+            "type": "number",
+            "title": "Median Return Pct"
+          },
+          "percentiles": {
+            "additionalProperties": {
+              "type": "number"
+            },
+            "type": "object",
+            "title": "Percentiles"
+          },
+          "sample_size": {
+            "type": "integer",
+            "title": "Sample Size"
+          },
+          "observation_window": {
+            "additionalProperties": {
+              "type": "string"
+            },
+            "type": "object",
+            "title": "Observation Window"
+          },
+          "assumptions": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Assumptions"
+          },
+          "warnings": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Warnings"
+          },
+          "meta": {
+            "$ref": "#/components/schemas/MetaHeader"
+          }
+        },
+        "type": "object",
+        "required": [
+          "symbol",
+          "horizon_days",
+          "return_threshold_pct",
+          "method",
+          "probability_above_threshold_pct",
+          "probability_negative_return_pct",
+          "median_return_pct",
+          "percentiles",
+          "sample_size",
+          "observation_window",
+          "assumptions",
+          "warnings",
+          "meta"
+        ],
+        "title": "ReturnProbabilityResponse"
+      },
+      "StrategyModule": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "title": "Id"
+          },
+          "name": {
+            "type": "string",
+            "title": "Name"
+          },
+          "category": {
+            "type": "string",
+            "title": "Category"
+          },
+          "description": {
+            "type": "string",
+            "title": "Description"
+          },
+          "status": {
+            "type": "string",
+            "title": "Status"
+          },
+          "required_inputs": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Required Inputs"
+          },
+          "universe": {
+            "type": "string",
+            "title": "Universe"
+          },
+          "metrics": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Metrics"
+          },
+          "risk_warnings": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Risk Warnings"
+          },
+          "methodology": {
+            "type": "string",
+            "title": "Methodology"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "name",
+          "category",
+          "description",
+          "status",
+          "required_inputs",
+          "universe",
+          "metrics",
+          "risk_warnings",
+          "methodology"
+        ],
+        "title": "StrategyModule"
+      },
+      "StrategyRunRequest": {
+        "properties": {
+          "symbol": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Symbol",
+            "description": "Ticker symbol if running single-stock diagnostic",
+            "default": "RELIANCE"
+          },
+          "universe": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Universe",
+            "description": "Universe identifier",
+            "default": "NSE500"
+          },
+          "parameters": {
+            "anyOf": [
+              {
+                "additionalProperties": true,
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Parameters"
+          }
+        },
+        "type": "object",
+        "title": "StrategyRunRequest"
+      },
+      "StrategyRunResponse": {
+        "properties": {
+          "strategy_id": {
+            "type": "string",
+            "title": "Strategy Id"
+          },
+          "strategy_name": {
+            "type": "string",
+            "title": "Strategy Name"
+          },
+          "status": {
+            "type": "string",
+            "title": "Status"
+          },
+          "executed_at": {
+            "type": "string",
+            "title": "Executed At"
+          },
+          "symbol": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Symbol"
+          },
+          "passed_gates": {
+            "type": "boolean",
+            "title": "Passed Gates"
+          },
+          "results": {
+            "additionalProperties": true,
+            "type": "object",
+            "title": "Results"
+          },
+          "metrics": {
+            "additionalProperties": true,
+            "type": "object",
+            "title": "Metrics"
+          },
+          "risk_warnings": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Risk Warnings"
+          },
+          "disclaimer": {
+            "type": "string",
+            "title": "Disclaimer"
+          },
+          "meta": {
+            "$ref": "#/components/schemas/MetaHeader"
+          }
+        },
+        "type": "object",
+        "required": [
+          "strategy_id",
+          "strategy_name",
+          "status",
+          "executed_at",
+          "passed_gates",
+          "results",
+          "metrics",
+          "risk_warnings",
+          "disclaimer",
+          "meta"
+        ],
+        "title": "StrategyRunResponse"
+      },
+      "TickerQuoteResponse": {
+        "properties": {
+          "symbol": {
+            "type": "string",
+            "title": "Symbol"
+          },
+          "exchange": {
+            "type": "string",
+            "title": "Exchange",
+            "default": "NSE"
+          },
+          "currency": {
+            "type": "string",
+            "title": "Currency",
+            "default": "INR"
+          },
+          "price": {
+            "type": "number",
+            "title": "Price"
+          },
+          "previous_close": {
+            "type": "number",
+            "title": "Previous Close"
+          },
+          "change": {
+            "type": "number",
+            "title": "Change"
+          },
+          "change_percent": {
+            "type": "number",
+            "title": "Change Percent"
+          },
+          "fifty_two_week_high": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Fifty Two Week High"
+          },
+          "fifty_two_week_low": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Fifty Two Week Low"
+          },
+          "market_cap": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Market Cap"
+          },
+          "pe_ratio": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Pe Ratio"
+          },
+          "volume": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Volume"
+          },
+          "meta": {
+            "$ref": "#/components/schemas/MetaHeader"
+          }
+        },
+        "type": "object",
+        "required": [
+          "symbol",
+          "price",
+          "previous_close",
+          "change",
+          "change_percent",
+          "meta"
+        ],
+        "title": "TickerQuoteResponse"
+      },
+      "TurnaroundStageResponse": {
+        "properties": {
+          "symbol": {
+            "type": "string",
+            "title": "Symbol"
+          },
+          "executed_at": {
+            "type": "string",
+            "title": "Executed At"
+          },
+          "turnaround_score": {
+            "type": "number",
+            "maximum": 100.0,
+            "minimum": 0.0,
+            "title": "Turnaround Score"
+          },
+          "current_stage": {
+            "type": "string",
+            "title": "Current Stage"
+          },
+          "success_probability_pct": {
+            "type": "number",
+            "maximum": 100.0,
+            "minimum": 0.0,
+            "title": "Success Probability Pct"
+          },
+          "false_turnaround_risk": {
+            "type": "string",
+            "enum": [
+              "LOW",
+              "MODERATE",
+              "HIGH",
+              "CRITICAL",
+              "UNKNOWN"
+            ],
+            "title": "False Turnaround Risk"
+          },
+          "evidence": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Evidence"
+          },
+          "metrics_summary": {
+            "additionalProperties": true,
+            "type": "object",
+            "title": "Metrics Summary"
+          },
+          "meta": {
+            "$ref": "#/components/schemas/MetaHeader"
+          }
+        },
+        "type": "object",
+        "required": [
+          "symbol",
+          "executed_at",
+          "turnaround_score",
+          "current_stage",
+          "success_probability_pct",
+          "false_turnaround_risk",
+          "evidence",
+          "metrics_summary",
+          "meta"
+        ],
+        "title": "TurnaroundStageResponse"
+      },
+      "ValidationError": {
+        "properties": {
+          "loc": {
+            "items": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "integer"
+                }
+              ]
+            },
+            "type": "array",
+            "title": "Location"
+          },
+          "msg": {
+            "type": "string",
+            "title": "Message"
+          },
+          "type": {
+            "type": "string",
+            "title": "Error Type"
+          },
+          "input": {
+            "title": "Input"
+          },
+          "ctx": {
+            "type": "object",
+            "title": "Context"
+          }
+        },
+        "type": "object",
+        "required": [
+          "loc",
+          "msg",
+          "type"
+        ],
+        "title": "ValidationError"
+      },
+      "WatchlistItemRequest": {
+        "properties": {
+          "symbol": {
+            "type": "string",
+            "maxLength": 30,
+            "minLength": 1,
+            "title": "Symbol"
+          },
+          "company_name": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Company Name",
+            "default": ""
+          },
+          "target_price": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Target Price",
+            "default": 0.0
+          },
+          "notes": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Notes",
+            "default": ""
+          }
+        },
+        "type": "object",
+        "required": [
+          "symbol"
+        ],
+        "title": "WatchlistItemRequest"
+      },
+      "WatchlistItemResponse": {
+        "properties": {
+          "id": {
+            "type": "integer",
+            "title": "Id"
+          },
+          "symbol": {
+            "type": "string",
+            "title": "Symbol"
+          },
+          "company_name": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Company Name",
+            "default": ""
+          },
+          "target_price": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Target Price",
+            "default": 0.0
+          },
+          "notes": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Notes",
+            "default": ""
+          },
+          "added_at": {
+            "type": "string",
+            "title": "Added At"
+          },
+          "current_price": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Current Price"
+          },
+          "change_percent": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Change Percent"
+          },
+          "pe_ratio": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Pe Ratio"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "symbol",
+          "added_at"
+        ],
+        "title": "WatchlistItemResponse"
+      },
+      "WatchlistListResponse": {
+        "properties": {
+          "items": {
+            "items": {
+              "$ref": "#/components/schemas/WatchlistItemResponse"
+            },
+            "type": "array",
+            "title": "Items"
+          },
+          "count": {
+            "type": "integer",
+            "title": "Count"
+          }
+        },
+        "type": "object",
+        "required": [
+          "items",
+          "count"
+        ],
+        "title": "WatchlistListResponse"
+      }
+    }
+  }
+}
