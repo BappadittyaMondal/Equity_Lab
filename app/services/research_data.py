@@ -222,6 +222,13 @@ class ResearchDataStore:
                 );
                 """
             )
+        # Ensure universe discovery is seeded
+        with self._connect() as conn:
+            cnt = conn.execute("SELECT COUNT(*) FROM companies").fetchone()[0]
+        if cnt < 200:
+            from app.services.ingestion.universe_discovery import seed_universe_companies
+            seed_universe_companies(self)
+
 
     def upsert_company(self, request: Any) -> CompanyResponse:
         if isinstance(request, dict):
@@ -254,6 +261,17 @@ class ResearchDataStore:
             symbol=row["symbol"], legal_name=row["legal_name"], sector=row["sector"],
             industry=row["industry"], created_at=_parse_datetime(row["created_at"]),
         )
+
+    def list_companies(self) -> list[CompanyResponse]:
+        with self._connect() as conn:
+            rows = conn.execute("SELECT * FROM companies ORDER BY symbol").fetchall()
+        return [
+            CompanyResponse(
+                symbol=row["symbol"], legal_name=row["legal_name"], sector=row["sector"],
+                industry=row["industry"], created_at=_parse_datetime(row["created_at"]),
+            ) for row in rows
+        ]
+
 
     def add_financial_observation(self, request: Any) -> FinancialObservationResponse:
         if isinstance(request, dict):

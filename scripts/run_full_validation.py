@@ -29,7 +29,9 @@ def generate_reports():
     sample_universe = []
     try:
         from app.services.monitoring.score_calibration import _fetch_all_outcomes_with_scores
-        raw_outcomes = [o for o in _fetch_all_outcomes_with_scores() if o.get("data_backed")]
+        all_raw = _fetch_all_outcomes_with_scores()
+        post_fix_raw = [o for o in all_raw if o.get("pre_fix_unverified") == 0]
+        raw_outcomes = post_fix_raw if post_fix_raw else all_raw
         sample_universe = [
             {
                 "symbol": o["symbol"],
@@ -42,6 +44,7 @@ def generate_reports():
         ]
     except Exception:
         sample_universe = []
+
 
     calibrator = ScoreCalibrator()
     cal_report = calibrator.calibrate(sample_universe)

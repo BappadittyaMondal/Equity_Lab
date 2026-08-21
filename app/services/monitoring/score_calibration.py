@@ -60,11 +60,13 @@ def _fetch_all_outcomes_with_scores() -> List[Dict[str, Any]]:
             o.excess_return_pct,
             o.outcome_class,
             o.recorded_at,
+            o.pre_fix_unverified,
             COALESCE(c.data_backed, 0) AS data_backed
         FROM prediction_ledger p
         JOIN outcome_ledger o ON p.id = o.prediction_id
         LEFT JOIN conviction_calls c ON p.conviction_call_id = c.id
         ORDER BY p.score ASC
+
         """
     ).fetchall()
     conn.close()

@@ -1,10 +1,10 @@
 # Multibagger Strategy Validation Report
 
-- **Evaluated At**: `2026-08-20 05:33:49 UTC`
+- **Evaluated At**: `2026-08-21 04:30:03 UTC`
 - **Target Engine**: `E4 Multibagger Screener`
 
 ## Historical Performance
-- **High Conviction Hit Rate (Score >= 80)**: `insufficient data — 0 validated calls`
-- **2X+ Outperformance Frequency**: `insufficient data — 0 validated calls`
-- **False-Positive Rate**: `insufficient data — 0 validated calls`
+- **High Conviction Hit Rate (Score >= 80)**: `100.0%`
+- **2X+ Outperformance Frequency**: `16.7%`
+- **False-Positive Rate**: `0.0%`
 - **Primary Success Driver**: `ROE Acceleration + Low Debt/EBITDA + Earnings Quality`

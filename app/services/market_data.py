@@ -240,28 +240,23 @@ async def _async_get_market_quote(symbol: str) -> Quote:
     if os.getenv("OFFLINE_TEST_MODE", "false").lower() == "true":
         return _get_mock_fallback_quote(symbol)
 
+    cached = _load_from_cache(symbol)
+    if cached:
+        return cached
+
     providers = _ensure_providers()
     last_exc: Optional[Exception] = None
     for provider in providers:
         try:
-            quote = await provider.get_quote(symbol)
+            quote = await asyncio.wait_for(provider.get_quote(symbol), timeout=1.5)
             _store_in_cache(symbol, quote)
             return quote
         except Exception as exc:
             last_exc = exc
             continue
 
-    cached = _load_from_cache(symbol)
-    if cached:
-        cached["stale"] = True
-        if "meta" not in cached:
-            cached["meta"] = create_meta_header(source="IERL Cache", stale=True, data_mode="CACHED")
-        else:
-            cached["meta"]["stale"] = True
-            cached["meta"]["data_mode"] = "CACHED"
-        return cached
-
     return _get_mock_fallback_quote(symbol)
+
 
 def get_market_quote(symbol: str) -> Quote:
     try:
@@ -291,18 +286,19 @@ def get_history(symbol: str, period: str = "1y", interval: str = "1d"):
         'Volume': vol_data
     }, index=dates)
 
-    if os.getenv("OFFLINE_TEST_MODE", "false").lower() == "true":
-        return mock_df
-
     try:
         import yfinance as yf
-        df = yf.download(symbol, period=period, interval=interval, progress=False)
-        if isinstance(df, pd.DataFrame) and not df.empty:
-            return df
+        import warnings
+        with warnings.catch_warnings():
+            warnings.simplefilter("ignore")
+            df = yf.download(symbol, period=period, interval=interval, progress=False, timeout=2.0)
+            if isinstance(df, pd.DataFrame) and not df.empty and len(df) > 5:
+                return df
     except Exception:
         pass
 
     return mock_df
+
 
 def get_market_regime():
     return {"regime": "stable", "vix": None, "nifty": None}
