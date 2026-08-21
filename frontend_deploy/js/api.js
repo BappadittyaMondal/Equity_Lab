@@ -229,7 +229,8 @@ export async function loadWatchlist() {
  */
 export async function loadScorecard(symbol = "RELIANCE") {
   try {
-    const resp = await fetch(`${API_BASE}/api/v1/research/scorecard?symbol=${encodeURIComponent(symbol)}`);
+    const sym = encodeURIComponent(symbol);
+    const resp = await fetch(`${API_BASE}/api/v1/research/scorecard?symbol=${sym}`);
     if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
     return await resp.json();
   } catch (err) {
@@ -243,7 +244,8 @@ export async function loadScorecard(symbol = "RELIANCE") {
  */
 export async function loadCAGRMatrix(symbol = "RELIANCE") {
   try {
-    const resp = await fetch(`${API_BASE}/api/v1/research/cagr-matrix?symbol=${encodeURIComponent(symbol)}`);
+    const sym = encodeURIComponent(symbol);
+    const resp = await fetch(`${API_BASE}/api/v1/research/cagr-matrix?symbol=${sym}`);
     if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
     return await resp.json();
   } catch (err) {
@@ -317,7 +319,8 @@ export async function fetchReturnProbability(compositeScore = 75, horizonMonths 
  */
 export async function loadThesisRecord(symbol = "RELIANCE") {
   try {
-    const resp = await fetch(`${API_BASE}/api/v1/data/thesis/${encodeURIComponent(symbol)}`);
+    const sym = encodeURIComponent(symbol);
+    const resp = await fetch(`${API_BASE}/api/v1/data/thesis/${sym}`);
     if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
     return await resp.json();
   } catch (err) {
@@ -331,11 +334,256 @@ export async function loadThesisRecord(symbol = "RELIANCE") {
  */
 export async function loadLifecycleStage(symbol = "RELIANCE") {
   try {
-    const resp = await fetch(`${API_BASE}/api/v1/data/lifecycle/${encodeURIComponent(symbol)}`);
+    const sym = encodeURIComponent(symbol);
+    const resp = await fetch(`${API_BASE}/api/v1/data/lifecycle/${sym}`);
     if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
     return await resp.json();
   } catch (err) {
     console.warn("Lifecycle stage load failed:", err.message);
+    return null;
+  }
+}
+
+/**
+ * Compare multiple equities across valuation, growth, quality, and momentum metrics.
+ */
+export async function postStockCompare(symbols = ["RELIANCE", "TCS"]) {
+  try {
+    const resp = await fetch(`${API_BASE}/api/v1/compare`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ symbols })
+    });
+    if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
+    return await resp.json();
+  } catch (err) {
+    console.warn("Stock comparison failed:", err.message);
+    return null;
+  }
+}
+
+/**
+ * Fetch company timeline and milestone events for a symbol.
+ */
+export async function loadCompanyTimeline(symbol = "RELIANCE") {
+  try {
+    const sym = encodeURIComponent(symbol);
+    const resp = await fetch(`${API_BASE}/api/v1/data/companies/${sym}/timeline`);
+    if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
+    return await resp.json();
+  } catch (err) {
+    console.warn("Company timeline load failed:", err.message);
+    return null;
+  }
+}
+
+/**
+ * Fetch governance quality analysis for a symbol.
+ */
+export async function loadGovernanceQuality(symbol = "RELIANCE") {
+  try {
+    const sym = encodeURIComponent(symbol);
+    const resp = await fetch(`${API_BASE}/api/v1/research/governance-quality?symbol=${sym}`);
+    if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
+    return await resp.json();
+  } catch (err) {
+    console.warn("Governance quality load failed:", err.message);
+    return null;
+  }
+}
+
+/**
+ * Fetch growth arbitrage analysis for a symbol.
+ */
+export async function loadGrowthArbitrage(symbol = "RELIANCE") {
+  try {
+    const sym = encodeURIComponent(symbol);
+    const resp = await fetch(`${API_BASE}/api/v1/research/growth-arbitrage?symbol=${sym}`);
+    if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
+    return await resp.json();
+  } catch (err) {
+    console.warn("Growth arbitrage load failed:", err.message);
+    return null;
+  }
+}
+
+/**
+ * Fetch growth inflection points for a symbol.
+ */
+export async function loadGrowthInflection(symbol = "RELIANCE") {
+  try {
+    const sym = encodeURIComponent(symbol);
+    const resp = await fetch(`${API_BASE}/api/v1/research/growth-inflection?symbol=${sym}`);
+    if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
+    return await resp.json();
+  } catch (err) {
+    console.warn("Growth inflection load failed:", err.message);
+    return null;
+  }
+}
+
+/**
+ * Fetch turnaround stage classification for a symbol.
+ */
+export async function loadTurnaroundStage(symbol = "RELIANCE") {
+  try {
+    const sym = encodeURIComponent(symbol);
+    const resp = await fetch(`${API_BASE}/api/v1/research/turnaround-stage?symbol=${sym}`);
+    if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
+    return await resp.json();
+  } catch (err) {
+    console.warn("Turnaround stage load failed:", err.message);
+    return null;
+  }
+}
+
+/**
+ * Fetch portfolio holdings summary.
+ */
+export async function loadPortfolioHoldings() {
+  try {
+    const resp = await fetch(`${API_BASE}/api/v1/portfolio/`);
+    if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
+    return await resp.json();
+  } catch (err) {
+    console.warn("Portfolio holdings load failed:", err.message);
+    return null;
+  }
+}
+
+/**
+ * Fetch portfolio investment narrative for a symbol.
+ */
+export async function loadPortfolioNarrative(symbol = "RELIANCE") {
+  try {
+    const sym = encodeURIComponent(symbol);
+    const resp = await fetch(`${API_BASE}/api/v1/portfolio/narrate/${sym}`);
+    if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
+    return await resp.json();
+  } catch (err) {
+    console.warn("Portfolio narrative load failed:", err.message);
+    return null;
+  }
+}
+
+/**
+ * Fetch detailed ticker metadata for a symbol.
+ */
+export async function loadTickerDetail(symbol = "RELIANCE") {
+  try {
+    const sym = encodeURIComponent(symbol);
+    const resp = await fetch(`${API_BASE}/api/v1/ticker/${sym}`);
+    if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
+    return await resp.json();
+  } catch (err) {
+    console.warn("Ticker detail load failed:", err.message);
+    return null;
+  }
+}
+
+/**
+ * Fetch historical OHLCV series for a ticker symbol.
+ */
+export async function loadTickerHistory(symbol = "RELIANCE", period = "1y") {
+  try {
+    const sym = encodeURIComponent(symbol);
+    const resp = await fetch(`${API_BASE}/api/v1/ticker/${sym}/history?period=${period}`);
+    if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
+    return await resp.json();
+  } catch (err) {
+    console.warn("Ticker history load failed:", err.message);
+    return null;
+  }
+}
+
+/**
+ * Simulate options payoff matrix for a symbol.
+ */
+export async function postOptionsPayoff(symbol = "RELIANCE", spotPrice = 2500, strikePrice = 2500) {
+  try {
+    const resp = await fetch(`${API_BASE}/api/v1/options/a2-payoff`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ symbol, spot_price: spotPrice, strike_price: strikePrice })
+    });
+    if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
+    return await resp.json();
+  } catch (err) {
+    console.warn("Options payoff calculation failed:", err.message);
+    return null;
+  }
+}
+
+/**
+ * Fetch strategy engine health indicators.
+ */
+export async function loadStrategyHealth() {
+  try {
+    const resp = await fetch(`${API_BASE}/api/v1/monitoring/strategy-health`);
+    if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
+    return await resp.json();
+  } catch (err) {
+    console.warn("Strategy health load failed:", err.message);
+    return null;
+  }
+}
+
+/**
+ * Fetch prediction ledger audit logs.
+ */
+export async function loadPredictionLedger() {
+  try {
+    const resp = await fetch(`${API_BASE}/api/v1/monitoring/prediction-ledger`);
+    if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
+    return await resp.json();
+  } catch (err) {
+    console.warn("Prediction ledger load failed:", err.message);
+    return null;
+  }
+}
+
+/**
+ * Fetch system operational readiness status.
+ */
+export async function loadSystemReadiness() {
+  try {
+    const resp = await fetch(`${API_BASE}/api/v1/readiness`);
+    if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
+    return await resp.json();
+  } catch (err) {
+    console.warn("System readiness load failed:", err.message);
+    return null;
+  }
+}
+
+/**
+ * Fetch system data alerts.
+ */
+export async function loadSystemDataAlerts() {
+  try {
+    const resp = await fetch(`${API_BASE}/api/v1/data/alerts`);
+    if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
+    return await resp.json();
+  } catch (err) {
+    console.warn("System data alerts load failed:", err.message);
+    return null;
+  }
+}
+
+/**
+ * Compute multi-symbol scorecard matrix.
+ */
+export async function postScorecardMatrix(symbols = ["RELIANCE", "TCS"]) {
+  try {
+    const resp = await fetch(`${API_BASE}/api/v1/research/scorecard-matrix`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ symbols })
+    });
+    if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
+    return await resp.json();
+  } catch (err) {
+    console.warn("Scorecard matrix fetch failed:", err.message);
     return null;
   }
 }
