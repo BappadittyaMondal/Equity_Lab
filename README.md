@@ -36,6 +36,7 @@ python -m venv .venv
 source .venv/bin/activate  # On Windows: .venv\Scripts\activate
 
 # Install dependencies
+python -m pip install --upgrade pip
 pip install -r requirements.txt
 
 # Run full test suite
