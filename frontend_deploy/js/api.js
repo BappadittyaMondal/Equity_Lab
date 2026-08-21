@@ -265,3 +265,77 @@ export async function loadSwingAlerts() {
     return null;
   }
 }
+
+/**
+ * Fetch system model drift and performance health.
+ */
+export async function loadDriftStatus() {
+  try {
+    const resp = await fetch(`${API_BASE}/api/v1/monitoring/drift`);
+    if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
+    return await resp.json();
+  } catch (err) {
+    console.warn("Drift status load failed:", err.message);
+    return null;
+  }
+}
+
+/**
+ * Fetch multibagger screening candidates across Indian equity universe.
+ */
+export async function loadMultibaggerScreener() {
+  try {
+    const resp = await fetch(`${API_BASE}/api/v1/research/multibagger-screener`);
+    if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
+    return await resp.json();
+  } catch (err) {
+    console.warn("Multibagger screener load failed:", err.message);
+    return null;
+  }
+}
+
+/**
+ * Estimate return probability for a composite score and target horizon.
+ */
+export async function fetchReturnProbability(compositeScore = 75, horizonMonths = 12) {
+  try {
+    const resp = await fetch(`${API_BASE}/api/v1/return-probability`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ composite_score: compositeScore, horizon_months: horizonMonths })
+    });
+    if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
+    return await resp.json();
+  } catch (err) {
+    console.warn("Return probability fetch failed:", err.message);
+    return null;
+  }
+}
+
+/**
+ * Fetch underlying research thesis record for a symbol.
+ */
+export async function loadThesisRecord(symbol = "RELIANCE") {
+  try {
+    const resp = await fetch(`${API_BASE}/api/v1/data/thesis/${encodeURIComponent(symbol)}`);
+    if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
+    return await resp.json();
+  } catch (err) {
+    console.warn("Thesis record load failed:", err.message);
+    return null;
+  }
+}
+
+/**
+ * Fetch business lifecycle stage for a symbol.
+ */
+export async function loadLifecycleStage(symbol = "RELIANCE") {
+  try {
+    const resp = await fetch(`${API_BASE}/api/v1/data/lifecycle/${encodeURIComponent(symbol)}`);
+    if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
+    return await resp.json();
+  } catch (err) {
+    console.warn("Lifecycle stage load failed:", err.message);
+    return null;
+  }
+}

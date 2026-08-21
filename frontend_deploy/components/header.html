@@ -1,5 +1,11 @@
-<!-- header.html – Header/Nav Component placeholder -->
-<header class="bg-surface-low p-4 flex justify-between items-center">
-  <h1 class="text-xl font-bold text-gold">IERL Command Center</h1>
-  <button id="mobile-menu-btn" class="btn-secondary p-2" onclick="toggleMobileDrawer()"><span class="material-symbols-outlined text-gold">menu</span></button>
+<!-- header.html – Header/Nav Component -->
+<header class="bg-surface-low p-4 flex justify-between items-center border-b border-surface-border/50">
+  <div class="flex items-center gap-4">
+    <h1 class="text-xl font-bold text-gold font-mono">IERL Command Center</h1>
+    <div id="drift-status-container"></div>
+  </div>
+  <div class="flex items-center gap-3">
+    <span id="api-status" class="text-xs font-mono text-muted">API: CHECKING...</span>
+    <button id="mobile-menu-btn" class="btn-secondary p-2 md:hidden" onclick="toggleMobileDrawer()"><span class="material-symbols-outlined text-gold">menu</span></button>
+  </div>
 </header>
