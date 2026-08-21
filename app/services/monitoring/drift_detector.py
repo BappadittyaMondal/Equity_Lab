@@ -55,6 +55,30 @@ class DriftDetector:
 
         decay = high_score_acc < 60.0
         alert = "RED" if high_score_acc < 50.0 else ("YELLOW" if decay else "GREEN")
+        action = "HUMAN_REVIEW_REQUIRED" if decay else "None. System performing within parameters."
+
+        # Persist alert into system_alerts table if YELLOW or RED drift is detected
+        if alert in ("YELLOW", "RED"):
+            try:
+                from datetime import datetime, timezone
+                conn_alert = get_connection()
+                conn_alert.execute(
+                    """
+                    INSERT INTO system_alerts (symbol, event_type, severity, details, created_at)
+                    VALUES (?, ?, ?, ?, ?)
+                    """,
+                    (
+                        "SYSTEM_WIDE",
+                        "MODEL_DRIFT_ALERT",
+                        alert,
+                        f"Model drift level {alert}. Accuracy: {high_score_acc:.1f}%. Action required: {action}",
+                        datetime.now(timezone.utc).isoformat(),
+                    ),
+                )
+                conn_alert.commit()
+                conn_alert.close()
+            except Exception:
+                pass
 
         return DriftReport(
             total_predictions_evaluated=count,
@@ -63,5 +87,5 @@ class DriftDetector:
             high_score_decay_detected=decay,
             score_monotonicity_status="VERIFIED_MONOTONIC" if not decay else "MONOTONICITY_DEGRADED",
             drift_alert_level=alert,
-            action_required="HUMAN_REVIEW_REQUIRED" if decay else "None. System performing within parameters.",
+            action_required=action,
         )

@@ -223,3 +223,45 @@ export async function loadWatchlist() {
     // Silent – watchlist_panel.js has its own error handling
   }
 }
+
+/**
+ * Fetch unified scorecard research data for a symbol.
+ */
+export async function loadScorecard(symbol = "RELIANCE") {
+  try {
+    const resp = await fetch(`${API_BASE}/api/v1/research/scorecard?symbol=${encodeURIComponent(symbol)}`);
+    if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
+    return await resp.json();
+  } catch (err) {
+    console.warn("Scorecard load failed:", err.message);
+    return null;
+  }
+}
+
+/**
+ * Fetch CAGR sensitivity matrix projections for a symbol.
+ */
+export async function loadCAGRMatrix(symbol = "RELIANCE") {
+  try {
+    const resp = await fetch(`${API_BASE}/api/v1/research/cagr-matrix?symbol=${encodeURIComponent(symbol)}`);
+    if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
+    return await resp.json();
+  } catch (err) {
+    console.warn("CAGR Matrix load failed:", err.message);
+    return null;
+  }
+}
+
+/**
+ * Fetch active swing trade alert setups.
+ */
+export async function loadSwingAlerts() {
+  try {
+    const resp = await fetch(`${API_BASE}/api/v1/strategies/swing-alerts`);
+    if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
+    return await resp.json();
+  } catch (err) {
+    console.warn("Swing alerts load failed:", err.message);
+    return null;
+  }
+}
