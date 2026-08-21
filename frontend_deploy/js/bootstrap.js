@@ -7,6 +7,10 @@ import { renderSwingAlertsPanel } from "./swing_alerts_panel.js";
 import { renderDriftStatusIndicator } from "./drift_panel.js";
 import { renderMultibaggerPanel } from "./multibagger_panel.js";
 import { renderProbabilityPanel } from "./probability_panel.js";
+import { renderComparePanel } from "./compare_panel.js";
+import { renderTimelinePanel } from "./timeline_panel.js";
+import { renderThesisPanel } from "./thesis_panel.js";
+import { renderLifecyclePanel } from "./lifecycle_panel.js";
 import { initHeaderNav } from "./header_nav.js";
 import { initSidebar } from "./sidebar_nav.js";
 import { initMobileDrawer } from "./mobile_drawer.js";
@@ -35,6 +39,7 @@ async function initApp() {
   renderSwingAlertsPanel();
   renderMultibaggerPanel();
   renderProbabilityPanel();
+  renderComparePanel(["RELIANCE", "TCS", "INFY"]);
 
   // Selected symbol rendering
   const urlParams = new URLSearchParams(window.location.search);
@@ -42,6 +47,9 @@ async function initApp() {
   renderConvictionPanel(sym);
   renderScorecardPanel(sym);
   renderCAGRMatrixPanel(sym);
+  renderThesisPanel(sym);
+  renderLifecyclePanel(sym);
+  renderTimelinePanel(sym);
 }
 
 document.addEventListener("DOMContentLoaded", initApp);

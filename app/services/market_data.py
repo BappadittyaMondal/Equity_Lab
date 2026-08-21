@@ -10,12 +10,15 @@ import os
 import json
 import asyncio
 import datetime
+import logging
 from typing import Any, Dict, List, Optional
 from abc import ABC, abstractmethod
 import sqlite3
 from datetime import timezone, timedelta
 
 from app.core.config import settings
+
+logger = logging.getLogger(__name__)
 
 # ---------------------------------------------------------------------------
 # Types
@@ -52,7 +55,7 @@ class YFinanceProvider(MarketDataProvider):
             info = ticker.info
             price = info.get("currentPrice") or info.get("regularMarketPrice") or info.get("previousClose")
             if not price:
-                raise ValueError("Price not found")
+                raise ValueError("Price not found in YFinance info")
             return {
                 "symbol": symbol,
                 "price": float(price),
@@ -61,15 +64,88 @@ class YFinanceProvider(MarketDataProvider):
                 "pe_ratio": float(info.get("trailingPE") or 22.0),
                 "change_percent": float(info.get("regularMarketChangePercent") or 0.0),
                 "timestamp": int(datetime.datetime.now(timezone.utc).timestamp()),
+                "provider": "YFinanceProvider",
+            }
+        return await loop.run_in_executor(None, _fetch)
+
+
+class YahooDirectJSONProvider(MarketDataProvider):
+    """Fetch quotes directly via Yahoo Finance REST API as an independent HTTP fallback."""
+
+    def __init__(self):
+        import requests
+        self.session = requests.Session()
+        self.session.headers.update({
+            "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36"
+        })
+
+    async def get_quote(self, symbol: str) -> Quote:
+        loop = asyncio.get_event_loop()
+        def _fetch() -> Quote:
+            clean_sym = symbol.upper()
+            url = f"https://query1.finance.yahoo.com/v8/finance/chart/{clean_sym}?interval=1d&range=1d"
+            resp = self.session.get(url, timeout=3)
+            resp.raise_for_status()
+            data = resp.json()
+            result = data["chart"]["result"][0]
+            meta = result["meta"]
+            price = meta.get("regularMarketPrice") or meta.get("chartPreviousClose")
+            if price is None:
+                raise ValueError("Price missing from YahooDirect response")
+            prev_close = meta.get("chartPreviousClose") or price
+            change_pct = ((price - prev_close) / prev_close * 100.0) if prev_close else 0.0
+            return {
+                "symbol": clean_sym,
+                "price": float(price),
+                "fifty_two_week_high": float(meta.get("fiftyTwoWeekHigh") or price * 1.2),
+                "fifty_two_week_low": float(meta.get("fiftyTwoWeekLow") or price * 0.8),
+                "pe_ratio": float(meta.get("trailingPE") or 22.0),
+                "change_percent": float(change_pct),
+                "timestamp": int(datetime.datetime.now(timezone.utc).timestamp()),
+                "provider": "YahooDirectJSONProvider",
             }
         return await loop.run_in_executor(None, _fetch)
 
 
 class NSEIndiaProvider(MarketDataProvider):
-    """Placeholder provider for direct NSE India REST endpoints."""
+    """Fetch quotes directly from NSE India public quote endpoints."""
+
+    def __init__(self):
+        import requests
+        self.session = requests.Session()
+        self.session.headers.update({
+            "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
+            "Accept": "*/*",
+            "Accept-Language": "en-US,en;q=0.9",
+        })
 
     async def get_quote(self, symbol: str) -> Quote:
-        raise NotImplementedError("NSEDirectProvider is a placeholder in this build.")
+        loop = asyncio.get_event_loop()
+        def _fetch() -> Quote:
+            clean_sym = symbol.replace(".NS", "").replace(".BO", "").upper()
+            url = f"https://www.nseindia.com/api/quote-equity?symbol={clean_sym}"
+            try:
+                self.session.get("https://www.nseindia.com", timeout=2)
+            except Exception:
+                pass
+            resp = self.session.get(url, timeout=3)
+            resp.raise_for_status()
+            data = resp.json()
+            price_info = data.get("priceInfo", {})
+            price = price_info.get("lastPrice") or price_info.get("close")
+            if not price:
+                raise ValueError("Price missing in NSE public API response")
+            return {
+                "symbol": f"{clean_sym}.NS",
+                "price": float(price),
+                "fifty_two_week_high": float(price_info.get("upperCP") or price * 1.2),
+                "fifty_two_week_low": float(price_info.get("lowerCP") or price * 0.8),
+                "pe_ratio": float(data.get("metadata", {}).get("pdSectorPe") or 22.0),
+                "change_percent": float(price_info.get("pChange") or 0.0),
+                "timestamp": int(datetime.datetime.now(timezone.utc).timestamp()),
+                "provider": "NSEIndiaProvider",
+            }
+        return await loop.run_in_executor(None, _fetch)
 
 
 class AlphaVantageProvider(MarketDataProvider):
@@ -98,6 +174,7 @@ class AlphaVantageProvider(MarketDataProvider):
                 "price": price,
                 "currency": "USD",
                 "timestamp": int(datetime.datetime.now(timezone.utc).timestamp()),
+                "provider": "AlphaVantageProvider",
             }
         return await loop.run_in_executor(None, _fetch)
 
@@ -107,6 +184,7 @@ class AlphaVantageProvider(MarketDataProvider):
 
 _PROVIDER_MAP = {
     "yfinance": YFinanceProvider,
+    "yahoodirect": YahooDirectJSONProvider,
     "nse": NSEIndiaProvider,
     "alphavantage": AlphaVantageProvider,
 }
@@ -126,7 +204,7 @@ _PROVIDERS: Optional[List[MarketDataProvider]] = None
 def _ensure_providers() -> List[MarketDataProvider]:
     global _PROVIDERS
     if _PROVIDERS is None:
-        chain = os.getenv("MARKET_DATA_PROVIDER_CHAIN", "yfinance")
+        chain = os.getenv("MARKET_DATA_PROVIDER_CHAIN", "yfinance,yahoodirect,nse,alphavantage")
         _PROVIDERS = _instantiate_providers(chain)
     return _PROVIDERS
 
@@ -247,14 +325,19 @@ async def _async_get_market_quote(symbol: str) -> Quote:
     providers = _ensure_providers()
     last_exc: Optional[Exception] = None
     for provider in providers:
+        provider_name = provider.__class__.__name__
         try:
-            quote = await asyncio.wait_for(provider.get_quote(symbol), timeout=1.5)
+            quote = await asyncio.wait_for(provider.get_quote(symbol), timeout=2.0)
+            logger.info("Market data quote for %s served successfully by provider %s", symbol, provider_name)
+            quote["active_provider"] = provider_name
             _store_in_cache(symbol, quote)
             return quote
         except Exception as exc:
+            logger.warning("Provider %s failed to serve quote for %s: %s. Trying fallback provider...", provider_name, symbol, exc)
             last_exc = exc
             continue
 
+    logger.warning("All primary/secondary market data providers failed for %s (%s). Falling back to offline mock quote.", symbol, last_exc)
     return _get_mock_fallback_quote(symbol)
 
 
