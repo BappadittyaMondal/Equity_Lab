@@ -32,6 +32,13 @@ def fetch_all_strategies():
     return list_strategy_modules()
 
 
+@router.get("/strategies/swing-alerts")
+def fetch_swing_trade_alerts(universe: Optional[str] = Query(default=None, description="Optional universe descriptor")):
+    """Returns active short-to-medium term high-probability swing trade alerts."""
+    from app.services.strategies.swing_alerts_service import get_swing_trade_alerts
+    return get_swing_trade_alerts()
+
+
 @router.get("/strategies/{strategy_id}", response_model=StrategyModule)
 def fetch_strategy_detail(strategy_id: str):
     """Returns details for a specific strategy module."""
@@ -80,6 +87,32 @@ def run_growth_arbitrage(symbol: str = Query(..., description="Stock symbol (e.g
     """Executes Strategy E5: AI Growth Arbitrage & DCF Valuation Engine (Institutional Grade)."""
     from app.services.strategies.growth_arbitrage import evaluate_growth_arbitrage
     return evaluate_growth_arbitrage(symbol=symbol, as_of=as_of)
+
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Gap Closure Endpoints — Unified Scorecard, CAGR Sensitivity Matrix, Swing Alerts
+# ─────────────────────────────────────────────────────────────────────────────
+
+@router.get("/research/scorecard")
+def fetch_symbol_scorecard(symbol: str = Query(..., description="Stock ticker symbol (e.g. RELIANCE)")):
+    """Returns consolidated Scorecard item combining Arbiter, Multibagger, and Return Probabilities."""
+    from app.services.research.scorecard_service import generate_scorecard_for_symbol
+    return generate_scorecard_for_symbol(symbol=symbol)
+
+
+@router.post("/research/scorecard-matrix")
+def fetch_scorecard_matrix(req: dict):
+    """Returns side-by-side comparison Scorecard Matrix for a list of tickers."""
+    from app.services.research.scorecard_service import generate_scorecard_matrix
+    symbols = req.get("symbols", ["RELIANCE", "TCS", "INFY"])
+    return generate_scorecard_matrix(symbols=symbols)
+
+
+@router.get("/research/cagr-matrix")
+def fetch_cagr_sensitivity_matrix(symbol: str = Query(..., description="Stock ticker symbol (e.g. RELIANCE)")):
+    """Calculates 1Y, 3Y, 5Y price targets and return CAGRs across 5 growth scenarios (10%-30%)."""
+    from app.services.research.cagr_matrix_service import generate_cagr_sensitivity_matrix
+    return generate_cagr_sensitivity_matrix(symbol=symbol)
 
 
 

@@ -822,3 +822,87 @@ class QualityGrowthScreenResponse(BaseModel):
     quality_growth_profile: Dict[str, Any] = Field(default_factory=dict)
     meta: MetaHeader
 
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Gap Closure Schemas — Scorecard Matrix, CAGR Sensitivity, Swing Alerts
+# ─────────────────────────────────────────────────────────────────────────────
+
+class ScorecardScores(BaseModel):
+    business_quality: str = Field(..., description="Business quality score (e.g. 8.5/10)")
+    growth_potential: str = Field(..., description="Growth potential score (e.g. 9.0/10)")
+    optionality_15x: str = Field(..., description="15x optionality score (e.g. 8.5/10)")
+    risk_score: str = Field(..., description="Risk score (e.g. 8.0/10)")
+    overall_score: int = Field(..., ge=0, le=100)
+
+
+class ScorecardProbabilities(BaseModel):
+    prob_1y: str = Field(default="N/A", description="1-year return probability")
+    prob_2y: str = Field(default="N/A", description="2-year return probability")
+    prob_3y: str = Field(default="N/A", description="3-year return probability")
+    prob_3y_2x_plus: str = Field(default="N/A", description="3-year probability of 2x+ return")
+    prob_5y_15x: str = Field(default="N/A", description="5-year 15x optionality probability")
+
+
+class ScorecardItemResponse(BaseModel):
+    rank: Optional[int] = None
+    symbol: str
+    company_name: str
+    scores: ScorecardScores
+    horizon_probabilities: ScorecardProbabilities
+    qualitative_view: str
+    risk_tier: Literal["Low", "Medium", "High", "Critical"] = "Medium"
+    meta: MetaHeader
+
+
+class ScorecardMatrixRequest(BaseModel):
+    symbols: List[str] = Field(..., min_length=1, max_length=20)
+
+
+class ScorecardMatrixResponse(BaseModel):
+    items: List[ScorecardItemResponse]
+    count: int
+    executed_at: str
+    meta: MetaHeader
+
+
+class CAGRScenarioRow(BaseModel):
+    growth_scenario_label: str
+    revenue_eps_cagr_pct: float
+    target_price_1y: float
+    target_price_3y: float
+    target_price_5y: float
+    projected_return_cagr_3y_pct: float
+    projected_return_cagr_5y_pct: float
+    margin_of_safety_pct: float
+
+
+class CAGRSensitivityMatrixResponse(BaseModel):
+    symbol: str
+    current_price: float
+    current_pe: float
+    base_case_cagr_pct: float
+    scenario_matrix: List[CAGRScenarioRow]
+    key_takeaway: str
+    meta: MetaHeader
+
+
+class SwingTradeAlertItem(BaseModel):
+    symbol: str
+    company_name: str = ""
+    swing_setup_score: float = Field(..., ge=0.0, le=100.0)
+    weinstein_stage: str
+    rs_rating: int
+    volume_signal: str
+    entry_zone: str
+    stop_loss_level: float
+    target_price: float
+    alert_type: Literal["STAGE_2_POCKET_PIVOT", "VPA_ACCUMULATION_BREAKOUT", "RS_LEADER_PULLBACK"]
+    triggered_at: str
+
+
+class SwingTradeAlertsResponse(BaseModel):
+    alerts: List[SwingTradeAlertItem]
+    count: int
+    scanned_universe: str
+    meta: MetaHeader
+
