@@ -117,8 +117,8 @@ def run_vpa_b4(symbol: str) -> StrategyRunResponse:
     # ── Price trend context ────────────────────────────────────────────────
     sma_20 = close.tail(20).mean()
     sma_50 = close.tail(50).mean()
-    price_above_sma20 = close.iloc[-1] > sma_20
-    price_above_sma50 = close.iloc[-1] > sma_50
+    price_above_sma20 = bool(close.iloc[-1] > sma_20)
+    price_above_sma50 = bool(close.iloc[-1] > sma_50)
 
     if price_above_sma20 and price_above_sma50:
         score += 20 + accumulation_score
@@ -216,8 +216,8 @@ def run_rs_rating_b6(symbol: str, benchmark: str = "^NSEI") -> StrategyRunRespon
     rs_rating = max(1, min(99, int(rs_raw)))
 
     latest_price = stock_hist["Close"].iloc[-1]
-    sma_200 = stock_hist["Close"].tail(200).mean() if len(stock_hist) >= 200 else stock_hist["Close"].mean()
-    price_above_200dma = latest_price > sma_200
+    sma_200 = float(stock_hist["Close"].tail(200).mean() if len(stock_hist) >= 200 else stock_hist["Close"].mean())
+    price_above_200dma = bool(latest_price > sma_200)
 
     if rs_rating >= 80:
         evidence.append(f"RS Rating {rs_rating}/99: TOP PERFORMER — outperforming 80%+ of stocks")
@@ -411,8 +411,8 @@ def run_mean_reversion_d17(symbol: str) -> StrategyRunResponse:
     if not pd.isna(sma150.iloc[-1]) and not pd.isna(sma150.iloc[-20]):
         sma150_slope = (sma150.iloc[-1] - sma150.iloc[-20]) / sma150.iloc[-20] * 100
 
-    above_sma150 = latest_close > latest_sma150 if not pd.isna(latest_sma150) else False
-    above_sma30 = latest_close > latest_sma30
+    above_sma150 = bool(latest_close > latest_sma150) if not pd.isna(latest_sma150) else False
+    above_sma30 = bool(latest_close > latest_sma30)
 
     if above_sma150 and sma150_slope and sma150_slope > 0:
         stage = "STAGE_2_ADVANCING"
