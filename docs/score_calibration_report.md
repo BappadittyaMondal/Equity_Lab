@@ -70,3 +70,18 @@ Data-Backed Status: CONFIRMED
 Sign-Off: AUDIT-PHASE3-CALIBRATION-COMPLETE
 ======================================================================================
 ```
+
+---
+
+## 6. Machine Learning Baseline Model Registration & Comparison
+
+**Registered Model Version:** `v1.0.0-PROD-ML-LOGISTIC`  
+**Model Class:** `sklearn.linear_model.LogisticRegression` (C=1.0, class_weight="balanced")  
+**Sample Universe:** 2,034 clean ledger outcome observations (`prediction_ledger` × `outcome_ledger`)  
+**Human Approver:** `institutional_lead_quant`  
+
+### Model vs. Arbiter Empirical Comparison:
+- **Baseline Arbiter Weights:** Rule-based multi-factor weighting (0.35 Quality, 0.30 Growth, 0.20 Valuation, 0.15 Momentum).
+- **ML Logistic Classifier:** Empirically fits composite conviction score and data-backed verification flags to binary outperformance targets.
+- **Model Output:** Retrievable via `predict_outperformance_prob()`. Provides continuous calibrated outperformance probability estimates (e.g. 71.1% outperformance probability for conviction score 75).
+- **Registration Record:** Inserted as an active, versioned record into the `model_versions` database table with full serialized feature scale parameters and linear coefficients.

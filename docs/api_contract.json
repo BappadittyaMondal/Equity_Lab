@@ -472,6 +472,66 @@
         }
       }
     },
+    "/api/v1/strategies/swing-alerts": {
+      "get": {
+        "tags": [
+          "Expert Strategy & Research Engines"
+        ],
+        "summary": "Fetch Swing Trade Alerts",
+        "description": "Returns active short-to-medium term high-probability swing trade alerts.",
+        "operationId": "fetch_swing_trade_alerts_api_v1_strategies_swing_alerts_get",
+        "parameters": [
+          {
+            "name": "universe",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Optional universe descriptor",
+              "title": "Universe"
+            },
+            "description": "Optional universe descriptor"
+          },
+          {
+            "name": "x-api-key",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "default": "",
+              "title": "X-Api-Key"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/v1/strategies/{strategy_id}": {
       "get": {
         "tags": [
@@ -1004,6 +1064,166 @@
                 "schema": {
                   "$ref": "#/components/schemas/GrowthArbitrageResponse"
                 }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/research/scorecard": {
+      "get": {
+        "tags": [
+          "Expert Strategy & Research Engines"
+        ],
+        "summary": "Fetch Symbol Scorecard",
+        "description": "Returns consolidated Scorecard item combining Arbiter, Multibagger, and Return Probabilities.",
+        "operationId": "fetch_symbol_scorecard_api_v1_research_scorecard_get",
+        "parameters": [
+          {
+            "name": "symbol",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "description": "Stock ticker symbol (e.g. RELIANCE)",
+              "title": "Symbol"
+            },
+            "description": "Stock ticker symbol (e.g. RELIANCE)"
+          },
+          {
+            "name": "x-api-key",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "default": "",
+              "title": "X-Api-Key"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/research/scorecard-matrix": {
+      "post": {
+        "tags": [
+          "Expert Strategy & Research Engines"
+        ],
+        "summary": "Fetch Scorecard Matrix",
+        "description": "Returns side-by-side comparison Scorecard Matrix for a list of tickers.",
+        "operationId": "fetch_scorecard_matrix_api_v1_research_scorecard_matrix_post",
+        "parameters": [
+          {
+            "name": "x-api-key",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "default": "",
+              "title": "X-Api-Key"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "additionalProperties": true,
+                "title": "Req"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/research/cagr-matrix": {
+      "get": {
+        "tags": [
+          "Expert Strategy & Research Engines"
+        ],
+        "summary": "Fetch Cagr Sensitivity Matrix",
+        "description": "Calculates 1Y, 3Y, 5Y price targets and return CAGRs across 5 growth scenarios (10%-30%).",
+        "operationId": "fetch_cagr_sensitivity_matrix_api_v1_research_cagr_matrix_get",
+        "parameters": [
+          {
+            "name": "symbol",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "description": "Stock ticker symbol (e.g. RELIANCE)",
+              "title": "Symbol"
+            },
+            "description": "Stock ticker symbol (e.g. RELIANCE)"
+          },
+          {
+            "name": "x-api-key",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "default": "",
+              "title": "X-Api-Key"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
               }
             }
           },
@@ -3112,6 +3332,18 @@
             "title": "Data Backed",
             "description": "True if based on empirical ResearchDataStore observations (confidence >= 0.3)",
             "default": false
+          },
+          "ml_outperformance_probability": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Ml Outperformance Probability",
+            "description": "Scikit-Learn baseline estimated probability of benchmark outperformance (0.0 to 1.0)"
           }
         },
         "type": "object",

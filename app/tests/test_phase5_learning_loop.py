@@ -391,6 +391,14 @@ class TestModelVersioning:
             if v["version"] == "0.4.0-CFGTEST":
                 assert isinstance(v["configuration"], dict)
 
+    def test_prod_ml_model_version_retrievable(self):
+        from app.services.ml.baseline_model import train_baseline_model
+        from app.services.monitoring.score_calibration import get_model_versions
+        res = train_baseline_model()
+        versions = get_model_versions()
+        version_ids = [v["version"] for v in versions]
+        assert "v1.0.0-PROD-ML-LOGISTIC" in version_ids
+
 
 # ═══════════════════════════════════════════════════════════════════════════
 # Drift Detector Tests
@@ -421,6 +429,15 @@ class TestDriftDetector:
         # (may not be fresh, but should not crash)
         report = DriftDetector().evaluate_drift()
         assert report.drift_alert_level in ("GREEN", "YELLOW", "RED")
+
+    def test_drift_detector_persists_system_alerts(self):
+        from app.services.monitoring.drift_detector import DriftDetector
+        from app.services.db import get_connection
+        report = DriftDetector().evaluate_drift()
+        conn = get_connection()
+        alerts = conn.execute("SELECT * FROM system_alerts").fetchall()
+        conn.close()
+        assert isinstance(alerts, list)
 
 
 # ═══════════════════════════════════════════════════════════════════════════

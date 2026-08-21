@@ -1,42 +1,48 @@
-# Equity Lab — Dependency Security Audit & Vulnerability Remediation Report
+# Dependency Security Audit Report (pip-audit)
 
-**Date:** 2026-08-21  
-**Audit Tool:** `pip-audit` v2.9.0  
-**Status:** PASSED (0 Known Vulnerabilities)
-
----
-
-## 1. Audit Overview & Executive Summary
-
-A comprehensive automated vulnerability scan was conducted against the active environment and dependency configuration using `pip-audit --desc`. All core packages (`fastapi`, `starlette`, `pytest`, `pydantic`, `yfinance`, `httpx`, `pip`) were evaluated against PyPA and OSV vulnerability databases.
-
-The system returned **0 known vulnerabilities**.
+**Project Baseline:** Equity Lab v0.0.0  
+**Audit Execution Date:** 2026-08-21 11:10 IST  
+**Environment Target:** `requirements.txt` & `app/requirements.txt`  
+**Final Status:** **PASSED — 0 Known Vulnerabilities Detected**
 
 ---
 
-## 2. Dependency Audit & Remediation Matrix
-
-| Package | Version Audited | Status | Resolved CVEs / Security Notes |
-| :--- | :--- | :--- | :--- |
-| `starlette` | `1.6.0` | **CLEAN** | Remediated multipart parsing and DoS vulnerability risks in earlier <0.38 versions. |
-| `fastapi` | `0.129.2` | **CLEAN** | Up-to-date framework release; fully compatible with Starlette 1.6.0. |
-| `pytest` | `9.1.1` | **CLEAN** | Patched release resolving code execution / fixture vulnerability advisories. |
-| `pydantic` | `2.13.4` | **CLEAN** | Fully patched V2 release line. |
-| `yfinance` | `1.1.0` | **CLEAN** | Current stable market data fetcher. |
-| `requests` | `2.34.2` | **CLEAN** | Security-patched HTTP client library. |
-| `httpx` | `0.28.1` | **CLEAN** | Modern async HTTP client with patched connection pool hygiene. |
-| `pip` | `26.2.1` | **CLEAN** | Latest package management toolchain. |
-
----
-
-## 3. Verification & Compliance Signature
+## 1. Initial Vulnerability Scan (Before Remediation)
 
 ```text
-============================== SECURITY AUDIT VERIFICATION ==============================
-Scan Command: python -m pip_audit --desc
-Scan Target: Equity Lab Virtual Environment (Python 3.14 / 64-bit)
-Vulnerabilities Found: 0
-Test Suite Integrity: 317 / 317 PASSED
-Audit Signature: SEC-AUDIT-20260821-ZERO-CVE-SUCCESS
-========================================================================================
+Found 9 known vulnerabilities in 3 packages (transitive dependencies):
+- starlette: CVE / GHSA findings (GHSA-86qp-5c8j-p5mr, PYSEC-2026-248, PYSEC-2026-249, PYSEC-2026-2280, PYSEC-2026-2281)
+- curl-cffi: SSRF via unrestricted redirects (transitive via yfinance 1.1.0)
+- pytest: 8.4.2 (requires >= 9.1.1)
 ```
+
+---
+
+## 2. Remediation Actions Applied
+
+The following secure version constraints were pinned across `requirements.txt` and `app/requirements.txt`:
+
+| Package | Initial Version | Patched Version | Remediated Vulnerabilities |
+| :--- | :--- | :--- | :--- |
+| **`starlette`** | `<1.3.1` (transitive) | **`>=1.3.1`** | Host-header path reconstruction, form-parsing DoS, HTTPEndpoint verb-dispatch, Windows UNC-path SSRF |
+| **`fastapi`** | `0.129.2` | **`>=0.130.0`** | Enforces patched `starlette` core framework dependencies |
+| **`curl-cffi`** | `<0.15.0` (transitive) | **`>=0.15.0`** | Unrestricted redirect SSRF mitigation for `yfinance` underlying requests |
+| **`pytest`** | `8.4.2` | **`>=9.1.1`** | Upgraded testing framework to verified secure release |
+
+---
+
+## 3. Final Verification Scan (After Remediation)
+
+```text
+$ python -m pip_audit -r requirements.txt --desc
+No known vulnerabilities found
+Exit Code: 0
+```
+
+---
+
+## 4. Verification Checklist
+
+- [x] `pip-audit -r requirements.txt --desc` shows **0 findings** (Exit code 0).
+- [x] Full test suite green (`328 passed`).
+- [x] Secret scanning verified (`python scripts/check_no_real_secrets.py`).
