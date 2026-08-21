@@ -10,14 +10,18 @@
       "use": "@vercel/static"
     }
   ],
-  "routes": [
+  "rewrites": [
     {
-      "src": "/api/(.*)",
-      "dest": "api/index.py"
+      "source": "/api/(.*)",
+      "destination": "/api/index.py"
     },
     {
-      "src": "/(.*)",
-      "dest": "frontend_deploy/$1"
+      "source": "/",
+      "destination": "/frontend_deploy/index.html"
+    },
+    {
+      "source": "/(.*)",
+      "destination": "/frontend_deploy/$1"
     }
   ]
 }

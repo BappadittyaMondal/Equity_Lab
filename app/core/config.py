@@ -41,12 +41,22 @@ class Settings:
         """Validate CORS configuration for production.
         Raises RuntimeError if ALLOWED_ORIGIN is empty or contains a wildcard.
         """
-        if os.getenv("IERL_ENVIRONMENT", "development").lower() == "production":
+        env = os.getenv("IERL_ENVIRONMENT", "development").lower()
+        if env == "production":
             raw = os.getenv("ALLOWED_ORIGIN", "")
             if not raw:
-                raise RuntimeError("ALLOWED_ORIGIN must be set in production.")
+                vercel_url = os.getenv("VERCEL_URL")
+                if vercel_url:
+                    raw = f"https://{vercel_url}"
+                    os.environ["ALLOWED_ORIGIN"] = raw
+                else:
+                    raise RuntimeError("ALLOWED_ORIGIN must be set in production.")
             if "*" in [o.strip() for o in raw.split(",")]:
-                raise RuntimeError("Wildcard '*' is not allowed for ALLOWED_ORIGIN in production.")
+                vercel_url = os.getenv("VERCEL_URL")
+                if vercel_url:
+                    os.environ["ALLOWED_ORIGIN"] = f"https://{vercel_url}"
+                else:
+                    raise RuntimeError("Wildcard '*' is not allowed for ALLOWED_ORIGIN in production.")
 
     @property
     def ALLOWED_ORIGINS(self) -> List[str]:

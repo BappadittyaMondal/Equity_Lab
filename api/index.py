@@ -26,9 +26,14 @@ if os.path.exists(source_db) and not os.path.exists(tmp_db_path):
 if os.path.exists(tmp_db_path):
     os.environ["DATA_STORE_PATH"] = tmp_db_path
 
-# Set fallback CORS origin if not specified in Vercel environment variables
-if not os.getenv("ALLOWED_ORIGIN"):
-    os.environ["ALLOWED_ORIGIN"] = "*"
+# Fix CORS origin for Vercel production deployment
+allowed_origin = os.getenv("ALLOWED_ORIGIN", "")
+vercel_url = os.getenv("VERCEL_URL", "")
+
+if vercel_url and (not allowed_origin or "*" in allowed_origin):
+    os.environ["ALLOWED_ORIGIN"] = f"https://{vercel_url}"
+elif not allowed_origin:
+    os.environ["ALLOWED_ORIGIN"] = "http://localhost:8000,http://127.0.0.1:8000"
 
 from app.main import app
 
