@@ -19,6 +19,37 @@ import { initMainCanvas } from "./main_canvas.js";
 import { initFooter } from "./footer.js";
 import { initApiHealth, loadTickerStrip, loadRegimeData, loadStrategyCatalog, fetchAndRenderChart, loadWatchlist } from "./api.js";
 
+/**
+ * Global Symbol Selector — Updates all research panels simultaneously for selected ticker.
+ * @param {string} symbol - Ticker symbol (e.g. RELIANCE, TCS, INFY)
+ */
+export function selectSymbol(symbol) {
+  if (!symbol) return;
+  const cleanSymbol = symbol.trim().toUpperCase();
+  window.__IERL_SELECTED_SYMBOL = cleanSymbol;
+
+  // Ensure view is set to command center so panels are visible
+  if (typeof window.switchView === "function") {
+    window.switchView("command");
+  }
+
+  // Update all ticker-dependent panels
+  renderConvictionPanel(cleanSymbol);
+  renderScorecardPanel(cleanSymbol);
+  renderCAGRMatrixPanel(cleanSymbol);
+  renderThesisPanel(cleanSymbol);
+  renderLifecyclePanel(cleanSymbol);
+  renderTimelinePanel(cleanSymbol);
+  fetchAndRenderChart("1y");
+
+  // Smooth scroll to top of main canvas
+  window.scrollTo({ top: 0, behavior: "smooth" });
+}
+
+// Expose globally
+window.selectSymbol = selectSymbol;
+window.selectWatchlistSymbol = selectSymbol;
+
 async function initApp() {
   await initHeaderNav();
   initSidebar();
@@ -44,12 +75,7 @@ async function initApp() {
   // Selected symbol rendering
   const urlParams = new URLSearchParams(window.location.search);
   const sym = urlParams.get('symbol') || window.__IERL_SELECTED_SYMBOL || "RELIANCE";
-  renderConvictionPanel(sym);
-  renderScorecardPanel(sym);
-  renderCAGRMatrixPanel(sym);
-  renderThesisPanel(sym);
-  renderLifecyclePanel(sym);
-  renderTimelinePanel(sym);
+  selectSymbol(sym);
 }
 
 document.addEventListener("DOMContentLoaded", initApp);

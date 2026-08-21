@@ -14,7 +14,7 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="style.css" />
 </head>
-<body class="flex flex-col min-h-screen">
+<body class="flex flex-col min-h-screen bg-surface-lowest text-gray-100">
     <!-- Header Component -->
     <header id="header-nav"></header>
     <!-- Drawer Overlay -->
@@ -22,9 +22,9 @@
     <!-- Mobile Drawer -->
     <aside id="mobile-drawer" class="mobile-drawer md:hidden flex flex-col py-4 px-3"></aside>
     <!-- Sidebar Navigation -->
-    <nav id="sidebar-nav" class="hidden md:flex bg-surface-low fixed left-0 top-0 h-full flex-col py-6 w-64 border-r"></nav>
+    <nav id="sidebar-nav" class="hidden md:flex bg-surface-low fixed left-0 top-0 h-full flex-col py-6 w-64 border-r z-20"></nav>
     <!-- AI Assistant Dock -->
-    <aside id="aiassistant-dock" class="hidden lg:flex fixed right-0 top-0 h-full w-96 bg-surface-low border-l"></aside>
+    <aside id="aiassistant-dock" class="hidden lg:flex fixed right-0 top-0 h-full w-96 bg-surface-low border-l z-20"></aside>
     <!-- Main Canvas -->
     <main class="flex-1 md:ml-64 lg:mr-96 p-4 md:p-6 pb-20" id="main-canvas">
         <section id="conviction-panel" class="mb-6"></section>
@@ -34,6 +34,8 @@
         <section id="lifecycle-panel" class="mb-6"></section>
         <section id="timeline-panel" class="mb-6"></section>
         <section id="compare-panel" class="mb-6"></section>
+        <section id="multibagger-screener-panel" class="mb-6"></section>
+        <section id="probability-panel" class="mb-6"></section>
         <section id="swing-alerts-panel" class="mb-6"></section>
         <section id="watchlist-panel" class="mb-6"></section>
     </main>

@@ -1,16 +1,16 @@
-<!-- sidebar.html – Desktop Sidebar Navigation placeholder -->
-<nav class="bg-surface-low p-4 flex flex-col h-full">
+<!-- sidebar.html – Desktop Sidebar Navigation -->
+<nav class="bg-surface-low p-4 flex flex-col h-full border-r border-surface-border/50">
   <div class="mb-6">
-    <h2 class="text-lg font-bold text-gold">IERL Command</h2>
+    <h2 class="text-lg font-bold text-gold cursor-pointer" onclick="window.switchView('command')">IERL Command</h2>
     <span class="text-xs text-muted uppercase">v0.4.0</span>
   </div>
   <ul class="space-y-2 text-sm">
-    <li><button class="w-full text-left btn-primary" onclick="switchView('command')">Command Center</button></li>
-    <li><button class="w-full text-left btn-primary" onclick="switchView('multibagger')">Multibagger Screener</button></li>
-    <li><button class="w-full text-left btn-primary" onclick="switchView('compare')">Stock Comparison</button></li>
-    <li><button class="w-full text-left btn-primary" onclick="switchView('probability')">Return Probability</button></li>
-    <li><button class="w-full text-left btn-primary" onclick="switchView('options')">A2 Options (Suspended)</button></li>
-    <li><button class="w-full text-left btn-primary" onclick="switchView('strategies')">Strategy Screening</button></li>
-    <li><button class="w-full text-left btn-primary" onclick="switchView('aiassistant')">AI Assistant</button></li>
+    <li><button data-view="command" class="w-full text-left px-3 py-2 rounded bg-surface-lowest hover:bg-gold/20 text-gold border border-gold/30 font-mono text-xs transition-colors">Command Center</button></li>
+    <li><button data-view="multibagger" class="w-full text-left px-3 py-2 rounded bg-surface-lowest hover:bg-gold/20 text-gold border border-gold/30 font-mono text-xs transition-colors">Multibagger Screener</button></li>
+    <li><button data-view="compare" class="w-full text-left px-3 py-2 rounded bg-surface-lowest hover:bg-gold/20 text-gold border border-gold/30 font-mono text-xs transition-colors">Stock Comparison</button></li>
+    <li><button data-view="probability" class="w-full text-left px-3 py-2 rounded bg-surface-lowest hover:bg-gold/20 text-gold border border-gold/30 font-mono text-xs transition-colors">Return Probability</button></li>
+    <li><button data-view="options" class="w-full text-left px-3 py-2 rounded bg-surface-lowest hover:bg-gold/20 text-gold border border-gold/30 font-mono text-xs transition-colors">A2 Options (Suspended)</button></li>
+    <li><button data-view="strategies" class="w-full text-left px-3 py-2 rounded bg-surface-lowest hover:bg-gold/20 text-gold border border-gold/30 font-mono text-xs transition-colors">Strategy Screening</button></li>
+    <li><button data-view="aiassistant" class="w-full text-left px-3 py-2 rounded bg-surface-lowest hover:bg-gold/20 text-gold border border-gold/30 font-mono text-xs transition-colors">AI Assistant</button></li>
   </ul>
 </nav>
