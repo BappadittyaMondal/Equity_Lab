@@ -448,6 +448,14 @@ class Arbiter:
         consensus_str = f"Market consensus pricing reflects standard sector baseline."
         evidence_list = [f"{o['engine_id']}: {o.get('score_0_100', 50)}/100" for o in outputs if o.get("verdict") == "Buy"]
 
+        # Step 6.5: ML outperformance probability signal
+        ml_prob: Optional[float] = None
+        try:
+            from app.services.ml.baseline_model import predict_outperformance_prob
+            ml_prob = predict_outperformance_prob(normalized, final_score_f, data_backed=is_data_backed)
+        except Exception as exc:
+            logger.warning("ML baseline prediction failed for %s: %s", normalized, exc)
+
         # Step 7: Build ConvictionCall
         call = ConvictionCall(
             symbol=normalized,
@@ -463,7 +471,9 @@ class Arbiter:
             invalidation_condition=invalidation_str,
             catalyst_timing="12-24 Months",
             data_backed=is_data_backed,
+            ml_outperformance_probability=ml_prob,
         )
+
 
         # Step 8: Persist conviction call and get FK id
         call_id = self._persist(call)

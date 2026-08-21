@@ -285,3 +285,31 @@ def run_quality_growth_screener(
         quality_growth_profile=quality_growth_profile,
         meta=meta
     )
+
+
+def run_full_universe_screener(
+    symbols: Optional[List[str]] = None,
+    as_of: Optional[datetime] = None,
+    store: Optional[ResearchDataStore] = None
+) -> List[QualityGrowthScreenResponse]:
+    """Runs Quality-Growth Screener across the full seeded company universe in ResearchDataStore.
+
+    Returns ranked list of candidates ordered by conditions passed.
+    """
+    data_store = store or ResearchDataStore()
+    if symbols is None:
+        companies = data_store.list_companies()
+        symbols = [c.symbol for c in companies]
+
+    results: List[QualityGrowthScreenResponse] = []
+    for sym in symbols:
+        try:
+            res = run_quality_growth_screener(sym, as_of=as_of, store=data_store)
+            results.append(res)
+        except Exception:
+            pass
+
+    # Rank by conditions passed (descending), then conditions failed (ascending)
+    results.sort(key=lambda r: (r.conditions_passed, -r.conditions_failed, -r.conditions_unavailable), reverse=True)
+    return results
+

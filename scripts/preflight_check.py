@@ -1,31 +1,43 @@
-"""Automated Preflight Integrity Check Script for IERL OS CI/CD Pipeline.
+"""Automated Preflight Integrity Check Script for Equity Lab CI/CD Pipeline.
 
 Validates:
-1. Single active CONSOLIDATED_* reference in app/ code (Phase 3 exit gate).
+1. Single active CONSOLIDATED_* reference in app/ code.
 2. Production security settings (CORS wildcard restriction, mandatory auth, DATA_WRITE_API_KEY).
 3. Absolute exclusion of secret key files (.env, API_KEYS_CONFIG.env) from deployment exports/artifacts.
-4. Database path accessibility outside static root.
+4. Database existence, accessibility, and populated company registry (>= 200 companies).
+5. All mandatory empirical validation reports, pip audit report, and API contract presence in docs/.
+6. Backup & restore script existence.
 """
 
 import sys
 import os
 import re
+import sqlite3
 from pathlib import Path
 
 PROJECT_ROOT = Path(__file__).resolve().parents[1]
+if str(PROJECT_ROOT) not in sys.path:
+    sys.path.insert(0, str(PROJECT_ROOT))
+
 
 
 def check_consolidated_single_source() -> bool:
     """Ensure at most ONE CONSOLIDATED_* directory is referenced in app/ code."""
     app_dir = PROJECT_ROOT / "app"
     matches = set()
+    errors = []
     for file_path in app_dir.rglob("*.py"):
         try:
             content = file_path.read_text(encoding="utf-8")
             found = re.findall(r"CONSOLIDATED_\w+", content)
             matches.update(found)
-        except Exception:
-            pass
+        except Exception as exc:
+            errors.append(f"Failed to read {file_path}: {exc}")
+
+    if errors:
+        for err in errors:
+            print(f"[FAIL] PREFLIGHT ERROR: {err}")
+        return False
 
     if len(matches) > 1:
         print(f"[FAIL] PREFLIGHT FAIL: Multiple CONSOLIDATED directories referenced in app/: {matches}")
@@ -64,7 +76,6 @@ def check_secret_leakage() -> bool:
             print(f"[FAIL] PREFLIGHT FAIL: Secret file found inside frontend deploy artifact: {path}")
             return False
 
-    # Check git index / export if git repository exists
     gitignore_path = PROJECT_ROOT / ".gitignore"
     if gitignore_path.exists():
         content = gitignore_path.read_text(encoding="utf-8")
@@ -76,8 +87,41 @@ def check_secret_leakage() -> bool:
     return True
 
 
+def check_database_population() -> bool:
+    """Ensure database exists, is accessible, and contains a populated company registry (>= 200 symbols)."""
+    try:
+        from app.core.config import settings
+        from app.services.research_data import ResearchDataStore
+        
+        db_path = Path(settings.DATA_STORE_PATH)
+        if not db_path.exists():
+            # Seed via ResearchDataStore
+            store = ResearchDataStore()
+            db_path = Path(store.db_path)
+
+        if not db_path.exists():
+            print(f"[FAIL] PREFLIGHT FAIL: SQLite database file not found at {db_path}")
+            return False
+
+        conn = sqlite3.connect(str(db_path))
+        cursor = conn.cursor()
+        cursor.execute("SELECT COUNT(*) FROM companies")
+        count = cursor.fetchone()[0]
+        conn.close()
+
+        if count < 200:
+            print(f"[FAIL] PREFLIGHT FAIL: Database company universe unpopulated! Expected >= 200, found {count}.")
+            return False
+        print(f"[PASS] PREFLIGHT PASS: Database accessible and company registry populated ({count} symbols).")
+        return True
+    except Exception as exc:
+        print(f"[FAIL] PREFLIGHT FAIL: Error accessing database: {exc}")
+        return False
+
+
+
 def check_validation_reports() -> bool:
-    """Ensure all 7 Phase 4 empirical validation reports are generated in docs/."""
+    """Ensure all mandatory validation reports in docs/ exist and are non-empty."""
     docs_dir = PROJECT_ROOT / "docs"
     required_reports = [
         "validation_report.md",
@@ -87,12 +131,18 @@ def check_validation_reports() -> bool:
         "false_positive_report.md",
         "false_negative_report.md",
         "strategy_attribution_report.md",
+        "pip_audit_report.md",
+        "api_contract.json"
     ]
     for rep in required_reports:
-        if not (docs_dir / rep).exists():
+        file_path = docs_dir / rep
+        if not file_path.exists():
             print(f"[FAIL] PREFLIGHT FAIL: Mandatory validation report missing: {rep}")
             return False
-    print("[PASS] PREFLIGHT PASS: All 7 empirical validation reports present in docs/.")
+        if file_path.stat().st_size < 100:
+            print(f"[FAIL] PREFLIGHT FAIL: Validation report file is empty or corrupt (<100 bytes): {rep}")
+            return False
+    print("[PASS] PREFLIGHT PASS: All mandatory validation reports and API contracts present and non-empty in docs/.")
     return True
 
 
@@ -107,11 +157,12 @@ def check_backup_script() -> bool:
 
 
 def main():
-    print("=== Running IERL OS Preflight Integrity Checks ===")
+    print("=== Running Equity Lab Preflight Integrity Checks ===")
     checks = [
         check_consolidated_single_source(),
         check_security_configuration(),
         check_secret_leakage(),
+        check_database_population(),
         check_validation_reports(),
         check_backup_script(),
     ]

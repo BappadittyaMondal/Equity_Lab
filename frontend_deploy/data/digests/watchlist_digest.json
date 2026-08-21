@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-08-20T19:19:49.309441+00:00",
+  "generated_at": "2026-08-21T04:35:16.383615+00:00",
   "data": {
     "TITAN.NS": {
       "symbol": "TITAN.NS",
@@ -29,8 +29,9 @@
       "supporting_evidence": null,
       "invalidation_condition": null,
       "catalyst_timing": null,
-      "timestamp": "2026-08-20T19:19:49.304956+00:00",
-      "data_backed": true
+      "timestamp": "2026-08-21T04:35:16.379412+00:00",
+      "data_backed": true,
+      "ml_outperformance_probability": null
     },
     "ITC.NS": {
       "symbol": "ITC.NS",
@@ -60,8 +61,9 @@
       "supporting_evidence": null,
       "invalidation_condition": null,
       "catalyst_timing": null,
-      "timestamp": "2026-08-20T19:19:49.305590+00:00",
-      "data_backed": true
+      "timestamp": "2026-08-21T04:35:16.380020+00:00",
+      "data_backed": true,
+      "ml_outperformance_probability": null
     },
     "HINDUNILVR.NS": {
       "symbol": "HINDUNILVR.NS",
@@ -91,8 +93,9 @@
       "supporting_evidence": null,
       "invalidation_condition": null,
       "catalyst_timing": null,
-      "timestamp": "2026-08-20T19:19:49.305732+00:00",
-      "data_backed": true
+      "timestamp": "2026-08-21T04:35:16.380153+00:00",
+      "data_backed": true,
+      "ml_outperformance_probability": null
     },
     "TATAPOWER.NS": {
       "symbol": "TATAPOWER.NS",
@@ -122,8 +125,9 @@
       "supporting_evidence": null,
       "invalidation_condition": null,
       "catalyst_timing": null,
-      "timestamp": "2026-08-20T19:19:49.305847+00:00",
-      "data_backed": true
+      "timestamp": "2026-08-21T04:35:16.380266+00:00",
+      "data_backed": true,
+      "ml_outperformance_probability": null
     },
     "POWERGRID.NS": {
       "symbol": "POWERGRID.NS",
@@ -153,8 +157,9 @@
       "supporting_evidence": null,
       "invalidation_condition": null,
       "catalyst_timing": null,
-      "timestamp": "2026-08-20T19:19:49.305962+00:00",
-      "data_backed": true
+      "timestamp": "2026-08-21T04:35:16.380377+00:00",
+      "data_backed": true,
+      "ml_outperformance_probability": null
     },
     "NTPC.NS": {
       "symbol": "NTPC.NS",
@@ -184,8 +189,9 @@
       "supporting_evidence": null,
       "invalidation_condition": null,
       "catalyst_timing": null,
-      "timestamp": "2026-08-20T19:19:49.306072+00:00",
-      "data_backed": true
+      "timestamp": "2026-08-21T04:35:16.380484+00:00",
+      "data_backed": true,
+      "ml_outperformance_probability": null
     },
     "BHARATFORG.NS": {
       "symbol": "BHARATFORG.NS",
@@ -215,8 +221,9 @@
       "supporting_evidence": null,
       "invalidation_condition": null,
       "catalyst_timing": null,
-      "timestamp": "2026-08-20T19:19:49.306180+00:00",
-      "data_backed": true
+      "timestamp": "2026-08-21T04:35:16.380591+00:00",
+      "data_backed": true,
+      "ml_outperformance_probability": null
     },
     "TATAMOTORS.NS": {
       "symbol": "TATAMOTORS.NS",
@@ -246,8 +253,9 @@
       "supporting_evidence": null,
       "invalidation_condition": null,
       "catalyst_timing": null,
-      "timestamp": "2026-08-20T19:19:49.306355+00:00",
-      "data_backed": true
+      "timestamp": "2026-08-21T04:35:16.380692+00:00",
+      "data_backed": true,
+      "ml_outperformance_probability": null
     },
     "MARUTI.NS": {
       "symbol": "MARUTI.NS",
@@ -277,8 +285,9 @@
       "supporting_evidence": null,
       "invalidation_condition": null,
       "catalyst_timing": null,
-      "timestamp": "2026-08-20T19:19:49.306488+00:00",
-      "data_backed": true
+      "timestamp": "2026-08-21T04:35:16.380796+00:00",
+      "data_backed": true,
+      "ml_outperformance_probability": null
     },
     "LT.NS": {
       "symbol": "LT.NS",
@@ -308,8 +317,9 @@
       "supporting_evidence": null,
       "invalidation_condition": null,
       "catalyst_timing": null,
-      "timestamp": "2026-08-20T19:19:49.306604+00:00",
-      "data_backed": true
+      "timestamp": "2026-08-21T04:35:16.380897+00:00",
+      "data_backed": true,
+      "ml_outperformance_probability": null
     },
     "BDL.NS": {
       "symbol": "BDL.NS",
@@ -339,8 +349,9 @@
       "supporting_evidence": null,
       "invalidation_condition": null,
       "catalyst_timing": null,
-      "timestamp": "2026-08-20T19:19:49.306722+00:00",
-      "data_backed": true
+      "timestamp": "2026-08-21T04:35:16.380999+00:00",
+      "data_backed": true,
+      "ml_outperformance_probability": null
     },
     "BEL.NS": {
       "symbol": "BEL.NS",
@@ -370,8 +381,9 @@
       "supporting_evidence": null,
       "invalidation_condition": null,
       "catalyst_timing": null,
-      "timestamp": "2026-08-20T19:19:49.306889+00:00",
-      "data_backed": true
+      "timestamp": "2026-08-21T04:35:16.381099+00:00",
+      "data_backed": true,
+      "ml_outperformance_probability": null
     },
     "HAL.NS": {
       "symbol": "HAL.NS",
@@ -401,8 +413,9 @@
       "supporting_evidence": null,
       "invalidation_condition": null,
       "catalyst_timing": null,
-      "timestamp": "2026-08-20T19:19:49.307002+00:00",
-      "data_backed": true
+      "timestamp": "2026-08-21T04:35:16.381201+00:00",
+      "data_backed": true,
+      "ml_outperformance_probability": null
     },
     "DIVISLAB.NS": {
       "symbol": "DIVISLAB.NS",
@@ -432,8 +445,9 @@
       "supporting_evidence": null,
       "invalidation_condition": null,
       "catalyst_timing": null,
-      "timestamp": "2026-08-20T19:19:49.307109+00:00",
-      "data_backed": true
+      "timestamp": "2026-08-21T04:35:16.381305+00:00",
+      "data_backed": true,
+      "ml_outperformance_probability": null
     },
     "CIPLA.NS": {
       "symbol": "CIPLA.NS",
@@ -463,8 +477,9 @@
       "supporting_evidence": null,
       "invalidation_condition": null,
       "catalyst_timing": null,
-      "timestamp": "2026-08-20T19:19:49.307223+00:00",
-      "data_backed": true
+      "timestamp": "2026-08-21T04:35:16.381410+00:00",
+      "data_backed": true,
+      "ml_outperformance_probability": null
     },
     "DRREDDY.NS": {
       "symbol": "DRREDDY.NS",
@@ -494,8 +509,9 @@
       "supporting_evidence": null,
       "invalidation_condition": null,
       "catalyst_timing": null,
-      "timestamp": "2026-08-20T19:19:49.307326+00:00",
-      "data_backed": true
+      "timestamp": "2026-08-21T04:35:16.381509+00:00",
+      "data_backed": true,
+      "ml_outperformance_probability": null
     },
     "SUNPHARMA.NS": {
       "symbol": "SUNPHARMA.NS",
@@ -525,8 +541,9 @@
       "supporting_evidence": null,
       "invalidation_condition": null,
       "catalyst_timing": null,
-      "timestamp": "2026-08-20T19:19:49.307429+00:00",
-      "data_backed": true
+      "timestamp": "2026-08-21T04:35:16.381607+00:00",
+      "data_backed": true,
+      "ml_outperformance_probability": null
     },
     "BAJFINANCE.NS": {
       "symbol": "BAJFINANCE.NS",
@@ -556,8 +573,9 @@
       "supporting_evidence": null,
       "invalidation_condition": null,
       "catalyst_timing": null,
-      "timestamp": "2026-08-20T19:19:49.307528+00:00",
-      "data_backed": true
+      "timestamp": "2026-08-21T04:35:16.381705+00:00",
+      "data_backed": true,
+      "ml_outperformance_probability": null
     },
     "SBIN.NS": {
       "symbol": "SBIN.NS",
@@ -587,8 +605,9 @@
       "supporting_evidence": null,
       "invalidation_condition": null,
       "catalyst_timing": null,
-      "timestamp": "2026-08-20T19:19:49.307627+00:00",
-      "data_backed": true
+      "timestamp": "2026-08-21T04:35:16.381803+00:00",
+      "data_backed": true,
+      "ml_outperformance_probability": null
     },
     "KOTAKBANK.NS": {
       "symbol": "KOTAKBANK.NS",
@@ -618,8 +637,9 @@
       "supporting_evidence": null,
       "invalidation_condition": null,
       "catalyst_timing": null,
-      "timestamp": "2026-08-20T19:19:49.307725+00:00",
-      "data_backed": true
+      "timestamp": "2026-08-21T04:35:16.381901+00:00",
+      "data_backed": true,
+      "ml_outperformance_probability": null
     },
     "ICICIBANK.NS": {
       "symbol": "ICICIBANK.NS",
@@ -649,8 +669,9 @@
       "supporting_evidence": null,
       "invalidation_condition": null,
       "catalyst_timing": null,
-      "timestamp": "2026-08-20T19:19:49.307824+00:00",
-      "data_backed": true
+      "timestamp": "2026-08-21T04:35:16.382006+00:00",
+      "data_backed": true,
+      "ml_outperformance_probability": null
     },
     "HDFCBANK.NS": {
       "symbol": "HDFCBANK.NS",
@@ -680,8 +701,9 @@
       "supporting_evidence": null,
       "invalidation_condition": null,
       "catalyst_timing": null,
-      "timestamp": "2026-08-20T19:19:49.307922+00:00",
-      "data_backed": true
+      "timestamp": "2026-08-21T04:35:16.382103+00:00",
+      "data_backed": true,
+      "ml_outperformance_probability": null
     },
     "TECHM.NS": {
       "symbol": "TECHM.NS",
@@ -711,8 +733,9 @@
       "supporting_evidence": null,
       "invalidation_condition": null,
       "catalyst_timing": null,
-      "timestamp": "2026-08-20T19:19:49.308044+00:00",
-      "data_backed": true
+      "timestamp": "2026-08-21T04:35:16.382202+00:00",
+      "data_backed": true,
+      "ml_outperformance_probability": null
     },
     "HCLTECH.NS": {
       "symbol": "HCLTECH.NS",
@@ -742,8 +765,9 @@
       "supporting_evidence": null,
       "invalidation_condition": null,
       "catalyst_timing": null,
-      "timestamp": "2026-08-20T19:19:49.308141+00:00",
-      "data_backed": true
+      "timestamp": "2026-08-21T04:35:16.382301+00:00",
+      "data_backed": true,
+      "ml_outperformance_probability": null
     },
     "WIPRO.NS": {
       "symbol": "WIPRO.NS",
@@ -773,8 +797,9 @@
       "supporting_evidence": null,
       "invalidation_condition": null,
       "catalyst_timing": null,
-      "timestamp": "2026-08-20T19:19:49.308237+00:00",
-      "data_backed": true
+      "timestamp": "2026-08-21T04:35:16.382398+00:00",
+      "data_backed": true,
+      "ml_outperformance_probability": null
     },
     "BPCL.NS": {
       "symbol": "BPCL.NS",
@@ -804,8 +829,9 @@
       "supporting_evidence": null,
       "invalidation_condition": null,
       "catalyst_timing": null,
-      "timestamp": "2026-08-20T19:19:49.308333+00:00",
-      "data_backed": true
+      "timestamp": "2026-08-21T04:35:16.382498+00:00",
+      "data_backed": true,
+      "ml_outperformance_probability": null
     },
     "ONGC.NS": {
       "symbol": "ONGC.NS",
@@ -835,8 +861,9 @@
       "supporting_evidence": null,
       "invalidation_condition": null,
       "catalyst_timing": null,
-      "timestamp": "2026-08-20T19:19:49.308432+00:00",
-      "data_backed": true
+      "timestamp": "2026-08-21T04:35:16.382598+00:00",
+      "data_backed": true,
+      "ml_outperformance_probability": null
     },
     "RELIANCE.NS": {
       "symbol": "RELIANCE.NS",
@@ -866,8 +893,9 @@
       "supporting_evidence": null,
       "invalidation_condition": null,
       "catalyst_timing": null,
-      "timestamp": "2026-08-20T19:19:49.308530+00:00",
-      "data_backed": true
+      "timestamp": "2026-08-21T04:35:16.382697+00:00",
+      "data_backed": true,
+      "ml_outperformance_probability": null
     },
     "TCS": {
       "symbol": "TCS",
@@ -917,8 +945,9 @@
       "supporting_evidence": null,
       "invalidation_condition": null,
       "catalyst_timing": null,
-      "timestamp": "2026-08-20T19:19:49.308693+00:00",
-      "data_backed": false
+      "timestamp": "2026-08-21T04:35:16.382885+00:00",
+      "data_backed": false,
+      "ml_outperformance_probability": null
     },
     "INFY.NS": {
       "symbol": "INFY.NS",
@@ -959,8 +988,9 @@
       "supporting_evidence": null,
       "invalidation_condition": null,
       "catalyst_timing": null,
-      "timestamp": "2026-08-20T19:19:49.309019+00:00",
-      "data_backed": false
+      "timestamp": "2026-08-21T04:35:16.383199+00:00",
+      "data_backed": false,
+      "ml_outperformance_probability": null
     }
   }
 }

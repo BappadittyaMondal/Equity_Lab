@@ -7,18 +7,32 @@ with open('docs/api_contract.json', 'r', encoding='utf-8') as f:
 
 backend_endpoints = sorted(list(spec.get('paths', {}).keys()))
 
-js_dir = 'frontend_deploy/js'
+frontend_dir = 'frontend_deploy'
 frontend_urls = set()
+raw_matches = set()
 
-for root, dirs, files in os.walk(js_dir):
+# Enhanced regex to capture template literals, f-strings, API_BASE prefixes, and variables
+pattern = re.compile(r'[`"\'](?:\$\{API_BASE\}|http://[a-zA-Z0-9.:]+)?(/api/v1/[a-zA-Z0-9_\-/${}()+.,:=%]+|/health|/docs)[`"\']')
+
+for root, dirs, files in os.walk(frontend_dir):
+    if 'archive' in root:
+        continue
     for file in files:
-        if file.endswith('.js'):
+        if file.endswith('.js') or file.endswith('.html'):
             filepath = os.path.join(root, file)
             with open(filepath, 'r', encoding='utf-8') as f:
                 content = f.read()
-                matches = re.findall(r'["\'](/api/[a-zA-Z0-9_\-/{}]+|/health|/docs)["\']', content)
-                for m in matches:
-                    frontend_urls.add(m)
+                found = pattern.findall(content)
+                for m in found:
+                    raw_matches.add(m)
+                    # Clean query strings
+                    cleaned = m.split('?')[0]
+                    # Normalize JS template string variables to standard OpenAPI placeholders
+                    normalized = re.sub(r'\$\{\s*(?:encodeURIComponent\()?([a-zA-Z0-9_.]+)\)?\s*\}', r'{\1}', cleaned)
+                    # Normalize standard variable names to match schema parameters
+                    normalized = re.sub(r'\{[a-zA-Z0-9_.]*symbol[a-zA-Z0-9_.]*\}', '{symbol}', normalized, flags=re.IGNORECASE)
+                    normalized = re.sub(r'\{[a-zA-Z0-9_.]*strategy[a-zA-Z0-9_.]*\}', '{strategy_id}', normalized, flags=re.IGNORECASE)
+                    frontend_urls.add(normalized)
 
 print(f"Backend Endpoints Count: {len(backend_endpoints)}")
 print(f"Frontend Endpoints Referenced: {len(frontend_urls)}")
@@ -34,7 +48,6 @@ for url in sorted(frontend_urls):
 
 missing_in_backend = []
 for fe in frontend_urls:
-    # check if fe matches any backend endpoint pattern
     fe_clean = fe.split('?')[0]
     matched = any(fe_clean == be or fe_clean.startswith(be.split('{')[0]) for be in backend_endpoints)
     if not matched:
