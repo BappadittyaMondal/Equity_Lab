@@ -350,9 +350,10 @@ class TestTechnicalEngineStructure:
         import numpy as np
         np.random.seed(42)
         dates = pd.date_range(end=pd.Timestamp.now(), periods=n, freq="B")
-        price = 1000.0 + np.cumsum(np.random.randn(n) * 5)
+        n_len = len(dates)
+        price = 1000.0 + np.cumsum(np.random.randn(n_len) * 5)
         price = np.clip(price, 100, 5000)
-        volume = np.abs(np.random.randn(n) * 500000 + 1000000).astype(int)
+        volume = np.abs(np.random.randn(n_len) * 500000 + 1000000).astype(int)
         df = pd.DataFrame({
             "Open": price * 0.99,
             "High": price * 1.01,

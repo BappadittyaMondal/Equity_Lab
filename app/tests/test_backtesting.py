@@ -19,6 +19,8 @@ def temp_db_path(tmp_path):
     _ensure_tables()
     yield str(db_file)
     settings.DATA_STORE_PATH = original
+    import gc
+    gc.collect()
 
 
 def test_point_in_time_replay_engine(temp_db_path):

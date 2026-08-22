@@ -6,7 +6,7 @@ from app.services.strategies.registry import list_strategy_modules, get_strategy
 
 def test_strategy_registry_count():
     modules = list_strategy_modules()
-    assert len(modules) == 18, "Master strategy registry must contain all 18 Expert Strategy Modules"
+    assert len(modules) == 26, "Master strategy registry must contain all 26 IERL Modules"
 
 
 def test_strategy_production_vs_coming_soon():
