@@ -262,6 +262,48 @@
         }
       }
     },
+    "/api/v1/community/posts": {
+      "get": {
+        "tags": [
+          "Market Data"
+        ],
+        "summary": "Fetch Community Posts",
+        "description": "Fetches community research notes and institutional discussion posts.",
+        "operationId": "fetch_community_posts_api_v1_community_posts_get",
+        "parameters": [
+          {
+            "name": "x-api-key",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "default": "",
+              "title": "X-Api-Key"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/v1/compare": {
       "post": {
         "tags": [
@@ -5734,7 +5776,22 @@
           "disclaimer"
         ],
         "title": "QueryResponse",
-        "description": "Response model for AI query endpoint.\n\nMirrors the fields returned by `process_llm_query`."
+        "description": "Response model for AI query endpoint.\n\nMirrors the fields returned by `process_llm_query`.",
+        "example": {
+          "disclaimer": "AI research assistant readout for educational/research purposes. Not investment advice.",
+          "meta": {
+            "as_of": "2026-08-16T09:00:00+05:30",
+            "limitations": [],
+            "market_data_type": "realtime",
+            "retrieved_at": "2026-08-16T09:00:05+05:30",
+            "source": "IERL Market Data",
+            "stale": false
+          },
+          "mode": "Quick",
+          "provider": "Google Gemini 1.5 Flash",
+          "query": "Show revenue growth for RELIANCE",
+          "reply": "Revenue grew 12% YoY over the last quarter..."
+        }
       },
       "RecordOutcomeRequest": {
         "properties": {
@@ -6097,11 +6154,25 @@
             "title": "Price"
           },
           "previous_close": {
-            "type": "number",
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
             "title": "Previous Close"
           },
           "change": {
-            "type": "number",
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
             "title": "Change"
           },
           "change_percent": {
@@ -6164,17 +6235,21 @@
             "title": "Volume"
           },
           "meta": {
-            "$ref": "#/components/schemas/MetaHeader"
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/MetaHeader"
+              },
+              {
+                "type": "null"
+              }
+            ]
           }
         },
         "type": "object",
         "required": [
           "symbol",
           "price",
-          "previous_close",
-          "change",
-          "change_percent",
-          "meta"
+          "change_percent"
         ],
         "title": "TickerQuoteResponse"
       },

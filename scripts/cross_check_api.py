@@ -56,7 +56,7 @@ for fe in frontend_urls:
 print("\n--- Frontend Calls Missing in Backend Spec ---")
 if missing_in_backend:
     for m in missing_in_backend:
-        print(f"  ❌ {m}")
+        print(f"  [MISSING] {m}")
 else:
     print("  None! All frontend API calls map to valid backend endpoints.")
 

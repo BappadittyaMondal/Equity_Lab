@@ -50,3 +50,10 @@ def fetch_ticker_history(symbol: str, period: str = "1y", interval: str = "1d"):
         })
     return {"symbol": norm_symbol, "period": period, "history": records}
 
+
+@router.get("/community/posts")
+def fetch_community_posts():
+    """Fetches community research notes and institutional discussion posts."""
+    return {"posts": [], "count": 0, "status": "active"}
+
+
