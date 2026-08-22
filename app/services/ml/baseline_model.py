@@ -28,7 +28,7 @@ class NumPyStandardScaler:
         X = np.asarray(X, dtype=np.float64)
         self.mean_ = np.mean(X, axis=0)
         scale = np.std(X, axis=0)
-        scale[scale == 0.0] = 1.0
+        scale[scale < 1e-6] = 1.0
         self.scale_ = scale
         return self
 
@@ -402,6 +402,9 @@ def train_baseline_model(force_retrain: bool = False) -> Dict[str, Any]:
         """
         SELECT 
             p.score,
+            p.verdict,
+            p.confidence,
+            p.reference_price,
             COALESCE(c.data_backed, 0) AS data_backed,
             o.excess_return_pct
         FROM prediction_ledger p
@@ -424,16 +427,26 @@ def train_baseline_model(force_retrain: bool = False) -> Dict[str, Any]:
     has_pos_and_neg = any(e > 0 for e in excess_returns) and any(e <= 0 for e in excess_returns)
     threshold = 0.0 if has_pos_and_neg else float(np.median(excess_returns))
 
-    X_data = []
+    X_data_5f = []
+    X_data_2f = []
     y_data = []
     for r in rows:
         score = float(r["score"])
         db_flag = float(r["data_backed"])
+        verdict = str(r["verdict"] or "")
+        verdict_sig = 1.0 if verdict == "Strong Buy" else (0.8 if verdict == "Buy" else (0.6 if verdict == "Accumulate" else (0.4 if verdict == "Watch" else 0.0)))
+        conf = str(r["confidence"] or "")
+        conf_sig = 1.0 if conf == "Confirmed" else (0.5 if conf == "Model-dependent" else 0.0)
+        ref_price = r["reference_price"]
+        ref_price_sig = 1.0 if ref_price is not None and float(ref_price) > 0 else 0.0
+
         target = 1 if float(r["excess_return_pct"]) > threshold else 0
-        X_data.append([score, db_flag])
+        X_data_5f.append([score, db_flag, verdict_sig, conf_sig, ref_price_sig])
+        X_data_2f.append([score, db_flag])
         y_data.append(target)
 
-    X = np.array(X_data, dtype=np.float64)
+    X = np.array(X_data_5f, dtype=np.float64)
+    X_2f = np.array(X_data_2f, dtype=np.float64)
     y = np.array(y_data, dtype=np.int32)
 
     scaler = StandardScaler()
@@ -442,8 +455,10 @@ def train_baseline_model(force_retrain: bool = False) -> Dict[str, Any]:
     clf = NumPyEnsembleClassifier(n_estimators=25, random_state=42)
     clf.fit(X_scaled, y)
 
-    # 5-Fold Stratified Cross-Validation evaluation
+    # 5-Fold Stratified Cross-Validation evaluation (Multi-factor Ensemble)
     cv_metrics = numpy_kfold_cross_validate(NumPyEnsembleClassifier, X, y, n_splits=5, n_estimators=25)
+    # 5-Fold Stratified Cross-Validation baseline evaluation (2-feature Logistic)
+    cv_2feature = numpy_kfold_cross_validate(NumPyLogisticRegression, X_2f, y, n_splits=5)
 
     _MODEL_CACHE["model"] = clf
     _MODEL_CACHE["scaler"] = scaler
@@ -458,6 +473,7 @@ def train_baseline_model(force_retrain: bool = False) -> Dict[str, Any]:
             configuration={
                 "model_type": "NumPyEnsembleClassifier",
                 "n_estimators": 25,
+                "feature_count": 5,
                 "feature_means": scaler.mean_.tolist(),
                 "feature_scales": scaler.scale_.tolist(),
                 "sample_count": len(rows),
@@ -465,12 +481,14 @@ def train_baseline_model(force_retrain: bool = False) -> Dict[str, Any]:
                 "cv_5fold_accuracy": cv_metrics["mean_accuracy"],
                 "cv_5fold_roc_auc": cv_metrics["mean_roc_auc"],
                 "cv_5fold_brier_score": cv_metrics["mean_brier_score"],
-                "cv_5fold_f1_score": cv_metrics["mean_f1"]
+                "cv_5fold_f1_score": cv_metrics["mean_f1"],
+                "ablation_2feature_roc_auc": cv_2feature["mean_roc_auc"],
+                "ablation_2feature_brier": cv_2feature["mean_brier_score"]
             },
             backtest_summary=(
-                f"NumPyEnsembleClassifier (LogisticRegression + GBDT) model trained on {len(rows)} ledger outcomes. "
+                f"NumPyEnsembleClassifier (5-Factor GBDT+Logistic) trained on {len(rows)} ledger outcomes. "
                 f"5-Fold CV: Acc={cv_metrics['mean_accuracy']:.4f}, ROC-AUC={cv_metrics['mean_roc_auc']:.4f}, "
-                f"Brier={cv_metrics['mean_brier_score']:.4f}, F1={cv_metrics['mean_f1']:.4f}"
+                f"Brier={cv_metrics['mean_brier_score']:.4f}. Ablation vs 2-feat: ΔROC-AUC={cv_metrics['mean_roc_auc'] - cv_2feature['mean_roc_auc']:+.4f}"
             ),
             human_approved_by="institutional_lead_quant"
         )
@@ -484,7 +502,14 @@ def train_baseline_model(force_retrain: bool = False) -> Dict[str, Any]:
         "is_trained": True,
         "classes": clf.classes_.tolist(),
         "cv_metrics": cv_metrics,
-        "cross_validation_5fold": cv_metrics
+        "cross_validation_5fold": cv_metrics,
+        "ablation_report": {
+            "baseline_2feature_roc_auc": cv_2feature["mean_roc_auc"],
+            "baseline_2feature_brier": cv_2feature["mean_brier_score"],
+            "ensemble_multifactor_roc_auc": cv_metrics["mean_roc_auc"],
+            "ensemble_multifactor_brier": cv_metrics["mean_brier_score"],
+            "roc_auc_delta": round(cv_metrics["mean_roc_auc"] - cv_2feature["mean_roc_auc"], 4)
+        }
     }
 
 
@@ -504,7 +529,11 @@ def predict_outperformance_prob(
     if _MODEL_CACHE["is_trained"] and _MODEL_CACHE["model"] is not None:
         try:
             db_flag = 1.0 if data_backed else 0.0
-            x_vec = np.array([[float(composite_score), db_flag]], dtype=np.float64)
+            verdict_sig = 1.0 if composite_score >= 85 else (0.8 if composite_score >= 70 else (0.6 if composite_score >= 55 else (0.4 if composite_score >= 40 else 0.0)))
+            conf_sig = 1.0 if composite_score >= 80 else (0.5 if composite_score >= 50 else 0.0)
+            ref_price_sig = float(extra_features.get("ref_price_valid", 1.0)) if extra_features else 1.0
+
+            x_vec = np.array([[float(composite_score), db_flag, verdict_sig, conf_sig, ref_price_sig]], dtype=np.float64)
             x_scaled = _MODEL_CACHE["scaler"].transform(x_vec)
             probs = _MODEL_CACHE["model"].predict_proba(x_scaled)[0]
             class_idx = 1 if 1 in _MODEL_CACHE["model"].classes_ else 0
@@ -531,8 +560,6 @@ def _load_active_model_from_db() -> bool:
         if not row:
             return False
         config = json.loads(row["configuration_json"])
-        coefs = np.array(config["coefficients"], dtype=np.float64)
-        intercept = np.array(config["intercept"], dtype=np.float64)
         means = np.array(config["feature_means"], dtype=np.float64)
         scales = np.array(config["feature_scales"], dtype=np.float64)
 
@@ -540,9 +567,7 @@ def _load_active_model_from_db() -> bool:
         scaler.mean_ = means
         scaler.scale_ = scales
 
-        clf = LogisticRegression(C=1.0, class_weight="balanced", max_iter=200, random_state=42)
-        clf.coef_ = coefs
-        clf.intercept_ = intercept
+        clf = NumPyEnsembleClassifier(n_estimators=config.get("n_estimators", 25), random_state=42)
         clf.classes_ = np.array(config.get("classes", [0, 1]), dtype=np.int32)
 
         _MODEL_CACHE["model"] = clf
@@ -566,6 +591,9 @@ def evaluate_and_retrain_model() -> Dict[str, Any]:
         """
         SELECT 
             p.score,
+            p.verdict,
+            p.confidence,
+            p.reference_price,
             COALESCE(c.data_backed, 0) AS data_backed,
             o.excess_return_pct
         FROM prediction_ledger p
@@ -593,8 +621,15 @@ def evaluate_and_retrain_model() -> Dict[str, Any]:
     for r in rows:
         score = float(r["score"])
         db_flag = float(r["data_backed"])
+        verdict = str(r["verdict"] or "")
+        verdict_sig = 1.0 if verdict == "Strong Buy" else (0.8 if verdict == "Buy" else (0.6 if verdict == "Accumulate" else (0.4 if verdict == "Watch" else 0.0)))
+        conf = str(r["confidence"] or "")
+        conf_sig = 1.0 if conf == "Confirmed" else (0.5 if conf == "Model-dependent" else 0.0)
+        ref_price = r["reference_price"]
+        ref_price_sig = 1.0 if ref_price is not None and float(ref_price) > 0 else 0.0
+
         target = 1 if float(r["excess_return_pct"]) > threshold else 0
-        X_data.append([score, db_flag])
+        X_data.append([score, db_flag, verdict_sig, conf_sig, ref_price_sig])
         y_data.append(target)
 
     X = np.array(X_data, dtype=np.float64)
@@ -617,18 +652,18 @@ def evaluate_and_retrain_model() -> Dict[str, Any]:
         except Exception:
             active_acc = 0.0
 
-    candidate_clf = LogisticRegression(C=1.0, class_weight="balanced", max_iter=200, random_state=42)
+    candidate_clf = NumPyEnsembleClassifier(n_estimators=25, random_state=42)
     candidate_clf.fit(X_train_scaled, y_train)
     preds_candidate = candidate_clf.predict(X_test_scaled)
     candidate_acc = float(accuracy_score(y_test, preds_candidate))
 
     promoted = False
-    new_version = f"v1.1.0-PROD-ML-LOGISTIC-RETRAINED-{len(rows)}"
+    new_version = f"v1.1.0-PROD-ML-ENSEMBLE-RETRAINED-{len(rows)}"
 
     if candidate_acc > active_acc or not _MODEL_CACHE["is_trained"]:
         scaler_full = StandardScaler()
         X_scaled_full = scaler_full.fit_transform(X)
-        final_clf = LogisticRegression(C=1.0, class_weight="balanced", max_iter=200, random_state=42)
+        final_clf = NumPyEnsembleClassifier(n_estimators=25, random_state=42)
         final_clf.fit(X_scaled_full, y)
 
         _MODEL_CACHE["model"] = final_clf
@@ -641,16 +676,16 @@ def evaluate_and_retrain_model() -> Dict[str, Any]:
             register_model_version(
                 version=new_version,
                 configuration={
-                    "model_type": "LogisticRegression",
-                    "coefficients": final_clf.coef_.tolist(),
-                    "intercept": final_clf.intercept_.tolist(),
+                    "model_type": "NumPyEnsembleClassifier",
+                    "n_estimators": 25,
+                    "feature_count": 5,
                     "feature_means": scaler_full.mean_.tolist(),
                     "feature_scales": scaler_full.scale_.tolist(),
                     "sample_count": len(rows),
                     "test_accuracy": candidate_acc,
                     "previous_accuracy": active_acc,
                 },
-                backtest_summary=f"Retrained LogisticRegression model promoted. Test Acc: {candidate_acc:.4f} vs Prev Acc: {active_acc:.4f} on {len(rows)} ledger outcomes.",
+                backtest_summary=f"Retrained NumPyEnsembleClassifier model promoted. Test Acc: {candidate_acc:.4f} vs Prev Acc: {active_acc:.4f} on {len(rows)} ledger outcomes.",
                 human_approved_by="auto_retrain_cadence_engine"
             )
         except Exception:
@@ -667,6 +702,6 @@ def evaluate_and_retrain_model() -> Dict[str, Any]:
         "active_accuracy": active_acc,
         "candidate_accuracy": candidate_acc,
         "sample_count": len(rows),
-        "version": new_version if promoted else "v1.1.0-PROD-ML-LOGISTIC-RETRAINED-2070",
+        "version": new_version if promoted else "v1.1.0-PROD-ML-ENSEMBLE-RETRAINED-2070",
         "message": action_msg,
     }

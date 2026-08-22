@@ -222,21 +222,33 @@ def process_llm_query(req: QueryRequest) -> QueryResponse:
     gemini_key = settings.GEMINI_API_KEY
     if gemini_key and "your_" not in gemini_key.lower() and not fallback:
         try:
-            import google.generativeai as genai
-            genai.configure(api_key=gemini_key)
-            model = genai.GenerativeModel("gemini-1.5-flash")
+            try:
+                from google import genai
+                client = genai.Client(api_key=gemini_key)
+                analysis_prompt = _build_analysis_prompt(query_text, symbol, mode, research_context)
+                resp1 = client.models.generate_content(model="gemini-2.5-flash", contents=analysis_prompt)
+                initial_analysis = resp1.text
+                challenge_section = ""
+                if mode.lower() in ("research", "deep", "full"):
+                    challenge_prompt = _build_challenge_prompt(initial_analysis, symbol)
+                    resp2 = client.models.generate_content(model="gemini-2.5-flash", contents=challenge_prompt)
+                    challenge_section = f"\n\n━━━ DEVIL'S ADVOCATE (Challenge Mode) ━━━\n{resp2.text}"
+            except Exception:
+                import google.generativeai as genai
+                genai.configure(api_key=gemini_key)
+                model = genai.GenerativeModel("gemini-1.5-flash")
 
-            # Primary analysis prompt
-            analysis_prompt = _build_analysis_prompt(query_text, symbol, mode, research_context)
-            response1 = model.generate_content(analysis_prompt)
-            initial_analysis = response1.text
+                # Primary analysis prompt
+                analysis_prompt = _build_analysis_prompt(query_text, symbol, mode, research_context)
+                response1 = model.generate_content(analysis_prompt)
+                initial_analysis = response1.text
 
-            # Challenge mode (only in Research/Deep modes, not Quick)
-            challenge_section = ""
-            if mode.lower() in ("research", "deep", "full"):
-                challenge_prompt = _build_challenge_prompt(initial_analysis, symbol)
-                response2 = model.generate_content(challenge_prompt)
-                challenge_section = f"\n\n━━━ DEVIL'S ADVOCATE (Challenge Mode) ━━━\n{response2.text}"
+                # Challenge mode (only in Research/Deep modes, not Quick)
+                challenge_section = ""
+                if mode.lower() in ("research", "deep", "full"):
+                    challenge_prompt = _build_challenge_prompt(initial_analysis, symbol)
+                    response2 = model.generate_content(challenge_prompt)
+                    challenge_section = f"\n\n━━━ DEVIL'S ADVOCATE (Challenge Mode) ━━━\n{response2.text}"
 
             final_reply = initial_analysis + challenge_section
 
