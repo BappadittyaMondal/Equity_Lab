@@ -1,8 +1,8 @@
 # Overall Empirical Validation Report
 
 - **Version**: `0.0.0`
-- **Generated At**: `2026-08-21 04:30:03 UTC`
-- **Sample Universe Count**: `162`
+- **Generated At**: `2026-08-22 21:02:04 UTC`
+- **Sample Universe Count**: `630`
 - **Point-in-Time Integrity**: `VERIFIED (available_at <= analysis_date)`
 - **Look-Ahead Leakage**: `0.0%`
 - **Score Monotonicity Verified**: `True`
