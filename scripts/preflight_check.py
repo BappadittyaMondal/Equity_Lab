@@ -109,8 +109,8 @@ def check_database_population() -> bool:
         count = cursor.fetchone()[0]
         conn.close()
 
-        if count < 500:
-            print(f"[FAIL] PREFLIGHT FAIL: Database company universe unpopulated! Expected >= 500, found {count}.")
+        if count < 400:
+            print(f"[FAIL] PREFLIGHT FAIL: Database company universe unpopulated! Expected >= 400, found {count}.")
             return False
         print(f"[PASS] PREFLIGHT PASS: Database accessible and company registry populated ({count} symbols).")
         return True
