@@ -21,9 +21,17 @@ def clean_database():
         cur.execute("SELECT COUNT(*) FROM market_cache")
         total_count = cur.fetchone()[0]
         print(f"Purged {deleted_count} dummy test rows. Remaining valid rows in market_cache: {total_count}")
-    else:
-        print("market_cache table not present.")
-    
+    if "companies" in tables:
+        cur.execute("DELETE FROM companies WHERE symbol LIKE 'NF500_%'")
+        del_comp = cur.rowcount
+        cur.execute("DELETE FROM financial_observations WHERE symbol LIKE 'NF500_%'")
+        cur.execute("DELETE FROM business_events WHERE symbol LIKE 'NF500_%'")
+        cur.execute("DELETE FROM market_daily_snapshots WHERE symbol LIKE 'NF500_%'")
+        conn.commit()
+        cur.execute("SELECT COUNT(*) FROM companies")
+        total_comp = cur.fetchone()[0]
+        print(f"Purged {del_comp} fake NF500_ placeholder companies. Remaining clean companies: {total_comp}")
+
     conn.close()
 
 if __name__ == '__main__':
