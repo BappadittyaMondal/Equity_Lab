@@ -269,6 +269,67 @@ def compute_roic_wacc_spread(financials: List[Any], wacc: float = 11.5) -> Dict[
     }
 
 
+def compute_incremental_roic(financials: List[Any], periods: int = 4) -> Dict[str, Any]:
+    """Incremental ROIC = ΔNOPAT / ΔInvested Capital over `periods` quarters.
+
+    Answers the institutional super-factor question:
+    What return is the company generating on the NEW capital it is investing today?
+    """
+    nopat_series = _extract_series(financials, ["nopat", "operating_income", "ebit", "net_income"])
+    ic_series = _extract_series(financials, ["invested_capital", "total_equity", "total_assets"])
+
+    if len(nopat_series) < 2 or len(ic_series) < 2:
+        return {
+            "status": "DATA_UNAVAILABLE",
+            "incremental_roic_pct": None,
+            "reinvestment_rate_pct": None,
+            "evidence": ["DATA_UNAVAILABLE: Insufficient observations to compute ΔNOPAT and ΔInvested Capital."]
+        }
+
+    # Match latest and comparison periods
+    latest_nopat = nopat_series[-1][1]
+    prev_nopat = nopat_series[-min(periods + 1, len(nopat_series))][1]
+    delta_nopat = latest_nopat - prev_nopat
+
+    latest_ic = ic_series[-1][1]
+    prev_ic = ic_series[-min(periods + 1, len(ic_series))][1]
+    delta_ic = latest_ic - prev_ic
+
+    evidence = []
+    if delta_ic <= 0:
+        evidence.append(f"Invested capital static or contracting (ΔIC = ₹{delta_ic:,.0f}). Incremental ROIC not defined.")
+        return {
+            "status": "PRODUCTION",
+            "incremental_roic_pct": None,
+            "delta_nopat": round(delta_nopat, 2),
+            "delta_invested_capital": round(delta_ic, 2),
+            "reinvestment_rate_pct": 0.0,
+            "evidence": evidence
+        }
+
+    inc_roic = round((delta_nopat / delta_ic) * 100.0, 2)
+    reinvestment_rate = round((delta_ic / max(1.0, prev_nopat)) * 100.0, 2) if prev_nopat > 0 else 0.0
+
+    if inc_roic > 25.0:
+        evidence.append(f"SUPER-FACTOR HIGH INCREMENTAL ROIC: {inc_roic:+.1f}% (ΔNOPAT ₹{delta_nopat:,.0f} / ΔIC ₹{delta_ic:,.0f})")
+    elif inc_roic > 15.0:
+        evidence.append(f"Adequate Incremental ROIC: {inc_roic:+.1f}%")
+    elif inc_roic < 0:
+        evidence.append(f"DESTRUCTIVE REINVESTMENT: Negative Incremental ROIC ({inc_roic:+.1f}%)")
+    else:
+        evidence.append(f"Low Incremental ROIC: {inc_roic:+.1f}%")
+
+    return {
+        "status": "PRODUCTION",
+        "incremental_roic_pct": inc_roic,
+        "delta_nopat": round(delta_nopat, 2),
+        "delta_invested_capital": round(delta_ic, 2),
+        "reinvestment_rate_pct": reinvestment_rate,
+        "evidence": evidence
+    }
+
+
+
 def compute_debt_ebitda(financials: List[Any]) -> Dict[str, Any]:
     """Debt / EBITDA Ratio."""
     debt_series = _extract_series(financials, ["total_debt", "net_debt"])

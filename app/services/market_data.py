@@ -357,10 +357,11 @@ def get_history(symbol: str, period: str = "1y", interval: str = "1d"):
     import numpy as np
 
     dates = pd.date_range(end=datetime.datetime.now(timezone.utc), periods=250, freq='B')
-    close_prices = np.linspace(1000.0, 1300.0, 250)
+    n_periods = len(dates)
+    close_prices = np.linspace(1000.0, 1300.0, n_periods)
     high_prices = close_prices * 1.02
     low_prices = close_prices * 0.98
-    vol_data = np.full(250, 500000)
+    vol_data = np.full(n_periods, 500000)
     mock_df = pd.DataFrame({
         'Open': close_prices,
         'High': high_prices,

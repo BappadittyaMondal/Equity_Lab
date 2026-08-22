@@ -163,3 +163,72 @@ class RevisionTracker:
             "estimate_count": len(estimates),
             "latest_as_of_date": estimates[-1]["as_of_date"]
         }
+
+    def compute_revision_breadth_and_momentum(
+        self,
+        symbol: str,
+        estimate_type: str = "consensus_eps"
+    ) -> Dict[str, Any]:
+        """Compute Revision Breadth and Revision Momentum across all fiscal periods for symbol.
+
+        Formulas:
+        Revision Breadth = (Up Revisions - Down Revisions) / Total Revisions
+        Revision Momentum = Revision Breadth * Average Revision Magnitude (%)
+        """
+        symbol_clean = symbol.upper().strip()
+        estimates = self.get_estimates(symbol_clean, estimate_type=estimate_type)
+
+        if not estimates or len(estimates) < 2:
+            return {
+                "symbol": symbol_clean,
+                "revision_breadth": 0.0,
+                "revision_momentum": 0.0,
+                "up_revisions": 0,
+                "down_revisions": 0,
+                "flat_revisions": 0,
+                "total_revisions": 0,
+                "avg_magnitude_pct": 0.0,
+                "status": "DATA_UNAVAILABLE"
+            }
+
+        up_count = 0
+        down_count = 0
+        flat_count = 0
+        magnitudes = []
+
+        for i in range(1, len(estimates)):
+            prev_val = estimates[i - 1]["estimate_value"]
+            curr_val = estimates[i]["estimate_value"]
+            delta = curr_val - prev_val
+            mag = (delta / abs(prev_val)) * 100.0 if prev_val != 0 else 0.0
+            magnitudes.append(mag)
+
+            if delta > 0:
+                up_count += 1
+            elif delta < 0:
+                down_count += 1
+            else:
+                flat_count += 1
+
+        total = up_count + down_count + flat_count
+        if total == 0:
+            breadth = 0.0
+            momentum = 0.0
+            avg_mag = 0.0
+        else:
+            breadth = round((up_count - down_count) / float(total), 3)
+            avg_mag = round(sum(magnitudes) / float(len(magnitudes)), 2)
+            momentum = round(breadth * avg_mag, 2)
+
+        return {
+            "symbol": symbol_clean,
+            "revision_breadth": breadth,
+            "revision_momentum": momentum,
+            "up_revisions": up_count,
+            "down_revisions": down_count,
+            "flat_revisions": flat_count,
+            "total_revisions": total,
+            "avg_magnitude_pct": avg_mag,
+            "status": "PRODUCTION"
+        }
+

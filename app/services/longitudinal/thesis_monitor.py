@@ -47,29 +47,56 @@ class ThesisMonitorEngine:
         verdict: str,
         contradictions: List[str],
         primary_thesis: str,
+        prior_probability: float = 0.50
     ) -> ThesisMonitor:
-        """Evaluate and update investment thesis state based on fresh evidence."""
+        """Evaluate and update investment thesis state based on Bayesian evidence updating.
+
+        Bayesian Update Formula (Section 28):
+        P(Thesis | Evidence) = [ Likelihood_Ratio * Prior ] / [ Likelihood_Ratio * Prior + (1 - Prior) ]
+        """
         from app.services.market_data import normalize_symbol
         normalized = normalize_symbol(symbol)
         existing = self.get_thesis(normalized)
 
-        # Default thesis parameters if none exists
-        why_buy = primary_thesis if primary_thesis else f"Investment thesis for {normalized} based on quant signals."
-        growth_drivers = [f"Conviction score: {conviction_score}/100", f"Verdict: {verdict}"]
-        catalysts = ["Quarterly earnings acceleration", "Institutional re-rating"]
-        risks = [f"Contradicting engines: {', '.join(contradictions)}"] if contradictions else ["Macro slowdown"]
-        thesis_conditions = ["Conviction score >= 50", "No governance veto"]
-        invalidation_conditions = ["Conviction score < 30", "Governance grade POOR/UNKNOWN", "PAT margin breakdown"]
-
-        # Determine state trajectory
+        # 1. Compute Likelihood Ratio L = P(Evidence|Thesis) / P(Evidence|Not Thesis)
         if conviction_score >= 80 and not contradictions:
-            thesis_state = "STRENGTHENING"
+            likelihood_ratio = 3.5  # Strong confirming evidence
+        elif conviction_score >= 60 and len(contradictions) <= 1:
+            likelihood_ratio = 1.8  # Moderate positive evidence
         elif verdict == "Avoid" or conviction_score < 30:
-            thesis_state = "BROKEN"
+            likelihood_ratio = 0.15  # Strongly disconfirming evidence
         elif contradictions or conviction_score < 50:
+            likelihood_ratio = 0.45  # Negative evidence
+        else:
+            likelihood_ratio = 1.0  # Neutral evidence
+
+        # 2. Compute Posterior Probability
+        prior = max(0.01, min(0.99, prior_probability))
+        posterior_num = likelihood_ratio * prior
+        posterior_den = posterior_num + (1.0 - prior)
+        posterior_prob = round(posterior_num / posterior_den, 3)
+
+        # 3. Map Posterior Probability to Thesis State Taxonomy (§28 & §29)
+        if posterior_prob >= 0.75:
+            thesis_state = "STRENGTHENING"
+        elif posterior_prob >= 0.50:
+            thesis_state = "STABLE"
+        elif posterior_prob >= 0.25:
             thesis_state = "WEAKENING"
         else:
-            thesis_state = "STABLE"
+            thesis_state = "BROKEN"
+
+        # Parameter Assembly
+        why_buy = primary_thesis if primary_thesis else f"Investment thesis for {normalized} based on quant signals."
+        growth_drivers = [
+            f"Conviction score: {conviction_score}/100",
+            f"Verdict: {verdict}",
+            f"Bayesian Thesis Probability: {posterior_prob*100:.1f}% (Likelihood Ratio: {likelihood_ratio:.2f}x)"
+        ]
+        catalysts = ["Quarterly earnings acceleration", "Institutional re-rating"]
+        risks = [f"Contradicting engines: {', '.join(contradictions)}"] if contradictions else ["Macro slowdown"]
+        thesis_conditions = ["Conviction score >= 50", "Bayesian probability >= 50%", "No governance veto"]
+        invalidation_conditions = ["Conviction score < 30", "Bayesian probability < 25%", "Governance grade POOR/UNKNOWN"]
 
         thesis = ThesisMonitor(
             symbol=normalized,

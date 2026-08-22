@@ -137,7 +137,7 @@ class Arbiter:
             if module.status != "production":
                 continue
             try:
-                resp = run_strategy_module(engine_id, symbol)
+                resp = run_strategy_module(engine_id, symbol, as_of=as_of)
             except Exception as e:
                 logger.warning("Engine %s failed for %s: %s", engine_id, symbol, e)
                 continue
@@ -428,11 +428,23 @@ class Arbiter:
         except Exception as e:
             logger.warning("Prediction engine failed for %s: %s", normalized, e)
 
+        # Step 5.5: Compute MIVS 100-point composite score & hard gate checks
+        mivs_result = None
+        try:
+            from app.services.decision_brain.mivs_engine import MIVSEngine
+            mivs_engine = MIVSEngine()
+            mivs_result = mivs_engine.compute_mivs(normalized, outputs, snap)
+        except Exception as exc:
+            logger.warning("MIVS Engine computation failed for %s: %s", normalized, exc)
+
         # Step 6: Weighted composite score (Layer 11 core)
-        if veto:
+        if veto or (mivs_result and not mivs_result.passed_hard_gates):
             final_score_f = self.VETO_SCORE_CAP * 0.5  # Hard cap under veto
         else:
             final_score_f, category_breakdown = self._compute_weighted_score(outputs)
+            if mivs_result:
+                # Blend weighted composite with MIVS score
+                final_score_f = (final_score_f * 0.6) + (mivs_result.mivs_score * 0.4)
             # Contradiction penalty (5 pts per contradicting engine, max 20)
             penalty = min(20, len(contradictions) * 5)
             final_score_f = max(0.0, final_score_f - penalty)

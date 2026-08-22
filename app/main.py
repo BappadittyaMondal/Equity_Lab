@@ -88,6 +88,15 @@ app.include_router(admin.router)
 frontend_dir = os.path.join(os.path.dirname(__file__), "../frontend_deploy")
 if os.path.exists(frontend_dir):
     app.mount("/static", StaticFiles(directory=frontend_dir), name="static")
+    js_dir = os.path.join(frontend_dir, "js")
+    if os.path.exists(js_dir):
+        app.mount("/js", StaticFiles(directory=js_dir), name="js")
+    comp_dir = os.path.join(frontend_dir, "components")
+    if os.path.exists(comp_dir):
+        app.mount("/components", StaticFiles(directory=comp_dir), name="components")
+    data_dir = os.path.join(frontend_dir, "data")
+    if os.path.exists(data_dir):
+        app.mount("/data", StaticFiles(directory=data_dir), name="data")
 
 @app.get("/", include_in_schema=False)
 def serve_ui():
@@ -103,6 +112,7 @@ def serve_ui_stylesheet():
     if os.path.exists(stylesheet_path):
         return FileResponse(stylesheet_path, media_type="text/css")
     return JSONResponse(status_code=status.HTTP_404_NOT_FOUND, content={"detail": "Frontend stylesheet is unavailable."})
+
 
 if __name__ == "__main__":
     import uvicorn

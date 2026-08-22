@@ -1,6 +1,6 @@
 """Strategy Module Registry.
 
-Maintains metadata and execution routing for all 18 IERL Expert Strategy Modules.
+Maintains metadata and execution routing for all 26 IERL Modules (18 Expert Strategy Modules A1–D18 + 8 Core Research Engines E1–E8).
 Strictly distinguishes production modules from coming-soon modules.
 """
 
@@ -21,7 +21,7 @@ from app.services.strategies.technical_engines import (
 from app.services.strategies.forensic_engine import run_forensic_engine
 from app.services.strategies.dcf_forward import run_dcf_forward
 
-# Master Registry of 18 Expert Strategy Modules
+# Master Registry of 18 Expert Strategy Modules (A1–D18)
 STRATEGY_MODULES: Dict[str, StrategyModule] = {
     "A1": StrategyModule(
         id="A1",
@@ -326,14 +326,26 @@ RESEARCH_ENGINES: Dict[str, StrategyModule] = {
         metrics=["market_implied_growth", "internal_forecast_growth", "expectation_gap", "gap_classification"],
         risk_warnings=["High expectation gap requires operational execution to materialize as stock re-rating."],
         methodology="Subtracts Reverse DCF market-implied growth rate from empirical blended internal forecast growth rate."
+    ),
+    "E8": StrategyModule(
+        id="E8",
+        name="Moat Strength & Unit Economics Engine",
+        category="Early Multibagger Intelligence",
+        description="Evaluates competitive advantage moat trajectory and sector-conditional unit economics (NIM, CASA, Capacity Utilization, Realization/Unit).",
+        status="production",
+        required_inputs=["symbol"],
+        universe="NSE All Equities",
+        metrics=["moat_score", "moat_classification", "moat_trajectory", "unit_economics_score", "unit_trend"],
+        risk_warnings=["Qualitative moat dimensions require periodic management commentary verification."],
+        methodology="6-variable competitive advantage rubric combined with sector-conditional unit economics model."
     )
 }
 
 
 
 def list_strategy_modules() -> List[StrategyModule]:
-    """Returns list of all 18 master strategy modules with status."""
-    return list(STRATEGY_MODULES.values())
+    """Returns list of all 26 master strategy modules & research engines with status."""
+    return list(STRATEGY_MODULES.values()) + list(RESEARCH_ENGINES.values())
 
 
 def get_strategy_module(strategy_id: str) -> StrategyModule:
@@ -349,7 +361,8 @@ def get_strategy_module(strategy_id: str) -> StrategyModule:
 
 
 
-def run_strategy_module(strategy_id: str, symbol: str = "RELIANCE") -> StrategyRunResponse:
+def run_strategy_module(strategy_id: str, symbol: str = "RELIANCE", as_of: Optional[datetime] = None) -> StrategyRunResponse:
+
     module = get_strategy_module(strategy_id)
     
     if module.status != "production":
@@ -378,7 +391,7 @@ def run_strategy_module(strategy_id: str, symbol: str = "RELIANCE") -> StrategyR
     # Route to production engine implementations
     if module.id == "E1":
         from app.services.strategies.growth_inflection import evaluate_growth_inflection
-        res1 = evaluate_growth_inflection(symbol)
+        res1 = evaluate_growth_inflection(symbol, as_of=as_of)
         return StrategyRunResponse(
             strategy_id="E1",
             strategy_name=module.name,
@@ -398,7 +411,7 @@ def run_strategy_module(strategy_id: str, symbol: str = "RELIANCE") -> StrategyR
         )
     elif module.id in ["E2", "C14"]:
         from app.services.strategies.turnaround_stage import evaluate_turnaround_stage
-        res2 = evaluate_turnaround_stage(symbol)
+        res2 = evaluate_turnaround_stage(symbol, as_of=as_of)
         return StrategyRunResponse(
             strategy_id=module.id,
             strategy_name=module.name,
@@ -419,7 +432,7 @@ def run_strategy_module(strategy_id: str, symbol: str = "RELIANCE") -> StrategyR
         )
     elif module.id == "E3":
         from app.services.strategies.growth_market_gap import evaluate_growth_market_gap
-        res3 = evaluate_growth_market_gap(symbol)
+        res3 = evaluate_growth_market_gap(symbol, as_of=as_of)
         return StrategyRunResponse(
             strategy_id="E3",
             strategy_name=module.name,
@@ -439,7 +452,7 @@ def run_strategy_module(strategy_id: str, symbol: str = "RELIANCE") -> StrategyR
         )
     elif module.id == "E4":
         from app.services.strategies.multibagger_screener import evaluate_multibagger_score
-        res4 = evaluate_multibagger_score(symbol)
+        res4 = evaluate_multibagger_score(symbol, as_of=as_of)
         return StrategyRunResponse(
             strategy_id="E4",
             strategy_name=module.name,
@@ -460,7 +473,7 @@ def run_strategy_module(strategy_id: str, symbol: str = "RELIANCE") -> StrategyR
         )
     elif module.id == "E5":
         from app.services.strategies.growth_arbitrage import evaluate_growth_arbitrage
-        res5 = evaluate_growth_arbitrage(symbol)
+        res5 = evaluate_growth_arbitrage(symbol, as_of=as_of)
         return StrategyRunResponse(
             strategy_id="E5",
             strategy_name=module.name,
@@ -490,7 +503,7 @@ def run_strategy_module(strategy_id: str, symbol: str = "RELIANCE") -> StrategyR
         )
     elif module.id == "E6":
         from app.services.strategies.quality_growth_screener import run_quality_growth_screener
-        res6 = run_quality_growth_screener(symbol)
+        res6 = run_quality_growth_screener(symbol, as_of=as_of)
         return StrategyRunResponse(
             strategy_id="E6",
             strategy_name=module.name,
@@ -516,7 +529,7 @@ def run_strategy_module(strategy_id: str, symbol: str = "RELIANCE") -> StrategyR
         )
     elif module.id == "E7":
         from app.services.strategies.expectation_gap import run_expectation_gap_engine
-        res7 = run_expectation_gap_engine(symbol)
+        res7 = run_expectation_gap_engine(symbol, as_of=as_of)
         return StrategyRunResponse(
             strategy_id="E7",
             strategy_name=module.name,
@@ -540,9 +553,34 @@ def run_strategy_module(strategy_id: str, symbol: str = "RELIANCE") -> StrategyR
             disclaimer="Expectation Gap Engine (E7) valuation assessment.",
             meta=res7.meta
         )
+    elif module.id == "E8":
+        from app.services.strategies.moat_engine import evaluate_moat_score
+        from app.services.strategies.unit_economics import evaluate_unit_economics
+        res_moat = evaluate_moat_score(symbol, as_of=as_of)
+        res_unit = evaluate_unit_economics(symbol, as_of=as_of)
+        return StrategyRunResponse(
+            strategy_id="E8",
+            strategy_name=module.name,
+            status="production",
+            executed_at=res_moat["executed_at"],
+            symbol=res_moat["symbol"],
+            passed_gates=(res_moat["moat_score"] >= 55.0),
+            results={
+                "moat_score": res_moat["moat_score"],
+                "moat_classification": res_moat["moat_classification"],
+                "moat_trajectory": res_moat["moat_trajectory"],
+                "unit_economics_score": res_unit["unit_economics_score"],
+                "unit_trend": res_unit["unit_trend"],
+                "evidence": res_moat["evidence"] + res_unit["evidence"]
+            },
+            metrics={**res_moat["dimensions"], **res_unit["metrics"]},
+            risk_warnings=module.risk_warnings,
+            disclaimer="Moat Strength & Unit Economics Engine assessment.",
+            meta=res_moat["meta"]
+        )
     elif module.id == "C13":
         from app.services.strategies.governance_quality import evaluate_governance_quality
-        res_c13 = evaluate_governance_quality(symbol)
+        res_c13 = evaluate_governance_quality(symbol, as_of=as_of)
         return StrategyRunResponse(
             strategy_id="C13",
             strategy_name=module.name,
@@ -561,6 +599,7 @@ def run_strategy_module(strategy_id: str, symbol: str = "RELIANCE") -> StrategyR
             disclaimer="Governance Quality assessment.",
             meta=res_c13.meta
         )
+
 
     elif module.id == "A2":
         from app.services.strategies.options_a2 import calculate_a2_payoff

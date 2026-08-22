@@ -3,7 +3,7 @@
 
 from datetime import date, datetime, timezone
 from typing import List, Dict, Any, Literal, Optional
-from pydantic import BaseModel, Field, HttpUrl
+from pydantic import BaseModel, Field, HttpUrl, ConfigDict
 
 
 class MetaHeader(BaseModel):
@@ -20,15 +20,16 @@ class TickerQuoteResponse(BaseModel):
     exchange: str = "NSE"
     currency: str = "INR"
     price: float
-    previous_close: float
-    change: float
+    previous_close: Optional[float] = None
+    change: Optional[float] = None
     change_percent: float
     fifty_two_week_high: Optional[float] = None
     fifty_two_week_low: Optional[float] = None
     market_cap: Optional[float] = None
     pe_ratio: Optional[float] = None
     volume: Optional[int] = None
-    meta: MetaHeader
+    meta: Optional[MetaHeader] = None
+
 
 
 class MarketRegimeResponse(BaseModel):
@@ -167,8 +168,8 @@ class QueryResponse(BaseModel):
     meta: MetaHeader = Field(..., description="Metadata header with source and timestamps")
     disclaimer: str = Field(..., description="Legal disclaimer for the response")
 
-    class Config:
-        schema_extra = {
+    model_config = ConfigDict(
+        json_schema_extra={
             "example": {
                 "query": "Show revenue growth for RELIANCE",
                 "mode": "Quick",
@@ -185,6 +186,7 @@ class QueryResponse(BaseModel):
                 "disclaimer": "AI research assistant readout for educational/research purposes. Not investment advice."
             }
         }
+    )
 
 
 class SynthesizedEquitySnapshot(BaseModel):
@@ -782,8 +784,8 @@ class DecisionAuditTrail(BaseModel):
         description="Traceable source chain for each key data input"
     )
 
-    class Config:
-        json_schema_extra = {
+    model_config = ConfigDict(
+        json_schema_extra={
             "example": {
                 "symbol": "RELIANCE",
                 "final_verdict": "Buy",
@@ -795,6 +797,7 @@ class DecisionAuditTrail(BaseModel):
                 ]
             }
         }
+    )
 
 
 

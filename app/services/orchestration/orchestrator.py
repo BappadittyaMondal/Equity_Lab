@@ -48,7 +48,7 @@ class Orchestrator:
                 row_dict["contradicting_engines"] = json.loads(row_dict["contradicting_engines"])
             except Exception:
                 row_dict["contradicting_engines"] = []
-        return ConvictionCall.parse_obj(row_dict)
+        return ConvictionCall.model_validate(row_dict)
 
     # ------------------------------------------------------------------
     def get_conviction(self, symbol: str, force_refresh: bool = False) -> ConvictionCall:

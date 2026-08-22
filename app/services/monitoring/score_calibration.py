@@ -179,11 +179,18 @@ def compute_calibration_report(
         bucket_stats, violations, false_positives, overall_hit_rate
     )
 
+    # ── Brier score calibration ───────────────────────────────────────────
+    from app.services.ml.baseline_model import numpy_brier_score
+    targets = [1 if o["excess_return_pct"] > 0 else 0 for o in outcomes]
+    probs = [min(1.0, max(0.0, float(o["score"]) / 100.0)) for o in outcomes]
+    brier_val = round(numpy_brier_score(targets, probs), 4)
+
     return {
         "status":           "OK",
         "horizon_months":   horizon_months,
         "total_outcomes":   len(outcomes),
         "overall_hit_rate_pct": overall_hit_rate,
+        "brier_calibration_score": brier_val,
         "bucket_stats":     bucket_stats,
         "monotonicity_check": {
             "is_monotonic":      monotonicity_ok,

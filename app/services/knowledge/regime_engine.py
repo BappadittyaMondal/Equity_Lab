@@ -174,10 +174,12 @@ class RegimeEngine:
         try:
             hist = get_history("^NSEI", period="1y", interval="1d")
             if hist is not None and len(hist) >= 200:
-                return float(hist['Close'].tail(200).mean())
+                mean_val = hist['Close'].tail(200).mean()
+                return float(mean_val.iloc[0] if hasattr(mean_val, 'iloc') else mean_val)
             elif hist is not None and len(hist) >= 50:
                 # Fallback: use available data
-                return float(hist['Close'].mean())
+                mean_val = hist['Close'].mean()
+                return float(mean_val.iloc[0] if hasattr(mean_val, 'iloc') else mean_val)
             return None
         except Exception as e:
             logger.debug("Could not compute Nifty 200DMA: %s", e)

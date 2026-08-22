@@ -21,6 +21,8 @@ from app.services.strategies.turnaround_stage import evaluate_turnaround_stage
 from app.services.strategies.growth_market_gap import evaluate_growth_market_gap
 from app.services.strategies.governance_quality import evaluate_governance_quality
 from app.services.strategies.saatvik_d18 import run_saatvik_d18
+from app.services.strategies.fundamental_metrics import compute_incremental_roic
+from app.services.strategies.moat_engine import evaluate_moat_score
 
 
 def evaluate_multibagger_score(
@@ -36,7 +38,17 @@ def evaluate_multibagger_score(
     res_e2 = evaluate_turnaround_stage(norm_symbol, as_of=as_of, store=data_store)
     res_e3 = evaluate_growth_market_gap(norm_symbol, as_of=as_of, store=data_store)
     res_gov = evaluate_governance_quality(norm_symbol, as_of=as_of, store=data_store)
+    res_moat = evaluate_moat_score(norm_symbol)
     
+    # Incremental ROIC sub-calculation
+    try:
+        _, obs, _, _, _, _ = data_store.get_timeline(norm_symbol, as_of=as_of)
+    except Exception:
+        obs = []
+    res_inc_roic = compute_incremental_roic(obs)
+    inc_roic_val = res_inc_roic.get("incremental_roic_pct")
+    score_inc_roic = min(100.0, max(0.0, inc_roic_val * 2.0)) if inc_roic_val is not None else 50.0
+
     saatvik_passed = True
     try:
         res_d18 = run_saatvik_d18(norm_symbol)
@@ -44,18 +56,19 @@ def evaluate_multibagger_score(
     except Exception:
         pass
 
-    # 2. Weighted Score Composition
+    # 2. Weighted Score Composition (25/20/20/15/10/10)
     score_e1 = res_e1.growth_inflection_score
     score_e2 = res_e2.turnaround_score
     score_e3 = res_e3.potential_rerating_score
-    score_gov = res_gov.governance_score
+    score_gov = (res_gov.governance_score + res_moat["moat_score"]) / 2.0
     score_d18 = 100.0 if saatvik_passed else 0.0
 
     raw_score = (
-        (score_e1 * 0.30) +
-        (score_e2 * 0.25) +
-        (score_e3 * 0.20) +
-        (score_gov * 0.15) +
+        (score_e1 * 0.25) +
+        (score_inc_roic * 0.20) +
+        (score_e2 * 0.20) +
+        (score_e3 * 0.15) +
+        (score_gov * 0.10) +
         (score_d18 * 0.10)
     )
 

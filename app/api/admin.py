@@ -18,7 +18,7 @@ def verify_admin_key(x_api_key: str = Header(...)):
 @router.get("/llm-usage", dependencies=[Depends(verify_admin_key)])
 def get_llm_usage():
     conn = get_connection()
-    now = datetime.datetime.utcnow()
+    now = datetime.datetime.now(datetime.timezone.utc)
     start_day = now.replace(hour=0, minute=0, second=0, microsecond=0)
     start_month = now.replace(day=1, hour=0, minute=0, second=0, microsecond=0)
     day_rows = conn.execute(
@@ -37,11 +37,11 @@ def get_llm_usage():
 
 # Simple in‑memory rolling request counters (reset every hour)
 _request_counters = {"total": 0, "errors": 0}
-_last_reset = datetime.datetime.utcnow()
+_last_reset = datetime.datetime.now(datetime.timezone.utc)
 
 def _reset_counters_if_needed():
     global _request_counters, _last_reset
-    now = datetime.datetime.utcnow()
+    now = datetime.datetime.now(datetime.timezone.utc)
     if (now - _last_reset).total_seconds() >= 3600:
         _request_counters = {"total": 0, "errors": 0}
         _last_reset = now
