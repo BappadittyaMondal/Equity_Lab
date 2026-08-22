@@ -3,45 +3,263 @@
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>IERL Equity Intelligence OS — Institutional Command Center</title>
-    <meta name="description" content="Indian cash-equity research prototype with transparent data and risk disclosures." />
-    <meta name="theme-color" content="#18120d" />
+    <title>StockAnalyzer — Bloomberg-Grade Equity Intelligence Terminal</title>
+    <meta name="description" content="Multi-window institutional stock analysis dashboard with real-time data, AI predictions, and strategy screeners." />
+    <meta name="theme-color" content="#120c07" />
     <meta name="ierl-api-base" content="" />
+    
     <!-- Google Fonts -->
-    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,500;0,600;0,700;1,400&family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600;700&display=swap" rel="stylesheet" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,500;0,600;0,700;1,400&family=Inter:wght@300;400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600;700&display=swap" rel="stylesheet" />
     <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet" />
-    <!-- Tailwind CDN -->
+    
+    <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="style.css" />
 </head>
-<body class="flex flex-col min-h-screen bg-surface-lowest text-gray-100">
-    <!-- Header Component -->
-    <header id="header-nav"></header>
-    <!-- Drawer Overlay -->
+<body class="flex flex-col min-h-screen bg-surface-lowest text-gray-100 font-sans selection:bg-amber-700 selection:text-white">
+
+    <!-- Global Top Header & Navigation Toolbar -->
+    <header id="header-nav" class="sticky top-0 z-40 bg-surface-low border-b border-surface-border px-4 py-2 flex items-center justify-between shadow-lg"></header>
+
+    <!-- Drawer Overlay & Mobile Drawer -->
     <div id="drawer-overlay" class="drawer-overlay" onclick="toggleMobileDrawer()"></div>
-    <!-- Mobile Drawer -->
     <aside id="mobile-drawer" class="mobile-drawer md:hidden flex flex-col py-4 px-3"></aside>
-    <!-- Sidebar Navigation -->
-    <nav id="sidebar-nav" class="hidden md:flex bg-surface-low fixed left-0 top-0 h-full flex-col py-6 w-64 border-r z-20"></nav>
-    <!-- AI Assistant Dock -->
-    <aside id="aiassistant-dock" class="hidden lg:flex fixed right-0 top-0 h-full w-96 bg-surface-low border-l z-20"></aside>
-    <!-- Main Canvas -->
-    <main class="flex-1 md:ml-64 lg:mr-96 p-4 md:p-6 pb-20" id="main-canvas">
-        <section id="conviction-panel" class="mb-6"></section>
-        <section id="scorecard-panel" class="mb-6"></section>
-        <section id="cagr-matrix-panel" class="mb-6"></section>
-        <section id="thesis-panel" class="mb-6"></section>
-        <section id="lifecycle-panel" class="mb-6"></section>
-        <section id="timeline-panel" class="mb-6"></section>
-        <section id="compare-panel" class="mb-6"></section>
-        <section id="multibagger-screener-panel" class="mb-6"></section>
-        <section id="probability-panel" class="mb-6"></section>
-        <section id="swing-alerts-panel" class="mb-6"></section>
-        <section id="watchlist-panel" class="mb-6"></section>
+
+    <!-- Main Workspace Area: Floating & Resizable Multi-Window Grid -->
+    <main class="flex-1 p-3 md:p-4 pb-16 relative overflow-x-hidden" id="main-workspace">
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-4 workspace-container" id="workspace-container">
+
+            <!-- CENTRAL DYNAMIC ANALYSIS HUB (Largest Window) -->
+            <div id="central-analysis-window" class="window-panel lg:col-span-8 min-h-[480px]">
+                <div class="window-header">
+                    <div class="window-title">
+                        <span class="material-symbols-outlined text-gold text-sm">candlestick_chart</span>
+                        <span>Central Analysis Hub</span>
+                        <span id="selected-symbol-badge" class="badge badge-warning ml-2 font-mono">RELIANCE</span>
+                    </div>
+                    <div class="window-controls"></div>
+                </div>
+                <div class="window-body" id="central-hub-body">
+                    <!-- Tab Navigation Bar -->
+                    <div class="tab-bar">
+                        <button class="tab-btn active" data-tab="chart-view" onclick="switchCentralTab('chart-view')">
+                            <span class="material-symbols-outlined text-xs align-middle">show_chart</span> Chart & Technicals
+                        </button>
+                        <button class="tab-btn" data-tab="fundamental-view" onclick="switchCentralTab('fundamental-view')">
+                            <span class="material-symbols-outlined text-xs align-middle">table_chart</span> Fundamentals & Statements
+                        </button>
+                        <button class="tab-btn" data-tab="prediction-view" onclick="switchCentralTab('prediction-view')">
+                            <span class="material-symbols-outlined text-xs align-middle">auto_awesome</span> AI Forecast & Scenarios
+                        </button>
+                        <button class="tab-btn" data-tab="heatmap-view" onclick="switchCentralTab('heatmap-view')">
+                            <span class="material-symbols-outlined text-xs align-middle">grid_view</span> PE vs Growth Matrix
+                        </button>
+                    </div>
+
+                    <!-- Dynamic Subviews -->
+                    <div id="central-tab-content" class="flex-1 flex flex-col">
+                        <div id="chart-view" class="view-panel active flex-1">
+                            <div id="chart-panel" class="h-full flex flex-col justify-between"></div>
+                        </div>
+                        <div id="fundamental-view" class="view-panel flex-1">
+                            <div id="fundamental-panel" class="overflow-x-auto"></div>
+                        </div>
+                        <div id="prediction-view" class="view-panel flex-1">
+                            <div id="prediction-panel" class="space-y-4"></div>
+                        </div>
+                        <div id="heatmap-view" class="view-panel flex-1">
+                            <div id="heatmap-panel" class="space-y-4"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- CONVICTION & RISK SCORECARD WINDOW -->
+            <div id="conviction-scorecard-window" class="window-panel lg:col-span-4 min-h-[480px]">
+                <div class="window-header">
+                    <div class="window-title">
+                        <span class="material-symbols-outlined text-gold text-sm">verified</span>
+                        <span>Institutional Scorecard</span>
+                    </div>
+                    <div class="window-controls"></div>
+                </div>
+                <div class="window-body space-y-4 overflow-y-auto" id="scorecard-body">
+                    <section id="conviction-panel"></section>
+                    <section id="mivs-scorecard-panel"></section>
+                    <section id="scorecard-panel"></section>
+                    <section id="cagr-matrix-panel" class="hidden"></section>
+                    <section id="thesis-panel" class="hidden"></section>
+                    <section id="lifecycle-panel" class="hidden"></section>
+                    <section id="timeline-panel" class="hidden"></section>
+                    <section id="compare-panel" class="hidden"></section>
+                    <section id="swing-alerts-panel" class="hidden"></section>
+                    <section id="watchlist-panel" class="hidden"></section>
+                    <section id="probability-panel" class="hidden"></section>
+                    <section id="main-canvas" class="hidden"></section>
+                </div>
+            </div>
+
+            <!-- AI CONVERSATIONAL STOCK CHAT WINDOW -->
+            <div id="stock-chat-window" class="window-panel lg:col-span-6 min-h-[380px]">
+                <div class="window-header">
+                    <div class="window-title">
+                        <span class="material-symbols-outlined text-gold text-sm">psychology</span>
+                        <span>AI Stock Analyst Chat</span>
+                    </div>
+                    <div class="window-controls"></div>
+                </div>
+                <div class="window-body" id="stock-chat-body"></div>
+            </div>
+
+            <!-- COMMUNITY DISCUSSION FEED WINDOW -->
+            <div id="community-feed-window" class="window-panel lg:col-span-6 min-h-[380px]">
+                <div class="window-header">
+                    <div class="window-title">
+                        <span class="material-symbols-outlined text-gold text-sm">forum</span>
+                        <span>Community & Expert Feed</span>
+                    </div>
+                    <div class="window-controls"></div>
+                </div>
+                <div class="window-body" id="community-feed-body"></div>
+            </div>
+
+            <!-- FINDER TOOLS & STRATEGY SCREENERS WINDOW -->
+            <div id="screener-finder-window" class="window-panel lg:col-span-7 min-h-[420px]">
+                <div class="window-header">
+                    <div class="window-title">
+                        <span class="material-symbols-outlined text-gold text-sm">manage_search</span>
+                        <span>Stock Finder Tools</span>
+                    </div>
+                    <div class="window-controls"></div>
+                </div>
+                <div class="window-body" id="screener-finder-body"></div>
+            </div>
+
+            <!-- STRATEGY WATCHLIST SYSTEM (500 MAX) -->
+            <div id="watchlist-window" class="window-panel lg:col-span-5 min-h-[420px]">
+                <div class="window-header">
+                    <div class="window-title">
+                        <span class="material-symbols-outlined text-gold text-sm">bookmark</span>
+                        <span>Strategy Watchlists (500)</span>
+                    </div>
+                    <div class="window-controls"></div>
+                </div>
+                <div class="window-body" id="watchlist-body"></div>
+            </div>
+
+            <!-- AI GENERAL INVESTMENT ASSISTANT DOCK -->
+            <div id="aiassistant-window" class="window-panel lg:col-span-12 min-h-[300px]">
+                <div class="window-header">
+                    <div class="window-title">
+                        <span class="material-symbols-outlined text-gold text-sm">smart_toy</span>
+                        <span>General Macro & Portfolio Analyst</span>
+                    </div>
+                    <div class="window-controls"></div>
+                </div>
+                <div class="window-body" id="aiassistant-dock"></div>
+            </div>
+
+        </div>
     </main>
-    <!-- Footer -->
-    <footer id="footer"></footer>
-    <!-- Bootstrap loader -->
+
+    <!-- REAL-TIME NEWS POPUP MODAL -->
+    <div id="news-modal-overlay" class="modal-overlay">
+        <div class="modal-content relative" id="news-modal-content">
+            <div class="flex items-center justify-between border-b border-surface-border pb-3 mb-4">
+                <div class="flex items-center gap-2">
+                    <span class="material-symbols-outlined text-gold">newspaper</span>
+                    <h3 class="font-serif font-bold text-lg text-cream-dark">Real-Time Intelligence & News Feed</h3>
+                </div>
+                <button onclick="closeNewsModal()" class="text-muted hover:text-dark">
+                    <span class="material-symbols-outlined">close</span>
+                </button>
+            </div>
+            <div id="news-feed-container" class="space-y-3"></div>
+        </div>
+    </div>
+
+    <!-- NOTIFICATIONS DRAWER / POPUP -->
+    <div id="notifications-modal-overlay" class="modal-overlay">
+        <div class="modal-content relative max-w-md">
+            <div class="flex items-center justify-between border-b border-surface-border pb-3 mb-4">
+                <div class="flex items-center gap-2">
+                    <span class="material-symbols-outlined text-gold">notifications</span>
+                    <h3 class="font-serif font-bold text-lg text-cream-dark">Alert Center & Signal Triggers</h3>
+                </div>
+                <button onclick="closeNotificationsModal()" class="text-muted hover:text-dark">
+                    <span class="material-symbols-outlined">close</span>
+                </button>
+            </div>
+            <div id="notifications-list-container" class="space-y-2"></div>
+        </div>
+    </div>
+
+    <!-- KEYBOARD SHORTCUTS HELP MODAL -->
+    <div id="shortcuts-modal-overlay" class="modal-overlay">
+        <div class="modal-content relative max-w-lg">
+            <div class="flex items-center justify-between border-b border-surface-border pb-3 mb-4">
+                <div class="flex items-center gap-2">
+                    <span class="material-symbols-outlined text-gold">keyboard</span>
+                    <h3 class="font-serif font-bold text-lg text-cream-dark">Keyboard Shortcuts Cheat Sheet</h3>
+                </div>
+                <button onclick="closeShortcutsModal()" class="text-muted hover:text-dark">
+                    <span class="material-symbols-outlined">close</span>
+                </button>
+            </div>
+            <div class="space-y-3 text-xs font-mono">
+                <div class="flex justify-between border-b py-1">
+                    <span class="font-bold text-gold">Alt + Enter</span>
+                    <span>Maximize / Restore Focused Window</span>
+                </div>
+                <div class="flex justify-between border-b py-1">
+                    <span class="font-bold text-gold">Ctrl + S</span>
+                    <span>Save Custom Workspace Layout</span>
+                </div>
+                <div class="flex justify-between border-b py-1">
+                    <span class="font-bold text-gold">/</span>
+                    <span>Focus Quick Symbol Search</span>
+                </div>
+                <div class="flex justify-between border-b py-1">
+                    <span class="font-bold text-gold">Tab</span>
+                    <span>Cycle Window Focus</span>
+                </div>
+                <div class="flex justify-between border-b py-1">
+                    <span class="font-bold text-gold">Esc</span>
+                    <span>Close Active Popup / Modal</span>
+                </div>
+                <div class="flex justify-between border-b py-1">
+                    <span class="font-bold text-gold">M</span>
+                    <span>Toggle Moving Averages (Chart)</span>
+                </div>
+                <div class="flex justify-between border-b py-1">
+                    <span class="font-bold text-gold">V</span>
+                    <span>Toggle Volume Subchart</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- FIXED BOTTOM GLOBAL MARKET TICKER TAPE -->
+    <div id="fixed-bottom-ticker" class="fixed-bottom-ticker px-3 flex items-center justify-between">
+        <div class="flex items-center gap-2 pr-3 border-r border-gold/40 text-xs font-mono font-bold text-gold shrink-0">
+            <span class="material-symbols-outlined text-xs">public</span>
+            <span>GLOBAL TAPE</span>
+        </div>
+        <div class="ticker-strip-wrapper flex-1 overflow-hidden" id="ticker-strip"></div>
+        <div class="pl-3 border-l border-gold/40 flex items-center gap-3 text-xs font-mono shrink-0">
+            <button onclick="openNewsModal()" class="text-gold hover:text-amber-400 flex items-center gap-1">
+                <span class="material-symbols-outlined text-xs">newspaper</span> News
+            </button>
+            <button onclick="openNotificationsModal()" class="text-gold hover:text-amber-400 flex items-center gap-1 relative">
+                <span class="material-symbols-outlined text-xs">notifications</span> Alerts
+                <span class="w-2 h-2 rounded-full bg-red-500 absolute -top-1 -right-1 animate-ping"></span>
+            </button>
+        </div>
+    </div>
+
+    <!-- Main JS Application Bootstrap -->
     <script type="module" src="js/bootstrap.js"></script>
 </body>
 </html>

@@ -1,21 +1,90 @@
-<!-- header.html – Header/Nav Component -->
-<header class="bg-surface-low p-3 flex justify-between items-center border-b border-surface-border/50">
+<div class="w-full flex flex-col md:flex-row md:items-center justify-between gap-3 px-2">
   <div class="flex items-center gap-4">
-    <h1 class="text-xl font-bold text-gold font-mono tracking-tight cursor-pointer" onclick="window.selectSymbol('RELIANCE')">IERL Command Center</h1>
-    <div id="drift-status-container"></div>
+    <!-- Brand Logo -->
+    <div class="flex items-center gap-2 cursor-pointer" onclick="window.selectSymbol('RELIANCE')">
+      <span class="material-symbols-outlined text-gold text-2xl">analytics</span>
+      <div>
+        <h1 class="text-base md:text-lg font-bold font-serif text-gold tracking-tight leading-tight">Equity Lab</h1>
+        <p class="text-[10px] font-mono text-muted uppercase tracking-wider">Institutional Terminal v0.4</p>
+      </div>
+    </div>
+
+    <!-- Navigation Dropdown Menu Group -->
+    <nav class="hidden lg:flex items-center gap-1 font-mono text-xs text-cream-dark">
+      <!-- Universes Dropdown -->
+      <div class="relative group">
+        <button class="px-2.5 py-1 rounded bg-surface-lowest hover:bg-gold/20 text-gold border border-surface-border flex items-center gap-1 transition-colors">
+          <span>Universes</span>
+          <span class="material-symbols-outlined text-xs">arrow_drop_down</span>
+        </button>
+        <div class="absolute left-0 top-full mt-1 w-48 bg-surface-low border border-gold/40 rounded shadow-xl hidden group-hover:block z-50 p-1 space-y-0.5">
+          <a href="#" onclick="window.selectSymbol('RELIANCE')" class="block px-3 py-1.5 hover:bg-gold/20 text-cream-light rounded transition-colors">Nifty 50 Mega-Caps</a>
+          <a href="#" onclick="window.switchView('multibagger')" class="block px-3 py-1.5 hover:bg-gold/20 text-cream-light rounded transition-colors">Mid & Small Cap 406</a>
+          <a href="#" onclick="window.switchView('cagr')" class="block px-3 py-1.5 hover:bg-gold/20 text-cream-light rounded transition-colors">Growth Leaders (CAGR)</a>
+        </div>
+      </div>
+
+      <!-- Strategy Screeners Dropdown -->
+      <div class="relative group">
+        <button class="px-2.5 py-1 rounded bg-surface-lowest hover:bg-gold/20 text-gold border border-surface-border flex items-center gap-1 transition-colors">
+          <span>Screeners</span>
+          <span class="material-symbols-outlined text-xs">arrow_drop_down</span>
+        </button>
+        <div class="absolute left-0 top-full mt-1 w-52 bg-surface-low border border-gold/40 rounded shadow-xl hidden group-hover:block z-50 p-1 space-y-0.5">
+          <a href="#" onclick="window.switchView('multibagger')" class="block px-3 py-1.5 hover:bg-gold/20 text-cream-light rounded transition-colors">Multibagger Screener</a>
+          <a href="#" onclick="window.switchView('swing')" class="block px-3 py-1.5 hover:bg-gold/20 text-cream-light rounded transition-colors">Swing Trade Breakouts</a>
+          <a href="#" onclick="window.switchView('compare')" class="block px-3 py-1.5 hover:bg-gold/20 text-cream-light rounded transition-colors">Peer Valuation Matrix</a>
+          <a href="#" onclick="window.switchView('probability')" class="block px-3 py-1.5 hover:bg-gold/20 text-cream-light rounded transition-colors">Probability Distribution</a>
+        </div>
+      </div>
+
+      <!-- Analytical Engines Dropdown -->
+      <div class="relative group">
+        <button class="px-2.5 py-1 rounded bg-surface-lowest hover:bg-gold/20 text-gold border border-surface-border flex items-center gap-1 transition-colors">
+          <span>Engines</span>
+          <span class="material-symbols-outlined text-xs">arrow_drop_down</span>
+        </button>
+        <div class="absolute left-0 top-full mt-1 w-56 bg-surface-low border border-gold/40 rounded shadow-xl hidden group-hover:block z-50 p-1 space-y-0.5">
+          <a href="#" onclick="window.switchView('command')" class="block px-3 py-1.5 hover:bg-gold/20 text-cream-light rounded transition-colors">MIVS Composite Scorecard</a>
+          <a href="#" onclick="window.switchView('thesis')" class="block px-3 py-1.5 hover:bg-gold/20 text-cream-light rounded transition-colors">Bayesian Conviction Monitor</a>
+          <a href="#" onclick="window.switchView('lifecycle')" class="block px-3 py-1.5 hover:bg-gold/20 text-cream-light rounded transition-colors">Incremental ROIC & Moat Engine</a>
+          <a href="#" onclick="window.switchView('timeline')" class="block px-3 py-1.5 hover:bg-gold/20 text-cream-light rounded transition-colors">Forensic & Corporate Timeline</a>
+        </div>
+      </div>
+    </nav>
+
+    <div id="drift-status-container" class="hidden sm:block"></div>
   </div>
-  
-  <div class="flex items-center gap-3">
-    <!-- Search Bar -->
+
+  <div class="flex items-center flex-wrap gap-2 md:gap-3">
+    <!-- Symbol Search Input -->
     <div class="relative flex items-center">
-      <input type="text" id="header-search-input" placeholder="Search ticker (e.g., TCS)..." 
-             class="px-3 py-1.5 text-xs font-mono bg-surface-lowest text-white rounded-l border border-surface-border focus:border-gold outline-none w-48 transition-colors">
-      <button id="header-search-btn" class="px-3 py-1.5 text-xs font-mono bg-gold/20 hover:bg-gold/30 text-gold rounded-r border border-l-0 border-gold/40 transition-colors">
-        Search
+      <span class="material-symbols-outlined absolute left-2 text-muted text-sm pointer-events-none">search</span>
+      <input type="text" id="header-search-input" placeholder="Search Ticker (e.g. TCS) [/]" 
+             class="pl-8 pr-3 py-1 text-xs font-mono bg-surface-lowest text-white rounded border border-surface-border focus:border-gold outline-none w-44 md:w-56 transition-colors" />
+      <button id="header-search-btn" class="ml-1 px-2.5 py-1 text-xs font-mono bg-gold/20 hover:bg-gold/30 text-gold rounded border border-gold/40 transition-colors">
+        GO
       </button>
     </div>
-    
-    <span id="api-status" class="text-xs font-mono text-muted">API: CHECKING...</span>
-    <button id="mobile-menu-btn" class="btn-secondary p-2 md:hidden" onclick="toggleMobileDrawer()"><span class="material-symbols-outlined text-gold">menu</span></button>
+
+    <!-- Workspace Controls -->
+    <button onclick="window.saveWorkspaceLayout()" class="btn-secondary text-xs py-1 px-2.5 flex items-center gap-1" title="Save Workspace Layout (Ctrl+S)">
+      <span class="material-symbols-outlined text-xs text-gold">save</span>
+      <span class="hidden sm:inline">Save Layout</span>
+    </button>
+
+    <button onclick="window.resetWorkspaceLayout()" class="btn-secondary text-xs py-1 px-2.5 flex items-center gap-1" title="Reset Default Layout">
+      <span class="material-symbols-outlined text-xs text-gold">restart_alt</span>
+      <span class="hidden sm:inline">Reset</span>
+    </button>
+
+    <button onclick="window.openShortcutsModal()" class="btn-secondary text-xs py-1 px-2.5 flex items-center gap-1" title="Keyboard Shortcuts Cheat Sheet">
+      <span class="material-symbols-outlined text-xs text-gold">keyboard</span>
+    </button>
+
+    <!-- Health Indicator -->
+    <span id="api-status" class="text-[11px] font-mono text-muted px-2 py-0.5 rounded bg-surface-lowest border border-surface-border">
+      API: CHECKING...
+    </span>
   </div>
-</header>
+</div>
