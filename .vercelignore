@@ -24,5 +24,8 @@ node_modules/
 dist/
 build/
 *.zip
+app/tests/
+scripts/
+docs/
 .git/
 .github/

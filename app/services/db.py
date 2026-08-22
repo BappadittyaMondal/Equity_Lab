@@ -6,11 +6,35 @@ from typing import Optional
 from app.core.config import settings
 
 
-def get_connection() -> sqlite3.Connection:
-    """Return a SQLite connection to the shared data store.
-    The connection uses `Row` factory, enables foreign keys, and sets 30s lock timeout.
+def get_connection():
+    """Return a database connection to the shared data store.
+    Supports PostgreSQL if `DATABASE_URL` is set, with seamless fallback to SQLite.
+    On Vercel serverless environments, falls back to `/tmp/ierl_research.db` to prevent read-only filesystem locks.
     """
-    conn = sqlite3.connect(settings.DATA_STORE_PATH, detect_types=sqlite3.PARSE_DECLTYPES, timeout=30.0)
+    db_url = os.getenv("DATABASE_URL")
+    if db_url and (db_url.startswith("postgres://") or db_url.startswith("postgresql://")):
+        try:
+            import psycopg2
+            import psycopg2.extras
+            conn = psycopg2.connect(db_url, cursor_factory=psycopg2.extras.RealDictCursor)
+            return conn
+        except Exception:
+            pass
+
+    # SQLite connection with /tmp fallback for Vercel serverless execution
+    db_path = settings.DATA_STORE_PATH
+    if os.getenv("VERCEL") == "1" or os.getenv("AWS_LAMBDA_FUNCTION_NAME"):
+        tmp_db = "/tmp/ierl_research.db"
+        if not os.path.exists(tmp_db) and os.path.exists(db_path):
+            import shutil
+            try:
+                shutil.copy2(db_path, tmp_db)
+            except Exception:
+                pass
+        if os.path.exists(tmp_db):
+            db_path = tmp_db
+
+    conn = sqlite3.connect(db_path, detect_types=sqlite3.PARSE_DECLTYPES, timeout=30.0)
     conn.row_factory = sqlite3.Row
     conn.execute("PRAGMA foreign_keys = ON")
     try:
