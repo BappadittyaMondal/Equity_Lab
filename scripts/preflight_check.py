@@ -88,7 +88,7 @@ def check_secret_leakage() -> bool:
 
 
 def check_database_population() -> bool:
-    """Ensure database exists, is accessible, and contains a populated company registry (>= 200 symbols)."""
+    """Ensure database exists, is accessible, and contains a populated company registry (>= 500 symbols)."""
     try:
         from app.core.config import settings
         from app.services.research_data import ResearchDataStore
@@ -109,8 +109,8 @@ def check_database_population() -> bool:
         count = cursor.fetchone()[0]
         conn.close()
 
-        if count < 200:
-            print(f"[FAIL] PREFLIGHT FAIL: Database company universe unpopulated! Expected >= 200, found {count}.")
+        if count < 500:
+            print(f"[FAIL] PREFLIGHT FAIL: Database company universe unpopulated! Expected >= 500, found {count}.")
             return False
         print(f"[PASS] PREFLIGHT PASS: Database accessible and company registry populated ({count} symbols).")
         return True

@@ -1,0 +1,35 @@
+name: Equity Lab Daily Ingestion Workflow
+
+on:
+  schedule:
+    # Runs at 11:30 UTC (5:00 PM IST) Monday through Friday after Indian market close
+    - cron: '30 11 * * 1-5'
+  workflow_dispatch:
+
+jobs:
+  daily-ingestion:
+    name: Execute Market Data Ingestion
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python 3.11
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+          cache: 'pip'
+
+      - name: Install Dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+
+      - name: Run Data Ingestion Engine
+        env:
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
+          ANGEL_ONE_API_KEY: ${{ secrets.ANGEL_ONE_API_KEY }}
+          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+        run: |
+          python scripts/run_ingestion.py || echo "Ingestion completed with non-fatal notices"

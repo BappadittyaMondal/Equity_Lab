@@ -11,8 +11,8 @@ frontend_dir = 'frontend_deploy'
 frontend_urls = set()
 raw_matches = set()
 
-# Enhanced regex to capture template literals, f-strings, API_BASE prefixes, and variables
-pattern = re.compile(r'[`"\'](?:\$\{API_BASE\}|http://[a-zA-Z0-9.:]+)?(/api/v1/[a-zA-Z0-9_\-/${}()+.,:=%]+|/health|/docs)[`"\']')
+# Enhanced regex to capture template literals, f-strings, API_BASE prefixes, and query parameters
+pattern = re.compile(r'[`"\'](?:\$\{API_BASE\}|http://[a-zA-Z0-9.:]+)?(/api/v1/[a-zA-Z0-9_\-/${}()+.,:=%?&]+|/health|/docs)[`"\']')
 
 for root, dirs, files in os.walk(frontend_dir):
     if 'archive' in root:

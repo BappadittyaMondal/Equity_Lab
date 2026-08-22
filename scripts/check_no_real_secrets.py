@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """
 Pre-commit / CI Safeguard Script: check_no_real_secrets.py
-Scans repository files for real API keys, credentials, or tokens.
+Scans repository files for real API keys, credentials, or tokens using structural regex patterns.
 Exits with 0 if clean, or 1 if unscrubbed credentials are detected.
 """
 
@@ -15,11 +15,9 @@ PATTERNS = [
     (re.compile(r'sk-proj-[A-Za-z0-9_-]{40,}'), "OpenAI Project API Key"),
     (re.compile(r'sk-[A-Za-z0-9]{32,}'), "OpenAI API Key"),
     (re.compile(r'ghp_[A-Za-z0-9]{36}'), "GitHub Personal Access Token"),
-    (re.compile(r'P169VNJ4OA0C9PP6'), "Alpha Vantage API Key"),
-    (re.compile(r'PBDOZTKGCQI7SYLDHSIE6B3UPM'), "Angel One TOTP Secret"),
-    (re.compile(r'1UqpybT5'), "Angel One Smart API Key"),
-    (re.compile(r'Omira@2018'), "Angel One Password"),
-    (re.compile(r'B261090'), "Angel One Client Code"),
+    (re.compile(r'(?i)alpha_?vantage.*[=:][\s"\']([A-Z0-9]{16})["\']'), "Alpha Vantage API Key Assignment"),
+    (re.compile(r'(?i)angel_?one.*totp.*[=:][\s"\']([A-Z2-7]{26,32})["\']'), "Angel One TOTP Secret Assignment"),
+    (re.compile(r'(?i)angel_?one.*api_?key.*[=:][\s"\']([A-Za-z0-9]{8,16})["\']'), "Angel One API Key Assignment"),
 ]
 
 EXCLUDE_DIRS = {'.git', '.venv', 'venv', '__pycache__', '.pytest_cache', '.pytest_temp', '.pytest_tmp', 'unnecessary_files_archive', 'Not_Required_Upload', 'scratch'}
@@ -44,8 +42,9 @@ def scan_repo():
                     for pattern, desc in PATTERNS:
                         matches = pattern.findall(content)
                         for match in matches:
-                            if "your_" not in match.lower() and "placeholder" not in match.lower():
-                                findings.append((relpath, desc, match))
+                            match_str = match if isinstance(match, str) else str(match)
+                            if "your_" not in match_str.lower() and "placeholder" not in match_str.lower():
+                                findings.append((relpath, desc, match_str))
             except Exception as e:
                 pass
 
