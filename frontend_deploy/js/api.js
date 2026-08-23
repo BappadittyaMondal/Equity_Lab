@@ -1,7 +1,8 @@
 // api.js — Centralized API interaction layer for IERL frontend
 // Handles health checks, data fetching, and chart rendering
 
-const API_BASE = window.API_BASE || "";
+const metaApiBase = typeof document !== 'undefined' ? document.querySelector('meta[name="ierl-api-base"]')?.getAttribute('content') : "";
+const API_BASE = window.API_BASE || metaApiBase || "";
 
 /**
  * Check backend API health and display status in header.
