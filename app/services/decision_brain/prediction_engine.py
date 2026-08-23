@@ -205,6 +205,62 @@ def _extract_catalyst_timeline(events: List[Any]) -> List[Dict[str, Any]]:
 # 5. Scenario Tree
 # ─────────────────────────────────────────────────────────────────────────────
 
+def _calculate_scenario_probabilities(
+    symbol: str = "",
+    composite_score: float = 60.0,
+    regime: Optional[str] = None,
+) -> Tuple[float, float, float, str]:
+    """Calculate calibrated Bull/Base/Bear probabilities using ML ensemble & market regime.
+
+    Returns (prob_bull, prob_base, prob_bear, confidence_mode).
+    """
+    prob_bull, prob_base, prob_bear = 0.25, 0.50, 0.25
+    confidence_mode = "prior_insufficient_data"
+
+    try:
+        from app.services.ml.baseline_model import _MODEL_CACHE, predict_outperformance_prob, train_baseline_model
+        if not _MODEL_CACHE.get("is_trained"):
+            train_baseline_model()
+
+        sample_count = _MODEL_CACHE.get("sample_count", 0)
+        if _MODEL_CACHE.get("is_trained") and sample_count >= 20:
+            p_out = predict_outperformance_prob(symbol, composite_score, data_backed=True)
+            p_bull = round(0.50 * p_out, 4)
+            p_bear = round(0.50 * (1.0 - p_out), 4)
+            p_base = round(1.0 - p_bull - p_bear, 4)
+            prob_bull, prob_base, prob_bear = p_bull, p_base, p_bear
+            confidence_mode = "calibrated_ml_ensemble"
+    except Exception as e:
+        logger.debug("ML scenario probability calculation fallback: %s", e)
+
+    # Regime adjustments
+    if regime:
+        regime_upper = str(regime).upper()
+        if regime_upper == "ELEVATED":
+            shift = 0.05
+            prob_bull = max(0.05, prob_bull - shift)
+            prob_bear = min(0.80, prob_bear + shift)
+            prob_base = round(1.0 - prob_bull - prob_bear, 4)
+        elif regime_upper == "VOLATILE":
+            shift = 0.10
+            prob_bull = max(0.05, prob_bull - shift)
+            prob_bear = min(0.80, prob_bear + shift)
+            prob_base = round(1.0 - prob_bull - prob_bear, 4)
+        elif regime_upper == "CRISIS":
+            shift = 0.20
+            prob_bull = max(0.02, prob_bull - shift)
+            prob_bear = min(0.90, prob_bear + shift)
+            prob_base = round(1.0 - prob_bull - prob_bear, 4)
+
+    total = prob_bull + prob_base + prob_bear
+    if total > 0:
+        prob_bull = round(prob_bull / total, 4)
+        prob_bear = round(prob_bear / total, 4)
+        prob_base = round(1.0 - prob_bull - prob_bear, 4)
+
+    return prob_bull, prob_base, prob_bear, confidence_mode
+
+
 def _build_scenario_tree(
     current_price: float,
     empirical_p25: float,
@@ -212,10 +268,13 @@ def _build_scenario_tree(
     empirical_p75: float,
     fundamental_est: Optional[float],
     horizon_label: str,
+    symbol: str = "",
+    composite_score: float = 60.0,
+    regime: Optional[str] = None,
 ) -> Dict[str, Any]:
     """Build Bull/Base/Bear scenarios with probability weights.
 
-    Combines empirical percentiles with fundamental estimates.
+    Combines empirical percentiles with fundamental estimates and calibrated ML output.
     Probabilities always sum to 100%.
     """
     # Base case: blend empirical median and fundamental estimate
@@ -229,7 +288,10 @@ def _build_scenario_tree(
     def _price_target(ret_pct: float) -> float:
         return round(current_price * (1 + ret_pct / 100.0), 2) if current_price > 0 else 0.0
 
-    prob_bull, prob_base, prob_bear = 0.25, 0.50, 0.25
+    prob_bull, prob_base, prob_bear, confidence_mode = _calculate_scenario_probabilities(
+        symbol=symbol, composite_score=composite_score, regime=regime
+    )
+
     expected_return = (
         bull_return * prob_bull +
         base_return * prob_base +
@@ -238,6 +300,7 @@ def _build_scenario_tree(
 
     return {
         "horizon":             horizon_label,
+        "confidence_mode":     confidence_mode,
         "bull_case":  {"return_pct": round(bull_return, 2), "price_target": _price_target(bull_return), "probability": prob_bull, "drivers": ["Strong earnings beat", "Multiple expansion", "Sector re-rating"]},
         "base_case":  {"return_pct": round(base_return, 2), "price_target": _price_target(base_return), "probability": prob_base, "drivers": ["Earnings inline with estimates", "Stable multiple"]},
         "bear_case":  {"return_pct": round(bear_return, 2), "price_target": _price_target(bear_return), "probability": prob_bear, "drivers": ["Earnings miss", "Multiple compression", "Macro headwinds"]},
@@ -415,8 +478,17 @@ def generate_prediction_summary(
         p25 = risk.get("p25_return_pct", blended * 0.5)
         p50 = risk.get("median_return_pct", blended)
         p75 = risk.get("p75_return_pct", blended * 1.5)
+        regime_str = None
+        try:
+            from app.services.knowledge.regime_engine import RegimeEngine
+            regime_str = RegimeEngine().classify().regime
+        except Exception:
+            pass
 
-        scenario = _build_scenario_tree(current_price, p25, p50, p75, fundamental_est, label)
+        scenario = _build_scenario_tree(
+            current_price, p25, p50, p75, fundamental_est, label,
+            symbol=norm, composite_score=60.0, regime=regime_str
+        )
         horizon_predictions[label] = {
             "horizon_months":           months,
             "blended_expected_return_pct": round(blended, 2),

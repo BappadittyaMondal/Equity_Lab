@@ -248,6 +248,68 @@ def numpy_kfold_cross_validate(
     }
 
 
+def numpy_walk_forward_cross_validate(
+    model_cls,
+    X: np.ndarray,
+    y: np.ndarray,
+    n_splits: int = 5,
+    **model_kwargs
+) -> Dict[str, float]:
+    """Out-of-sample Walk-Forward (expanding window) validation for time-series outcomes.
+
+    Strictly splits dataset chronologically: train on historical data [0..t], test on next period [t..t+k].
+    Eliminates future-information leakage inherent in standard k-fold cross validation.
+    """
+    X = np.asarray(X, dtype=np.float64)
+    y = np.asarray(y, dtype=np.int32)
+    n_samples = len(y)
+    if n_samples < (n_splits + 1) * 2:
+        return {"splits": 0, "mean_accuracy": 0.0, "mean_roc_auc": 0.5, "mean_brier_score": 0.25, "mean_f1": 0.0}
+
+    chunk_size = n_samples // (n_splits + 1)
+    accuracies, aucs, briers, f1s = [], [], [], []
+
+    for i in range(1, n_splits + 1):
+        train_end = i * chunk_size
+        val_end = min(n_samples, (i + 1) * chunk_size)
+
+        X_train_f, y_train_f = X[:train_end], y[:train_end]
+        X_val_f, y_val_f = X[train_end:val_end], y[train_end:val_end]
+
+        if len(X_val_f) == 0 or len(np.unique(y_train_f)) < 2:
+            continue
+
+        scaler_f = NumPyStandardScaler()
+        X_train_scaled = scaler_f.fit_transform(X_train_f)
+        X_val_scaled = scaler_f.transform(X_val_f)
+
+        if isinstance(model_cls, type):
+            clf = model_cls(**model_kwargs)
+        else:
+            clf = model_cls.__class__(**model_kwargs)
+        clf.fit(X_train_scaled, y_train_f)
+
+        probs = clf.predict_proba(X_val_scaled)[:, 1]
+        preds = clf.predict(X_val_scaled)
+
+        accuracies.append(numpy_accuracy_score(y_val_f, preds))
+        aucs.append(numpy_roc_auc_score(y_val_f, probs))
+        briers.append(numpy_brier_score(y_val_f, probs))
+        f1s.append(numpy_precision_recall_f1(y_val_f, preds)["f1_score"])
+
+    if not accuracies:
+        return {"splits": 0, "mean_accuracy": 0.0, "mean_roc_auc": 0.5, "mean_brier_score": 0.25, "mean_f1": 0.0}
+
+    return {
+        "splits": len(accuracies),
+        "mean_accuracy": round(float(np.mean(accuracies)), 4),
+        "mean_roc_auc": round(float(np.mean(aucs)), 4),
+        "mean_brier_score": round(float(np.mean(briers)), 4),
+        "mean_f1": round(float(np.mean(f1s)), 4),
+        "mean_f1_score": round(float(np.mean(f1s)), 4)
+    }
+
+
 class NumPyDecisionTreeStump:
     """Single decision stump (depth 1 tree) for gradient boosting."""
 
@@ -457,6 +519,8 @@ def train_baseline_model(force_retrain: bool = False) -> Dict[str, Any]:
 
     # 5-Fold Stratified Cross-Validation evaluation (Multi-factor Ensemble)
     cv_metrics = numpy_kfold_cross_validate(NumPyEnsembleClassifier, X, y, n_splits=5, n_estimators=25)
+    # Out-of-sample Walk-Forward Cross-Validation evaluation (Strict Chronological Time-Series Splits)
+    wf_metrics = numpy_walk_forward_cross_validate(NumPyEnsembleClassifier, X, y, n_splits=5, n_estimators=25)
     # 5-Fold Stratified Cross-Validation baseline evaluation (2-feature Logistic)
     cv_2feature = numpy_kfold_cross_validate(NumPyLogisticRegression, X_2f, y, n_splits=5)
 
@@ -482,13 +546,16 @@ def train_baseline_model(force_retrain: bool = False) -> Dict[str, Any]:
                 "cv_5fold_roc_auc": cv_metrics["mean_roc_auc"],
                 "cv_5fold_brier_score": cv_metrics["mean_brier_score"],
                 "cv_5fold_f1_score": cv_metrics["mean_f1"],
+                "walk_forward_roc_auc": wf_metrics["mean_roc_auc"],
+                "walk_forward_brier_score": wf_metrics["mean_brier_score"],
                 "ablation_2feature_roc_auc": cv_2feature["mean_roc_auc"],
                 "ablation_2feature_brier": cv_2feature["mean_brier_score"]
             },
             backtest_summary=(
                 f"NumPyEnsembleClassifier (5-Factor GBDT+Logistic) trained on {len(rows)} ledger outcomes. "
                 f"5-Fold CV: Acc={cv_metrics['mean_accuracy']:.4f}, ROC-AUC={cv_metrics['mean_roc_auc']:.4f}, "
-                f"Brier={cv_metrics['mean_brier_score']:.4f}. Ablation vs 2-feat: ΔROC-AUC={cv_metrics['mean_roc_auc'] - cv_2feature['mean_roc_auc']:+.4f}"
+                f"Brier={cv_metrics['mean_brier_score']:.4f}. Walk-Forward ROC-AUC={wf_metrics['mean_roc_auc']:.4f}. "
+                f"Ablation vs 2-feat: ΔROC-AUC={cv_metrics['mean_roc_auc'] - cv_2feature['mean_roc_auc']:+.4f}"
             ),
             human_approved_by="institutional_lead_quant"
         )
