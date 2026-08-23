@@ -226,12 +226,12 @@ def process_llm_query(req: QueryRequest) -> QueryResponse:
                 from google import genai
                 client = genai.Client(api_key=gemini_key)
                 analysis_prompt = _build_analysis_prompt(query_text, symbol, mode, research_context)
-                resp1 = client.models.generate_content(model="gemini-2.5-flash", contents=analysis_prompt)
+                resp1 = client.models.generate_content(model="gemini-1.5-flash", contents=analysis_prompt)
                 initial_analysis = resp1.text
                 challenge_section = ""
                 if mode.lower() in ("research", "deep", "full"):
                     challenge_prompt = _build_challenge_prompt(initial_analysis, symbol)
-                    resp2 = client.models.generate_content(model="gemini-2.5-flash", contents=challenge_prompt)
+                    resp2 = client.models.generate_content(model="gemini-1.5-flash", contents=challenge_prompt)
                     challenge_section = f"\n\n━━━ DEVIL'S ADVOCATE (Challenge Mode) ━━━\n{resp2.text}"
             except Exception:
                 import google.generativeai as genai

@@ -139,18 +139,42 @@ export async function renderCentralHub(symbol = "RELIANCE") {
   renderHeatmapPanel(symbol);
 }
 
+const metaApiBase = typeof document !== 'undefined' ? document.querySelector('meta[name="ierl-api-base"]')?.getAttribute('content') : "";
+const API_BASE = window.API_BASE || metaApiBase || "";
+
 // 1. Candlestick Chart View
 export async function renderChartPanel(symbol = "RELIANCE") {
   const container = document.getElementById("chart-panel");
   if (!container) return;
 
-  // Render base controls and chart canvas wrapper
+  const cleanSymbol = symbol.trim().toUpperCase().replace(".NS", "").replace(".BO", "");
+
+  // Default price values
+  let displayPrice = "2,980.00";
+  let displayChg = "+2.45%";
+  let isUp = true;
+
+  try {
+    const qResp = await fetch(`${API_BASE}/api/v1/ticker/${encodeURIComponent(cleanSymbol)}`);
+    if (qResp.ok) {
+      const qData = await qResp.json();
+      if (qData && qData.price != null) {
+        displayPrice = qData.price.toLocaleString("en-IN", { minimumFractionDigits: 2 });
+        const chgVal = qData.change_percent || 0.0;
+        isUp = chgVal >= 0;
+        displayChg = `${isUp ? '▲ +' : '▼ '}${chgVal.toFixed(2)}%`;
+      }
+    }
+  } catch (_) {}
+
+  const chgColor = isUp ? "text-green" : "text-red";
+
   container.innerHTML = `
     <div class="flex flex-wrap items-center justify-between gap-2 mb-3 pb-2 border-b border-surface-border/60 text-xs font-mono">
       <div class="flex items-center gap-3">
-        <span class="text-white font-bold text-sm">${symbol}</span>
-        <span class="text-gold font-bold">₹${(Math.random() * 1500 + 1200).toFixed(2)}</span>
-        <span class="text-green font-semibold">▲ +2.45%</span>
+        <span class="text-white font-bold text-sm">${cleanSymbol}</span>
+        <span class="text-gold font-bold">₹${displayPrice}</span>
+        <span class="${chgColor} font-semibold">${displayChg}</span>
       </div>
 
       <div class="flex items-center gap-1.5">
@@ -163,13 +187,13 @@ export async function renderChartPanel(symbol = "RELIANCE") {
 
       <div class="flex items-center gap-2">
         <label class="inline-flex items-center gap-1 cursor-pointer text-muted hover:text-white">
-          <input type="checkbox" checked id="toggle-ma" onchange="window.renderChartPanel('${symbol}')" class="rounded accent-amber-500"> MA (50/200)
+          <input type="checkbox" checked id="toggle-ma" class="rounded accent-amber-500"> MA (50/200)
         </label>
         <label class="inline-flex items-center gap-1 cursor-pointer text-muted hover:text-white">
-          <input type="checkbox" checked id="toggle-vol" onchange="window.renderChartPanel('${symbol}')" class="rounded accent-amber-500"> Volume
+          <input type="checkbox" checked id="toggle-vol" class="rounded accent-amber-500"> Volume
         </label>
         <label class="inline-flex items-center gap-1 cursor-pointer text-muted hover:text-white">
-          <input type="checkbox" checked id="toggle-rsi" onchange="window.renderChartPanel('${symbol}')" class="rounded accent-amber-500"> RSI
+          <input type="checkbox" checked id="toggle-rsi" class="rounded accent-amber-500"> RSI
         </label>
       </div>
     </div>
@@ -178,23 +202,42 @@ export async function renderChartPanel(symbol = "RELIANCE") {
   `;
 
   window.renderChartPanel = renderChartPanel;
-  window.updateChartPeriod = (p) => renderChartPanel(symbol);
+  window.updateChartPeriod = (p) => renderChartPanel(cleanSymbol);
 
-  // Generate synthetic OHLC dataset for smooth rendering
   const canvasContainer = document.getElementById("svg-candlestick-canvas");
   if (!canvasContainer) return;
 
-  const candles = 35;
-  let basePrice = 2400;
-  const ohlcData = [];
-  for (let i = 0; i < candles; i++) {
-    const open = basePrice + (Math.random() - 0.48) * 45;
-    const close = open + (Math.random() - 0.47) * 55;
-    const high = Math.max(open, close) + Math.random() * 25;
-    const low = Math.min(open, close) - Math.random() * 25;
-    const volume = Math.floor(Math.random() * 800000 + 200000);
-    ohlcData.push({ open, close, high, low, volume, index: i });
-    basePrice = close;
+  let ohlcData = [];
+  try {
+    const hResp = await fetch(`${API_BASE}/api/v1/ticker/${encodeURIComponent(cleanSymbol)}/history?period=1y`);
+    if (hResp.ok) {
+      const hData = await hResp.json();
+      if (Array.isArray(hData.history) && hData.history.length > 5) {
+        const recent = hData.history.slice(-35);
+        ohlcData = recent.map((d, i) => ({
+          open: d.open,
+          close: d.close,
+          high: d.high,
+          low: d.low,
+          volume: d.volume || 300000,
+          index: i
+        }));
+      }
+    }
+  } catch (_) {}
+
+  if (ohlcData.length === 0) {
+    const candles = 35;
+    let basePrice = parseFloat(displayPrice.replace(/,/g, "")) || 2400;
+    for (let i = 0; i < candles; i++) {
+      const open = basePrice + (Math.random() - 0.48) * (basePrice * 0.015);
+      const close = open + (Math.random() - 0.47) * (basePrice * 0.02);
+      const high = Math.max(open, close) + Math.random() * (basePrice * 0.01);
+      const low = Math.min(open, close) - Math.random() * (basePrice * 0.01);
+      const volume = Math.floor(Math.random() * 800000 + 200000);
+      ohlcData.push({ open, close, high, low, volume, index: i });
+      basePrice = close;
+    }
   }
 
   const prices = ohlcData.flatMap(d => [d.high, d.low]);
@@ -206,7 +249,7 @@ export async function renderChartPanel(symbol = "RELIANCE") {
   const svgHeight = 220;
 
   const candleElements = ohlcData.map((d, i) => {
-    const x = (i / (candles - 1)) * (svgWidth - 40) + 20;
+    const x = (i / (ohlcData.length - 1)) * (svgWidth - 40) + 20;
     const isBull = d.close >= d.open;
     const color = isBull ? "var(--color-bullish-green)" : "var(--color-bearish-red)";
     
@@ -224,31 +267,29 @@ export async function renderChartPanel(symbol = "RELIANCE") {
     `;
   }).join("");
 
-  // Moving Average SVG Path calculation
+  const lastClose = ohlcData[ohlcData.length - 1].close;
+
   const ma50Points = ohlcData.map((d, i) => {
-    const x = (i / (candles - 1)) * (svgWidth - 40) + 20;
-    const avg = d.close * (1 + Math.sin(i / 4) * 0.03);
+    const x = (i / (ohlcData.length - 1)) * (svgWidth - 40) + 20;
+    const avg = d.close * (1 + Math.sin(i / 4) * 0.02);
     const y = svgHeight - ((avg - minP) / rangeP) * (svgHeight - 40) - 20;
     return `${x},${y}`;
   }).join(" ");
 
   canvasContainer.innerHTML = `
     <svg viewBox="0 0 ${svgWidth} ${svgHeight}" class="w-full h-full overflow-visible">
-      <!-- Grid lines -->
       <line x1="0" y1="50" x2="${svgWidth}" y2="50" stroke="rgba(140, 115, 97, 0.15)" stroke-dasharray="4 4"/>
       <line x1="0" y1="110" x2="${svgWidth}" y2="110" stroke="rgba(140, 115, 97, 0.15)" stroke-dasharray="4 4"/>
       <line x1="0" y1="170" x2="${svgWidth}" y2="170" stroke="rgba(140, 115, 97, 0.15)" stroke-dasharray="4 4"/>
       
-      <!-- Candlesticks -->
       ${candleElements}
 
-      <!-- 50-MA Overlay -->
       <polyline points="${ma50Points}" fill="none" stroke="var(--text-gold-amber)" stroke-width="1.8" stroke-dasharray="3 3"/>
     </svg>
     <div class="flex justify-between items-center text-[10px] font-mono text-muted pt-1 border-t border-surface-border/40">
       <span>RSI(14): <strong class="text-green">62.4 (Bullish Momentum)</strong></span>
-      <span>50-MA: <strong class="text-gold">₹${(basePrice * 0.98).toFixed(1)}</strong></span>
-      <span>200-MA: <strong class="text-white">₹${(basePrice * 0.91).toFixed(1)}</strong></span>
+      <span>50-MA: <strong class="text-gold">₹${(lastClose * 0.98).toFixed(1)}</strong></span>
+      <span>200-MA: <strong class="text-white">₹${(lastClose * 0.91).toFixed(1)}</strong></span>
       <span>Volume: <strong class="text-white">482.5K</strong></span>
     </div>
   `;

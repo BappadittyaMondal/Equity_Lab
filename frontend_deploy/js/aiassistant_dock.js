@@ -4,7 +4,8 @@
  * chart attachment simulation, and fallback handling.
  */
 
-const API_BASE = window.API_BASE || "";
+const metaApiBase = typeof document !== 'undefined' ? document.querySelector('meta[name="ierl-api-base"]')?.getAttribute('content') : "";
+const API_BASE = window.API_BASE || metaApiBase || "";
 
 export function initAiDock() {
   initStockChatPanel();

@@ -103,24 +103,54 @@ export function filterWatchlistCategory(cat = "ALL") {
   `;
 }
 
-export function addSymbolToWatchlist(symbol, category = "Multibagger") {
+const metaApiBase = typeof document !== 'undefined' ? document.querySelector('meta[name="ierl-api-base"]')?.getAttribute('content') : "";
+const API_BASE = window.API_BASE || metaApiBase || "";
+
+export async function addSymbolToWatchlist(symbol, category = "Multibagger") {
   if (!symbol) return;
-  const cleanSym = symbol.trim().toUpperCase().replace(".NS", "");
+  const cleanSym = symbol.trim().toUpperCase().replace(".NS", "").replace(".BO", "");
   
   window.__IERL_WATCHLIST_DATA = window.__IERL_WATCHLIST_DATA || DEFAULT_WATCHLIST;
   
-  // Check if exists
-  if (!window.__IERL_WATCHLIST_DATA.some(i => i.symbol === cleanSym)) {
-    window.__IERL_WATCHLIST_DATA.unshift({
-      symbol: cleanSym,
-      name: cleanSym,
-      price: Math.floor(Math.random() * 3000 + 500),
-      chg: parseFloat((Math.random() * 6 - 2).toFixed(2)),
-      score: Math.floor(Math.random() * 20 + 78),
-      risk: "Med",
-      category
-    });
+  if (window.__IERL_WATCHLIST_DATA.some(i => i.symbol === cleanSym)) {
+    filterWatchlistCategory("ALL");
+    return;
   }
+
+  let realPrice = 1500;
+  let realChg = 0.0;
+  let realScore = 85;
+
+  try {
+    const qResp = await fetch(`${API_BASE}/api/v1/ticker/${encodeURIComponent(cleanSym)}`);
+    if (qResp.ok) {
+      const qData = await qResp.json();
+      if (qData && qData.price) {
+        realPrice = qData.price;
+        realChg = qData.change_percent || 0.0;
+      }
+    }
+  } catch (_) {}
+
+  try {
+    const sResp = await fetch(`${API_BASE}/api/v1/research/scorecard?symbol=${encodeURIComponent(cleanSym)}`);
+    if (sResp.ok) {
+      const sData = await sResp.json();
+      if (sData && sData.scores && sData.scores.overall_score) {
+        realScore = sData.scores.overall_score;
+      }
+    }
+  } catch (_) {}
+
+  window.__IERL_WATCHLIST_DATA.unshift({
+    symbol: cleanSym,
+    name: cleanSym,
+    price: realPrice,
+    chg: realChg,
+    score: realScore,
+    risk: "Med",
+    category
+  });
 
   filterWatchlistCategory("ALL");
 }
