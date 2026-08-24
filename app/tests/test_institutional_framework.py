@@ -86,6 +86,21 @@ def test_backtesting_validation_framework():
     res = evaluate_backtest_validation("HAL")
     assert res["average_ic"] > 0.0
     assert res["point_in_time_compliant"] is True
+    assert res["meta"]["data_mode"] == "COMPUTED_EMPIRICAL"
+
+
+def test_backtesting_validation_symbol_variance():
+    """Assert CRITICAL-1 fix: different stock symbols MUST produce different backtest metrics."""
+    res_hal = evaluate_backtest_validation("HAL")
+    res_tcs = evaluate_backtest_validation("TCS")
+    res_infy = evaluate_backtest_validation("INFY")
+    
+    # Assert symbol differentiation in Sharpe ratio or Average IC
+    sharpes = {res_hal["out_of_sample_sharpe"], res_tcs["out_of_sample_sharpe"], res_infy["out_of_sample_sharpe"]}
+    ics = {res_hal["average_ic"], res_tcs["average_ic"], res_infy["average_ic"]}
+    
+    assert len(sharpes) > 1 or len(ics) > 1, "Backtesting engine returned static identical outputs across symbols!"
+
 
 
 def test_mivs_engine_9_components_and_7_gates():
