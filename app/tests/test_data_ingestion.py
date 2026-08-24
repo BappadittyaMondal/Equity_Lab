@@ -114,3 +114,12 @@ def test_financial_statement_parser_growth_rates(parser):
     assert growth["yoy_revenue_growth"] == round(((12000.0 - 10000.0) / 10000.0) * 100.0, 2)
     assert growth["yoy_pat_growth"] == round(((1100.0 - 880.0) / 880.0) * 100.0, 2)
     assert growth["data_insufficient"] is False
+
+
+def test_ownership_ingester_execution():
+    from app.services.ingestion.ownership_ingester import OwnershipIngester
+    ingester = OwnershipIngester()
+    res = ingester.ingest_symbol("RELIANCE")
+    assert res["symbol"] == "RELIANCE"
+    assert "snapshots_ingested" in res
+

@@ -1,8 +1,10 @@
 /**
  * aiassistant_dock.js — AI Research Assistant & Stock Chat Module for StockAnalyzer
- * Provides role-based conversational AI engines with prompt templates, confidence metrics,
- * chart attachment simulation, and fallback handling.
+ * Provides role-based conversational AI engines with prompt templates, transparent fallback handling,
+ * and authenticated apiFetch integration.
  */
+
+import { apiFetch } from "./api.js";
 
 const metaApiBase = typeof document !== 'undefined' ? document.querySelector('meta[name="ierl-api-base"]')?.getAttribute('content') : "";
 const API_BASE = window.API_BASE || metaApiBase || "";
@@ -38,7 +40,7 @@ export function initStockChatPanel() {
           </select>
         </div>
         <div class="confidence-pill confidence-high" id="chat-confidence-indicator">
-          <span class="material-symbols-outlined text-xs">verified</span> Confidence: 88%
+          <span class="material-symbols-outlined text-xs">verified</span> Live Engine Ready
         </div>
       </div>
 
@@ -66,7 +68,7 @@ export function initStockChatPanel() {
             <span class="text-muted font-mono">Just now</span>
           </div>
           <p class="text-xs leading-relaxed text-gray-200">
-            Currently analyzing <strong class="text-gold">${currentSymbol}</strong>. Ask any fundamental, valuation, or technical question to receive a structured breakdown with confidence metrics.
+            Currently analyzing <strong class="text-gold">${currentSymbol}</strong>. Ask any fundamental, valuation, or technical question to receive a structured breakdown with live conviction metrics.
           </p>
         </div>
       </div>
@@ -170,7 +172,7 @@ async function sendStockChatMessage() {
   feed.scrollTop = feed.scrollHeight;
 
   try {
-    const resp = await fetch(`${API_BASE}/api/v1/query`, {
+    const resp = await apiFetch(`/api/v1/query`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
@@ -185,51 +187,58 @@ async function sendStockChatMessage() {
     if (resp.ok) {
       const data = await resp.json();
       aiBubble.classList.remove("animate-pulse");
-      aiBubble.innerHTML = `
-        <div class="space-y-1.5">
-          <div class="flex items-center justify-between text-[11px] border-b border-gold/30 pb-1">
-            <span class="font-bold text-gold">StockAnalyzer AI (${persona.toUpperCase()})</span>
-            <span class="confidence-pill confidence-high">91% Conf</span>
+      if (data && data.reply) {
+        aiBubble.innerHTML = `
+          <div class="space-y-1.5">
+            <div class="flex items-center justify-between text-[11px] border-b border-gold/30 pb-1">
+              <span class="font-bold text-gold">StockAnalyzer AI (${persona.toUpperCase()})</span>
+              <span class="confidence-pill confidence-high">LIVE MODEL</span>
+            </div>
+            <div class="text-gray-200 leading-relaxed whitespace-pre-wrap">${escapeHtml(data.reply)}</div>
           </div>
-          <div class="text-gray-200 leading-relaxed whitespace-pre-wrap">${escapeHtml(data.reply || generateStructuredMockResponse(symbol, msg, persona))}</div>
-        </div>
-      `;
+        `;
+      } else {
+        renderFallbackReply(aiBubble, symbol, msg, persona);
+      }
     } else {
       aiBubble.classList.remove("animate-pulse");
-      aiBubble.innerHTML = `
-        <div class="space-y-1.5">
-          <div class="flex items-center justify-between text-[11px] border-b border-gold/30 pb-1">
-            <span class="font-bold text-gold">StockAnalyzer AI Analyst</span>
-            <span class="confidence-pill confidence-high">87% Conf</span>
-          </div>
-          <div class="text-gray-200 leading-relaxed whitespace-pre-wrap">${generateStructuredMockResponse(symbol, msg, persona)}</div>
-        </div>
-      `;
+      renderFallbackReply(aiBubble, symbol, msg, persona);
     }
   } catch (_) {
     const aiBubble = document.getElementById(tempId);
     if (aiBubble) {
       aiBubble.classList.remove("animate-pulse");
-      aiBubble.innerHTML = `
-        <div class="space-y-1.5">
-          <div class="flex items-center justify-between text-[11px] border-b border-gold/30 pb-1">
-            <span class="font-bold text-gold">StockAnalyzer AI Analyst</span>
-            <span class="confidence-pill confidence-med">85% Conf</span>
-          </div>
-          <div class="text-gray-200 leading-relaxed whitespace-pre-wrap">${generateStructuredMockResponse(symbol, msg, persona)}</div>
-        </div>
-      `;
+      renderFallbackReply(aiBubble, symbol, msg, persona);
     }
   }
 
   feed.scrollTop = feed.scrollHeight;
 }
 
+function renderFallbackReply(aiBubble, symbol, msg, persona) {
+  const fallbackBanner = `
+    <div class="p-1.5 mb-2 bg-amber-950/60 border border-amber-500/50 rounded text-amber-200 text-[11px] font-mono flex items-center justify-between">
+      <span>⚠️ <strong>DEMO DATA MODE</strong>: Static analysis preset (Backend unauthenticated or offline).</span>
+    </div>
+  `;
+
+  aiBubble.innerHTML = `
+    <div class="space-y-1.5">
+      ${fallbackBanner}
+      <div class="flex items-center justify-between text-[11px] border-b border-gold/30 pb-1">
+        <span class="font-bold text-gold">StockAnalyzer AI Analyst</span>
+        <span class="badge badge-warning text-[10px]">DEMO / PRESET</span>
+      </div>
+      <div class="text-gray-200 leading-relaxed whitespace-pre-wrap">${generateStructuredMockResponse(symbol, msg, persona)}</div>
+    </div>
+  `;
+}
+
 function generateStructuredMockResponse(symbol, query, persona) {
   return `• **Business & Financial Trends**: ${symbol} maintains strong operating cash flows with a 3-year revenue CAGR of ~18.5%. Capital efficiency remains high with ROCE exceeding 15%.
 • **Valuation & Catalysts**: Currently trading at attractive risk-reward multiples relative to forward earnings growth. Key catalysts include debt deleveraging and market share gains in core business segments.
 • **Technical Setup**: Price is holding firmly above the 50-day moving average with positive RSI divergence, signaling solid accumulation by institutional buyers.
-• **Risk Metrics**: Main headwinds stem from raw material price volatility and macroeconomic interest rate shifts. Overall confidence score: 88%.`;
+• **Risk Metrics**: Main headwinds stem from raw material price volatility and macroeconomic interest rate shifts.`;
 }
 
 // 2. General AI Dock Panel Initialization

@@ -12,4 +12,8 @@ numpy>=2.0.0,<3.0.0
 httpx>=0.27.0,<1.0.0
 pytest>=8.0.0,<10.0.0
 
-
+# Security Vulnerability Hardening Pins
+cryptography>=46.0.7
+lxml>=6.1.0
+httplib2>=0.32.0
+idna>=3.15
