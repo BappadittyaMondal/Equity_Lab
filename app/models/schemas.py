@@ -909,3 +909,208 @@ class SwingTradeAlertsResponse(BaseModel):
     scanned_universe: str
     meta: MetaHeader
 
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Institutional Fundamental Early-Multibagger Detection Framework Schemas (§58)
+# ─────────────────────────────────────────────────────────────────────────────
+
+class MultibaggerTierDefinition(BaseModel):
+    target_tier: Literal["Multiplier (2x)", "Multibagger (3-5x)", "Super-multibagger (10x)"] = "Multibagger (3-5x)"
+    horizon_years: int = 4
+    implied_cagr_pct: float = 30.0
+    probability_estimate: float = Field(0.35, ge=0.0, le=1.0)
+    quality_adjusted_return_ratio: float = 1.8
+
+
+class GovernanceRedFlagChecklist(BaseModel):
+    ownership_pledge_risk: str = "LOW"
+    audit_integrity: str = "CLEAN"
+    related_party_risk: str = "ARM_LENGTH"
+    regulatory_litigation_risk: str = "LOW"
+    beneish_m_score: float = -2.45
+    altman_z_score: float = 3.82
+    piotroski_f_score: int = 8
+    mohanram_g_score: int = 7
+    hard_gate_status: Literal["PASS", "AMBER", "FAIL"] = "PASS"
+
+
+class InsiderConvictionSignal(BaseModel):
+    promoter_net_transaction_30d: float = 0.0
+    promoter_pledge_trend: str = "DECREASING"
+    bulk_block_deal_conviction: str = "ACCUMULATION"
+    esop_alignment_grade: str = "ALIGNED"
+    promoter_comp_ratio: float = 0.02
+    buying_into_weakness_flag: bool = True
+    insider_conviction_score: float = Field(78.0, ge=0.0, le=100.0)
+
+
+class ShareholdingPatternIntelligence(BaseModel):
+    fii_holding_pct: float = 12.5
+    fii_qoq_change: float = 1.2
+    dii_mf_holding_pct: float = 18.2
+    dii_qoq_change: float = 0.8
+    institutional_accumulation_quarters: int = 3
+    retail_holding_trend: str = "DECREASING"
+    free_float_index_catalyst: str = "NIFTY_MIDCAP_INCLUSION_CANDIDATE"
+    ownership_concentration_risk: str = "BALANCED"
+
+
+class ScuttlebuttAltDataSignal(BaseModel):
+    gst_eway_bill_momentum: str = "ACCELERATING"
+    epfo_payroll_growth_pct: float = 14.2
+    vahan_registration_growth_pct: float = 18.5
+    channel_checks_summary: str = "Strong dealer pull, zero pricing pressure"
+    external_confirmation_score: Literal["HIGH", "MEDIUM", "LOW"] = "HIGH"
+
+
+class ManagementNLPCommentarySignal(BaseModel):
+    tone_shift_direction: str = "BULLISH_CONFIDENT"
+    guidance_specificity_score: float = 85.0
+    language_consistency_index: float = 90.0
+    q_and_a_deflection_count: int = 0
+    commentary_confidence_score: float = Field(82.0, ge=0.0, le=100.0)
+
+
+class PolicyCatalystCorporateActionSignal(BaseModel):
+    pli_scheme_eligibility: bool = True
+    tariff_customs_protection: str = "POSITIVE"
+    buyback_pricing_vs_intrinsic: str = "ACCRETIVE_BUYBACK"
+    credit_rating_trend: str = "UPGRADE_WATCH"
+    catalyst_timing_horizon: str = "6-12 MONTHS"
+
+
+class PortfolioPositionSizingSignal(BaseModel):
+    recommended_position_pct: float = 4.5
+    fractional_kelly_weight: float = 0.05
+    liquidity_cap_pct: float = 5.0
+    correlation_group: str = "CAPITAL_GOODS_INFLECTION"
+    scaling_ladder: List[Dict[str, Any]] = Field(default_factory=list)
+    exit_triggers: List[str] = Field(default_factory=list)
+    drawdown_tolerance_band_pct: float = 25.0
+
+
+class RedTeamReviewRecord(BaseModel):
+    written_bear_case: str
+    adversarial_review_notes: str
+    pre_mortem_failure_causes: List[str]
+    forced_reevaluation_trigger: str
+
+
+class MachineReadableStockReport(BaseModel):
+    """Standardized Machine-Readable Stock Report Schema (§58)."""
+    symbol: str
+    as_of: str
+    company_name: str = "Company Ltd"
+    sector: str = "MANUFACTURING"
+    archetype: str = "EARLY_GROWTH"
+    mivs_composite_score: float = 75.0
+    multibagger_tier: str = "TIER_1_HIGH_CONVICTION_MULTIBAGGER"
+    verdict: str = "Strong Buy"
+    hard_gates_status: str = "PASS"
+    hard_gate_reasons: List[str] = Field(default_factory=list)
+    mivs_breakdown: Dict[str, Any] = Field(default_factory=dict)
+    governance_signal: Optional[GovernanceRedFlagChecklist] = None
+    insider_signal: Optional[InsiderConvictionSignal] = None
+    shareholding_signal: Optional[ShareholdingPatternIntelligence] = None
+    alt_data_signal: Optional[ScuttlebuttAltDataSignal] = None
+    concall_nlp_signal: Optional[ManagementNLPCommentarySignal] = None
+    policy_catalyst_signal: Optional[PolicyCatalystCorporateActionSignal] = None
+    position_sizing_signal: Optional[PortfolioPositionSizingSignal] = None
+    red_team_record: Optional[RedTeamReviewRecord] = None
+    evidence_log: List[str] = Field(default_factory=list)
+
+
+class MarketRegimeClassification(BaseModel):
+    regime_code: str = "R1_BULL_TREND"  # R1..R6
+    description: str = "Bull Trend — Benchmark above long-term trend, positive breadth, controlled volatility"
+    nifty_sma20_slope_pct: float = 1.2
+    nifty_sma50_slope_pct: float = 0.8
+    breadth_pct_above_50dma: float = 68.5
+    advance_decline_ratio: float = 1.65
+    realized_volatility_pct: float = 14.2
+    market_stress_level: str = "LOW"
+
+
+class TechnicalStateVector(BaseModel):
+    trend_direction: str = "UPTREND"
+    trend_efficiency_ratio: float = 0.72
+    extension_z_score: float = 1.15
+    ram_6m: float = 1.85  # Risk-adjusted momentum 6M
+    ram_12m: float = 2.10
+    rs_rating_0_99: int = 88
+    rs_acceleration: float = 4.2
+    pre_breakout_rs_leadership: bool = True
+    base_quality_score: float = 82.0
+    volatility_compression_state: str = "COMPRESSED_READY_FOR_EXPANSION"
+    setup_class: str = "SETUP_A_BREAKOUT"  # Setups A..H
+    rvol: float = 2.45
+    udvr: float = 1.85
+    delivery_pct: float = 58.4
+    anchored_vwap_status: str = "ABOVE_EARNINGS_VWAP"
+
+
+class CalibratedProbabilityLadder(BaseModel):
+    event_t1_prob_5pct_10d: float = 0.68  # P(+5% before -3% in 10d)
+    event_t2_prob_10pct_20d: float = 0.58  # P(+10% before -5% in 20d)
+    event_t3_prob_20pct_60d: float = 0.44  # P(+20% before -8% in 60d)
+    historical_brier_score: float = 0.14
+    calibration_confidence: str = "HIGH"
+    expected_value_pct: float = 6.45
+    risk_adjusted_ev: float = 2.15
+    median_time_to_target_days: int = 12
+    expected_mae_pct: float = -2.1
+    expected_mfe_pct: float = +12.4
+
+
+class SurveillanceRiskGate(BaseModel):
+    asm_stage: str = "CLEAN"  # CLEAN, STAGE_I, STAGE_II, STAGE_III, STAGE_IV
+    gsm_stage: str = "CLEAN"
+    t2t_flag: bool = False
+    circuit_band_pct: float = 20.0
+    circuit_lock_risk: str = "LOW"
+    slippage_ceiling_pct: float = 0.35
+    total_roundtrip_cost_pct: float = 0.42
+    hard_gate_status: str = "PASS"
+
+
+class PortfolioHeatRisk(BaseModel):
+    current_portfolio_heat_pct: float = 11.5
+    portfolio_heat_cap_pct: float = 18.0
+    concurrent_positions_count: int = 6
+    concurrent_positions_cap: int = 10
+    sector_concentration_pct: float = 22.0
+    sector_concentration_cap_pct: float = 30.0
+    correlation_discount_factor: float = 0.88
+    gate11_status: str = "PASS"
+
+
+class InPositionManagementState(BaseModel):
+    initial_stop_price: float
+    breakeven_trigger_price: float
+    breakeven_status: str = "PENDING"  # PENDING, ACTIVE
+    partial_target_price: float  # +1.5R
+    partial_exit_status: str = "PENDING"
+    chandelier_atr_stop_price: float
+    time_stop_days_remaining: int = 15
+    managed_exit_verdict: str = "HOLD_TREND"
+
+
+class MachineReadableTechnicalReport(BaseModel):
+    """Standardized Machine-Readable Technical Probability Report (§113)."""
+    symbol: str
+    as_of: str
+    technical_state_score: float = 84.5  # TSS 0-100
+    setup_type: str = "SETUP_A_BREAKOUT"
+    verdict: str = "High Conviction Breakout"
+    market_regime: MarketRegimeClassification
+    state_vector: TechnicalStateVector
+    probability_ladder: CalibratedProbabilityLadder
+    surveillance_gate: SurveillanceRiskGate
+    portfolio_heat: PortfolioHeatRisk
+    trade_management: InPositionManagementState
+    fundamental_technical_divergence_state: str = "STATE_A_CONFIRMATION"  # States A..D
+    evidence_log: List[str] = Field(default_factory=list)
+
+
+
+

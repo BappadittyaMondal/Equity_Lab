@@ -41,6 +41,7 @@ build/
 .pytest_temp/
 .pytest_tmp/
 temp_pytest/
+temp_pytest*/
 temp_basetemp/
 Upload_97Files_AI_Project/
 upload_*_AI_project/

@@ -1,0 +1,76 @@
+"""FastAPI Router for Institutional Fundamental Early-Multibagger Framework (§58).
+
+Exposes machine-readable stock report, 100-point MIVS distribution, and individual institutional engine signals.
+"""
+
+from typing import Dict, Any, Optional
+from fastapi import APIRouter, Depends, Query, HTTPException, status
+from app.models.schemas import MachineReadableStockReport
+from app.services.decision_brain.arbiter import Arbiter
+from app.services.decision_brain.mivs_engine import MIVSEngine
+from app.services.strategies.promoter_behaviour import evaluate_promoter_behaviour
+from app.services.strategies.shareholding_pattern import evaluate_shareholding_pattern
+from app.services.strategies.alternative_data import evaluate_alternative_data
+from app.services.strategies.concall_nlp import evaluate_concall_nlp
+from app.services.strategies.catalyst_corporate_actions import evaluate_catalysts_and_corporate_actions
+from app.services.research.portfolio_construction import evaluate_portfolio_construction
+
+router = APIRouter(prefix="/api/v1/multibagger", tags=["Institutional Multibagger Framework"])
+
+
+@router.get("/report/{symbol}", response_model=MachineReadableStockReport, summary="Get Machine-Readable Stock Report (§58)")
+def get_machine_readable_report(symbol: str):
+    """Generates complete Machine-Readable Stock Report incorporating all 18 institutional modules."""
+    try:
+        arbiter = Arbiter()
+        return arbiter.generate_machine_readable_report(symbol)
+    except Exception as e:
+        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=f"Failed to generate report for {symbol}: {str(e)}")
+
+
+@router.get("/mivs/{symbol}", summary="Get MIVS 100-Point Score & 7 Hard Gates (§51, §52)")
+def get_mivs_score(symbol: str, sector: str = Query("MANUFACTURING")):
+    """Calculates 100-point MIVS composite vector across 9 components and 7 Hard Gates."""
+    try:
+        arbiter = Arbiter()
+        outputs = arbiter._collect_engine_outputs(symbol)
+        mivs_res = MIVSEngine().compute_mivs(symbol, outputs, sector=sector)
+        return mivs_res.model_dump()
+    except Exception as e:
+        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=f"MIVS calculation failed: {str(e)}")
+
+
+@router.get("/promoter/{symbol}", summary="Get Promoter & Insider Behaviour Signal (§29)")
+def get_promoter_behaviour(symbol: str):
+    """Returns promoter skin-in-the-game, pledge trajectory, and insider conviction score."""
+    return evaluate_promoter_behaviour(symbol)
+
+
+@router.get("/shareholding/{symbol}", summary="Get Shareholding Pattern Intelligence Signal (§28)")
+def get_shareholding_pattern(symbol: str):
+    """Returns institutional flow momentum, accumulation streaks, and index catalyst indicators."""
+    return evaluate_shareholding_pattern(symbol)
+
+
+@router.get("/altdata/{symbol}", summary="Get Indian Alt-Data & Scuttlebutt Signal (§26, §27)")
+def get_alternative_data(symbol: str):
+    """Returns GST e-way bills, EPFO payroll growth, Vahan portal registrations, and channel check results."""
+    return evaluate_alternative_data(symbol)
+
+
+@router.get("/concall/{symbol}", summary="Get Management Commentary Concall NLP Signal (§30)")
+def get_concall_nlp(symbol: str):
+    """Returns management tone shifts, guidance specificity, and Q&A deflection analysis."""
+    return evaluate_concall_nlp(symbol)
+
+
+@router.get("/catalysts/{symbol}", summary="Get Policy Catalysts & Corporate Actions Signal (§47, §48)")
+def get_catalysts(symbol: str):
+    """Returns PLI eligibility, tariff protection, buyback accretiveness, and credit rating agency actions."""
+    return evaluate_catalysts_and_corporate_actions(symbol)
+
+
+@router.get("/portfolio/{symbol}", summary="Get Position Sizing & Drawdown Discipline Signal (§35, §36, §37)")
+def get_portfolio_sizing(symbol: str, mivs_score: float = Query(75.0), archetype: str = Query("EARLY_GROWTH")):
+    """Returns fractional-Kelly position size, liquidity caps, scaling ladders, and drawdown tolerance bands."""
+    return evaluate_portfolio_construction(symbol, mivs_score=mivs_score, archetype=archetype)

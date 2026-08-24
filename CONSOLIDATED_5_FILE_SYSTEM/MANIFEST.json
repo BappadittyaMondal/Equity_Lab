@@ -3,9 +3,9 @@
     "PROJECT_VERSION": "0.0.0",
     "BUNDLE_VERSION": "2.0",
     "SCHEMA_VERSION": "1.0",
-    "GIT_COMMIT_SOURCE": "9fcd8b0",
-    "GIT_COMMIT": "9fcd8b0",
-    "GENERATED_AT": "2026-08-22T22:26:48.666948+00:00",
+    "GIT_COMMIT_SOURCE": "ad0beda",
+    "GIT_COMMIT": "ad0beda",
+    "GENERATED_AT": "2026-08-23T18:31:52.659405+00:00",
     "GENERATOR_VERSION": "2.0",
     "SOURCE_HASH": "9ef11ec99b01c3b4994099da8ab8796d27cbba4d8dfbc88008fb9f2cd04c6417"
   },
@@ -13,7 +13,7 @@
     "01_Master_System_Core_Instructions_Architecture.md": {
       "sources_count": 8,
       "output_bytes": 139171,
-      "sha256": "9554d5688713f8ae5dac72f7234003f4d0a682a9bc3c55d7ffd600c41180ca1b",
+      "sha256": "c0710c3184485e11288969251c7f5f62e1e1667c2749e20748fc958373f625bb",
       "embedded_sources": [
         {
           "position": 1,
@@ -76,7 +76,7 @@
     "02_Master_Engine_Contracts_Schemas_Registries.md": {
       "sources_count": 16,
       "output_bytes": 246739,
-      "sha256": "038aee826197eb35cddb5e1591d757d2ca350059996cb66670ab718efd8bed1d",
+      "sha256": "ac90f342a2d6d30aab0e252c147046bfb7cc780906b422fb45b6355f23335264",
       "embedded_sources": [
         {
           "position": 1,
@@ -195,7 +195,7 @@
     "03_Master_Skill_Library.md": {
       "sources_count": 18,
       "output_bytes": 621625,
-      "sha256": "95b7a81e50ccd44f64586f63e3df1aa23c93a004a4bfc65d854b7891b35df7ad",
+      "sha256": "253bfcf19ef89366639f28a8ecfa7ade57fb9c8d5a502aad6b5dcc2521b0cd26",
       "embedded_sources": [
         {
           "position": 1,
@@ -328,7 +328,7 @@
     "04_Master_Knowledge_Base_Vol_1_Fundamentals_Valuation_Governance.md": {
       "sources_count": 24,
       "output_bytes": 167532,
-      "sha256": "0dc0535fab03bfe04bc299e5c4c807b233e5f74063b2b18c347c196458c58636",
+      "sha256": "bbbe695500530c2316144e1a4dc4c4d63ed68b12e43209ee2e96beee01dc90c0",
       "embedded_sources": [
         {
           "position": 1,
@@ -503,7 +503,7 @@
     "05_Master_Knowledge_Base_Vol_2_Sectors_Frameworks_Screening.md": {
       "sources_count": 27,
       "output_bytes": 216588,
-      "sha256": "915579be3497f6d3397f96b4f47fc032d45ae7dc04f521dd7d6d2019e09f0e96",
+      "sha256": "75b7494fdb3256eb9576b84b919430ae772ec213148084f053980bfa1b508430",
       "embedded_sources": [
         {
           "position": 1,

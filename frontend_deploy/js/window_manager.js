@@ -1,7 +1,7 @@
 /**
  * window_manager.js — Multi-Window Management Engine for StockAnalyzer Dashboard
  * Enables floating, dragging, resizing, collapse/expand, maximize (Alt+Enter), Z-stacking,
- * and layout serialization to local storage.
+ * viewport boundary clamping, touch/pointer support, and layout serialization to local storage.
  */
 
 export class WindowManager {
@@ -23,9 +23,11 @@ export class WindowManager {
     const panels = document.querySelectorAll(".window-panel");
     panels.forEach(el => this.registerWindow(el));
 
-    // Global drag & resize listeners
+    // Global drag & resize listeners (Mouse + Pointer / Touch support)
     window.addEventListener("mousemove", this._onMouseMove);
     window.addEventListener("mouseup", this._onMouseUp);
+    window.addEventListener("pointermove", this._onMouseMove);
+    window.addEventListener("pointerup", this._onMouseUp);
 
     // Restore saved layout if available
     this.loadLayout();
@@ -35,26 +37,32 @@ export class WindowManager {
     const id = element.id || `win_${Math.random().toString(36).substr(2, 9)}`;
     element.id = id;
 
-    // Header dragging setup
+    const handleStartDrag = (e) => {
+      if (e.target.closest(".window-controls")) return;
+      this.bringToFront(id);
+      this.startDrag(id, e);
+    };
+
+    // Header dragging setup (mouse + pointer)
     const header = element.querySelector(".window-header");
     if (header) {
-      header.addEventListener("mousedown", (e) => {
-        if (e.target.closest(".window-controls")) return; // Don't drag when clicking buttons
-        this.bringToFront(id);
-        this.startDrag(id, e);
-      });
+      header.addEventListener("mousedown", handleStartDrag);
+      header.addEventListener("pointerdown", handleStartDrag);
     }
+
+    const handleStartResize = (e) => {
+      e.stopPropagation();
+      this.bringToFront(id);
+      this.startResize(id, e);
+    };
 
     // Add resizer if missing
     if (!element.querySelector(".window-resizer")) {
       const resizer = document.createElement("div");
       resizer.className = "window-resizer";
       element.appendChild(resizer);
-      resizer.addEventListener("mousedown", (e) => {
-        e.stopPropagation();
-        this.bringToFront(id);
-        this.startResize(id, e);
-      });
+      resizer.addEventListener("mousedown", handleStartResize);
+      resizer.addEventListener("pointerdown", handleStartResize);
     }
 
     // Add window action controls if missing
@@ -91,6 +99,9 @@ export class WindowManager {
     element.addEventListener("mousedown", () => {
       this.bringToFront(id);
     });
+    element.addEventListener("pointerdown", () => {
+      this.bringToFront(id);
+    });
 
     this.windows.set(id, {
       id,
@@ -118,10 +129,13 @@ export class WindowManager {
     if (!win || win.isMaximized) return;
 
     const rect = win.element.getBoundingClientRect();
+    const clientX = e.clientX ?? (e.touches && e.touches[0] ? e.touches[0].clientX : 0);
+    const clientY = e.clientY ?? (e.touches && e.touches[0] ? e.touches[0].clientY : 0);
+
     this.dragState = {
       id,
-      startX: e.clientX,
-      startY: e.clientY,
+      startX: clientX,
+      startY: clientY,
       initialLeft: rect.left,
       initialTop: rect.top
     };
@@ -132,28 +146,42 @@ export class WindowManager {
     if (!win || win.isMaximized || win.isMinimized) return;
 
     const rect = win.element.getBoundingClientRect();
+    const clientX = e.clientX ?? (e.touches && e.touches[0] ? e.touches[0].clientX : 0);
+    const clientY = e.clientY ?? (e.touches && e.touches[0] ? e.touches[0].clientY : 0);
+
     this.resizeState = {
       id,
-      startX: e.clientX,
-      startY: e.clientY,
+      startX: clientX,
+      startY: clientY,
       initialWidth: rect.width,
       initialHeight: rect.height
     };
   }
 
   _onMouseMove(e) {
+    const clientX = e.clientX ?? (e.touches && e.touches[0] ? e.touches[0].clientX : 0);
+    const clientY = e.clientY ?? (e.touches && e.touches[0] ? e.touches[0].clientY : 0);
+
     if (this.dragState) {
       const { id, startX, startY, initialLeft, initialTop } = this.dragState;
       const win = this.windows.get(id);
       if (!win) return;
 
-      const deltaX = e.clientX - startX;
-      const deltaY = e.clientY - startY;
+      const deltaX = clientX - startX;
+      const deltaY = clientY - startY;
 
-      // Position relative to viewport
+      const winWidth = win.element.offsetWidth || 300;
+      const winHeight = win.element.offsetHeight || 200;
+      const maxLeft = Math.max(0, window.innerWidth - winWidth);
+      const maxTop = Math.max(45, window.innerHeight - winHeight);
+
+      const clampedLeft = Math.min(maxLeft, Math.max(0, initialLeft + deltaX));
+      const clampedTop = Math.min(maxTop, Math.max(45, initialTop + deltaY));
+
+      // Position relative to viewport with strict clamping
       win.element.style.position = "fixed";
-      win.element.style.left = `${Math.max(0, initialLeft + deltaX)}px`;
-      win.element.style.top = `${Math.max(45, initialTop + deltaY)}px`;
+      win.element.style.left = `${clampedLeft}px`;
+      win.element.style.top = `${clampedTop}px`;
       win.element.style.margin = "0";
     }
 
@@ -162,11 +190,11 @@ export class WindowManager {
       const win = this.windows.get(id);
       if (!win) return;
 
-      const deltaX = e.clientX - startX;
-      const deltaY = e.clientY - startY;
+      const deltaX = clientX - startX;
+      const deltaY = clientY - startY;
 
-      const newWidth = Math.max(280, initialWidth + deltaX);
-      const newHeight = Math.max(180, initialHeight + deltaY);
+      const newWidth = Math.max(280, Math.min(window.innerWidth - 20, initialWidth + deltaX));
+      const newHeight = Math.max(180, Math.min(window.innerHeight - 50, initialHeight + deltaY));
 
       win.element.style.width = `${newWidth}px`;
       win.element.style.height = `${newHeight}px`;
@@ -214,7 +242,6 @@ export class WindowManager {
   saveLayout() {
     const layout = {};
     this.windows.forEach((win, id) => {
-      const rect = win.element.getBoundingClientRect();
       layout[id] = {
         left: win.element.style.left,
         top: win.element.style.top,

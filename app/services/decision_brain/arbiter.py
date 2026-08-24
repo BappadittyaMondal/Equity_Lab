@@ -517,3 +517,186 @@ class Arbiter:
             logger.warning("Audit trail build failed for %s: %s", normalized, e)
 
         return call
+
+    def generate_machine_readable_report(self, symbol: str, as_of: Optional[datetime] = None) -> Any:
+        """Synthesizes all 18 institutional framework modules into a Machine-Readable Stock Report (§58)."""
+        from app.models.schemas import (
+            MachineReadableStockReport, GovernanceRedFlagChecklist, InsiderConvictionSignal,
+            ShareholdingPatternIntelligence, ScuttlebuttAltDataSignal, ManagementNLPCommentarySignal,
+            PolicyCatalystCorporateActionSignal, PortfolioPositionSizingSignal, RedTeamReviewRecord
+        )
+        from app.services.decision_brain.mivs_engine import MIVSEngine
+        from app.services.strategies.promoter_behaviour import evaluate_promoter_behaviour
+        from app.services.strategies.shareholding_pattern import evaluate_shareholding_pattern
+        from app.services.strategies.alternative_data import evaluate_alternative_data
+        from app.services.strategies.concall_nlp import evaluate_concall_nlp
+        from app.services.strategies.catalyst_corporate_actions import evaluate_catalysts_and_corporate_actions
+        from app.services.research.portfolio_construction import evaluate_portfolio_construction
+        from app.services.decision_brain.red_team_engine import evaluate_red_team_review
+
+        norm = symbol.upper()
+        snap = self.synthesizer.synthesize(norm, as_of=as_of)
+        outputs = self._collect_engine_outputs(norm, snap=snap, as_of=as_of)
+
+        mivs_res = MIVSEngine().compute_mivs(norm, outputs, snap)
+        score = mivs_res.mivs_score
+
+        # Classify Multibagger Tier (§50)
+        if score >= 85.0 and mivs_res.passed_hard_gates:
+            tier = "TIER_1_HIGH_CONVICTION_MULTIBAGGER"
+        elif score >= 70.0 and mivs_res.passed_hard_gates:
+            tier = "TIER_2_COMPOUNDER_GROWTH"
+        elif score >= 55.0 and mivs_res.passed_hard_gates:
+            tier = "TIER_3_TACTICAL_TURNAROUND"
+        elif score >= 40.0:
+            tier = "TIER_4_WATCHLIST"
+        else:
+            tier = "TIER_5_AVOID_UNINVESTABLE"
+
+        # Run auxiliary institutional engines
+        e9_res = evaluate_promoter_behaviour(norm, as_of=as_of)
+        e10_res = evaluate_shareholding_pattern(norm, as_of=as_of)
+        e11_res = evaluate_alternative_data(norm, as_of=as_of)
+        e12_res = evaluate_concall_nlp(norm, as_of=as_of)
+        e13_res = evaluate_catalysts_and_corporate_actions(norm, as_of=as_of)
+        e14_res = evaluate_portfolio_construction(norm, mivs_score=score, as_of=as_of)
+        e16_res = evaluate_red_team_review(norm, as_of=as_of)
+
+        # Consolidate Evidence Logs (§57)
+        evidence_log = []
+        for o in outputs:
+            raw = o.get("raw")
+            if raw and hasattr(raw, "results") and isinstance(raw.results, dict):
+                ev = raw.results.get("evidence", [])
+                if isinstance(ev, list):
+                    evidence_log.extend(ev)
+
+        evidence_log.extend(e9_res["evidence"])
+        evidence_log.extend(e10_res["evidence"])
+        evidence_log.extend(e11_res["evidence"])
+        evidence_log.extend(e12_res["evidence"])
+        evidence_log.extend(e13_res["evidence"])
+        evidence_log.extend(e14_res["evidence"])
+        evidence_log.extend(e16_res["evidence"])
+
+        return MachineReadableStockReport(
+            symbol=norm,
+            as_of=as_of.isoformat() if as_of else datetime.now().isoformat(),
+            company_name=getattr(snap, "company_name", f"{norm} India Ltd"),
+            sector=getattr(snap, "sector", "MANUFACTURING"),
+            archetype=getattr(snap, "archetype", "EARLY_GROWTH"),
+            mivs_composite_score=score,
+            multibagger_tier=tier,
+            verdict=mivs_res.verdict,
+            hard_gates_status="PASS" if mivs_res.passed_hard_gates else "FAIL",
+            hard_gate_reasons=mivs_res.gate_reasons,
+            mivs_breakdown={k: v.model_dump() for k, v in mivs_res.dimension_scores.items()},
+            governance_signal=GovernanceRedFlagChecklist(**e9_res["governance_checklist"]),
+            insider_signal=InsiderConvictionSignal(**e9_res["insider_signal"]),
+            shareholding_signal=ShareholdingPatternIntelligence(**e10_res["pattern_intelligence"]),
+            alt_data_signal=ScuttlebuttAltDataSignal(**e11_res["alt_data_signal"]),
+            concall_nlp_signal=ManagementNLPCommentarySignal(**e12_res["nlp_signal"]),
+            policy_catalyst_signal=PolicyCatalystCorporateActionSignal(**e13_res["catalyst_signal"]),
+            position_sizing_signal=PortfolioPositionSizingSignal(**e14_res["portfolio_signal"]),
+            red_team_record=RedTeamReviewRecord(**e16_res["red_team_record"]),
+            evidence_log=evidence_log[:25]
+        )
+
+    def generate_technical_report(self, symbol: str, as_of: Optional[datetime] = None) -> Any:
+        """Synthesizes technical probability framework (26-layer stack) into MachineReadableTechnicalReport."""
+        from app.models.schemas import MachineReadableTechnicalReport, TechnicalStateVector
+        from app.services.research.market_regime import classify_market_regime
+        from app.services.strategies.technical_trend_rs import evaluate_technical_trend_and_rs
+        from app.services.strategies.technical_structure import evaluate_technical_structure_and_setups
+        from app.services.strategies.technical_volume_microstructure import evaluate_volume_and_microstructure
+        from app.services.risk.surveillance_gate import evaluate_surveillance_and_cost_gate
+        from app.services.research.technical_probability import calculate_calibrated_probability_ladder
+        from app.services.risk.trade_management import evaluate_in_position_management
+        from app.services.risk.portfolio_risk import evaluate_portfolio_heat_and_risk
+
+        norm = symbol.upper()
+        regime = classify_market_regime(as_of=as_of)
+        trend_res = evaluate_technical_trend_and_rs(norm, as_of=as_of)
+        struct_res = evaluate_technical_structure_and_setups(norm, as_of=as_of)
+        vol_res = evaluate_volume_and_microstructure(norm, as_of=as_of)
+        surv_res = evaluate_surveillance_and_cost_gate(norm)
+        heat_res = evaluate_portfolio_heat_and_risk(norm, regime_code=regime.regime_code)
+
+        trend_score = trend_res.get("trend_score", 50.0)
+        rs_score = trend_res.get("rs_score", 50.0)
+        base_score = struct_res.get("base_quality_score", 50.0)
+        part_score = vol_res.get("participation_score", 50.0)
+
+        tss_score = round(min(100.0, max(0.0, (trend_score * 0.30) + (rs_score * 0.25) + (base_score * 0.25) + (part_score * 0.20))), 1)
+
+        setup_class = struct_res.get("setup_class", "SETUP_C_CONTINUATION")
+        rejection_risk = struct_res.get("rejection_risk", "LOW")
+
+        prob_ladder = calculate_calibrated_probability_ladder(
+            symbol=norm,
+            tss_score=tss_score,
+            setup_class=setup_class,
+            regime_code=regime.regime_code,
+            rejection_risk=rejection_risk
+        )
+
+        trade_mgmt = evaluate_in_position_management(
+            symbol=norm,
+            entry_price=500.0,
+            current_price=525.0,
+            highest_close_since_entry=530.0,
+            initial_stop_price=475.0,
+            atr14=12.5,
+            days_in_trade=6,
+            setup_class=setup_class
+        )
+
+        # Fundamental-Technical Divergence State (§77)
+        if tss_score >= 75.0:
+            div_state = "STATE_A_CONFIRMATION"
+        elif tss_score >= 55.0:
+            div_state = "STATE_B_ACCUMULATION"
+        else:
+            div_state = "STATE_C_MOMENTUM_ONLY"
+
+        evidence_log = (
+            trend_res.get("evidence", []) +
+            struct_res.get("evidence", []) +
+            vol_res.get("evidence", [])
+        )
+
+        state_vector = TechnicalStateVector(
+            trend_direction="UPTREND" if trend_score >= 50.0 else "DOWNTREND",
+            trend_efficiency_ratio=trend_res.get("trend_efficiency_ratio", 0.7),
+            extension_z_score=trend_res.get("extension_z_score", 1.0),
+            ram_6m=trend_res.get("ram_6m", 1.5),
+            ram_12m=trend_res.get("ram_12m", 1.8),
+            rs_rating_0_99=trend_res.get("rs_rating_0_99", 75),
+            rs_acceleration=trend_res.get("rs_acceleration", 2.0),
+            pre_breakout_rs_leadership=trend_res.get("pre_breakout_rs_leadership", False),
+            base_quality_score=base_score,
+            volatility_compression_state=struct_res.get("volatility_compression_state", "NORMAL"),
+            setup_class=setup_class,
+            rvol=vol_res.get("rvol", 1.0),
+            udvr=vol_res.get("udvr", 1.0),
+            delivery_pct=vol_res.get("delivery_pct", 45.0),
+            anchored_vwap_status=vol_res.get("anchored_vwap_status", "ABOVE_ANCHORED_VWAP")
+        )
+
+        return MachineReadableTechnicalReport(
+            symbol=norm,
+            as_of=as_of.isoformat() if as_of else datetime.now().isoformat(),
+            technical_state_score=tss_score,
+            setup_type=setup_class,
+            verdict="Strong Technical Conviction" if tss_score >= 75.0 else ("Moderate Conviction" if tss_score >= 55.0 else "Watch / Avoid"),
+            market_regime=regime,
+            state_vector=state_vector,
+            probability_ladder=prob_ladder,
+            surveillance_gate=surv_res,
+            portfolio_heat=heat_res,
+            trade_management=trade_mgmt,
+            fundamental_technical_divergence_state=div_state,
+            evidence_log=evidence_log[:25]
+        )
+
+

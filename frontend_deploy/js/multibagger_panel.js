@@ -153,13 +153,17 @@ export async function executeFinderQuery(finderType = "multibagger") {
   window.executeFinderQuery = executeFinderQuery;
 
   let candidates = [];
+  let isFallbackMode = false;
   try {
     const apiData = await loadMultibaggerScreener();
-    if (apiData && apiData.candidates) candidates = apiData.candidates;
+    if (apiData && apiData.candidates && apiData.candidates.length > 0) {
+      candidates = apiData.candidates;
+    }
   } catch (_) {}
 
   // Fallback curated mock data per strategy
   if (!candidates.length) {
+    isFallbackMode = true;
     if (finderType === "multibagger") {
       candidates = [
         { symbol: "POLYCAB", name: "Polycab India Ltd", price: 6850, score: 94, cagr: "28.5%", roce: "24.2%", de: "0.08" },
@@ -194,7 +198,10 @@ export async function executeFinderQuery(finderType = "multibagger") {
       <td class="py-2 px-3 text-xs text-white">${c.name || c.symbol}</td>
       <td class="py-2 px-3 text-xs font-mono text-right text-white">₹${c.price ? c.price.toLocaleString("en-IN") : "—"}</td>
       <td class="py-2 px-3 text-xs font-mono text-right text-green font-bold">${c.score || 85} / 100</td>
-      <td class="py-2 px-3 text-xs text-right">
+      <td class="py-2 px-3 text-xs text-right space-x-1">
+        <button onclick="event.stopPropagation(); window.viewInstitutionalReport('${c.symbol}')" class="btn-secondary text-[11px] py-0.5 px-2 text-gold border-gold/40 hover:bg-gold/10">
+          📄 Report (§58)
+        </button>
         <button onclick="event.stopPropagation(); window.addSymbolToWatchlist('${c.symbol}')" class="btn-secondary text-[11px] py-0.5 px-2 hover:border-gold">
           + Watchlist
         </button>
@@ -202,7 +209,18 @@ export async function executeFinderQuery(finderType = "multibagger") {
     </tr>
   `).join("");
 
+  const fallbackBanner = isFallbackMode ? `
+    <div class="p-2 mb-2.5 bg-amber-950/60 border border-amber-500/50 rounded-lg text-amber-200 text-xs flex items-center justify-between font-mono shadow-inner">
+      <span class="flex items-center gap-1.5">
+        <span class="text-amber-400">⚠️</span>
+        <strong>DEMO DATA MODE</strong>: Displaying curated candidate presets (Backend unauthenticated or offline).
+      </span>
+      <span class="text-[10px] text-amber-300/70 bg-amber-900/50 px-1.5 py-0.5 rounded">Set X-API-Key for Live Engine Results</span>
+    </div>
+  ` : '';
+
   container.innerHTML = `
+    ${fallbackBanner}
     <table class="data-table">
       <thead>
         <tr>
@@ -216,4 +234,76 @@ export async function executeFinderQuery(finderType = "multibagger") {
       <tbody>${rows}</tbody>
     </table>
   `;
+
+  window.viewInstitutionalReport = async function(symbol) {
+    const reportModal = document.getElementById("report-modal") || document.createElement("div");
+    reportModal.id = "report-modal";
+    reportModal.className = "fixed inset-0 z-50 flex items-center justify-center bg-black/80 p-4 font-mono";
+    reportModal.innerHTML = `
+      <div class="bg-surface-lowest border border-gold rounded-lg w-full max-w-4xl max-h-[90vh] overflow-y-auto p-6 text-cream space-y-4">
+        <div class="flex justify-between items-center border-b border-surface-border pb-3">
+          <h2 class="text-lg font-bold text-gold">INSTITUTIONAL STOCK REPORT (§58) — ${symbol}</h2>
+          <button onclick="document.getElementById('report-modal').remove()" class="text-muted hover:text-white font-bold text-lg">&times;</button>
+        </div>
+        <div id="report-modal-body" class="text-xs space-y-3">
+          <p class="text-gold animate-pulse">Generating Machine-Readable Stock Report for ${symbol}...</p>
+        </div>
+      </div>
+    `;
+    document.body.appendChild(reportModal);
+
+    try {
+      const apiKey = localStorage.getItem("equity_lab_api_key") || "demo-key";
+      const resp = await fetch(`/api/v1/multibagger/report/${symbol}`, {
+        headers: { "X-API-Key": apiKey }
+      });
+      if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
+      const data = await resp.json();
+
+      const bodyEl = document.getElementById("report-modal-body");
+      if (!bodyEl) return;
+
+      bodyEl.innerHTML = `
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-3 bg-surface-low p-3 rounded border border-surface-border">
+          <div><span class="text-muted">TIER CLASSIFICATION:</span> <p class="text-gold font-bold">${data.multibagger_tier}</p></div>
+          <div><span class="text-muted">MIVS SCORE:</span> <p class="text-emerald-400 font-bold">${data.mivs_composite_score} / 100</p></div>
+          <div><span class="text-muted">7 HARD GATES:</span> <p class="${data.hard_gates_status === 'PASS' ? 'text-emerald-400' : 'text-red-400'} font-bold">${data.hard_gates_status}</p></div>
+          <div><span class="text-muted">POSITION SIZE:</span> <p class="text-white font-bold">${data.position_sizing_signal?.recommended_position_pct}% (Kelly)</p></div>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 pt-2">
+          <div class="bg-surface-low p-3 rounded border border-surface-border space-y-2">
+            <h4 class="font-bold text-gold border-b border-surface-border pb-1">GOVERNANCE & INSIDER INTEL (§29)</h4>
+            <p><span class="text-muted">Governance Risk:</span> ${data.governance_signal?.beneish_m_score_risk} | Beneish M: ${data.governance_signal?.beneish_m_score}</p>
+            <p><span class="text-muted">Promoter Pledge:</span> ${data.governance_signal?.promoter_pledge_pct}%</p>
+            <p><span class="text-muted">Insider Conviction Score:</span> ${data.insider_signal?.insider_conviction_score}/100</p>
+          </div>
+
+          <div class="bg-surface-low p-3 rounded border border-surface-border space-y-2">
+            <h4 class="font-bold text-gold border-b border-surface-border pb-1">INSTITUTIONAL FLOWS & ALT-DATA (§27, §28)</h4>
+            <p><span class="text-muted">FII/DII Accumulation Streaks:</span> ${data.shareholding_signal?.institutional_accumulation_quarters} Quarters</p>
+            <p><span class="text-muted">GST E-Way Bills:</span> ${data.alt_data_signal?.gst_eway_bill_momentum}</p>
+            <p><span class="text-muted">EPFO Payroll Growth:</span> ${data.alt_data_signal?.epfo_payroll_growth_pct}%</p>
+          </div>
+        </div>
+
+        <div class="bg-surface-low p-3 rounded border border-surface-border space-y-2">
+          <h4 class="font-bold text-red-400 border-b border-surface-border pb-1">ADVERSARIAL RED-TEAM PRE-MORTEM BEAR CASE (§42)</h4>
+          <p class="text-cream-light italic">${data.red_team_record?.written_bear_case}</p>
+          <p class="text-xs text-amber-300 font-semibold mt-1">${data.red_team_record?.adversarial_review_notes}</p>
+        </div>
+
+        <div class="bg-surface-low p-3 rounded border border-surface-border space-y-1">
+          <h4 class="font-bold text-gold border-b border-surface-border pb-1">EVIDENCE LOGS</h4>
+          <ul class="list-disc list-inside space-y-1 text-cream-dark text-[11px]">
+            ${(data.evidence_log || []).slice(0, 8).map(ev => `<li>${ev}</li>`).join('')}
+          </ul>
+        </div>
+      `;
+    } catch (err) {
+      const bodyEl = document.getElementById("report-modal-body");
+      if (bodyEl) bodyEl.innerHTML = `<p class="text-red-400">Failed to fetch report: ${err.message}</p>`;
+    }
+  };
 }
+

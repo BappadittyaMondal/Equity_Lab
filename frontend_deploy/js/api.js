@@ -1,15 +1,30 @@
 // api.js — Centralized API interaction layer for IERL frontend
-// Handles health checks, data fetching, and chart rendering
+// Handles health checks, data fetching, and chart rendering with authenticated API key injection.
 
 const metaApiBase = typeof document !== 'undefined' ? document.querySelector('meta[name="ierl-api-base"]')?.getAttribute('content') : "";
 const API_BASE = window.API_BASE || metaApiBase || "";
+
+/**
+ * Helper wrapper for fetch that automatically attaches the X-API-Key header.
+ */
+export async function apiFetch(endpoint, options = {}) {
+  const apiKey = (typeof window !== 'undefined' && (window.__IERL_API_KEY || localStorage.getItem("ierl_api_key"))) || "";
+  const headers = {
+    ...(options.headers || {}),
+  };
+  if (apiKey) {
+    headers["X-API-Key"] = apiKey;
+  }
+  const url = endpoint.startsWith("http") ? endpoint : `${API_BASE}${endpoint}`;
+  return await fetch(url, { ...options, headers });
+}
 
 /**
  * Check backend API health and display status in header.
  */
 export async function initApiHealth() {
   try {
-    const resp = await fetch(`${API_BASE}/api/v1/health`);
+    const resp = await apiFetch(`/api/v1/health`);
     if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
     const data = await resp.json();
     const indicator = document.getElementById("api-status");
@@ -39,7 +54,7 @@ export async function loadTickerStrip() {
 
   let quotes = [];
   try {
-    const resp = await fetch(`${API_BASE}/api/v1/ticker-strip`);
+    const resp = await apiFetch(`/api/v1/ticker-strip`);
     if (resp.ok) {
       quotes = await resp.json();
     }
@@ -89,7 +104,7 @@ export async function loadRegimeData() {
   if (!container) return;
 
   try {
-    const resp = await fetch(`${API_BASE}/api/v1/regime`);
+    const resp = await apiFetch(`/api/v1/regime`);
     if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
     const data = await resp.json();
 
@@ -114,7 +129,7 @@ export async function loadStrategyCatalog() {
   if (!container) return;
 
   try {
-    const resp = await fetch(`${API_BASE}/api/v1/strategies`);
+    const resp = await apiFetch(`/api/v1/strategies`);
     if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
     const data = await resp.json();
     const strategies = data.strategies || data || [];
@@ -158,7 +173,7 @@ export async function fetchAndRenderChart(period = "1y") {
     </div>`;
 
   try {
-    const resp = await fetch(`${API_BASE}/api/v1/ticker/${encodeURIComponent(symbol)}/history?period=${period}`);
+    const resp = await apiFetch(`/api/v1/ticker/${encodeURIComponent(symbol)}/history?period=${period}`);
     if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
     const data = await resp.json();
     const history = data.history || [];
@@ -220,20 +235,16 @@ export async function fetchAndRenderChart(period = "1y") {
 }
 
 /**
- * Load watchlist data (called from bootstrap; renderWatchlistPanel handles display).
+ * Load watchlist data.
  */
 export async function loadWatchlist() {
-  // Pre-fetch watchlist so it's warm when renderWatchlistPanel runs.
-  // The actual rendering is handled by watchlist_panel.js.
   try {
-    const resp = await fetch(`${API_BASE}/api/v1/watchlist`);
+    const resp = await apiFetch(`/api/v1/watchlist`);
     if (resp.ok) {
       const data = await resp.json();
       window.__IERL_WATCHLIST = data.items || data || [];
     }
-  } catch (_) {
-    // Silent – watchlist_panel.js has its own error handling
-  }
+  } catch (_) {}
 }
 
 /**
@@ -242,7 +253,7 @@ export async function loadWatchlist() {
 export async function loadScorecard(symbol = "RELIANCE") {
   try {
     const sym = encodeURIComponent(symbol);
-    const resp = await fetch(`${API_BASE}/api/v1/research/scorecard?symbol=${sym}`);
+    const resp = await apiFetch(`/api/v1/research/scorecard?symbol=${sym}`);
     if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
     return await resp.json();
   } catch (err) {
@@ -257,7 +268,7 @@ export async function loadScorecard(symbol = "RELIANCE") {
 export async function loadCAGRMatrix(symbol = "RELIANCE") {
   try {
     const sym = encodeURIComponent(symbol);
-    const resp = await fetch(`${API_BASE}/api/v1/research/cagr-matrix?symbol=${sym}`);
+    const resp = await apiFetch(`/api/v1/research/cagr-matrix?symbol=${sym}`);
     if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
     return await resp.json();
   } catch (err) {
@@ -271,7 +282,7 @@ export async function loadCAGRMatrix(symbol = "RELIANCE") {
  */
 export async function loadSwingAlerts() {
   try {
-    const resp = await fetch(`${API_BASE}/api/v1/strategies/swing-alerts`);
+    const resp = await apiFetch(`/api/v1/strategies/swing-alerts`);
     if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
     return await resp.json();
   } catch (err) {
@@ -285,7 +296,7 @@ export async function loadSwingAlerts() {
  */
 export async function loadDriftStatus() {
   try {
-    const resp = await fetch(`${API_BASE}/api/v1/monitoring/drift`);
+    const resp = await apiFetch(`/api/v1/monitoring/drift`);
     if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
     return await resp.json();
   } catch (err) {
@@ -299,7 +310,7 @@ export async function loadDriftStatus() {
  */
 export async function loadMultibaggerScreener() {
   try {
-    const resp = await fetch(`${API_BASE}/api/v1/research/multibagger-screener`);
+    const resp = await apiFetch(`/api/v1/research/multibagger-screener`);
     if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
     return await resp.json();
   } catch (err) {
@@ -313,7 +324,7 @@ export async function loadMultibaggerScreener() {
  */
 export async function fetchReturnProbability(compositeScore = 75, horizonMonths = 12) {
   try {
-    const resp = await fetch(`${API_BASE}/api/v1/return-probability`, {
+    const resp = await apiFetch(`/api/v1/return-probability`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ composite_score: compositeScore, horizon_months: horizonMonths })
@@ -332,7 +343,7 @@ export async function fetchReturnProbability(compositeScore = 75, horizonMonths 
 export async function loadThesisRecord(symbol = "RELIANCE") {
   try {
     const sym = encodeURIComponent(symbol);
-    const resp = await fetch(`${API_BASE}/api/v1/data/thesis/${sym}`);
+    const resp = await apiFetch(`/api/v1/data/thesis/${sym}`);
     if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
     return await resp.json();
   } catch (err) {
@@ -347,7 +358,7 @@ export async function loadThesisRecord(symbol = "RELIANCE") {
 export async function loadLifecycleStage(symbol = "RELIANCE") {
   try {
     const sym = encodeURIComponent(symbol);
-    const resp = await fetch(`${API_BASE}/api/v1/data/lifecycle/${sym}`);
+    const resp = await apiFetch(`/api/v1/data/lifecycle/${sym}`);
     if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
     return await resp.json();
   } catch (err) {
@@ -361,7 +372,7 @@ export async function loadLifecycleStage(symbol = "RELIANCE") {
  */
 export async function postStockCompare(symbols = ["RELIANCE", "TCS"]) {
   try {
-    const resp = await fetch(`${API_BASE}/api/v1/compare`, {
+    const resp = await apiFetch(`/api/v1/compare`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ symbols })
@@ -380,7 +391,7 @@ export async function postStockCompare(symbols = ["RELIANCE", "TCS"]) {
 export async function loadCompanyTimeline(symbol = "RELIANCE") {
   try {
     const sym = encodeURIComponent(symbol);
-    const resp = await fetch(`${API_BASE}/api/v1/data/companies/${sym}/timeline`);
+    const resp = await apiFetch(`/api/v1/data/companies/${sym}/timeline`);
     if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
     return await resp.json();
   } catch (err) {
@@ -395,7 +406,7 @@ export async function loadCompanyTimeline(symbol = "RELIANCE") {
 export async function loadGovernanceQuality(symbol = "RELIANCE") {
   try {
     const sym = encodeURIComponent(symbol);
-    const resp = await fetch(`${API_BASE}/api/v1/research/governance-quality?symbol=${sym}`);
+    const resp = await apiFetch(`/api/v1/research/governance-quality?symbol=${sym}`);
     if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
     return await resp.json();
   } catch (err) {
@@ -410,7 +421,7 @@ export async function loadGovernanceQuality(symbol = "RELIANCE") {
 export async function loadGrowthArbitrage(symbol = "RELIANCE") {
   try {
     const sym = encodeURIComponent(symbol);
-    const resp = await fetch(`${API_BASE}/api/v1/research/growth-arbitrage?symbol=${sym}`);
+    const resp = await apiFetch(`/api/v1/research/growth-arbitrage?symbol=${sym}`);
     if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
     return await resp.json();
   } catch (err) {
@@ -425,7 +436,7 @@ export async function loadGrowthArbitrage(symbol = "RELIANCE") {
 export async function loadGrowthInflection(symbol = "RELIANCE") {
   try {
     const sym = encodeURIComponent(symbol);
-    const resp = await fetch(`${API_BASE}/api/v1/research/growth-inflection?symbol=${sym}`);
+    const resp = await apiFetch(`/api/v1/research/growth-inflection?symbol=${sym}`);
     if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
     return await resp.json();
   } catch (err) {
@@ -440,7 +451,7 @@ export async function loadGrowthInflection(symbol = "RELIANCE") {
 export async function loadTurnaroundStage(symbol = "RELIANCE") {
   try {
     const sym = encodeURIComponent(symbol);
-    const resp = await fetch(`${API_BASE}/api/v1/research/turnaround-stage?symbol=${sym}`);
+    const resp = await apiFetch(`/api/v1/research/turnaround-stage?symbol=${sym}`);
     if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
     return await resp.json();
   } catch (err) {
@@ -454,7 +465,7 @@ export async function loadTurnaroundStage(symbol = "RELIANCE") {
  */
 export async function loadPortfolioHoldings() {
   try {
-    const resp = await fetch(`${API_BASE}/api/v1/portfolio/`);
+    const resp = await apiFetch(`/api/v1/portfolio/`);
     if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
     return await resp.json();
   } catch (err) {
@@ -469,7 +480,7 @@ export async function loadPortfolioHoldings() {
 export async function loadPortfolioNarrative(symbol = "RELIANCE") {
   try {
     const sym = encodeURIComponent(symbol);
-    const resp = await fetch(`${API_BASE}/api/v1/portfolio/narrate/${sym}`);
+    const resp = await apiFetch(`/api/v1/portfolio/narrate/${sym}`);
     if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
     return await resp.json();
   } catch (err) {
@@ -484,7 +495,7 @@ export async function loadPortfolioNarrative(symbol = "RELIANCE") {
 export async function loadTickerDetail(symbol = "RELIANCE") {
   try {
     const sym = encodeURIComponent(symbol);
-    const resp = await fetch(`${API_BASE}/api/v1/ticker/${sym}`);
+    const resp = await apiFetch(`/api/v1/ticker/${sym}`);
     if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
     return await resp.json();
   } catch (err) {
@@ -499,7 +510,7 @@ export async function loadTickerDetail(symbol = "RELIANCE") {
 export async function loadTickerHistory(symbol = "RELIANCE", period = "1y") {
   try {
     const sym = encodeURIComponent(symbol);
-    const resp = await fetch(`${API_BASE}/api/v1/ticker/${sym}/history?period=${period}`);
+    const resp = await apiFetch(`/api/v1/ticker/${sym}/history?period=${period}`);
     if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
     return await resp.json();
   } catch (err) {
@@ -513,7 +524,7 @@ export async function loadTickerHistory(symbol = "RELIANCE", period = "1y") {
  */
 export async function postOptionsPayoff(symbol = "RELIANCE", spotPrice = 2500, strikePrice = 2500) {
   try {
-    const resp = await fetch(`${API_BASE}/api/v1/options/a2-payoff`, {
+    const resp = await apiFetch(`/api/v1/options/a2-payoff`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ symbol, spot_price: spotPrice, strike_price: strikePrice })
@@ -531,7 +542,7 @@ export async function postOptionsPayoff(symbol = "RELIANCE", spotPrice = 2500, s
  */
 export async function loadStrategyHealth() {
   try {
-    const resp = await fetch(`${API_BASE}/api/v1/monitoring/strategy-health`);
+    const resp = await apiFetch(`/api/v1/monitoring/strategy-health`);
     if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
     return await resp.json();
   } catch (err) {
@@ -545,7 +556,7 @@ export async function loadStrategyHealth() {
  */
 export async function loadPredictionLedger() {
   try {
-    const resp = await fetch(`${API_BASE}/api/v1/monitoring/prediction-ledger`);
+    const resp = await apiFetch(`/api/v1/monitoring/prediction-ledger`);
     if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
     return await resp.json();
   } catch (err) {
@@ -559,7 +570,7 @@ export async function loadPredictionLedger() {
  */
 export async function loadSystemReadiness() {
   try {
-    const resp = await fetch(`${API_BASE}/api/v1/readiness`);
+    const resp = await apiFetch(`/api/v1/readiness`);
     if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
     return await resp.json();
   } catch (err) {
@@ -573,7 +584,7 @@ export async function loadSystemReadiness() {
  */
 export async function loadSystemDataAlerts() {
   try {
-    const resp = await fetch(`${API_BASE}/api/v1/data/alerts`);
+    const resp = await apiFetch(`/api/v1/data/alerts`);
     if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
     return await resp.json();
   } catch (err) {
@@ -587,7 +598,7 @@ export async function loadSystemDataAlerts() {
  */
 export async function postScorecardMatrix(symbols = ["RELIANCE", "TCS"]) {
   try {
-    const resp = await fetch(`${API_BASE}/api/v1/research/scorecard-matrix`, {
+    const resp = await apiFetch(`/api/v1/research/scorecard-matrix`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ symbols })

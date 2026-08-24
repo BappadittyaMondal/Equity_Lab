@@ -377,6 +377,8 @@ def get_history(symbol: str, period: str = "1y", interval: str = "1d"):
             warnings.simplefilter("ignore")
             df = yf.download(symbol, period=period, interval=interval, progress=False, timeout=2.0)
             if isinstance(df, pd.DataFrame) and not df.empty and len(df) > 5:
+                if isinstance(df.columns, pd.MultiIndex):
+                    df.columns = df.columns.get_level_values(0)
                 return df
     except Exception:
         pass

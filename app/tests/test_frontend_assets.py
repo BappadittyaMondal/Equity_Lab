@@ -1,7 +1,10 @@
-"""Unit tests for Frontend Asset Structure & API Integration Wiring.
+"""Unit & Integration tests for Frontend Asset Structure, API Wiring, and Auth Gate Enforcement.
 """
 
 import os
+from fastapi.testclient import TestClient
+from app.main import app
+from app.core.config import settings
 
 FRONTEND_DIR = os.path.join(os.path.dirname(__file__), "..", "..", "frontend_deploy")
 
@@ -53,11 +56,14 @@ def test_index_html_mount_points():
 
 
 def test_api_js_endpoint_wiring():
-    """Verify api.js contains fetch wrappers for newly integrated endpoints."""
+    """Verify api.js contains fetch wrappers and apiFetch helper for all endpoints."""
     api_path = os.path.join(FRONTEND_DIR, "js", "api.js")
     assert os.path.exists(api_path)
     with open(api_path, "r", encoding="utf-8") as f:
         code = f.read()
+
+    assert "apiFetch" in code, "apiFetch authorization wrapper missing in api.js"
+    assert "X-API-Key" in code, "X-API-Key header injection missing in api.js"
 
     endpoints = [
         "/api/v1/research/scorecard",
@@ -80,3 +86,38 @@ def test_api_js_endpoint_wiring():
     ]
     for ep in endpoints:
         assert ep in code, f"Missing endpoint fetch call '{ep}' in api.js"
+
+
+def test_api_auth_and_http_integration():
+    """Live HTTP integration test verifying health, strategy catalog, and X-API-Key security gate."""
+    client = TestClient(app)
+
+    # 1. Health endpoint (always public)
+    res_health = client.get("/api/v1/health")
+    assert res_health.status_code == 200
+    assert res_health.json().get("status") in ["healthy", "ONLINE"]
+
+    # 2. Public endpoint access
+    res_strat = client.get("/api/v1/strategies")
+    assert res_strat.status_code == 200
+
+    # 3. Auth gate enforcement test
+    orig_req_auth = settings.REQUIRE_AUTH
+    orig_key_secret = settings.API_KEY_SECRET
+
+    try:
+        settings.REQUIRE_AUTH = True
+        settings.API_KEY_SECRET = "institutional_secret_test_key"
+
+        # Request without X-API-Key must yield 401
+        res_unauth = client.get("/api/v1/readiness")
+        assert res_unauth.status_code == 401
+        assert "Valid API authentication" in res_unauth.json().get("detail", "")
+
+        # Request WITH X-API-Key must yield 200
+        res_auth = client.get("/api/v1/readiness", headers={"X-API-Key": "institutional_secret_test_key"})
+        assert res_auth.status_code == 200
+
+    finally:
+        settings.REQUIRE_AUTH = orig_req_auth
+        settings.API_KEY_SECRET = orig_key_secret

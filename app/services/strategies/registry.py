@@ -1,6 +1,6 @@
 """Strategy Module Registry.
 
-Maintains metadata and execution routing for all 26 IERL Modules (18 Expert Strategy Modules A1–D18 + 8 Core Research Engines E1–E8).
+Maintains metadata and execution routing for all 35 IERL Modules (18 Expert Strategy Modules A1–D18 + 17 Core Research Engines E1–E17).
 Strictly distinguishes production modules from coming-soon modules.
 """
 
@@ -21,6 +21,9 @@ from app.services.strategies.technical_engines import (
 )
 from app.services.strategies.forensic_engine import run_forensic_engine
 from app.services.strategies.dcf_forward import run_dcf_forward
+from app.services.strategies.options_a1_a3 import evaluate_option_arbitrage, evaluate_iron_condor
+from app.services.strategies.owner_earnings_c10 import evaluate_owner_earnings
+from app.services.strategies.dual_momentum_d16 import evaluate_dual_momentum
 
 # Master Registry of 18 Expert Strategy Modules (A1–D18)
 STRATEGY_MODULES: Dict[str, StrategyModule] = {
@@ -339,13 +342,121 @@ RESEARCH_ENGINES: Dict[str, StrategyModule] = {
         metrics=["moat_score", "moat_classification", "moat_trajectory", "unit_economics_score", "unit_trend"],
         risk_warnings=["Qualitative moat dimensions require periodic management commentary verification."],
         methodology="6-variable competitive advantage rubric combined with sector-conditional unit economics model."
+    ),
+    "E9": StrategyModule(
+        id="E9",
+        name="Promoter & Insider Behaviour Engine",
+        category="Governance & Forensics",
+        description="Evaluates promoter skin-in-the-game, SAST disclosures, pledge trends, bulk deals, ESOPs, and buying into price weakness.",
+        status="production",
+        required_inputs=["symbol"],
+        universe="NSE All Equities",
+        metrics=["insider_conviction_score", "hard_gate_status", "promoter_pledge_pct"],
+        risk_warnings=["Requires verified BSE/NSE SAST disclosures."],
+        methodology="Promoter transaction weighting, pledge trajectory, and consolidated governance checklist."
+    ),
+    "E10": StrategyModule(
+        id="E10",
+        name="Shareholding-Pattern Intelligence Engine",
+        category="Institutional Flows",
+        description="Tracks FII/DII accumulation streaks, retail holding trend, free-float index catalysts, and concentration risk.",
+        status="production",
+        required_inputs=["symbol"],
+        universe="NSE All Equities",
+        metrics=["institutional_flow_score", "accumulation_quarters", "index_catalyst"],
+        risk_warnings=["Quarterly shareholding filings have up to 21-day reporting lag."],
+        methodology="Multi-quarter institutional accumulation tracking and free-float market cap threshold model."
+    ),
+    "E11": StrategyModule(
+        id="E11",
+        name="Primary Research Scuttlebutt & Indian Alt-Data Engine",
+        category="Alternative Data & Intel",
+        description="Processes GST e-way bills, EPFO payrolls, Vahan registrations, UPI data, DGCI&S trade data, and scuttlebutt channel checks.",
+        status="production",
+        required_inputs=["symbol"],
+        universe="NSE All Equities",
+        metrics=["alt_data_score", "external_confirmation_score"],
+        risk_warnings=["Requires independent cross-verification of channel check reports."],
+        methodology="Indian macro/alt-data signal fusion and Philip Fisher scuttlebutt evaluation."
+    ),
+    "E12": StrategyModule(
+        id="E12",
+        name="Management Commentary & Concall NLP Engine",
+        category="Qualitative Intelligence",
+        description="Evaluates concall management tone shifts, guidance specificity, language consistency across quarters, and Q&A deflection.",
+        status="production",
+        required_inputs=["symbol"],
+        universe="NSE All Equities",
+        metrics=["commentary_confidence_score", "tone_shift_direction"],
+        risk_warnings=["NLP sentiment scores must be validated against actual financial results."],
+        methodology="Transcript tone extraction, guidance specificity index, and deflection detection algorithm."
+    ),
+    "E13": StrategyModule(
+        id="E13",
+        name="Regulatory Catalysts & Corporate Actions Engine",
+        category="Catalyst Intelligence",
+        description="Tracks PLI schemes, customs tariffs, PSU catalysts, buyback pricing vs intrinsic value, QIP dilution, and credit rating actions.",
+        status="production",
+        required_inputs=["symbol"],
+        universe="NSE All Equities",
+        metrics=["catalyst_score", "catalyst_timing_horizon"],
+        risk_warnings=["Government policy timelines are subject to regulatory delays."],
+        methodology="Policy impact matrix, accretive buyback formula, and credit rating agency momentum model."
+    ),
+    "E14": StrategyModule(
+        id="E14",
+        name="Portfolio Position Sizing & Exit Discipline Engine",
+        category="Portfolio Management",
+        description="Calculates Fractional-Kelly position weight, ADTV liquidity caps, archetype scaling ladders, and drawdown tolerance bands.",
+        status="production",
+        required_inputs=["symbol"],
+        universe="NSE All Equities",
+        metrics=["recommended_position_pct", "drawdown_tolerance_band_pct"],
+        risk_warnings=["Position sizing must respect overall portfolio risk constraints."],
+        methodology="Quarter-Kelly formula, liquidity ADTV caps, scaling ladders, and archetype drawdown tolerance."
+    ),
+    "E15": StrategyModule(
+        id="E15",
+        name="Business-Model Peer Normalization Engine",
+        category="Quantitative Benchmarking",
+        description="Constructs unit-economics peer sets and converts raw fundamental scores into sector-relative z-scores and percentile ranks.",
+        status="production",
+        required_inputs=["symbol"],
+        universe="NSE All Equities",
+        metrics=["sector_relative_percentile", "z_scores"],
+        risk_warnings=["Requires valid sector distribution parameters."],
+        methodology="Standard normal CDF transformation across 9 sector benchmark distributions."
+    ),
+    "E16": StrategyModule(
+        id="E16",
+        name="Analyst Behavioral-Bias & Red-Team Review Engine",
+        category="Risk Governance",
+        description="Enforces mandatory pre-mortem written bear cases, adversarial red-team reviews, price-action re-evaluation triggers, and Gate 7 bias check.",
+        status="production",
+        required_inputs=["symbol"],
+        universe="NSE All Equities",
+        metrics=["gate_7_passed", "pre_mortem_failure_causes"],
+        risk_warnings=["Analyst bias checks require honest pre-mortem scenario creation."],
+        methodology="3-vector failure pre-mortem analysis, short-seller challenge simulation, and price drift triggers."
+    ),
+    "E17": StrategyModule(
+        id="E17",
+        name="Backtesting & Statistical Validation Framework Engine",
+        category="Statistical Validation",
+        description="Computes Walk-Forward out-of-sample backtests, Information Coefficients (IC) per factor, factor decay half-lives, and survivorship control.",
+        status="production",
+        required_inputs=["symbol"],
+        universe="NSE All Equities",
+        metrics=["average_ic", "out_of_sample_sharpe", "factor_decay_half_life_months"],
+        risk_warnings=["Historical IC performance does not guarantee future factor outperformance."],
+        methodology="Spearman rank correlation, walk-forward out-of-sample validation, and point-in-time lag enforcement."
     )
 }
 
 
 
 def list_strategy_modules() -> List[StrategyModule]:
-    """Returns list of all 26 master strategy modules & research engines with status."""
+    """Returns list of all 35 master strategy modules & research engines with status."""
     return list(STRATEGY_MODULES.values()) + list(RESEARCH_ENGINES.values())
 
 
@@ -600,6 +711,151 @@ def run_strategy_module(strategy_id: str, symbol: str = "RELIANCE", as_of: Optio
             disclaimer="Governance Quality assessment.",
             meta=res_c13.meta
         )
+    elif module.id == "E9":
+        from app.services.strategies.promoter_behaviour import evaluate_promoter_behaviour
+        res_e9 = evaluate_promoter_behaviour(symbol, as_of=as_of)
+        return StrategyRunResponse(
+            strategy_id="E9",
+            strategy_name=module.name,
+            status="production",
+            executed_at=res_e9["executed_at"],
+            symbol=res_e9["symbol"],
+            passed_gates=(res_e9["insider_conviction_score"] >= 65.0 and res_e9["hard_gate_status"] != "FAIL"),
+            results=res_e9,
+            metrics={"insider_conviction_score": res_e9["insider_conviction_score"]},
+            risk_warnings=module.risk_warnings,
+            disclaimer="Promoter & Insider Behaviour Engine assessment.",
+            meta=res_e9["meta"]
+        )
+    elif module.id == "E10":
+        from app.services.strategies.shareholding_pattern import evaluate_shareholding_pattern
+        res_e10 = evaluate_shareholding_pattern(symbol, as_of=as_of)
+        return StrategyRunResponse(
+            strategy_id="E10",
+            strategy_name=module.name,
+            status="production",
+            executed_at=res_e10["executed_at"],
+            symbol=res_e10["symbol"],
+            passed_gates=(res_e10["institutional_flow_score"] >= 60.0),
+            results=res_e10,
+            metrics={"institutional_flow_score": res_e10["institutional_flow_score"]},
+            risk_warnings=module.risk_warnings,
+            disclaimer="Shareholding-Pattern Intelligence assessment.",
+            meta=res_e10["meta"]
+        )
+    elif module.id == "E11":
+        from app.services.strategies.alternative_data import evaluate_alternative_data
+        res_e11 = evaluate_alternative_data(symbol, as_of=as_of)
+        return StrategyRunResponse(
+            strategy_id="E11",
+            strategy_name=module.name,
+            status="production",
+            executed_at=res_e11["executed_at"],
+            symbol=res_e11["symbol"],
+            passed_gates=(res_e11["external_confirmation_score"] in ["HIGH", "MEDIUM"]),
+            results=res_e11,
+            metrics={"alt_data_score": res_e11["alt_data_score"]},
+            risk_warnings=module.risk_warnings,
+            disclaimer="Primary Scuttlebutt & Indian Alt-Data assessment.",
+            meta=res_e11["meta"]
+        )
+    elif module.id == "E12":
+        from app.services.strategies.concall_nlp import evaluate_concall_nlp
+        res_e12 = evaluate_concall_nlp(symbol, as_of=as_of)
+        return StrategyRunResponse(
+            strategy_id="E12",
+            strategy_name=module.name,
+            status="production",
+            executed_at=res_e12["executed_at"],
+            symbol=res_e12["symbol"],
+            passed_gates=(res_e12["commentary_confidence_score"] >= 65.0),
+            results=res_e12,
+            metrics={"commentary_confidence_score": res_e12["commentary_confidence_score"]},
+            risk_warnings=module.risk_warnings,
+            disclaimer="Management Commentary & Concall NLP assessment.",
+            meta=res_e12["meta"]
+        )
+    elif module.id == "E13":
+        from app.services.strategies.catalyst_corporate_actions import evaluate_catalysts_and_corporate_actions
+        res_e13 = evaluate_catalysts_and_corporate_actions(symbol, as_of=as_of)
+        return StrategyRunResponse(
+            strategy_id="E13",
+            strategy_name=module.name,
+            status="production",
+            executed_at=res_e13["executed_at"],
+            symbol=res_e13["symbol"],
+            passed_gates=(res_e13["catalyst_score"] >= 60.0),
+            results=res_e13,
+            metrics={"catalyst_score": res_e13["catalyst_score"]},
+            risk_warnings=module.risk_warnings,
+            disclaimer="Regulatory Catalysts & Corporate Actions assessment.",
+            meta=res_e13["meta"]
+        )
+    elif module.id == "E14":
+        from app.services.research.portfolio_construction import evaluate_portfolio_construction
+        res_e14 = evaluate_portfolio_construction(symbol, as_of=as_of)
+        return StrategyRunResponse(
+            strategy_id="E14",
+            strategy_name=module.name,
+            status="production",
+            executed_at=res_e14["executed_at"],
+            symbol=res_e14["symbol"],
+            passed_gates=(res_e14["recommended_position_pct"] > 0.0),
+            results=res_e14,
+            metrics={"recommended_position_pct": res_e14["recommended_position_pct"]},
+            risk_warnings=module.risk_warnings,
+            disclaimer="Portfolio Position Sizing Engine assessment.",
+            meta=res_e14["meta"]
+        )
+    elif module.id == "E15":
+        from app.services.research.peer_normalization import evaluate_peer_normalization
+        res_e15 = evaluate_peer_normalization(symbol, as_of=as_of)
+        return StrategyRunResponse(
+            strategy_id="E15",
+            strategy_name=module.name,
+            status="production",
+            executed_at=res_e15["executed_at"],
+            symbol=res_e15["symbol"],
+            passed_gates=(res_e15["sector_relative_percentile"] >= 50.0),
+            results=res_e15,
+            metrics={"sector_relative_percentile": res_e15["sector_relative_percentile"]},
+            risk_warnings=module.risk_warnings,
+            disclaimer="Business-Model Peer Normalization assessment.",
+            meta=res_e15["meta"]
+        )
+    elif module.id == "E16":
+        from app.services.decision_brain.red_team_engine import evaluate_red_team_review
+        res_e16 = evaluate_red_team_review(symbol, as_of=as_of)
+        return StrategyRunResponse(
+            strategy_id="E16",
+            strategy_name=module.name,
+            status="production",
+            executed_at=res_e16["executed_at"],
+            symbol=res_e16["symbol"],
+            passed_gates=res_e16["gate_7_passed"],
+            results=res_e16,
+            metrics={"gate_7_passed": 1.0 if res_e16["gate_7_passed"] else 0.0},
+            risk_warnings=module.risk_warnings,
+            disclaimer="Analyst Behavioral-Bias & Red-Team Review assessment.",
+            meta=res_e16["meta"]
+        )
+    elif module.id == "E17":
+        from app.services.backtesting.validation_framework import evaluate_backtest_validation
+        res_e17 = evaluate_backtest_validation(symbol, as_of=as_of)
+        return StrategyRunResponse(
+            strategy_id="E17",
+            strategy_name=module.name,
+            status="production",
+            executed_at=res_e17["executed_at"],
+            symbol=res_e17["symbol"],
+            passed_gates=(res_e17["average_ic"] > 0.05 and res_e17["out_of_sample_sharpe"] >= 1.0),
+            results=res_e17,
+            metrics={"average_ic": res_e17["average_ic"], "out_of_sample_sharpe": res_e17["out_of_sample_sharpe"]},
+            risk_warnings=module.risk_warnings,
+            disclaimer="Backtesting & Statistical Validation Framework assessment.",
+            meta=res_e17["meta"]
+        )
+
 
 
     elif module.id == "A2":
@@ -660,6 +916,66 @@ def run_strategy_module(strategy_id: str, symbol: str = "RELIANCE", as_of: Optio
         return run_mean_reversion_d17(symbol)
     elif module.id in ("C11", "C12", "FORENSIC"):
         return run_forensic_engine(symbol)
+    elif module.id == "A1":
+        res_a1 = evaluate_option_arbitrage(symbol)
+        return StrategyRunResponse(
+            strategy_id="A1",
+            strategy_name=module.name,
+            status="production",
+            executed_at=res_a1["executed_at"],
+            symbol=res_a1["symbol"],
+            passed_gates=res_a1["arbitrage_opportunity"],
+            results=res_a1,
+            metrics={"parity_gap_pct": res_a1["parity_gap_pct"], "implied_volatility_skew": res_a1["implied_volatility_skew"]},
+            risk_warnings=module.risk_warnings,
+            disclaimer="Option Arbitrage & Calendar Spreads Engine assessment.",
+            meta=res_a1["meta"]
+        )
+    elif module.id == "A3":
+        res_a3 = evaluate_iron_condor(symbol)
+        return StrategyRunResponse(
+            strategy_id="A3",
+            strategy_name=module.name,
+            status="production",
+            executed_at=res_a3["executed_at"],
+            symbol=res_a3["symbol"],
+            passed_gates=(res_a3["probability_of_profit"] >= 65.0),
+            results=res_a3,
+            metrics={"max_profit": res_a3["max_profit"], "max_risk": res_a3["max_risk"], "probability_of_profit": res_a3["probability_of_profit"]},
+            risk_warnings=module.risk_warnings,
+            disclaimer="Iron Condor Volatility Premium Capture Engine assessment.",
+            meta=res_a3["meta"]
+        )
+    elif module.id == "C10":
+        res_c10 = evaluate_owner_earnings(symbol, as_of=as_of)
+        return StrategyRunResponse(
+            strategy_id="C10",
+            strategy_name=module.name,
+            status="production",
+            executed_at=res_c10["executed_at"],
+            symbol=res_c10["symbol"],
+            passed_gates=(res_c10["fcf_yield_pct"] >= 2.5),
+            results=res_c10,
+            metrics={"fcf_yield_pct": res_c10["fcf_yield_pct"], "owner_earnings_inr": res_c10["owner_earnings_inr"]},
+            risk_warnings=module.risk_warnings,
+            disclaimer="Owner Earnings & Free Cash Flow Yield Engine assessment.",
+            meta=res_c10["meta"]
+        )
+    elif module.id == "D16":
+        res_d16 = evaluate_dual_momentum(symbol, as_of=as_of)
+        return StrategyRunResponse(
+            strategy_id="D16",
+            strategy_name=module.name,
+            status="production",
+            executed_at=res_d16["executed_at"],
+            symbol=res_d16["symbol"],
+            passed_gates=(res_d16["dual_momentum_signal"] == "STRONG_BUY"),
+            results=res_d16,
+            metrics={"absolute_momentum_12m_pct": res_d16["absolute_momentum_12m_pct"], "relative_momentum_spread_pct": res_d16["relative_momentum_spread_pct"]},
+            risk_warnings=module.risk_warnings,
+            disclaimer="Dual Momentum Trend Following Engine assessment.",
+            meta=res_d16["meta"]
+        )
     elif module.id == "DCF_FWD":
         return run_dcf_forward(symbol)
     else:

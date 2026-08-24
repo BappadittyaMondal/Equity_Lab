@@ -63,18 +63,21 @@ def test_mivs_dimension_scoring():
 
     clean_outputs = [
         {"engine_id": "E1", "verdict": "Buy", "confidence": 85, "raw": MockEngineOutput(score_0_100=85.0)},
-        {"engine_id": "E7", "verdict": "Buy", "confidence": 90, "raw": MockEngineOutput(score_0_100=90.0)},
+        {"engine_id": "B5", "verdict": "Buy", "confidence": 90, "raw": MockEngineOutput(score_0_100=90.0)},
+        {"engine_id": "D18", "verdict": "Buy", "confidence": 80, "raw": MockEngineOutput(score_0_100=80.0)},
+        {"engine_id": "E7", "verdict": "Buy", "confidence": 85, "raw": MockEngineOutput(score_0_100=85.0)},
         {"engine_id": "E2", "verdict": "Buy", "confidence": 75, "raw": MockEngineOutput(score_0_100=75.0)},
-        {"engine_id": "E21", "verdict": "Buy", "confidence": 80, "raw": MockEngineOutput(score_0_100=80.0)},
-        {"engine_id": "B5", "verdict": "Buy", "confidence": 70, "raw": MockEngineOutput(score_0_100=70.0)},
-        {"engine_id": "C11", "verdict": "Buy", "confidence": 95, "raw": MockEngineOutput(score_0_100=95.0)},
+        {"engine_id": "C13", "verdict": "Buy", "confidence": 85, "raw": MockEngineOutput(score_0_100=85.0)},
+        {"engine_id": "C9", "verdict": "Buy", "confidence": 80, "raw": MockEngineOutput(score_0_100=80.0)},
+        {"engine_id": "C11", "verdict": "Buy", "confidence": 85, "raw": MockEngineOutput(score_0_100=85.0)},
+        {"engine_id": "EVIDENCE", "verdict": "Buy", "confidence": 90, "raw": MockEngineOutput(score_0_100=90.0)},
     ]
 
     res = engine.compute_mivs("CLEAN_TICKER", clean_outputs)
     assert res.passed_hard_gates
     assert res.mivs_score > 70.0
     assert res.verdict in ("Buy", "Strong Buy")
-    assert len(res.dimension_scores) == 6
+    assert len(res.dimension_scores) == 9
 
 
 def test_arbiter_mivs_integration():

@@ -24,13 +24,13 @@ try:
     # Validate CORS settings for production environment
     settings._validate_cors_settings()
     from app.core.security import ApiSecurityMiddleware, SecurityHeadersMiddleware, verify_api_key
-    from app.api import health, market, comparison, probability, options, strategies, query, research_data, watchlist, decision, watchlist_digest, monitoring, admin, portfolio
+    from app.api import health, market, comparison, probability, options, strategies, query, research_data, watchlist, decision, watchlist_digest, monitoring, admin, portfolio, multibagger, technical
 except ModuleNotFoundError:
     from core.config import settings
     # Validate CORS settings for production environment
     settings._validate_cors_settings()
     from core.security import ApiSecurityMiddleware, SecurityHeadersMiddleware, verify_api_key
-    from api import health, market, comparison, probability, options, strategies, query, research_data, watchlist, decision, watchlist_digest, monitoring, admin, portfolio
+    from api import health, market, comparison, probability, options, strategies, query, research_data, watchlist, decision, watchlist_digest, monitoring, admin, portfolio, multibagger, technical
 
 app = FastAPI(
     title=settings.PROJECT_NAME,
@@ -82,6 +82,8 @@ app.include_router(decision.router, dependencies=auth_deps)
 app.include_router(watchlist_digest.router, dependencies=auth_deps)
 app.include_router(monitoring.router, dependencies=auth_deps)
 app.include_router(portfolio.router, dependencies=auth_deps)
+app.include_router(multibagger.router, dependencies=auth_deps)
+app.include_router(technical.router, dependencies=auth_deps)
 app.include_router(admin.router)
 
 # Mount Frontend Assets
