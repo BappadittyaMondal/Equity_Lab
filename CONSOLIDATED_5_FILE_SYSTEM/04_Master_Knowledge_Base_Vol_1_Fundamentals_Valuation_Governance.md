@@ -1,8 +1,8 @@
 # 04_Master_Knowledge_Base_Vol_1_Fundamentals_Valuation_Governance
 
 > **IERL AI Equity OS — curated upload artifact**  
-> Project Version: `0.0.0` · Bundle Version: `2.0` · Source Commit: `ad0beda`  
-> Generated At: `2026-08-23T18:31:52.659405+00:00` · Source Hash: `9ef11ec99b01c3b4` · Compiler: `consolidate_project.py` v2.0
+> Project Version: `0.0.0` · Bundle Version: `2.0` · Source Commit: `b3f9522`  
+> Generated At: `2026-08-25T14:16:09.735759+00:00` · Source Hash: `cb1812ef9b1daa84` · Compiler: `consolidate_project.py` v2.0
 
 ## Operating contract
 
@@ -19,7 +19,7 @@ This is a generated, read-only working volume. The separately maintained source 
 | Upload file | Primary use | Sources |
 |---|---|---:|
 | `01_Master_System_Core_Instructions_Architecture.md` | 01 System Core Instructions Architecture | 8 |
-| `02_Master_Engine_Contracts_Schemas_Registries.md` | 02 Engine Contracts Schemas Registries | 16 |
+| `02_Master_Engine_Contracts_Schemas_Registries.md` | 02 Engine Contracts Schemas Registries | 18 |
 | `03_Master_Skill_Library.md` | 03 Skill Library | 18 |
 | `04_Master_Knowledge_Base_Vol_1_Fundamentals_Valuation_Governance.md` | 04 Knowledge Base Vol 1 Fundamentals Valuation Governance | 24 |
 | `05_Master_Knowledge_Base_Vol_2_Sectors_Frameworks_Screening.md` | 05 Knowledge Base Vol 2 Sectors Frameworks Screening | 27 |

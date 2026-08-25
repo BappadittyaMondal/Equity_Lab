@@ -60,20 +60,9 @@ export async function loadTickerStrip() {
     }
   } catch (_) {}
 
-  // High-fidelity fallback indices & assets
   if (!Array.isArray(quotes) || quotes.length === 0) {
-    quotes = [
-      { symbol: "NIFTY 50", price: 24820.50, change_percent: 0.85 },
-      { symbol: "SENSEX", price: 81450.20, change_percent: 0.78 },
-      { symbol: "BANK NIFTY", price: 52310.00, change_percent: 1.12 },
-      { symbol: "DOW JONES", price: 40820.10, change_percent: 0.42 },
-      { symbol: "GOLD (10g)", price: 72450.00, change_percent: -0.25 },
-      { symbol: "USD/INR", price: 83.92, change_percent: 0.05 },
-      { symbol: "BITCOIN", price: 61250.00, change_percent: 2.15 },
-      { symbol: "RELIANCE", price: 2980.00, change_percent: 2.45 },
-      { symbol: "TCS", price: 4250.00, change_percent: -0.65 },
-      { symbol: "HDFCBANK", price: 1640.00, change_percent: 1.15 }
-    ];
+    container.innerHTML = `<span class="px-3 py-1 text-xs text-amber-400 font-mono">⚠️ MARKET TICKER DATA UNAVAILABLE</span>`;
+    return;
   }
 
   const tickerHTML = quotes.map(q => {

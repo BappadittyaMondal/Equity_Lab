@@ -1,8 +1,8 @@
 # 05_Master_Knowledge_Base_Vol_2_Sectors_Frameworks_Screening
 
 > **IERL AI Equity OS — curated upload artifact**  
-> Project Version: `0.0.0` · Bundle Version: `2.0` · Source Commit: `ad0beda`  
-> Generated At: `2026-08-23T18:31:52.659405+00:00` · Source Hash: `9ef11ec99b01c3b4` · Compiler: `consolidate_project.py` v2.0
+> Project Version: `0.0.0` · Bundle Version: `2.0` · Source Commit: `b3f9522`  
+> Generated At: `2026-08-25T14:16:09.735759+00:00` · Source Hash: `cb1812ef9b1daa84` · Compiler: `consolidate_project.py` v2.0
 
 ## Operating contract
 
@@ -19,7 +19,7 @@ This is a generated, read-only working volume. The separately maintained source 
 | Upload file | Primary use | Sources |
 |---|---|---:|
 | `01_Master_System_Core_Instructions_Architecture.md` | 01 System Core Instructions Architecture | 8 |
-| `02_Master_Engine_Contracts_Schemas_Registries.md` | 02 Engine Contracts Schemas Registries | 16 |
+| `02_Master_Engine_Contracts_Schemas_Registries.md` | 02 Engine Contracts Schemas Registries | 18 |
 | `03_Master_Skill_Library.md` | 03 Skill Library | 18 |
 | `04_Master_Knowledge_Base_Vol_1_Fundamentals_Valuation_Governance.md` | 04 Knowledge Base Vol 1 Fundamentals Valuation Governance | 24 |
 | `05_Master_Knowledge_Base_Vol_2_Sectors_Frameworks_Screening.md` | 05 Knowledge Base Vol 2 Sectors Frameworks Screening | 27 |
@@ -61,7 +61,7 @@ The SHA-256 values cover the exact UTF-8 source payload, not this wrapper. Use t
 | 23 | `Domain_46_Technical_Growth_Second_Brain_Strategies.md` | 8,590 | `304b6b625eda120bd631db6c23b367cf6115f057348b5b624e0b260decd1efe0` |
 | 24 | `Domain_47_Fundamental_Value_Structural_Strategies.md` | 12,145 | `2aa2ff4a478f956c13222d66c16ff96574e9c92f7f150ee7777c3256e451f1d7` |
 | 25 | `Domain_48_Quant_Momentum_Ethical_Screening_Strategies.md` | 8,322 | `d21ffa06684dcd6c1893a4322e8585be9d0afae095a1a1f1eb1824821d4e53fd` |
-| 26 | `Screener_Field_Glossary_v_0_0.md` | 4,688 | `08fc61ccba29de934637e7df229aabde012076aabe2d7d65dfbec0b414faecf4` |
+| 26 | `Screener_Field_Glossary_v_0_0.md` | 4,608 | `dfc5983dcc65e76fe48e49451b3b12b3ceb0c67277bdd191bb668b3f53b836ce` |
 | 27 | `Sector_Quick_Reference_v_0_0.md` | 7,996 | `3f407215c6098dc55567482d9eb22a3cc26c3091d89f0fd4d2411f7dbdd27c4b` |
 
 ---
@@ -2659,7 +2659,7 @@ End of Document — Domain 48
 
 ---
 
-<!-- BEGIN SYSTEM FILE 26: Screener_Field_Glossary_v_0_0.md | SHA256: 08fc61ccba29de934637e7df229aabde012076aabe2d7d65dfbec0b414faecf4 -->
+<!-- BEGIN SYSTEM FILE 26: Screener_Field_Glossary_v_0_0.md | SHA256: dfc5983dcc65e76fe48e49451b3b12b3ceb0c67277bdd191bb668b3f53b836ce -->
 ## Embedded source 26: Screener Field Glossary
 
 <!-- IERL-CANONICAL-METADATA v1.2 -->
@@ -2673,8 +2673,6 @@ End of Document — Domain 48
 # Screener Field Glossary v_0.0
 
 **Purpose:** A compact reference so the AI correctly interprets whatever screener.in-style data you paste in — field names only, no new logic. Not a new engine, not a new skill — just vocabulary.
-
-**Paste Target:** Standalone reference file — no merge needed, upload as-is.
 
 ---
 

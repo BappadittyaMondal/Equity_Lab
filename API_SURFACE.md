@@ -1,151 +1,73 @@
-# Equity Lab — Frozen API Surface Contract (`API_SURFACE.md`)
+# Equity Lab — API Surface Specification
 
-Version: `1.0.0-PROD`  
-Base Path: `/api/v1`
+> Total Endpoints: 65
 
----
-
-## 1. Executive Summary & UI Integration Contract
-
-This document freezes the backend API surface for **Equity Lab UI/UX Integration**. All endpoints are live, fully typed with Pydantic V2 schemas, enforce point-in-time data boundaries, handle explicit `DataMode` status (`LIVE`, `RECENT`, `CACHED`, `STALE`, `INSUFFICIENT`, `ERROR`), and return deterministic responses.
-
----
-
-## 2. Core Endpoint Specifications
-
-### 2.1 Health & System Diagnostics
-- **`GET /api/v1/health`**
-  - **Description**: Verifies live database, cache, market feeds, and system environment status.
-  - **Auth**: None required.
-  - **Response Schema**:
-    ```json
-    {
-      "status": "healthy",
-      "timestamp": "2026-08-21T15:41:15Z",
-      "environment": "production",
-      "db_connected": true,
-      "providers": {
-        "yfinance": "LIVE",
-        "yahoo_direct": "LIVE",
-        "nse_india": "CACHED"
-      }
-    }
-    ```
-
-### 2.2 Ticker & Market Data
-- **`GET /api/v1/ticker/{symbol}`**
-  - **Description**: Fetches normalized market quote, price metrics, and data mode header.
-  - **Parameters**: `symbol` (e.g. `RELIANCE` or `RELIANCE.NS`)
-  - **Response Schema**:
-    ```json
-    {
-      "symbol": "RELIANCE.NS",
-      "price": 2850.50,
-      "change": 15.20,
-      "change_pct": 0.54,
-      "high_52w": 3020.00,
-      "low_52w": 2220.00,
-      "pe_ratio": 24.8,
-      "market_cap_cr": 1928400.0,
-      "data_mode": "LIVE",
-      "as_of": "2026-08-21T15:41:15Z"
-    }
-    ```
-
-- **`GET /api/v1/regime`**
-  - **Description**: Returns live India VIX, Nifty 200DMA distance, FII/DII flow metrics, and regime classification (`CALM`, `ELEVATED`, `VOLATILE`, `CRISIS`).
-
-- **`GET /api/v1/ticker-strip`**
-  - **Description**: Lightweight ticker tape quotes for benchmark indices (Nifty 50, Bank Nifty, Nifty Smallcap 100, India VIX).
-
----
-
-### 2.3 Conviction & Decision Brain
-- **`GET /api/v1/decision/{symbol}`**
-  - **Description**: Runs Arbiter decision engine across all 18 strategy modules, forensic engines, and debate brain. Auto-logs call to `prediction_ledger`.
-  - **Parameters**: `symbol` (str), `as_of` (optional ISO-8601 string)
-  - **Response Schema**:
-    ```json
-    {
-      "symbol": "RELIANCE.NS",
-      "verdict": "Buy",
-      "conviction_score": 88,
-      "confidence_tier": "Confirmed",
-      "primary_thesis": "Strong retail margin expansion and FCF inflection combined with clean Beneish M-Score (-2.45).",
-      "contributing_engines": ["E1_GROWTH_INFLECTION", "E3_GROWTH_GAP", "B8_SEPA"],
-      "contradicting_engines": [],
-      "vetoes_triggered": [],
-      "audit_trail": {
-        "decision_id": 1042,
-        "model_version": "1.0.0-PROD-ML-LOGISTIC",
-        "data_mode": "LIVE",
-        "why_explainer": "Verdict: Buy (Score: 88/100). Supported by E1 Growth Inflection and E3 Expectation Gap. No forensic vetoes triggered."
-      }
-    }
-    ```
-
----
-
-### 2.4 Multibagger Screener & Research MVP
-- **`GET /api/v1/research/multibagger-screener?symbol={symbol}`**
-  - **Description**: Multi-factor composite evaluation combining E1 Inflection (30%), E2 Turnaround (25%), E3 Expectation Gap (20%), Governance Quality (15%), and Saatvik Ethical filter (10%).
-
-- **`GET /api/v1/research/governance-quality?symbol={symbol}`**
-  - **Description**: Calculates promoter pledge %, holding dilution, CFO/PAT accounting hygiene ratio, and Beneish M-Score.
-
----
-
-### 2.5 Multi-Horizon Prediction Engine
-- **`GET /api/v1/prediction/{symbol}`**
-  - **Description**: Returns multi-horizon scenario trees, empirical return distributions, risk metrics, and 3-part confidence decomposition.
-  - **Response Schema**:
-    ```json
-    {
-      "symbol": "RELIANCE.NS",
-      "horizons": {
-        "12M": {
-          "expected_cagr_pct": 18.5,
-          "prob_positive": 0.82,
-          "prob_gt_10pct": 0.71,
-          "prob_gt_20pct": 0.48,
-          "scenarios": {
-            "bull": {"prob": 0.25, "return_pct": 35.0},
-            "base": {"prob": 0.60, "return_pct": 18.0},
-            "bear": {"prob": 0.15, "return_pct": -8.0}
-          }
-        }
-      },
-      "confidence_decomposition": {
-        "data_quality_score": 0.95,
-        "model_convergence_score": 0.88,
-        "thesis_margin_safety_score": 0.85,
-        "composite_confidence_pct": 89.8
-      }
-    }
-    ```
-
----
-
-### 2.6 Prediction Ledger & Outcome Calibration
-- **`GET /api/v1/monitoring/prediction-ledger`**
-  - **Description**: Returns log of historical conviction decisions.
-- **`POST /api/v1/monitoring/outcome`**
-  - **Description**: Records actual forward return outcome for a historical prediction.
-- **`GET /api/v1/monitoring/drift`**
-  - **Description**: Returns rolling 30-day accuracy, high score decay flag, and system drift alert level (`GREEN`, `YELLOW`, `RED`).
-- **`GET /api/v1/monitoring/strategy-health`**
-  - **Description**: Returns strategy execution counts, error rates, and data insufficiency counts.
-
----
-
-## 3. UI/UX Component API Mapping Table
-
-| UI Component | Primary Endpoint | Fallback / Data Mode Handling |
-| :--- | :--- | :--- |
-| **Top Ticker Tape** | `GET /api/v1/ticker-strip` | Returns offline default index benchmark set if live market feed fails |
-| **Stock Screener Table** | `GET /api/v1/digest/watchlist` | Serves pre-compiled nightly scan cache |
-| **Stock Header Details** | `GET /api/v1/ticker/{symbol}` | Displays `DataMode` badge (`LIVE`, `RECENT`, `CACHED`) |
-| **Conviction Meter** | `GET /api/v1/decision/{symbol}` | Shows `DATA_INSUFFICIENT` panel if engine returns score < 0 |
-| **Debate & Contradictions** | `GET /api/v1/decision/{symbol}` | Renders Bull vs Bear cards and Contradiction Matrix |
-| **Prediction Scenario Tree**| `GET /api/v1/prediction/{symbol}` | Displays Bull / Base / Bear probability distribution bars |
-| **Historical Track Record** | `GET /api/v1/monitoring/prediction-ledger` | Dense institutional table with actual vs predicted return CAGR |
+| Endpoint Path | Method | Summary |
+|---|---|---|
+| `/api/v1/admin/llm-usage` | **GET** | Get Llm Usage |
+| `/api/v1/admin/request-stats` | **GET** | Get Request Stats |
+| `/api/v1/admin/sync-market-data` | **POST** | Trigger On-Demand Market Data Refresh (Max 72h Gap Enforced) |
+| `/api/v1/community/posts` | **GET** | Fetch Community Posts |
+| `/api/v1/compare` | **POST** | Execute Stock Comparison |
+| `/api/v1/data/alerts` | **GET** | Get Alerts |
+| `/api/v1/data/business-events` | **POST** | Add Business Event |
+| `/api/v1/data/companies` | **POST** | Upsert Company |
+| `/api/v1/data/companies/{symbol}/timeline` | **GET** | Get Company Timeline |
+| `/api/v1/data/corporate-actions` | **POST** | Add Corporate Action |
+| `/api/v1/data/custom-screen` | **POST** | Run Custom Screen |
+| `/api/v1/data/document-metadata` | **POST** | Add Document Metadata |
+| `/api/v1/data/financial-observations` | **POST** | Add Financial Observation |
+| `/api/v1/data/lifecycle/{symbol}` | **GET** | Get Lifecycle State |
+| `/api/v1/data/market-snapshots` | **POST** | Add Market Daily Snapshot |
+| `/api/v1/data/ownership-snapshots` | **POST** | Add Ownership Snapshot |
+| `/api/v1/data/thesis/{symbol}` | **GET** | Get Thesis State |
+| `/api/v1/decision/{symbol}` | **GET** | Get Decision |
+| `/api/v1/digest/watchlist` | **GET** | Get Watchlist Digest |
+| `/api/v1/health` | **GET** | Get Health Status |
+| `/api/v1/monitoring/drift` | **GET** | Get Model Drift Status |
+| `/api/v1/monitoring/outcome` | **POST** | Record Outcome |
+| `/api/v1/monitoring/prediction-ledger` | **GET** | Get Prediction Ledger |
+| `/api/v1/monitoring/prediction-ledger` | **POST** | Log Prediction |
+| `/api/v1/monitoring/strategy-health` | **GET** | Get Strategy Health Summary |
+| `/api/v1/multibagger/altdata/{symbol}` | **GET** | Get Indian Alt-Data & Scuttlebutt Signal (§26, §27) |
+| `/api/v1/multibagger/catalysts/{symbol}` | **GET** | Get Policy Catalysts & Corporate Actions Signal (§47, §48) |
+| `/api/v1/multibagger/concall/{symbol}` | **GET** | Get Management Commentary Concall NLP Signal (§30) |
+| `/api/v1/multibagger/institutional-rank` | **POST** | Rank Universe via 27-Engine Multibagger Framework |
+| `/api/v1/multibagger/institutional-score/{symbol}` | **GET** | Get Single Stock 27-Engine Scorecard & Archetype |
+| `/api/v1/multibagger/mivs/{symbol}` | **GET** | Get MIVS 100-Point Score & 7 Hard Gates (§51, §52) |
+| `/api/v1/multibagger/portfolio/{symbol}` | **GET** | Get Position Sizing & Drawdown Discipline Signal (§35, §36, §37) |
+| `/api/v1/multibagger/promoter/{symbol}` | **GET** | Get Promoter & Insider Behaviour Signal (§29) |
+| `/api/v1/multibagger/report/{symbol}` | **GET** | Get Machine-Readable Stock Report (§58) |
+| `/api/v1/multibagger/shareholding/{symbol}` | **GET** | Get Shareholding Pattern Intelligence Signal (§28) |
+| `/api/v1/options/a2-payoff` | **POST** | Execute A2 Options Payoff |
+| `/api/v1/portfolio/` | **GET** | Get Portfolio |
+| `/api/v1/portfolio/narrate/{symbol}` | **GET** | Narrate |
+| `/api/v1/query` | **POST** | Handle Ai Query |
+| `/api/v1/readiness` | **GET** | Get Readiness Status |
+| `/api/v1/regime` | **GET** | Fetch Market Regime |
+| `/api/v1/research/cagr-matrix` | **GET** | Fetch Cagr Sensitivity Matrix |
+| `/api/v1/research/governance-quality` | **GET** | Run Governance Quality |
+| `/api/v1/research/growth-arbitrage` | **GET** | Run Growth Arbitrage |
+| `/api/v1/research/growth-inflection` | **GET** | Run Growth Inflection |
+| `/api/v1/research/growth-market-gap` | **GET** | Run Growth Market Gap |
+| `/api/v1/research/multibagger-screener` | **GET** | Run Multibagger Screener |
+| `/api/v1/research/scorecard` | **GET** | Fetch Symbol Scorecard |
+| `/api/v1/research/scorecard-matrix` | **POST** | Fetch Scorecard Matrix |
+| `/api/v1/research/turnaround-stage` | **GET** | Run Turnaround Stage |
+| `/api/v1/return-probability` | **POST** | Execute Return Probability |
+| `/api/v1/strategies` | **GET** | Fetch All Strategies |
+| `/api/v1/strategies/swing-alerts` | **GET** | Fetch Swing Trade Alerts |
+| `/api/v1/strategies/{strategy_id}` | **GET** | Fetch Strategy Detail |
+| `/api/v1/strategies/{strategy_id}/run` | **POST** | Run Strategy |
+| `/api/v1/technical/probability/{symbol}` | **GET** | Get Probability Ladder |
+| `/api/v1/technical/regime` | **GET** | Get Market Regime |
+| `/api/v1/technical/report/{symbol}` | **GET** | Get Technical Report |
+| `/api/v1/technical/screener` | **GET** | Run Screener |
+| `/api/v1/technical/surveillance/{symbol}` | **GET** | Get Surveillance Gate |
+| `/api/v1/technical/trade_manager/{symbol}` | **GET** | Get Trade Management |
+| `/api/v1/ticker-strip` | **GET** | Fetch Ticker Strip |
+| `/api/v1/ticker/{symbol}` | **GET** | Fetch Ticker Quote |
+| `/api/v1/ticker/{symbol}/history` | **GET** | Fetch Ticker History |
+| `/api/v1/watchlist` | **GET** | Get Watchlist |
+| `/api/v1/watchlist` | **POST** | Add To Watchlist |
+| `/api/v1/watchlist/{symbol}` | **DELETE** | Delete From Watchlist |

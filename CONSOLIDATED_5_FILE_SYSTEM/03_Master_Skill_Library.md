@@ -1,8 +1,8 @@
 # 03_Master_Skill_Library
 
 > **IERL AI Equity OS — curated upload artifact**  
-> Project Version: `0.0.0` · Bundle Version: `2.0` · Source Commit: `ad0beda`  
-> Generated At: `2026-08-23T18:31:52.659405+00:00` · Source Hash: `9ef11ec99b01c3b4` · Compiler: `consolidate_project.py` v2.0
+> Project Version: `0.0.0` · Bundle Version: `2.0` · Source Commit: `b3f9522`  
+> Generated At: `2026-08-25T14:16:09.735759+00:00` · Source Hash: `cb1812ef9b1daa84` · Compiler: `consolidate_project.py` v2.0
 
 ## Operating contract
 
@@ -19,7 +19,7 @@ This is a generated, read-only working volume. The separately maintained source 
 | Upload file | Primary use | Sources |
 |---|---|---:|
 | `01_Master_System_Core_Instructions_Architecture.md` | 01 System Core Instructions Architecture | 8 |
-| `02_Master_Engine_Contracts_Schemas_Registries.md` | 02 Engine Contracts Schemas Registries | 16 |
+| `02_Master_Engine_Contracts_Schemas_Registries.md` | 02 Engine Contracts Schemas Registries | 18 |
 | `03_Master_Skill_Library.md` | 03 Skill Library | 18 |
 | `04_Master_Knowledge_Base_Vol_1_Fundamentals_Valuation_Governance.md` | 04 Knowledge Base Vol 1 Fundamentals Valuation Governance | 24 |
 | `05_Master_Knowledge_Base_Vol_2_Sectors_Frameworks_Screening.md` | 05 Knowledge Base Vol 2 Sectors Frameworks Screening | 27 |
@@ -36,28 +36,28 @@ The SHA-256 values cover the exact UTF-8 source payload, not this wrapper. Use t
 
 | # | Source document | UTF-8 bytes | SHA-256 |
 |---:|---|---:|---|
-| 1 | `04_Skills_Reference_v_0_0.md` | 293,831 | `d85961728d082d4d5b7dd3bf5d4d48549b5d3a43d42dac96af0395f02971d028` |
+| 1 | `04_Skills_Reference_v_0_0.md` | 293,679 | `8d8512951723222d3e9c80279af8dc66d16e08a622f956ae42df64a5d36ebdd3` |
 | 2 | `AI_18_Expert_Strategies_Execution_Skill.md` | 20,746 | `a7d5dfcc99cc6ee87f1524ba76de7b9a1341ed8c6b5beb5a7b3904728a8a0d39` |
 | 3 | `AI_Comparison_Engine_Skill.md` | 11,607 | `347a6c211877aa7c9c2b90c5ce80652ada167ca53d8446bb60c0767a89d000fb` |
 | 4 | `AI_Concentrated_SmallCap_Style_Thinking_Skill.md` | 14,363 | `1bf7e975808e08991688f65a4b64d0572eecc5b4abd6503231981ffe0c607e22` |
 | 5 | `AI_DCF_Valuation_Skill.md` | 19,216 | `9ffb983cae45bd92e8392b39aafb423199e0040632c93f4991b5120e6cf27c93` |
-| 6 | `AI_Forensic_Accounting_Skill.md` | 25,682 | `63bf46b31f887babd31b1d468c7ce673ac76bee184596cbc199829df6a98db86` |
+| 6 | `AI_Forensic_Accounting_Skill.md` | 25,476 | `2bbc743275aaa8789b2f7873d4b6ca81db8521f319261855e685a6040ea6bd62` |
 | 7 | `AI_Fundamental_Analysis_Core_Skill.md` | 19,520 | `e3ecd22e85697df038889cb69b5b3f39efb9195fd96ab920bb8b31cd6050b693` |
 | 8 | `AI_Future_Growth_Skill.md` | 15,062 | `f76aca49aba770c2172ecd42d012ab364949724a04291c7431ea03fe8e006e9b` |
-| 9 | `AI_Multibagger_Discovery_Skill.md` | 27,475 | `878527ee349beef9892136e892818f2e5b1bee3df3de518a21398964a490888b` |
+| 9 | `AI_Multibagger_Discovery_Skill.md` | 27,065 | `c01bc8846978d6acbfacc88bcd8215ad6e95bf8e09c3cf13672a249467087ee1` |
 | 10 | `AI_MultiSector_Momentum_Value_Style_Thinking_Skill.md` | 15,351 | `cccd6bb37a97037adc43532ab84d9be5698b19eecb427ea4afbd9da49a629cae` |
 | 11 | `AI_Options_Data_Skill.md` | 15,645 | `0cbf74e08253796a4cde2ad3f0c7237b3f6b14a10c43b573ee8b9346cc33a6e0` |
 | 12 | `AI_Portfolio_Construction_Skill.md` | 17,722 | `956392fffa8ccf7af50df6737415ffdd09d8914ec370884d15f6204823ad8189` |
 | 13 | `AI_Small_to_Mid_Cap_SIP_Stocks_Analysis_Skill.md` | 18,336 | `47d95e38d502403ad70582c96d8265db2e4cc23dd52d6bd808c80d90efdb8660` |
 | 14 | `AI_Swing_Trading_Skill.md` | 22,833 | `3719df5eb93f4dd027bbfb56825649a6db6a5462cae4af9096689d733da21172` |
-| 15 | `AI_Technical_Analysis_Master_Skill.md` | 27,463 | `9bfe81ec5dc5b63663b094128987dcc6ebce2654bbc51c8419fb7a74ef65458f` |
+| 15 | `AI_Technical_Analysis_Master_Skill.md` | 27,297 | `39016471186c06d2ff7fb271aa44e19e8529b56a705aa4d9ba92b13674279ea5` |
 | 16 | `AI_Turnaround_Analysis_Skill.md` | 14,942 | `acaa4c25f8f169e9eaa1a23f0cc74632aa836ea2293c31c3851828097e91b124` |
 | 17 | `AI_Uptrend_Momentum_Stock_Skill.md` | 17,985 | `22d53163913f3eb56761046a7dea391ab72457e8d2b153d08bfb94416e3c87c4` |
 | 18 | `AI_Volume_Delivery_Analysis_Skill.md` | 13,617 | `a5d06dfab9833ebb5788345cfb0359f7b977f38ea1198483f4789e5d8525a9bb` |
 
 ---
 
-<!-- BEGIN SYSTEM FILE 1: 04_Skills_Reference_v_0_0.md | SHA256: d85961728d082d4d5b7dd3bf5d4d48549b5d3a43d42dac96af0395f02971d028 -->
+<!-- BEGIN SYSTEM FILE 1: 04_Skills_Reference_v_0_0.md | SHA256: 8d8512951723222d3e9c80279af8dc66d16e08a622f956ae42df64a5d36ebdd3 -->
 ## Embedded source 1: 04 Skills Reference
 
 <!-- IERL-CANONICAL-METADATA v1.2 -->
@@ -1458,8 +1458,6 @@ RISK REDUCTION RECOMMENDATIONS:
 ---
 
 # Risk Auditor (Skill 09) — Missing Market/Ownership/Valuation Flags Addendum v_0.0
-
-**Paste Target:** `04_Skills_Reference_v_0.0.md` — insert as a new subsection immediately after the "## 13. Skill 09 — Risk Auditor" content block
 
 **Scope check:** Skill 09 already covers balance-sheet and earnings-quality risk (overlapping with Forensic Accounting) and portfolio-level risk aggregation. The four flags below are ownership-flow and valuation-behavior risks that weren't previously named.
 
@@ -8320,7 +8318,7 @@ VALUATION CONCLUSION:
 
 ---
 
-<!-- BEGIN SYSTEM FILE 6: AI_Forensic_Accounting_Skill.md | SHA256: 63bf46b31f887babd31b1d468c7ce673ac76bee184596cbc199829df6a98db86 -->
+<!-- BEGIN SYSTEM FILE 6: AI_Forensic_Accounting_Skill.md | SHA256: 2bbc743275aaa8789b2f7873d4b6ca81db8521f319261855e685a6040ea6bd62 -->
 ## Embedded source 6: AI Forensic Accounting Skill
 
 <!-- IERL-CANONICAL-METADATA v1.2 -->
@@ -8888,8 +8886,6 @@ FORENSIC VERDICT:
 *Skill Version v_0.0 | IERL Specialist Skill Library | Indian Equity Research Lab*
 *This skill integrates with: Skill 01 (Master Research), Skill 09 (Risk Auditor), Skill 15 (Pre-Investment Checklist)*
 # Forensic Accounting Skill — Missing Red Flags Addendum v_0.0
-
-**Paste Target:** AI_Forensic_Accounting_Skill.md — insert as new "Analysis Module 7D" after the existing "Analysis Module 7C — Inter-Statement Reconciliation Table," before "Red Flag Master Register"
 
 **Scope check:** The existing skill already covers Revenue Quality, Profit Quality, Cash Flow, Balance Sheet, Auditor/Governance, Promoter/Pledge, and Related Party Transactions in depth. The four flags below are the ones genuinely absent — not a re-statement of what's already there.
 
@@ -9661,7 +9657,7 @@ AI_Multibagger_Discovery_Skill, AI_DCF_Valuation_Skill, Skill 13 (Concall Analyz
 
 ---
 
-<!-- BEGIN SYSTEM FILE 9: AI_Multibagger_Discovery_Skill.md | SHA256: 878527ee349beef9892136e892818f2e5b1bee3df3de518a21398964a490888b -->
+<!-- BEGIN SYSTEM FILE 9: AI_Multibagger_Discovery_Skill.md | SHA256: c01bc8846978d6acbfacc88bcd8215ad6e95bf8e09c3cf13672a249467087ee1 -->
 ## Embedded source 9: AI Multibagger Discovery Skill
 
 <!-- IERL-CANONICAL-METADATA v1.2 -->
@@ -10073,8 +10069,6 @@ Position size per Stage ceiling above — do not exceed regardless of conviction
 AI_Concentrated_SmallCap_Style_Thinking_Skill, Skill 15 (Pre-Investment Master Checklist)*
 # Multibagger Finder — Quick Screening Checklist (Addendum v_0.0)
 
-**Paste Target:** AI_Multibagger_Discovery_Skill.md — insert as new "Analysis Module 0" before the existing "Analysis Module 1 — Stage Gate Classification"
-
 ---
 
 ## Why This Addendum Exists
@@ -10128,8 +10122,6 @@ Module 5 (Financial Quality Gates) already contains Revenue CAGR, ROCE, and Debt
 **Version:** v_0.0
 **Paste Into:** AI_Multibagger_Discovery_Skill.md (as Analysis Module 0, before Module 1)
 # Top-12 Combination Checks Addendum v_0.0
-
-**Paste Target:** `Multibagger_Quick_Screen_Addendum_v_0.0.md` (or directly into `AI_Multibagger_Discovery_Skill.md` Module 0 once merged) — insert as "Module 0B — Combination Confirmation Checks," run after the 7-gate Quick Pre-Filter passes.
 
 **Scope:** Only the top 4 priority categories from the source document's own hierarchy (Red Flag Detection, Cash Flow Quality, Balance Sheet Strength, Capital Allocation) — skipping Valuation, Technical Momentum, and the other 8 lower-priority libraries, which are already covered elsewhere (Valuation in DCF skill, Technical in Technical Analysis skill).
 
@@ -11996,7 +11988,7 @@ Skill 12 (Watchlist Prioritizer for post-trade monitoring), Skill 09 (Risk Audit
 
 ---
 
-<!-- BEGIN SYSTEM FILE 15: AI_Technical_Analysis_Master_Skill.md | SHA256: 9bfe81ec5dc5b63663b094128987dcc6ebce2654bbc51c8419fb7a74ef65458f -->
+<!-- BEGIN SYSTEM FILE 15: AI_Technical_Analysis_Master_Skill.md | SHA256: 39016471186c06d2ff7fb271aa44e19e8529b56a705aa4d9ba92b13674279ea5 -->
 ## Embedded source 15: AI Technical Analysis Master Skill
 
 <!-- IERL-CANONICAL-METADATA v1.2 -->
@@ -12475,8 +12467,6 @@ FEEDS INTO: [Which calling skill this read supports — Swing/Uptrend/Positional
 *Integrates with: AI_Swing_Trading_Skill, AI_Uptrend_Momentum_Stock_Skill, Skill 03 (Positional
 Opportunity Finder), Skill 08 (Sector Rotation Analyzer), AI_Volume_Delivery_Analysis_Skill*
 # Technical Analysis — Data Input Template (Addendum v_0.0)
-
-**Paste Target:** AI_Technical_Analysis_Master_Skill.md — insert as new "Pre-Flight Data Requirements" section, right after the existing "Pre-Flight Requirements"
 
 ---
 

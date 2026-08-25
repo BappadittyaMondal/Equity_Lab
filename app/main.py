@@ -25,19 +25,82 @@ try:
     settings._validate_cors_settings()
     from app.core.security import ApiSecurityMiddleware, SecurityHeadersMiddleware, verify_api_key
     from app.api import health, market, comparison, probability, options, strategies, query, research_data, watchlist, decision, watchlist_digest, monitoring, admin, portfolio, multibagger, technical
-except ModuleNotFoundError:
-    from core.config import settings
-    # Validate CORS settings for production environment
-    settings._validate_cors_settings()
-    from core.security import ApiSecurityMiddleware, SecurityHeadersMiddleware, verify_api_key
-    from api import health, market, comparison, probability, options, strategies, query, research_data, watchlist, decision, watchlist_digest, monitoring, admin, portfolio, multibagger, technical
+except ModuleNotFoundError as err:
+    # If the error is due to top-level app package resolution, try fallback, otherwise re-raise the missing package error loudly
+    if err.name in ("app", "core", "api") or (err.name and err.name.startswith("app.")):
+        try:
+            from core.config import settings
+            settings._validate_cors_settings()
+            from core.security import ApiSecurityMiddleware, SecurityHeadersMiddleware, verify_api_key
+            import health, market, comparison, probability, options, strategies, query, research_data, watchlist, decision, watchlist_digest, monitoring, admin, portfolio, multibagger, technical
+        except ModuleNotFoundError as inner_err:
+            import logging
+            logging.getLogger(__name__).error(f"Failed to import required backend router: {inner_err}")
+            raise inner_err
+    else:
+        import logging
+        logging.getLogger(__name__).error(f"Failed to start server due to missing dependency '{err.name}': {err}")
+        raise err
+import asyncio
+import logging
+from contextlib import asynccontextmanager
+
+logger = logging.getLogger(__name__)
+
+async def _background_market_data_refresh_loop():
+    """Background task running every 6 hours to ensure target market data is fresh (<72h gap)."""
+    try:
+        from app.services.market_data import AutoRefreshMarketDataService
+    except ImportError:
+        from services.market_data import AutoRefreshMarketDataService
+    
+    while True:
+        try:
+            logger.info("Triggering automated background market data freshness sync...")
+            res = await AutoRefreshMarketDataService.auto_refresh_universe(max_age_hours=72)
+            logger.info("Automated background market data refresh completed: %s", res)
+            try:
+                from app.services.decision_brain.arbiter import precalculate_universe_scorecards
+                calc_res = precalculate_universe_scorecards()
+                logger.info("Asynchronous pre-computation of universe scorecards completed: %s", calc_res)
+            except Exception as calc_err:
+                logger.warning("Universe scorecard pre-computation encountered warning: %s", calc_err)
+        except Exception as e:
+            logger.warning("Automated background market data refresh loop encountered error: %s", e)
+        # Wait 6 hours before next automatic scan cycle
+        await asyncio.sleep(21600)
+
+async def _background_model_retrain_loop():
+    """Background task running every 24 hours to automatically evaluate and retrain baseline ML model."""
+    while True:
+        try:
+            # Wait 24 hours between retraining cycles
+            await asyncio.sleep(86400)
+            logger.info("Triggering automated background ML model retraining evaluation...")
+            try:
+                from app.services.ml.baseline_model import evaluate_and_retrain_model
+            except ImportError:
+                from services.ml.baseline_model import evaluate_and_retrain_model
+            res = evaluate_and_retrain_model()
+            logger.info("Automated background ML model retraining completed: %s", res)
+        except Exception as e:
+            logger.warning("Automated background ML model retraining loop encountered error: %s", e)
+
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    refresh_task = asyncio.create_task(_background_market_data_refresh_loop())
+    retrain_task = asyncio.create_task(_background_model_retrain_loop())
+    yield
+    refresh_task.cancel()
+    retrain_task.cancel()
 
 app = FastAPI(
     title=settings.PROJECT_NAME,
     version=settings.VERSION,
     description=settings.DESCRIPTION,
     docs_url="/docs",
-    redoc_url="/redoc"
+    redoc_url="/redoc",
+    lifespan=lifespan,
 )
 
 app.add_middleware(ApiSecurityMiddleware)

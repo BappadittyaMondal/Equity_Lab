@@ -22,7 +22,7 @@ if os.getenv("IERL_ENVIRONMENT", "development").lower() == "development":
 
 class Settings:
     PROJECT_NAME: str = "Equity Lab"
-    VERSION: str = "0.0.0"
+    VERSION: str = "1.0.0"
     DESCRIPTION: str = "Institutional Indian Equity Research, Options Arbitrage, and Return Probability Engine"
 
     # Active LLM Provider

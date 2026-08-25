@@ -253,12 +253,13 @@ def numpy_walk_forward_cross_validate(
     X: np.ndarray,
     y: np.ndarray,
     n_splits: int = 5,
+    purge_window: int = 5,
     **model_kwargs
 ) -> Dict[str, float]:
-    """Out-of-sample Walk-Forward (expanding window) validation for time-series outcomes.
+    """Purged & Embargoed Out-of-sample Walk-Forward (expanding window) validation for time-series outcomes.
 
-    Strictly splits dataset chronologically: train on historical data [0..t], test on next period [t..t+k].
-    Eliminates future-information leakage inherent in standard k-fold cross validation.
+    Strictly splits dataset chronologically: train on historical data [0..t - purge_window],
+    test on next period [t..t+k]. Purging eliminates target overlap leakage between training and validation windows.
     """
     X = np.asarray(X, dtype=np.float64)
     y = np.asarray(y, dtype=np.int32)
@@ -271,9 +272,10 @@ def numpy_walk_forward_cross_validate(
 
     for i in range(1, n_splits + 1):
         train_end = i * chunk_size
+        train_end_purged = max(1, train_end - purge_window)
         val_end = min(n_samples, (i + 1) * chunk_size)
 
-        X_train_f, y_train_f = X[:train_end], y[:train_end]
+        X_train_f, y_train_f = X[:train_end_purged], y[:train_end_purged]
         X_val_f, y_val_f = X[train_end:val_end], y[train_end:val_end]
 
         if len(X_val_f) == 0 or len(np.unique(y_train_f)) < 2:
@@ -306,7 +308,8 @@ def numpy_walk_forward_cross_validate(
         "mean_roc_auc": round(float(np.mean(aucs)), 4),
         "mean_brier_score": round(float(np.mean(briers)), 4),
         "mean_f1": round(float(np.mean(f1s)), 4),
-        "mean_f1_score": round(float(np.mean(f1s)), 4)
+        "mean_f1_score": round(float(np.mean(f1s)), 4),
+        "purge_window": purge_window
     }
 
 
@@ -433,6 +436,53 @@ class NumPyEnsembleClassifier:
         probs = self.predict_proba(X)
         return (probs[:, 1] >= 0.5).astype(np.int32)
 
+    def to_dict(self) -> Dict[str, Any]:
+        """Serialize complete model weights and decision tree states."""
+        return {
+            "n_estimators": self.n_estimators,
+            "classes": self.classes_.tolist(),
+            "lr": {
+                "coef": self.lr.coef_.tolist() if self.lr.coef_ is not None else None,
+                "intercept": self.lr.intercept_.tolist() if self.lr.intercept_ is not None else None,
+            },
+            "gbdt": {
+                "base_pred": self.gbdt.base_pred,
+                "trees": [
+                    {
+                        "feature_idx": t.feature_idx,
+                        "threshold": t.threshold,
+                        "left_value": t.left_value,
+                        "right_value": t.right_value,
+                    }
+                    for t in self.gbdt.trees
+                ]
+            }
+        }
+
+    @classmethod
+    def from_dict(cls, d: Dict[str, Any]) -> "NumPyEnsembleClassifier":
+        """Deserialize trained model weights and decision tree states."""
+        obj = cls(n_estimators=d.get("n_estimators", 25))
+        obj.classes_ = np.array(d.get("classes", [0, 1]), dtype=np.int32)
+        lr_data = d.get("lr", {})
+        if lr_data.get("coef") is not None and lr_data.get("intercept") is not None:
+            obj.lr.coef_ = np.array(lr_data["coef"], dtype=np.float64)
+            obj.lr.intercept_ = np.array(lr_data["intercept"], dtype=np.float64)
+            obj.lr.classes_ = obj.classes_
+        gbdt_data = d.get("gbdt", {})
+        obj.gbdt.base_pred = float(gbdt_data.get("base_pred", 0.0))
+        obj.gbdt.classes_ = obj.classes_
+        trees = []
+        for td in gbdt_data.get("trees", []):
+            stump = NumPyDecisionTreeStump()
+            stump.feature_idx = int(td["feature_idx"])
+            stump.threshold = float(td["threshold"])
+            stump.left_value = float(td["left_value"])
+            stump.right_value = float(td["right_value"])
+            trees.append(stump)
+        obj.gbdt.trees = trees
+        return obj
+
 
 # Alias for backward compatibility
 StandardScaler = NumPyStandardScaler
@@ -542,6 +592,7 @@ def train_baseline_model(force_retrain: bool = False) -> Dict[str, Any]:
                 "feature_scales": scaler.scale_.tolist(),
                 "sample_count": len(rows),
                 "classes": clf.classes_.tolist(),
+                "model_state": clf.to_dict(),
                 "cv_5fold_accuracy": cv_metrics["mean_accuracy"],
                 "cv_5fold_roc_auc": cv_metrics["mean_roc_auc"],
                 "cv_5fold_brier_score": cv_metrics["mean_brier_score"],
@@ -634,8 +685,11 @@ def _load_active_model_from_db() -> bool:
         scaler.mean_ = means
         scaler.scale_ = scales
 
-        clf = NumPyEnsembleClassifier(n_estimators=config.get("n_estimators", 25), random_state=42)
-        clf.classes_ = np.array(config.get("classes", [0, 1]), dtype=np.int32)
+        if "model_state" in config:
+            clf = NumPyEnsembleClassifier.from_dict(config["model_state"])
+        else:
+            clf = NumPyEnsembleClassifier(n_estimators=config.get("n_estimators", 25), random_state=42)
+            clf.classes_ = np.array(config.get("classes", [0, 1]), dtype=np.int32)
 
         _MODEL_CACHE["model"] = clf
         _MODEL_CACHE["scaler"] = scaler

@@ -856,7 +856,6 @@ It remains completely independent from planning, reasoning, auditing, and output
 **Category:** Core Engine Extension
 **Priority:** High
 **Role:** Thesis Versioning, Staleness Detection, and Feedback Loop
-**Paste Target:** AI_Research_Engine_v_0.0.md, appended as a new major section
 
 ---
 

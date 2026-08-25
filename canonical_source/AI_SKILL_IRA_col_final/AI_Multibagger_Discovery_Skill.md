@@ -407,8 +407,6 @@ Position size per Stage ceiling above — do not exceed regardless of conviction
 AI_Concentrated_SmallCap_Style_Thinking_Skill, Skill 15 (Pre-Investment Master Checklist)*
 # Multibagger Finder — Quick Screening Checklist (Addendum v_0.0)
 
-**Paste Target:** AI_Multibagger_Discovery_Skill.md — insert as new "Analysis Module 0" before the existing "Analysis Module 1 — Stage Gate Classification"
-
 ---
 
 ## Why This Addendum Exists
@@ -462,8 +460,6 @@ Module 5 (Financial Quality Gates) already contains Revenue CAGR, ROCE, and Debt
 **Version:** v_0.0
 **Paste Into:** AI_Multibagger_Discovery_Skill.md (as Analysis Module 0, before Module 1)
 # Top-12 Combination Checks Addendum v_0.0
-
-**Paste Target:** `Multibagger_Quick_Screen_Addendum_v_0.0.md` (or directly into `AI_Multibagger_Discovery_Skill.md` Module 0 once merged) — insert as "Module 0B — Combination Confirmation Checks," run after the 7-gate Quick Pre-Filter passes.
 
 **Scope:** Only the top 4 priority categories from the source document's own hierarchy (Red Flag Detection, Cash Flow Quality, Balance Sheet Strength, Capital Allocation) — skipping Valuation, Technical Momentum, and the other 8 lower-priority libraries, which are already covered elsewhere (Valuation in DCF skill, Technical in Technical Analysis skill).
 

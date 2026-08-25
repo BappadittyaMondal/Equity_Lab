@@ -74,3 +74,36 @@ def get_catalysts(symbol: str):
 def get_portfolio_sizing(symbol: str, mivs_score: float = Query(75.0), archetype: str = Query("EARLY_GROWTH")):
     """Returns fractional-Kelly position size, liquidity caps, scaling ladders, and drawdown tolerance bands."""
     return evaluate_portfolio_construction(symbol, mivs_score=mivs_score, archetype=archetype)
+
+
+@router.post("/institutional-rank", summary="Rank Universe via 27-Engine Multibagger Framework")
+def get_institutional_universe_rank(min_score: float = Query(50.0)):
+    """Executes 27-Engine scoring, archetype classification, risk penalty audit, and thesis generation."""
+    try:
+        from app.services.research.institutional_multibagger_engine import InstitutionalMultibaggerEngine
+        results = InstitutionalMultibaggerEngine.rank_universe(min_score=min_score)
+        return {
+            "total_candidates": len(results),
+            "min_score_filter": min_score,
+            "rankings": results
+        }
+    except Exception as e:
+        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=f"Multibagger ranking failed: {str(e)}")
+
+
+@router.get("/institutional-score/{symbol}", summary="Get Single Stock 27-Engine Scorecard & Archetype")
+def get_single_stock_institutional_score(symbol: str):
+    """Returns single-stock 100-point breakdown, archetype, causal chain, and thesis invalidation rules."""
+    try:
+        from app.services.data_ingestion.screener_connector import ScreenerCloudConnector
+        from app.services.research.institutional_multibagger_engine import InstitutionalMultibaggerEngine
+        universe = ScreenerCloudConnector.get_all_fundamentals()
+        target = next((item for item in universe if item["symbol"].lower() == symbol.lower() or item["symbol"].split(".")[0].lower() == symbol.lower()), None)
+        if not target:
+            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f"Symbol {symbol} not found in fundamentals database.")
+        return InstitutionalMultibaggerEngine.evaluate_company(target)
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=f"Scoring failed for {symbol}: {str(e)}")
+

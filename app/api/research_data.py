@@ -126,3 +126,11 @@ def get_alerts(limit: int = 50, symbol: str | None = None):
     return AlertEngine().get_recent_alerts(limit=limit, symbol=symbol)
 
 
+@router.post("/custom-screen")
+def run_custom_screen(query: dict):
+    from app.services.research.custom_screener import CustomScreenerEngine
+    query_str = query.get("query", "")
+    return CustomScreenerEngine.execute_query(query_str)
+
+
+

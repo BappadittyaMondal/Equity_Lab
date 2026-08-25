@@ -12,10 +12,18 @@ from app.main import app
 client = TestClient(app)
 
 
+def get_project_root() -> Path:
+    curr = Path(__file__).resolve().parent
+    for p in [curr] + list(curr.parents):
+        if (p / "scripts").exists() and (p / "frontend_deploy").exists():
+            return p
+    return Path(__file__).resolve().parents[2]
+
+
 def test_watchlist_digest_endpoint_exists():
     """Ensure the /api/v1/digest/watchlist endpoint returns 200 after the nightly script runs."""
-    # Run the nightly script to generate the digest
-    script_path = Path(__file__).resolve().parents[2] / "scripts" / "nightly_watchlist_scan.py"
+    root = get_project_root()
+    script_path = root / "scripts" / "nightly_watchlist_scan.py"
     # Execute the script in a subprocess
     result = subprocess.run([sys.executable, str(script_path)], capture_output=True, text=True)
     assert result.returncode == 0, f"Nightly script failed: {result.stderr}"
@@ -32,9 +40,10 @@ def test_watchlist_digest_endpoint_exists():
 
 def test_watchlist_digest_file_created():
     """Directly check that the digest file exists after running the script."""
-    script_path = Path(__file__).resolve().parents[2] / "scripts" / "nightly_watchlist_scan.py"
+    root = get_project_root()
+    script_path = root / "scripts" / "nightly_watchlist_scan.py"
     # Remove any existing file first
-    digest_path = Path(__file__).resolve().parents[2] / "frontend_deploy" / "data" / "digests" / "watchlist_digest.json"
+    digest_path = root / "frontend_deploy" / "data" / "digests" / "watchlist_digest.json"
     if digest_path.exists():
         digest_path.unlink()
     result = subprocess.run([sys.executable, str(script_path)], capture_output=True, text=True)

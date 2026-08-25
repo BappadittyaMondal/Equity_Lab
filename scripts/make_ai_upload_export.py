@@ -92,10 +92,13 @@ def compute_sha256(filepath: Path) -> str:
 
 
 def sync_live_tree_to_upload_dir() -> int:
-    """Sync live Python files into Upload_97Files_AI_Project."""
-    UPLOAD_DIR.mkdir(exist_ok=True)
+    """Sync live Python files into Upload_97Files_AI_Project preserving relative package directory structure."""
+    if UPLOAD_DIR.exists():
+        shutil.rmtree(UPLOAD_DIR)
+    UPLOAD_DIR.mkdir(parents=True, exist_ok=True)
     synced_count = 0
-    
+    seen_paths = set()
+
     for search_dir in LIVE_TREE_SEARCH_DIRS:
         if not search_dir.exists():
             continue
@@ -104,11 +107,16 @@ def sync_live_tree_to_upload_dir() -> int:
             for file in sorted(files):
                 abs_file = Path(root) / file
                 if abs_file.suffix.lower() == ".py":
-                    dest_file = UPLOAD_DIR / file
+                    rel_path = abs_file.relative_to(BASE_DIR)
+                    if rel_path in seen_paths:
+                        continue
+                    seen_paths.add(rel_path)
+                    dest_file = UPLOAD_DIR / rel_path
+                    dest_file.parent.mkdir(parents=True, exist_ok=True)
                     shutil.copy2(abs_file, dest_file)
                     synced_count += 1
-                    
-    print(f"Synchronized {synced_count} live python source files to `{UPLOAD_DIR.name}/`")
+
+    print(f"Synchronized {synced_count} live python source files to `{UPLOAD_DIR.name}/` preserving package structure.")
     return synced_count
 
 
@@ -116,10 +124,11 @@ def generate_manifest() -> dict:
     """Generate SHA256 manifest for all files in Upload_97Files_AI_Project."""
     manifest_entries = {}
     if UPLOAD_DIR.exists():
-        for filepath in sorted(UPLOAD_DIR.glob("*")):
+        for filepath in sorted(UPLOAD_DIR.rglob("*")):
             if filepath.is_file() and not should_exclude(filepath.relative_to(BASE_DIR)):
+                rel_key = filepath.relative_to(UPLOAD_DIR).as_posix()
                 digest = compute_sha256(filepath)
-                manifest_entries[filepath.name] = {
+                manifest_entries[rel_key] = {
                     "sha256": digest,
                     "bytes": filepath.stat().st_size,
                     "last_modified": datetime.fromtimestamp(filepath.stat().st_mtime, timezone.utc).isoformat()
@@ -138,6 +147,14 @@ def generate_manifest() -> dict:
 
 
 def create_export() -> None:
+    scanner = BASE_DIR / "scripts" / "check_no_real_secrets.py"
+    if scanner.exists():
+        import subprocess
+        proc = subprocess.run([sys.executable, str(scanner)], capture_output=True, text=True)
+        if proc.returncode != 0:
+            print(f"[ERROR] Security audit failed prior to export creation:\n{proc.stdout}\n{proc.stderr}")
+            raise RuntimeError("Export aborted: Real secrets or unscrubbed credentials detected!")
+
     sync_live_tree_to_upload_dir()
     generate_manifest()
     

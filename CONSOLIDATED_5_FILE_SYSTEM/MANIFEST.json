@@ -3,17 +3,17 @@
     "PROJECT_VERSION": "0.0.0",
     "BUNDLE_VERSION": "2.0",
     "SCHEMA_VERSION": "1.0",
-    "GIT_COMMIT_SOURCE": "ad0beda",
-    "GIT_COMMIT": "ad0beda",
-    "GENERATED_AT": "2026-08-23T18:31:52.659405+00:00",
+    "GIT_COMMIT_SOURCE": "b3f9522",
+    "GIT_COMMIT": "b3f9522",
+    "GENERATED_AT": "2026-08-25T14:16:09.735759+00:00",
     "GENERATOR_VERSION": "2.0",
-    "SOURCE_HASH": "9ef11ec99b01c3b4994099da8ab8796d27cbba4d8dfbc88008fb9f2cd04c6417"
+    "SOURCE_HASH": "cb1812ef9b1daa84088ab73421b75704dca1691efd53d89f5b8e4e8946a4b9d0"
   },
   "bundle_files": {
     "01_Master_System_Core_Instructions_Architecture.md": {
       "sources_count": 8,
       "output_bytes": 139171,
-      "sha256": "c0710c3184485e11288969251c7f5f62e1e1667c2749e20748fc958373f625bb",
+      "sha256": "dca1002a59a2c49e9b26735073e2f4d41a6ab1fc130506d387aba4c2ef242f5f",
       "embedded_sources": [
         {
           "position": 1,
@@ -74,9 +74,9 @@
       ]
     },
     "02_Master_Engine_Contracts_Schemas_Registries.md": {
-      "sources_count": 16,
-      "output_bytes": 246739,
-      "sha256": "ac90f342a2d6d30aab0e252c147046bfb7cc780906b422fb45b6355f23335264",
+      "sources_count": 18,
+      "output_bytes": 261142,
+      "sha256": "1915014f59d45b7905c38a5fdee653a0f0c8da030e2c3111ba6f53fb57dfe147",
       "embedded_sources": [
         {
           "position": 1,
@@ -96,8 +96,8 @@
           "position": 3,
           "source": "AI_Research_Engine_v_0_0.md",
           "source_path": "canonical_source/AI_Research_Engine_v_0_0.md",
-          "sha256": "ecb737f493d6dc0416e7d475b7de3cb899a8fd70779ceac01a943fd46c21c37f",
-          "bytes": 25948
+          "sha256": "c2f5feb84c3aa00dc36fc703c00541e00675ae7d7eb6df24f01c931f0465c9b8",
+          "bytes": 25869
         },
         {
           "position": 4,
@@ -145,8 +145,8 @@
           "position": 10,
           "source": "AI_Module_Registry_v_0_0.md",
           "source_path": "canonical_source/AI_Module_Registry_v_0_0.md",
-          "sha256": "b040ffa2662d5b2882eae884615438b3f42523ad5e3705eed09fe13f4b84f037",
-          "bytes": 17953
+          "sha256": "d021aa44bb210aecb887268a8a82aff807ffe3435a39b7adaee75d838d3a80e9",
+          "bytes": 18207
         },
         {
           "position": 11,
@@ -189,20 +189,34 @@
           "source_path": "canonical_source/AI_Expectation_Gap_Engine_v_0_0.md",
           "sha256": "bc25de721f29f328791a5dbc46cd2a5144838e193a5a3975c10cef72ba2371d9",
           "bytes": 3075
+        },
+        {
+          "position": 17,
+          "source": "AI_Custom_Screener_Engine_v_0_1.md",
+          "source_path": "canonical_source/AI_Custom_Screener_Engine_v_0_1.md",
+          "sha256": "73eaf37e9954dad165ccdb64749a3a1a58c9bbf5d7d788d175e83b7675589cf9",
+          "bytes": 6434
+        },
+        {
+          "position": 18,
+          "source": "AI_Institutional_Multibagger_Engine_v_0_1.md",
+          "source_path": "canonical_source/AI_Institutional_Multibagger_Engine_v_0_1.md",
+          "sha256": "75f829094344ff324c8af992fb1fa25cd7d843cfb6b80726462f06d8e2d43bc8",
+          "bytes": 6974
         }
       ]
     },
     "03_Master_Skill_Library.md": {
       "sources_count": 18,
-      "output_bytes": 621625,
-      "sha256": "253bfcf19ef89366639f28a8ecfa7ade57fb9c8d5a502aad6b5dcc2521b0cd26",
+      "output_bytes": 620691,
+      "sha256": "6e1376e6264dabab539f7080c2c5d8066b4782b3fcf4c4b2878744aaa4acd787",
       "embedded_sources": [
         {
           "position": 1,
           "source": "AI_SKILL_IRA_col_final/04_Skills_Reference_v_0_0.md",
           "source_path": "canonical_source/AI_SKILL_IRA_col_final/04_Skills_Reference_v_0_0.md",
-          "sha256": "d85961728d082d4d5b7dd3bf5d4d48549b5d3a43d42dac96af0395f02971d028",
-          "bytes": 293831
+          "sha256": "8d8512951723222d3e9c80279af8dc66d16e08a622f956ae42df64a5d36ebdd3",
+          "bytes": 293679
         },
         {
           "position": 2,
@@ -236,8 +250,8 @@
           "position": 6,
           "source": "AI_SKILL_IRA_col_final/AI_Forensic_Accounting_Skill.md",
           "source_path": "canonical_source/AI_SKILL_IRA_col_final/AI_Forensic_Accounting_Skill.md",
-          "sha256": "63bf46b31f887babd31b1d468c7ce673ac76bee184596cbc199829df6a98db86",
-          "bytes": 25682
+          "sha256": "2bbc743275aaa8789b2f7873d4b6ca81db8521f319261855e685a6040ea6bd62",
+          "bytes": 25476
         },
         {
           "position": 7,
@@ -257,8 +271,8 @@
           "position": 9,
           "source": "AI_SKILL_IRA_col_final/AI_Multibagger_Discovery_Skill.md",
           "source_path": "canonical_source/AI_SKILL_IRA_col_final/AI_Multibagger_Discovery_Skill.md",
-          "sha256": "878527ee349beef9892136e892818f2e5b1bee3df3de518a21398964a490888b",
-          "bytes": 27475
+          "sha256": "c01bc8846978d6acbfacc88bcd8215ad6e95bf8e09c3cf13672a249467087ee1",
+          "bytes": 27065
         },
         {
           "position": 10,
@@ -299,8 +313,8 @@
           "position": 15,
           "source": "AI_SKILL_IRA_col_final/AI_Technical_Analysis_Master_Skill.md",
           "source_path": "canonical_source/AI_SKILL_IRA_col_final/AI_Technical_Analysis_Master_Skill.md",
-          "sha256": "9bfe81ec5dc5b63663b094128987dcc6ebce2654bbc51c8419fb7a74ef65458f",
-          "bytes": 27463
+          "sha256": "39016471186c06d2ff7fb271aa44e19e8529b56a705aa4d9ba92b13674279ea5",
+          "bytes": 27297
         },
         {
           "position": 16,
@@ -328,7 +342,7 @@
     "04_Master_Knowledge_Base_Vol_1_Fundamentals_Valuation_Governance.md": {
       "sources_count": 24,
       "output_bytes": 167532,
-      "sha256": "bbbe695500530c2316144e1a4dc4c4d63ed68b12e43209ee2e96beee01dc90c0",
+      "sha256": "82386c39c1d04bd924fe77590752bbd07b9641cd8b84a0a684228ed0bfd45d8e",
       "embedded_sources": [
         {
           "position": 1,
@@ -502,8 +516,8 @@
     },
     "05_Master_Knowledge_Base_Vol_2_Sectors_Frameworks_Screening.md": {
       "sources_count": 27,
-      "output_bytes": 216588,
-      "sha256": "75b7494fdb3256eb9576b84b919430ae772ec213148084f053980bfa1b508430",
+      "output_bytes": 216508,
+      "sha256": "0c4a7bfb0363711a46912768ff941c7ed042be3881b1d2830e6f8e819f36f190",
       "embedded_sources": [
         {
           "position": 1,
@@ -684,8 +698,8 @@
           "position": 26,
           "source": "Knowledge_IRA_COL_FINAL/Screener_Field_Glossary_v_0_0.md",
           "source_path": "canonical_source/Knowledge_IRA_COL_FINAL/Screener_Field_Glossary_v_0_0.md",
-          "sha256": "08fc61ccba29de934637e7df229aabde012076aabe2d7d65dfbec0b414faecf4",
-          "bytes": 4688
+          "sha256": "dfc5983dcc65e76fe48e49451b3b12b3ceb0c67277bdd191bb668b3f53b836ce",
+          "bytes": 4608
         },
         {
           "position": 27,

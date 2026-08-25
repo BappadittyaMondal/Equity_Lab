@@ -218,6 +218,27 @@ def process_llm_query(req: QueryRequest) -> QueryResponse:
     # ── Build Research Context (Phase 3 core) ────────────────────────────
     research_context = build_research_context(symbol)
 
+    # ── Phase 2: RAG Filing Retrieval & Claim Verification ─────────────
+    rag_context = ""
+    try:
+        from app.services.rag.document_store import FilingDocumentStore
+        from app.services.rag.claim_verifier import ClaimVerifier
+
+        doc_store = FilingDocumentStore()
+        docs = doc_store.search_documents(symbol=symbol, query=query_text, top_k=3)
+        verifier = ClaimVerifier(min_confidence_threshold=0.70)
+        v_res = verifier.verify_ai_response(query_text, docs)
+
+        if v_res.status_code == "INSUFFICIENT_FILING_EVIDENCE":
+            rag_context = f"\n[RAG_GOVERNANCE_NOTICE: INSUFFICIENT_FILING_EVIDENCE — Filing retrieval confidence ({v_res.confidence_score:.2f}) < institutional threshold (0.70)]\n"
+        elif docs:
+            rag_snippets = "\n".join([f"• [{d['doc_type']} {d['effective_date']}] {d['title']}: {d['content'][:150]}..." for d in docs])
+            rag_context = f"\n── RETRIEVED REGULATORY FILINGS (Provenance Hashes Verified) ──\n{rag_snippets}\n"
+    except Exception as e:
+        logger.warning("RAG filing retrieval failed: %s", e)
+
+    research_context = research_context + rag_context
+
     # ── Try Gemini with evidence-grounded prompt ──────────────────────────
     gemini_key = settings.GEMINI_API_KEY
     if gemini_key and "your_" not in gemini_key.lower() and not fallback:

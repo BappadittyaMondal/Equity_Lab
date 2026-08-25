@@ -108,12 +108,21 @@ def run_ath_breakout_d15(
     triple_filter_passed_count = sum([price_ath_pass, profit_ath_pass, relative_strength_pass])
     forward_win_probability_pct = 82.0 if triple_filter_passed_count == 3 else (66.0 if price_ath_pass else 45.0)
 
-    # 5. Position Sizing Logic
+    # 5. Position Sizing Logic with ADV/ADTV Liquidity & Market Impact Caps
     stop_loss_price = round(ema_200, 2)
     distance_to_stop_pct = max(1.0, round(((spot - stop_loss_price) / spot) * 100.0, 2))
     suggested_allocation_pct = round(max_risk_pct / (distance_to_stop_pct / 100.0), 2)
     suggested_allocation_pct = min(suggested_allocation_pct, 15.0)
-    position_size_inr = round((suggested_allocation_pct / 100.0) * portfolio_capital, 2)
+    raw_position_size_inr = round((suggested_allocation_pct / 100.0) * portfolio_capital, 2)
+
+    # 20-day Average Daily Traded Value (ADTV / ADV) calculation
+    avg_vol_20_val = avg_vol_20 if 'avg_vol_20' in locals() and avg_vol_20 > 0 else 50000.0
+    adtv_inr = avg_vol_20_val * spot
+    max_adv_liquidity_cap_inr = round(adtv_inr * 0.10, 2)  # Max 10% single-day ADV exit liquidity limit
+
+    position_size_inr = min(raw_position_size_inr, max_adv_liquidity_cap_inr)
+    adv_capped = (position_size_inr < raw_position_size_inr)
+    final_allocation_pct = round((position_size_inr / portfolio_capital) * 100.0, 2)
     max_risk_amount_inr = round((max_risk_pct / 100.0) * portfolio_capital, 2)
 
     passed = price_ath_pass and trend_aligned and volume_expansion_pass
@@ -125,7 +134,9 @@ def run_ath_breakout_d15(
         "trend_alignment": "BULLISH (50 EMA > 200 EMA)" if trend_aligned else "NEUTRAL/BEARISH",
         "triple_filter_score": f"{triple_filter_passed_count}/3 Passed",
         "forward_1y_win_probability": f"{forward_win_probability_pct}%",
-        "risk_based_position_size_inr": f"₹{position_size_inr:,.2f} ({suggested_allocation_pct}% of portfolio)",
+        "risk_based_position_size_inr": f"₹{position_size_inr:,.2f} ({final_allocation_pct}% of portfolio)",
+        "adv_liquidity_cap_inr": f"₹{max_adv_liquidity_cap_inr:,.2f} (10% of 20-day ADTV ₹{adtv_inr:,.0f})",
+        "adv_liquidity_constrained": adv_capped,
         "pre_decided_stop_loss_ema200": f"₹{stop_loss_price}",
         "max_risk_cap_inr": f"₹{max_risk_amount_inr:,.2f} ({max_risk_pct}% max risk)"
     }
@@ -140,8 +151,11 @@ def run_ath_breakout_d15(
         "ema_200": round(ema_200, 2),
         "one_year_return_pct": one_yr_return_pct,
         "win_probability_pct": forward_win_probability_pct,
-        "suggested_allocation_pct": suggested_allocation_pct,
-        "position_size_inr": position_size_inr
+        "suggested_allocation_pct": final_allocation_pct,
+        "position_size_inr": position_size_inr,
+        "adtv_inr": adtv_inr,
+        "adv_liquidity_cap_inr": max_adv_liquidity_cap_inr,
+        "adv_constrained": adv_capped
     }
 
     risk_warnings = [
@@ -149,6 +163,8 @@ def run_ath_breakout_d15(
         "Market-wide broad index drawdown (>10%) invalidates individual stock momentum longs.",
         f"Ensure stop loss at 200-day EMA (₹{stop_loss_price}) is strictly honored without emotion."
     ]
+    if adv_capped:
+        risk_warnings.append(f"ADV LIQUIDITY CAP APPLIED: Position reduced from ₹{raw_position_size_inr:,.2f} to ₹{position_size_inr:,.2f} to prevent market impact (>10% ADTV).")
 
     retrieved_at = get_ist_now_str()
 

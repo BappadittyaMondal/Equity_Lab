@@ -4,7 +4,7 @@
  * AI Valuation Scenario Projections, and PE vs Growth Heatmaps.
  */
 
-import { fetchAndRenderChart, loadScorecard } from "./api.js";
+import { fetchAndRenderChart, loadScorecard, apiFetch } from "./api.js";
 import { renderCAGRMatrixPanel } from "./cagr_matrix_panel.js";
 import { renderThesisPanel } from "./thesis_panel.js";
 import { renderLifecyclePanel } from "./lifecycle_panel.js";
@@ -139,9 +139,6 @@ export async function renderCentralHub(symbol = "RELIANCE") {
   renderHeatmapPanel(symbol);
 }
 
-const metaApiBase = typeof document !== 'undefined' ? document.querySelector('meta[name="ierl-api-base"]')?.getAttribute('content') : "";
-const API_BASE = window.API_BASE || metaApiBase || "";
-
 // 1. Candlestick Chart View
 export async function renderChartPanel(symbol = "RELIANCE") {
   const container = document.getElementById("chart-panel");
@@ -155,7 +152,7 @@ export async function renderChartPanel(symbol = "RELIANCE") {
   let isUp = true;
 
   try {
-    const qResp = await fetch(`${API_BASE}/api/v1/ticker/${encodeURIComponent(cleanSymbol)}`);
+    const qResp = await apiFetch(`/api/v1/ticker/${encodeURIComponent(cleanSymbol)}`);
     if (qResp.ok) {
       const qData = await qResp.json();
       if (qData && qData.price != null) {
@@ -209,7 +206,7 @@ export async function renderChartPanel(symbol = "RELIANCE") {
 
   let ohlcData = [];
   try {
-    const hResp = await fetch(`${API_BASE}/api/v1/ticker/${encodeURIComponent(cleanSymbol)}/history?period=1y`);
+    const hResp = await apiFetch(`/api/v1/ticker/${encodeURIComponent(cleanSymbol)}/history?period=1y`);
     if (hResp.ok) {
       const hData = await hResp.json();
       if (Array.isArray(hData.history) && hData.history.length > 5) {

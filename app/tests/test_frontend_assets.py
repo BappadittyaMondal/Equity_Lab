@@ -6,7 +6,16 @@ from fastapi.testclient import TestClient
 from app.main import app
 from app.core.config import settings
 
-FRONTEND_DIR = os.path.join(os.path.dirname(__file__), "..", "..", "frontend_deploy")
+def _find_frontend_dir():
+    curr = os.path.abspath(os.path.dirname(__file__))
+    for _ in range(4):
+        candidate = os.path.join(curr, "frontend_deploy")
+        if os.path.exists(candidate):
+            return candidate
+        curr = os.path.dirname(curr)
+    return os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "..", "frontend_deploy"))
+
+FRONTEND_DIR = _find_frontend_dir()
 
 
 def test_frontend_js_modules_exist():

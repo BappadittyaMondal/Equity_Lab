@@ -144,3 +144,24 @@ def test_fastapi_technical_endpoints():
     r4 = client.get("/api/v1/technical/surveillance/POLYCAB", headers=_API_KEY_HEADER)
     assert r4.status_code == 200
     assert "circuit_band_pct" in r4.json()
+
+
+def test_isotonic_calibrator_monotonicity():
+    """Verify IsotonicCalibrator output is strictly non-decreasing (monotonic)."""
+    import numpy as np
+    from app.services.probability import IsotonicCalibrator
+
+    np.random.seed(42)
+    raw_probs = np.linspace(0.1, 0.9, 50)
+    outcomes = (raw_probs + np.random.randn(50) * 0.15 > 0.5).astype(int)
+
+    iso = IsotonicCalibrator()
+    iso.fit(raw_probs, outcomes)
+
+    test_grid = np.linspace(0.0, 1.0, 20)
+    calibrated = iso.predict(test_grid)
+
+    # Assert monotonic non-decreasing property: calibrated[i+1] >= calibrated[i]
+    diffs = np.diff(calibrated)
+    assert np.all(diffs >= -1e-9)
+

@@ -607,9 +607,10 @@ The following modules form the minimum production registry.
 | TEC-002 | Momentum Analysis | Technical |
 
 | SCR-001 | Fundamental Screening | Screening |
-
 | SCR-002 | Technical Screening | Screening |
-
+| SCR-003 | Custom Screener Engine (`CustomScreenerEngine`) | Screening |
+| SCR-004 | Institutional Multibagger Engine (`InstitutionalMultibaggerEngine`) | Screening |
+| DAT-001 | Screener Cloud Data Connector (`ScreenerCloudConnector`) | Data Ingestion |
 | POR-001 | Portfolio Review | Portfolio |
 
 | MON-001 | Monitoring Engine | Monitoring |

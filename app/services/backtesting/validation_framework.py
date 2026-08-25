@@ -33,7 +33,9 @@ def _compute_empirical_backtest_metrics(symbol: str) -> Dict[str, Any]:
     except Exception:
         closes = None
 
+    is_simulated = False
     if closes is None or len(closes) < 20:
+        is_simulated = True
         # Fallback to deterministic pseudo-series derived from symbol hash to guarantee variance
         seed = int(hashlib.md5(norm_symbol.encode('utf-8')).hexdigest()[:8], 16)
         rng = np.random.RandomState(seed)
@@ -95,6 +97,7 @@ def _compute_empirical_backtest_metrics(symbol: str) -> Dict[str, Any]:
         "factor_decay_half_life_months": decay_months,
         "survivorship_bias_controlled": True,
         "point_in_time_compliant": True,
+        "is_simulated": is_simulated,
         "wf_summary": wf_summary.model_dump() if hasattr(wf_summary, "model_dump") else wf_summary.dict()
     }
 
@@ -122,9 +125,11 @@ def evaluate_backtest_validation(
         factor_decay_months = float(data.get("factor_decay_half_life_months", 18.0))
         survivorship_bias_controlled = bool(data.get("survivorship_bias_controlled", True))
         point_in_time_compliant = bool(data.get("point_in_time_compliant", True))
+        is_simulated = False
     else:
         emp_res = _compute_empirical_backtest_metrics(norm_symbol)
-        data_mode = "COMPUTED_EMPIRICAL"
+        is_simulated = emp_res.get("is_simulated", False)
+        data_mode = "SIMULATED_FALLBACK" if is_simulated else "COMPUTED_EMPIRICAL"
         ic_by_factor = emp_res["ic_by_factor"]
         out_of_sample_sharpe = emp_res["out_of_sample_sharpe"]
         factor_decay_months = emp_res["factor_decay_half_life_months"]
@@ -133,9 +138,16 @@ def evaluate_backtest_validation(
 
     avg_ic = round(sum(ic_by_factor.values()) / max(1, len(ic_by_factor)), 3)
 
+    if is_simulated:
+        evidence.append("DATA MODE: SIMULATED_FALLBACK (Live price history unavailable; synthetic price walk used)")
+    else:
+        evidence.append("DATA MODE: COMPUTED_EMPIRICAL (Point-in-time live market price history used)")
+
     evidence.append(f"Walk-Forward Out-of-Sample Sharpe: {out_of_sample_sharpe:.2f} | Average IC: {avg_ic:.3f}")
     evidence.append(f"Factor Decay Half-Life: {factor_decay_months:.1f} months | Point-in-Time Compliant: {point_in_time_compliant}")
     evidence.append(f"Survivorship Bias Controlled: {survivorship_bias_controlled} (Includes historical delisted companies)")
+
+    market_data_type = "SIMULATION" if is_simulated else "EMPIRICAL"
 
     return {
         "symbol": norm_symbol,
@@ -147,6 +159,6 @@ def evaluate_backtest_validation(
         "point_in_time_compliant": point_in_time_compliant,
         "survivorship_bias_controlled": survivorship_bias_controlled,
         "evidence": evidence,
-        "meta": create_meta_header(source="Validation & Backtesting Engine (§53)", data_mode=data_mode)
+        "meta": create_meta_header(source="Validation & Backtesting Engine (§53)", data_mode=data_mode, market_data_type=market_data_type)
     }
 

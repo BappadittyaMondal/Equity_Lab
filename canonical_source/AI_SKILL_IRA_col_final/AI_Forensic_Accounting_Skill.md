@@ -564,8 +564,6 @@ FORENSIC VERDICT:
 *This skill integrates with: Skill 01 (Master Research), Skill 09 (Risk Auditor), Skill 15 (Pre-Investment Checklist)*
 # Forensic Accounting Skill — Missing Red Flags Addendum v_0.0
 
-**Paste Target:** AI_Forensic_Accounting_Skill.md — insert as new "Analysis Module 7D" after the existing "Analysis Module 7C — Inter-Statement Reconciliation Table," before "Red Flag Master Register"
-
 **Scope check:** The existing skill already covers Revenue Quality, Profit Quality, Cash Flow, Balance Sheet, Auditor/Governance, Promoter/Pledge, and Related Party Transactions in depth. The four flags below are the ones genuinely absent — not a re-statement of what's already there.
 
 ---

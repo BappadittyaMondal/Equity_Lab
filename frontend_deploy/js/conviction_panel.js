@@ -1,5 +1,4 @@
-// conviction_panel.js – Renders institutional conviction call panel with radial gauge & engine breakdown
-const API_BASE = window.API_BASE || "";
+import { apiFetch } from "./api.js";
 
 export async function renderConvictionPanel(symbol) {
   const container = document.getElementById('conviction-panel');
@@ -24,7 +23,7 @@ export async function renderConvictionPanel(symbol) {
     </div>`;
 
   try {
-    const resp = await fetch(`${API_BASE}/api/v1/decision/${encodeURIComponent(symbol)}`);
+    const resp = await apiFetch(`/api/v1/decision/${encodeURIComponent(symbol)}`);
     if (!resp.ok) {
       if (resp.status === 404) {
         container.innerHTML = `

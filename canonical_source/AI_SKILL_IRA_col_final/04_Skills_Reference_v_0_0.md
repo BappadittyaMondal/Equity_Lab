@@ -1397,8 +1397,6 @@ RISK REDUCTION RECOMMENDATIONS:
 
 # Risk Auditor (Skill 09) — Missing Market/Ownership/Valuation Flags Addendum v_0.0
 
-**Paste Target:** `04_Skills_Reference_v_0.0.md` — insert as a new subsection immediately after the "## 13. Skill 09 — Risk Auditor" content block
-
 **Scope check:** Skill 09 already covers balance-sheet and earnings-quality risk (overlapping with Forensic Accounting) and portfolio-level risk aggregation. The four flags below are ownership-flow and valuation-behavior risks that weren't previously named.
 
 ---

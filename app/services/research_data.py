@@ -563,3 +563,19 @@ class ResearchDataStore:
             cursor = conn.execute("DELETE FROM watchlist WHERE symbol = ?", (norm_symbol,))
         return cursor.rowcount > 0
 
+    def get_point_in_time_snapshot(self, symbol: str, as_of: Optional[datetime] = None) -> Dict[str, Any]:
+        """Returns point-in-time financial and event snapshot filtered strictly by published_at <= cutoff."""
+        timeline = self.get_timeline(symbol, as_of=as_of)
+        company, financials, events, corp_actions, ownership, docs = timeline
+        return {
+            "symbol": company.symbol,
+            "company_name": company.company_name,
+            "as_of_cutoff": (as_of or _utc_now()).isoformat(),
+            "financial_count": len(financials),
+            "event_count": len(events),
+            "corporate_action_count": len(corp_actions),
+            "ownership_count": len(ownership),
+            "document_count": len(docs),
+            "latest_financials": [f.model_dump() for f in financials[-10:]]
+        }
+

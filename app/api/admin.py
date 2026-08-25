@@ -51,4 +51,15 @@ def get_request_stats():
     _reset_counters_if_needed()
     return _request_counters
 
+@router.post("/sync-market-data", summary="Trigger On-Demand Market Data Refresh (Max 72h Gap Enforced)")
+async def sync_market_data(max_age_hours: int = 72):
+    """Triggers an on-demand market data freshness scan across universe symbols."""
+    try:
+        from app.services.market_data import AutoRefreshMarketDataService
+        result = await AutoRefreshMarketDataService.auto_refresh_universe(max_age_hours=max_age_hours)
+        return {"status": "success", "result": result}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Market data sync failed: {str(e)}")
+
+
 # Middleware to increment counters – will be added in main.py

@@ -67,3 +67,23 @@ def test_prediction_regime_aware_probability_shift():
             assert st_volatile["bear_case"]["probability"] > st_calm["bear_case"]["probability"]
             assert st_volatile["bull_case"]["probability"] < st_calm["bull_case"]["probability"]
             assert abs(st_volatile["prob_sum_check"] - 1.0) < 0.001
+
+
+def test_model_persistence_roundtrip():
+    """Verify NumPyEnsembleClassifier serialization to_dict and restoration from_dict reproduces predictions exactly."""
+    import numpy as np
+    from app.services.ml.baseline_model import NumPyEnsembleClassifier
+
+    X = np.array([[60.0, 1.0, 0.6, 0.5, 1.0], [85.0, 1.0, 1.0, 1.0, 1.0], [30.0, 0.0, 0.0, 0.0, 0.0]], dtype=np.float64)
+    y = np.array([1, 1, 0], dtype=np.int32)
+
+    clf = NumPyEnsembleClassifier(n_estimators=10, random_state=42)
+    clf.fit(X, y)
+    orig_probs = clf.predict_proba(X)
+
+    state = clf.to_dict()
+    restored_clf = NumPyEnsembleClassifier.from_dict(state)
+    restored_probs = restored_clf.predict_proba(X)
+
+    np.testing.assert_allclose(orig_probs, restored_probs, rtol=1e-6, atol=1e-6)
+

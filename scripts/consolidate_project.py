@@ -18,6 +18,15 @@ PROJECT_VERSION = "0.0.0"
 SCHEMA_VERSION = "1.0"
 
 
+def run_security_scan() -> None:
+    scanner = BASE_DIR / "scripts" / "check_no_real_secrets.py"
+    if scanner.exists():
+        proc = subprocess.run([subprocess.sys.executable, str(scanner)], capture_output=True, text=True)
+        if proc.returncode != 0:
+            print(f"[ERROR] Security audit check failed prior to bundle consolidation:\n{proc.stdout}\n{proc.stderr}")
+            raise RuntimeError("Build aborted: Real secrets or unscrubbed credentials detected!")
+
+
 def get_git_commit() -> str:
     try:
         res = subprocess.check_output(["git", "rev-parse", "--short", "HEAD"], cwd=str(BASE_DIR), stderr=subprocess.DEVNULL)
@@ -55,6 +64,7 @@ FIVE_FILE_MAP = {
         "AI_Framework_Registry_v_0_0.md", "AI_Conformance_Matrix_v_0_0.md",
         "AI_E6_Quality_Growth_Screener_v_0_0.md", "AI_Causal_Analysis_Engine_v_0_0.md",
         "AI_Geopolitical_Risk_Engine_v_0_0.md", "AI_Expectation_Gap_Engine_v_0_0.md",
+        "AI_Custom_Screener_Engine_v_0_1.md", "AI_Institutional_Multibagger_Engine_v_0_1.md",
     ],
     "03_Master_Skill_Library.md": [
         "AI_SKILL_IRA_col_final/04_Skills_Reference_v_0_0.md",
@@ -252,6 +262,7 @@ def validate(mapping: dict, target_dir: Path) -> None:
 
 
 def main() -> None:
+    run_security_scan()
     git_commit_source = get_git_commit()
     source_hash = compute_source_hash()
     generated_at = datetime.datetime.now(datetime.timezone.utc).isoformat()

@@ -44,3 +44,14 @@ function switchView(viewId) {
 - **Design Tokens**: Obsidian Aurum color palette (`#0B0E14` obsidian background, `#D4AF37` metallic gold accents, `#1E222D` card fills).
 - **Typography**: Google Fonts Inter & Outfit.
 - **Component Styling**: Micro-animations (`transition: all 0.25s ease`), glassmorphism cards (`backdrop-filter: blur(8px)`).
+
+---
+
+## 4. Backend-Only Endpoints (not yet in UI)
+
+The following backend endpoints are high-performance analytical engines operational via direct REST API and SDK calls. UI exposure is planned for the v1.1 dashboard expansion release:
+
+1. `/api/v1/data/custom-screen` — Dynamic Universal AST Custom Screener Engine (`POST /api/v1/data/custom-screen`). Reason: Serves programmatic AST query DSL callers; UI query builder scheduled for v1.1.
+2. `/api/v1/multibagger/institutional-rank` — Universal 27-Engine Multibagger Ranker (`POST /api/v1/multibagger/institutional-rank`). Reason: High-throughput batch calculation engine consumed by background schedulers and CLI reports; UI grid view targeted for v1.1.
+3. `/api/v1/multibagger/institutional-score/{symbol}` — Single-Stock 27-Engine Scorecard (`GET /api/v1/multibagger/institutional-score/{symbol}`). Reason: Deep vector breakdown consumed by automated reporting pipelines; modal UI inspector scheduled for v1.1.
+

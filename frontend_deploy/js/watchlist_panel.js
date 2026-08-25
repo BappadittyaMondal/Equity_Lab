@@ -1,9 +1,8 @@
 /**
  * watchlist_panel.js — Strategy Watchlist System (watchlist_500) for StockAnalyzer
  * Manages up to 500 equities categorized by Multibagger, Swing, SIP, Turnaround, and Custom lists.
- */
-
-import { selectSymbol } from "./main_canvas.js";
+ */import { selectSymbol } from "./main_canvas.js";
+import { apiFetch } from "./api.js";
 
 const DEFAULT_WATCHLIST = [
   { symbol: "RELIANCE", name: "Reliance Industries", price: 2980, chg: 2.45, score: 92, risk: "Low", category: "Multibagger" },
@@ -103,9 +102,6 @@ export function filterWatchlistCategory(cat = "ALL") {
   `;
 }
 
-const metaApiBase = typeof document !== 'undefined' ? document.querySelector('meta[name="ierl-api-base"]')?.getAttribute('content') : "";
-const API_BASE = window.API_BASE || metaApiBase || "";
-
 export async function addSymbolToWatchlist(symbol, category = "Multibagger") {
   if (!symbol) return;
   const cleanSym = symbol.trim().toUpperCase().replace(".NS", "").replace(".BO", "");
@@ -122,7 +118,7 @@ export async function addSymbolToWatchlist(symbol, category = "Multibagger") {
   let realScore = 85;
 
   try {
-    const qResp = await fetch(`${API_BASE}/api/v1/ticker/${encodeURIComponent(cleanSym)}`);
+    const qResp = await apiFetch(`/api/v1/ticker/${encodeURIComponent(cleanSym)}`);
     if (qResp.ok) {
       const qData = await qResp.json();
       if (qData && qData.price) {
@@ -133,13 +129,14 @@ export async function addSymbolToWatchlist(symbol, category = "Multibagger") {
   } catch (_) {}
 
   try {
-    const sResp = await fetch(`${API_BASE}/api/v1/research/scorecard?symbol=${encodeURIComponent(cleanSym)}`);
+    const sResp = await apiFetch(`/api/v1/research/scorecard?symbol=${encodeURIComponent(cleanSym)}`);
     if (sResp.ok) {
       const sData = await sResp.json();
       if (sData && sData.scores && sData.scores.overall_score) {
         realScore = sData.scores.overall_score;
       }
     }
+  } catch (_) {} }
   } catch (_) {}
 
   window.__IERL_WATCHLIST_DATA.unshift({

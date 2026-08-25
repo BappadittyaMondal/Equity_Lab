@@ -53,8 +53,16 @@ def test_full_pipeline_roundtrip():
 def test_watchlist_digest_endpoint():
     import sys, subprocess
     from pathlib import Path
-    script_path = Path(__file__).resolve().parents[2] / "scripts" / "nightly_watchlist_scan.py"
-    digest_path = Path(__file__).resolve().parents[2] / "frontend_deploy" / "data" / "digests" / "watchlist_digest.json"
+    def get_project_root() -> Path:
+        curr = Path(__file__).resolve().parent
+        for p in [curr] + list(curr.parents):
+            if (p / "scripts").exists() and (p / "frontend_deploy").exists():
+                return p
+        return Path(__file__).resolve().parents[2]
+
+    root = get_project_root()
+    script_path = root / "scripts" / "nightly_watchlist_scan.py"
+    digest_path = root / "frontend_deploy" / "data" / "digests" / "watchlist_digest.json"
     if not digest_path.exists():
         subprocess.run([sys.executable, str(script_path)], capture_output=True, text=True)
 

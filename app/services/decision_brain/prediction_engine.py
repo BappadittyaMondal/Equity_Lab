@@ -386,6 +386,7 @@ def generate_prediction_summary(
     symbol: str,
     store=None,
     margin_of_safety_pct: Optional[float] = None,
+    composite_score: float = 60.0,
 ) -> Dict[str, Any]:
     """Generate full multi-horizon prediction summary for a symbol.
 
@@ -396,6 +397,7 @@ def generate_prediction_summary(
         symbol: Equity symbol (normalised).
         store: Optional ResearchDataStore instance (created if None).
         margin_of_safety_pct: From Forward DCF (if already computed).
+        composite_score: Scorecard composite score (dynamically resolved if default).
 
     Returns:
         Dict with: horizon_predictions, catalyst_timeline, confidence_decomposition,
@@ -405,6 +407,18 @@ def generate_prediction_summary(
     evidence = []
     financials = []
     events = []
+
+    # ── Resolve dynamic composite score if default ────────────────────────
+    if composite_score == 60.0:
+        try:
+            from app.services.decision_brain.scorecard import calculate_multi_dimensional_scorecard
+            sc = calculate_multi_dimensional_scorecard(norm)
+            if isinstance(sc, dict) and "composite_score" in sc:
+                composite_score = float(sc["composite_score"])
+            elif hasattr(sc, "composite_score"):
+                composite_score = float(getattr(sc, "composite_score", 60.0))
+        except Exception:
+            pass
 
     # ── Fetch financial and event data ────────────────────────────────────
     try:
@@ -487,7 +501,7 @@ def generate_prediction_summary(
 
         scenario = _build_scenario_tree(
             current_price, p25, p50, p75, fundamental_est, label,
-            symbol=norm, composite_score=60.0, regime=regime_str
+            symbol=norm, composite_score=composite_score, regime=regime_str
         )
         horizon_predictions[label] = {
             "horizon_months":           months,

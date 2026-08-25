@@ -1,8 +1,8 @@
 # 02_Engine_Contracts_Schemas_Registries
 
 > **IERL AI Equity OS — curated upload artifact**  
-> Project Version: `0.0.0` · Bundle Version: `2.0` · Source Commit: `ad0beda`  
-> Generated At: `2026-08-23T18:31:52.659405+00:00` · Source Hash: `9ef11ec99b01c3b4` · Compiler: `consolidate_project.py` v2.0
+> Project Version: `0.0.0` · Bundle Version: `2.0` · Source Commit: `b3f9522`  
+> Generated At: `2026-08-25T14:16:09.735759+00:00` · Source Hash: `cb1812ef9b1daa84` · Compiler: `consolidate_project.py` v2.0
 
 ## Operating contract
 
@@ -19,7 +19,7 @@ This is a generated, read-only working volume. The separately maintained source 
 | Upload file | Primary use | Sources |
 |---|---|---:|
 | `01_System_Core_Instructions_Architecture.md` | 01 System Core Instructions Architecture | 8 |
-| `02_Engine_Contracts_Schemas_Registries.md` | 02 Engine Contracts Schemas Registries | 16 |
+| `02_Engine_Contracts_Schemas_Registries.md` | 02 Engine Contracts Schemas Registries | 18 |
 | `03_Workflow_Skills_01_to_25.md` | 03 Workflow Skills 01 to 25 | 1 |
 | `04_Analytical_Lens_Skills_26_to_41.md` | 04 Analytical Lens Skills 26 to 41 | 17 |
 | `05_Knowledge_Base_Vol_1_Economics_Financials.md` | 05 Knowledge Base Vol 1 Economics Financials | 12 |
@@ -42,20 +42,22 @@ The SHA-256 values cover the exact UTF-8 source payload, not this wrapper. Use t
 |---:|---|---:|---|
 | 1 | `AI_Intelligence_Engine_v_0_0.md` | 23,319 | `f8d29c47d85ad8b8475f6f79e478bb9acf6c56a8f84f6b74b63a244acae855a6` |
 | 2 | `AI_Execution_Engine_v_0_0.md` | 27,052 | `029de2a10f6dfd174e70b2ea1fcea4f37c5e8aeaa89b401a7d71281d647bc56b` |
-| 3 | `AI_Research_Engine_v_0_0.md` | 25,948 | `ecb737f493d6dc0416e7d475b7de3cb899a8fd70779ceac01a943fd46c21c37f` |
+| 3 | `AI_Research_Engine_v_0_0.md` | 25,869 | `c2f5feb84c3aa00dc36fc703c00541e00675ae7d7eb6df24f01c931f0465c9b8` |
 | 4 | `AI_Reasoning_Skills_v_0_0.md` | 21,705 | `de3f8cefc4708c988c311cdf44638455e288158087d3143db84332e0f585f93b` |
 | 5 | `AI_Quality_Audit_v_0_0.md` | 37,607 | `8acf83fe3dc2ef16453159b7a959092706b31dfbaa8cdaec6bf8d440c0981eb8` |
 | 6 | `AI_Output_System_v_0_0.md` | 14,138 | `0b78399a6404212ae50c150146056826f1161b77720ff3b5a1dd7d80a3e120dc` |
 | 7 | `AI_Object_Schemas_v_0_0.md` | 16,613 | `5bc5a1416017a5155fd4601041dcdd634da513f6c41d120c32ddcc47e9fa9e65` |
 | 8 | `AI_Dependency_Map_v_0_0.md` | 20,172 | `f8f34ad7b854b3e45396ca96976440e3a5f06fced916374c834521e7a9c4a6f3` |
 | 9 | `AI_Unified_Pattern_Taxonomy_v_0_0.md` | 8,039 | `186781e4e56abc0e73116bdbbc928e6370a809a2eea48d1a0bba2524b666195e` |
-| 10 | `AI_Module_Registry_v_0_0.md` | 17,953 | `b040ffa2662d5b2882eae884615438b3f42523ad5e3705eed09fe13f4b84f037` |
+| 10 | `AI_Module_Registry_v_0_0.md` | 18,207 | `d021aa44bb210aecb887268a8a82aff807ffe3435a39b7adaee75d838d3a80e9` |
 | 11 | `AI_Framework_Registry_v_0_0.md` | 9,689 | `f4e6af682e8e43484b09b8e6292c4cb619f77afa5852bb73ffa1fd632b627dd2` |
 | 12 | `AI_Conformance_Matrix_v_0_0.md` | 6,482 | `53aeb4b117858cebd43bfb84429ae25f1c217002afcd63589f0760389ec05519` |
 | 13 | `AI_E6_Quality_Growth_Screener_v_0_0.md` | 2,114 | `e951bc9256aaadd04b1cc04940577228e0397f3693291c0ecaba7e145789706e` |
 | 14 | `AI_Causal_Analysis_Engine_v_0_0.md` | 1,969 | `93714b75cdc21b1beef7e71bf381385301251b23c0a1e68dce696f3c55a4f9a8` |
 | 15 | `AI_Geopolitical_Risk_Engine_v_0_0.md` | 1,776 | `04d04e76beaf2f0edd7d95a4314bf83b318197173be9f6325608c4550f7c2272` |
 | 16 | `AI_Expectation_Gap_Engine_v_0_0.md` | 3,075 | `bc25de721f29f328791a5dbc46cd2a5144838e193a5a3975c10cef72ba2371d9` |
+| 17 | `AI_Custom_Screener_Engine_v_0_1.md` | 6,434 | `73eaf37e9954dad165ccdb64749a3a1a58c9bbf5d7d788d175e83b7675589cf9` |
+| 18 | `AI_Institutional_Multibagger_Engine_v_0_1.md` | 6,974 | `75f829094344ff324c8af992fb1fa25cd7d843cfb6b80726462f06d8e2d43bc8` |
 
 ---
 
@@ -2531,7 +2533,7 @@ The AI Operating System works only when every responsibility belongs to exactly 
 
 ---
 
-<!-- BEGIN SYSTEM FILE 3: AI_Research_Engine_v_0_0.md | SHA256: ecb737f493d6dc0416e7d475b7de3cb899a8fd70779ceac01a943fd46c21c37f -->
+<!-- BEGIN SYSTEM FILE 3: AI_Research_Engine_v_0_0.md | SHA256: c2f5feb84c3aa00dc36fc703c00541e00675ae7d7eb6df24f01c931f0465c9b8 -->
 ## Embedded source 3: AI Research Engine
 
 <!-- IERL-CANONICAL-METADATA v1.2 -->
@@ -3392,7 +3394,6 @@ It remains completely independent from planning, reasoning, auditing, and output
 **Category:** Core Engine Extension
 **Priority:** High
 **Role:** Thesis Versioning, Staleness Detection, and Feedback Loop
-**Paste Target:** AI_Research_Engine_v_0.0.md, appended as a new major section
 
 ---
 
@@ -7696,7 +7697,7 @@ This is a single-line addition per file — no restructuring of any existing dom
 
 ---
 
-<!-- BEGIN SYSTEM FILE 10: AI_Module_Registry_v_0_0.md | SHA256: b040ffa2662d5b2882eae884615438b3f42523ad5e3705eed09fe13f4b84f037 -->
+<!-- BEGIN SYSTEM FILE 10: AI_Module_Registry_v_0_0.md | SHA256: d021aa44bb210aecb887268a8a82aff807ffe3435a39b7adaee75d838d3a80e9 -->
 ## Embedded source 10: AI Module Registry
 
 <!-- IERL-CANONICAL-METADATA v1.2 -->
@@ -8308,9 +8309,10 @@ The following modules form the minimum production registry.
 | TEC-002 | Momentum Analysis | Technical |
 
 | SCR-001 | Fundamental Screening | Screening |
-
 | SCR-002 | Technical Screening | Screening |
-
+| SCR-003 | Custom Screener Engine (`CustomScreenerEngine`) | Screening |
+| SCR-004 | Institutional Multibagger Engine (`InstitutionalMultibaggerEngine`) | Screening |
+| DAT-001 | Screener Cloud Data Connector (`ScreenerCloudConnector`) | Data Ingestion |
 | POR-001 | Portfolio Review | Portfolio |
 
 | MON-001 | Monitoring Engine | Monitoring |
@@ -9745,6 +9747,324 @@ A positive expectation gap is a valuation catalyst signal, not a guaranteed retu
 
 If quote or fundamental history is unavailable, flag `data_insufficient = True` and set `confidence_score = 0.0`. Never fabricate baseline growth figures without explicit data lineage warnings.
 <!-- END SYSTEM FILE 16: AI_Expectation_Gap_Engine_v_0_0.md -->
+
+---
+
+<!-- BEGIN SYSTEM FILE 17: AI_Custom_Screener_Engine_v_0_1.md | SHA256: 73eaf37e9954dad165ccdb64749a3a1a58c9bbf5d7d788d175e83b7675589cf9 -->
+## Embedded source 17: AI Custom Screener Engine v 0 1
+
+<!-- IERL-CANONICAL-METADATA v1.2 -->
+> **Canonical retrieval label:** AI Custom Screener Engine (Dynamic Universal AST Engine)
+> **Role:** Dynamic quantitative parameter screening and relative expression parser
+> **Use when:** Screening equities using complex relative fundamentals, cash flow ratios, parenthetical disjunctions, and moving averages.
+> **Evidence rule:** Execute AST expression trees strictly against point-in-time observations without synthetic fallbacks.
+
+# AI Custom Screener Engine Specification
+
+**Version:** v_0.1  
+**Status:** Production Ready (Canonical)  
+**Category:** Screening & Selection Engine  
+**Module ID:** SCR-003  
+
+---
+
+## 1. Executive Summary & Purpose
+
+The AI Custom Screener Engine (`CustomScreenerEngine`) provides a dynamic, Abstract Syntax Tree (AST) based query evaluation framework supporting 180+ Screener.in parameter aliases across 14 financial categories. It allows quantitative analysts and portfolio managers to write natural expression queries using field-to-field comparisons, mathematical multipliers, moving average volume thresholds, and cash-flow confirmation rules.
+
+---
+
+## 2. Query DSL Grammar & Syntax
+
+The Screener Domain Specific Language (DSL) parses incoming text strings into nested boolean expression trees.
+
+### Syntax Grammar Rules
+
+1. **Conjunctions & Disjunctions:**
+   - Primary clauses are joined by `AND` (case-insensitive).
+   - Parenthetical disjunctions use `OR` inside clauses: `(ConditionA OR ConditionB)`.
+
+2. **Operators Supported:**
+   - Comparison: `>=`, `<=`, `>`, `<`, `==`, `=`
+   - Arithmetic Multipliers: `*` on right-hand-side terms (e.g., `FieldA >= FieldB * 1.2`)
+   - Division / Percentage Ratios: `100 * ((High price - Current price) / High price) < 35`
+
+3. **Field Alias Resolution:**
+   - Case-insensitive string matching across 180+ registered financial metrics.
+   - Fallback substring matching for normalized financial terms.
+
+---
+
+## 3. Worked Query Examples
+
+### Example 1: Strategic Growth & Cash Flow Quality Confirmation
+```text
+EPS growth 3Years >= Sales growth 3Years * 1.2 AND Cash from operations last year > Net profit last year * 1.2
+```
+- **Explanation:** Ensures EPS growth outpaces sales growth by at least 20% (operating leverage) and operating cash flow exceeds net profit by 20% (high cash conversion quality).
+
+### Example 2: Asset Expansion & CWIP Reinvestment Disjunction
+```text
+(Net block > Net block 3Years back * 1.9) OR ((Net block + Capital work in progress) > 1.9 * (Net block preceding year + Capital work in progress preceding year))
+```
+- **Explanation:** Surfaces aggressive capex capacity expansion where gross fixed assets or work-in-progress has expanded by 90%+ over the baseline period.
+
+### Example 3: Momentum & Institutional Volume Accumulation Screen
+```text
+100 * ((High price - Current price) / High price) < 35 AND 100 * (Current price / Low price - 1) > 40 AND Volume > Volume 1year average * 4.5 AND Volume 1week average > Volume 1year average * 2.5
+```
+- **Explanation:** Selects stocks trading within 35% of 52-week highs, up 40%+ from 52-week lows, with daily volume exceeding 4.5x the 1-year average and weekly volume 2.5x the 1-year average.
+
+---
+
+## 4. Comprehensive Parameter Dictionary (180+ Aliases across 14 Categories)
+
+### Category 1: Core Fundamentals
+- `Sales`, `Sales growth`, `OPM`, `OPM Latest`, `Profit after tax`, `PAT`, `Market Capitalization`, `Market Cap`, `Sales Latest Quarter`, `PAT Latest Quarter`, `YOY Quarterly Sales Growth`, `YOY Quarterly Profit Growth`, `Price to Earning`, `PE`, `Dividend Yield`, `Price to Book Value`, `Return on Capital Employed`, `ROCE`, `Return on Assets`, `Debt to Equity`, `Return on Equity`, `ROE`, `EPS`, `Debt`, `Promoter Holding`, `Change in Promoter Holding`, `Earnings Yield`, `Pledged Percentage`, `Industry PE`, `Current Price`, `CMP`.
+
+### Category 2: Growth Metrics
+- `Sales growth 3 years`, `Sales growth 5 years`, `Sales growth 7 years`, `Sales growth 10 years`, `Profit growth 3 years`, `Profit growth 5 years`, `Profit growth 7 years`, `Profit growth 10 years`, `EBITDA growth 3 years`, `EBITDA growth 5 years`, `EPS growth 3 years`, `EPS growth 5 years`, `Operating profit growth`.
+
+### Category 3: Profitability & Return Ratios
+- `Average return on equity 3 years`, `Average return on equity 5 years`, `Average return on capital employed 3 years`, `Average return on capital employed 5 years`, `OPM 5 year`, `OPM 10 year`.
+
+### Category 4: Cash Flow & Quality
+- `Cash from operations last year`, `Net profit last year`, `Free cash flow last year`, `Free cash flow 3 years`, `Free cash flow 5 years`, `Free cash flow 7 years`, `Free cash flow 10 years`, `Operating cash flow 3 years`, `Operating profit`.
+
+### Category 5: Balance Sheet & Capex
+- `Net block`, `Net block 3 years back`, `Net block preceding year`, `Capital work in progress`, `CWIP`, `CWIP preceding year`, `Working capital 3 years back`.
+
+### Category 6: Technical & Price Action Metrics
+- `Piotroski score`, `High price`, `Low price`, `Volume`, `Volume 1 week average`, `Volume 1 month average`, `Volume 1 year average`.
+
+---
+
+## 5. Error-Handling Behavior
+
+1. **Unknown Term Fallback:** Unrecognized metrics default to `0.0` with a warning log, ensuring non-blocking AST execution.
+2. **Missing Observations:** If a company lacks historical observations for a required metric, the clause evaluates safely as `False` without halting universe scanning.
+3. **Division by Zero Protection:** All ratio divisions (e.g. Price/Low or High-Price percentage calculations) enforce explicit `> 0` checks on denominators to prevent ZeroDivisionError exceptions.
+
+---
+
+## 6. Machine Interface & Contract Schema
+
+### HTTP Endpoint
+`POST /api/v1/data/custom-screen`
+
+### Request Schema
+```json
+{
+  "query": "EPS growth 3Years >= Sales growth 3Years * 1.2 AND Cash from operations last year > Net profit last year * 1.2"
+}
+```
+
+### Response Schema
+```json
+{
+  "query_string": "string",
+  "total_universe_scanned": 412,
+  "total_results_found": 15,
+  "results": [
+    {
+      "symbol": "RELIANCE",
+      "name": "Reliance Industries Ltd",
+      "current_price": 2850.5,
+      "market_cap_cr": 1925000.0,
+      "opm_pct": 18.5,
+      "volume_1d": 4500000,
+      "vol_1w_avg": 3800000,
+      "vol_1y_avg": 2500000,
+      "roe_latest": 14.2,
+      "roce_latest": 12.8,
+      "eps_latest": 85.4,
+      "cfo_last_year": 115000.0,
+      "net_block": 650000.0
+    }
+  ]
+}
+```
+<!-- END SYSTEM FILE 17: AI_Custom_Screener_Engine_v_0_1.md -->
+
+---
+
+<!-- BEGIN SYSTEM FILE 18: AI_Institutional_Multibagger_Engine_v_0_1.md | SHA256: 75f829094344ff324c8af992fb1fa25cd7d843cfb6b80726462f06d8e2d43bc8 -->
+## Embedded source 18: AI Institutional Multibagger Engine v 0 1
+
+<!-- IERL-CANONICAL-METADATA v1.2 -->
+> **Canonical retrieval label:** AI Institutional Multibagger Engine (27-Engine Synthesis)
+> **Role:** Multi-dimensional early multibagger discovery, archetype classification, and risk penalty audit engine
+> **Use when:** Identifying early-stage 3x–10x multibagger compounders across fundamental quality, cash flow, institutional footprint, technical relative strength, and catalyst triggers.
+> **Evidence rule:** Evaluate all 27 engines independently and enforce hard risk penalties on missing or red-flagged observations.
+
+# AI Institutional Multibagger Engine Specification
+
+**Version:** v_0.1  
+**Status:** Production Ready (Canonical)  
+**Category:** Multibagger Discovery & Synthesis Engine  
+**Module ID:** SCR-004  
+
+---
+
+## 1. Executive Summary & Purpose
+
+The AI Institutional Multibagger Engine (`InstitutionalMultibaggerEngine`) synthesizes 27 quantitative and qualitative analytical sub-engines to identify high-conviction early-stage multibaggers in the Indian capital markets. Rather than relying on simple static filters, the engine evaluates multidimensional business acceleration, capital reinvestment intensity, institutional footprints, management commentary sentiment, alt-data signals, and technical market structure.
+
+---
+
+## 2. Enumeration of the 27 Analytical Sub-Engines
+
+### Engine 1: Sales Growth Acceleration Engine
+- Evaluates YoY quarterly and 3-year CAGR sales acceleration trends to detect demand expansion.
+
+### Engine 2: Operating Margin Expansion Engine
+- Measures OPM expansion trajectories to confirm pricing power and scale economies.
+
+### Engine 3: PAT Outperformance Engine
+- Tracks net profit growth relative to revenue growth to measure bottom-line expansion.
+
+### Engine 4: Cash Flow Conversion Quality Engine
+- Validates that Cash Flow from Operations (CFO) exceeds Net Profit by at least 1.2x.
+
+### Engine 5: Free Cash Flow Yield Engine
+- Calculates FCF yield relative to enterprise value to measure cash generation sustainability.
+
+### Engine 6: Operating Leverage Engine
+- Measures EPS growth acceleration multiplier against sales growth.
+
+### Engine 7: Capital Work in Progress Expansion Engine
+- Detects multi-year CWIP deployment preceding major revenue commissioning.
+
+### Engine 8: Net Block Reinvestment Engine
+- Identifies gross fixed asset expansion and capacity doubling trajectories.
+
+### Engine 9: Asset Turnover Efficiency Engine
+- Tracks asset turnover ratio improvements post-capex commissioning.
+
+### Engine 10: ROCE Trajectory Engine
+- Evaluates Return on Capital Employed expansion towards institutional 20%+ thresholds.
+
+### Engine 11: ROE Quality Engine
+- Measures Return on Equity purity, excluding leverage-driven artificial inflation.
+
+### Engine 12: Debt Reduction Trajectory Engine
+- Monitors debt-to-equity de-leveraging trajectories toward net-zero status.
+
+### Engine 13: Interest Coverage Safety Engine
+- Validates EBIT interest coverage ratios to prevent debt service stress.
+
+### Engine 14: Working Capital Compression Engine
+- Identifies cash conversion cycle reductions and inventory turnover gains.
+
+### Engine 15: Promoter Skin in the Game Engine
+- Tracks promoter shareholding levels and net open-market share purchases.
+
+### Engine 16: Promoter Pledge Elimination Engine
+- Enforces strict penalties for promoter pledge increases and rewards pledge reduction.
+
+### Engine 17: Institutional Accumulation Engine
+- Measures consecutive quarter FII and DII stake accumulation streaks.
+
+### Engine 18: FII DII Net Inflow Engine
+- Tracks mutual fund and foreign institutional net capital flows into candidate equities.
+
+### Engine 19: Relative Strength Leadership Engine
+- Evaluates 6-month and 12-month Mansfield Relative Strength against Nifty 500.
+
+### Engine 20: Volatility Contraction Pattern Engine
+- Detects VCP base structures and narrow range volatility compression setups.
+
+### Engine 21: Volume Accumulation Multiplier Engine
+- Measures relative volume (RVOL) and weekly delivery volume spikes during up-weeks.
+
+### Engine 22: Piotroski F-Score Hardiness Engine
+- Computes 9-point Piotroski fundamental financial health score.
+
+### Engine 23: Valuation Margin of Safety Engine
+- Determines DCF intrinsic value upside and price-to-fair-value margin of safety.
+
+### Engine 24: PEG Ratio Growth Valuation Engine
+- Evaluates PE-to-Growth ratios to ensure high-growth businesses are reasonably priced.
+
+### Engine 25: Scuttlebutt Alt-Data Momentum Engine
+- Integrates GST e-way bills, Vahan registrations, and EPFO hiring data.
+
+### Engine 26: Management Concall NLP Sentiment Engine
+- Parses transcript sentiment, guidance clarity, and tone shifts across earnings calls.
+
+### Engine 27: Policy Catalyst Corporate Action Engine
+- Evaluates PLI scheme eligibility, import tariff barriers, and corporate actions.
+
+---
+
+## 3. Archetype Classification Logic
+
+Candidates passing the 27-engine evaluation are categorized into one of 4 institutional investment archetypes:
+
+1. **EARLY_GROWTH:** Small-to-mid cap companies entering aggressive revenue and capacity expansion cycles.
+2. **OPERATIONAL_TURNAROUND:** Companies transitioning from loss-making or low-margin states to positive cash flow profitability.
+3. **HIGH_QUALITY_COMPOUNDER:** Established market leaders exhibiting steady 20%+ ROCE and high cash conversion.
+4. **DEEP_VALUE_REATING:** Undervalued assets undergoing corporate restructuring or regulatory catalyst re-ratings.
+
+---
+
+## 4. Risk-Penalty Audit Rules
+
+The engine applies strict mandatory risk penalties before issuing final rankings:
+
+- **Pledge Penalty:** If promoter pledge exceeds 15%, deduct 25 points from composite score.
+- **Cash Flow Divergence Penalty:** If CFO < 0.5 * Net Profit for 2 consecutive years, deduct 30 points.
+- **Audit Qualification Penalty:** Any auditor qualification or governance red flag results in immediate hard-gate disqualification.
+
+---
+
+## 5. Machine Interface & Contract Schemas
+
+### Endpoint 1: Universal Ranking
+`POST /api/v1/multibagger/institutional-rank`
+
+**Request Query Parameter:** `min_score` (default: `50.0`)
+
+**Response Schema:**
+```json
+{
+  "total_candidates": 412,
+  "min_score_filter": 50.0,
+  "rankings": [
+    {
+      "symbol": "TATAMOTORS",
+      "company_name": "Tata Motors Ltd",
+      "composite_score": 88.5,
+      "multibagger_tier": "TIER_1_HIGH_CONVICTION",
+      "archetype": "OPERATIONAL_TURNAROUND",
+      "hard_gates_status": "PASS",
+      "hard_gate_reasons": []
+    }
+  ]
+}
+```
+
+### Endpoint 2: Single-Stock Deep Scorecard
+`GET /api/v1/multibagger/institutional-score/{symbol}`
+
+**Response Schema:**
+```json
+{
+  "symbol": "TATAMOTORS",
+  "company_name": "Tata Motors Ltd",
+  "composite_score": 88.5,
+  "archetype": "OPERATIONAL_TURNAROUND",
+  "dimension_scores": {
+    "business_growth": 92.0,
+    "cash_flow_quality": 85.0,
+    "capital_reinvestment": 90.0,
+    "institutional_footprint": 86.0
+  },
+  "risk_penalties_applied": [],
+  "passed_hard_gates": true
+}
+```
+<!-- END SYSTEM FILE 18: AI_Institutional_Multibagger_Engine_v_0_1.md -->
 
 ---
 

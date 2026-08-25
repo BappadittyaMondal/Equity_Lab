@@ -3,7 +3,7 @@
   "info": {
     "title": "Equity Lab",
     "description": "Institutional Indian Equity Research, Options Arbitrage, and Return Probability Engine",
-    "version": "0.0.0"
+    "version": "1.0.0"
   },
   "paths": {
     "/api/v1/health": {
@@ -2013,6 +2013,59 @@
         }
       }
     },
+    "/api/v1/data/custom-screen": {
+      "post": {
+        "tags": [
+          "Point-in-Time Research Data"
+        ],
+        "summary": "Run Custom Screen",
+        "operationId": "run_custom_screen_api_v1_data_custom_screen_post",
+        "parameters": [
+          {
+            "name": "x-api-key",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "default": "",
+              "title": "X-Api-Key"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "additionalProperties": true,
+                "title": "Query"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/v1/watchlist": {
       "get": {
         "tags": [
@@ -2618,6 +2671,944 @@
         }
       }
     },
+    "/api/v1/multibagger/report/{symbol}": {
+      "get": {
+        "tags": [
+          "Institutional Multibagger Framework"
+        ],
+        "summary": "Get Machine-Readable Stock Report (\u00a758)",
+        "description": "Generates complete Machine-Readable Stock Report incorporating all 18 institutional modules.",
+        "operationId": "get_machine_readable_report_api_v1_multibagger_report__symbol__get",
+        "parameters": [
+          {
+            "name": "symbol",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Symbol"
+            }
+          },
+          {
+            "name": "x-api-key",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "default": "",
+              "title": "X-Api-Key"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MachineReadableStockReport"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/multibagger/mivs/{symbol}": {
+      "get": {
+        "tags": [
+          "Institutional Multibagger Framework"
+        ],
+        "summary": "Get MIVS 100-Point Score & 7 Hard Gates (\u00a751, \u00a752)",
+        "description": "Calculates 100-point MIVS composite vector across 9 components and 7 Hard Gates.",
+        "operationId": "get_mivs_score_api_v1_multibagger_mivs__symbol__get",
+        "parameters": [
+          {
+            "name": "symbol",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Symbol"
+            }
+          },
+          {
+            "name": "sector",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "default": "MANUFACTURING",
+              "title": "Sector"
+            }
+          },
+          {
+            "name": "x-api-key",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "default": "",
+              "title": "X-Api-Key"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/multibagger/promoter/{symbol}": {
+      "get": {
+        "tags": [
+          "Institutional Multibagger Framework"
+        ],
+        "summary": "Get Promoter & Insider Behaviour Signal (\u00a729)",
+        "description": "Returns promoter skin-in-the-game, pledge trajectory, and insider conviction score.",
+        "operationId": "get_promoter_behaviour_api_v1_multibagger_promoter__symbol__get",
+        "parameters": [
+          {
+            "name": "symbol",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Symbol"
+            }
+          },
+          {
+            "name": "x-api-key",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "default": "",
+              "title": "X-Api-Key"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/multibagger/shareholding/{symbol}": {
+      "get": {
+        "tags": [
+          "Institutional Multibagger Framework"
+        ],
+        "summary": "Get Shareholding Pattern Intelligence Signal (\u00a728)",
+        "description": "Returns institutional flow momentum, accumulation streaks, and index catalyst indicators.",
+        "operationId": "get_shareholding_pattern_api_v1_multibagger_shareholding__symbol__get",
+        "parameters": [
+          {
+            "name": "symbol",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Symbol"
+            }
+          },
+          {
+            "name": "x-api-key",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "default": "",
+              "title": "X-Api-Key"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/multibagger/altdata/{symbol}": {
+      "get": {
+        "tags": [
+          "Institutional Multibagger Framework"
+        ],
+        "summary": "Get Indian Alt-Data & Scuttlebutt Signal (\u00a726, \u00a727)",
+        "description": "Returns GST e-way bills, EPFO payroll growth, Vahan portal registrations, and channel check results.",
+        "operationId": "get_alternative_data_api_v1_multibagger_altdata__symbol__get",
+        "parameters": [
+          {
+            "name": "symbol",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Symbol"
+            }
+          },
+          {
+            "name": "x-api-key",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "default": "",
+              "title": "X-Api-Key"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/multibagger/concall/{symbol}": {
+      "get": {
+        "tags": [
+          "Institutional Multibagger Framework"
+        ],
+        "summary": "Get Management Commentary Concall NLP Signal (\u00a730)",
+        "description": "Returns management tone shifts, guidance specificity, and Q&A deflection analysis.",
+        "operationId": "get_concall_nlp_api_v1_multibagger_concall__symbol__get",
+        "parameters": [
+          {
+            "name": "symbol",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Symbol"
+            }
+          },
+          {
+            "name": "x-api-key",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "default": "",
+              "title": "X-Api-Key"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/multibagger/catalysts/{symbol}": {
+      "get": {
+        "tags": [
+          "Institutional Multibagger Framework"
+        ],
+        "summary": "Get Policy Catalysts & Corporate Actions Signal (\u00a747, \u00a748)",
+        "description": "Returns PLI eligibility, tariff protection, buyback accretiveness, and credit rating agency actions.",
+        "operationId": "get_catalysts_api_v1_multibagger_catalysts__symbol__get",
+        "parameters": [
+          {
+            "name": "symbol",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Symbol"
+            }
+          },
+          {
+            "name": "x-api-key",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "default": "",
+              "title": "X-Api-Key"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/multibagger/portfolio/{symbol}": {
+      "get": {
+        "tags": [
+          "Institutional Multibagger Framework"
+        ],
+        "summary": "Get Position Sizing & Drawdown Discipline Signal (\u00a735, \u00a736, \u00a737)",
+        "description": "Returns fractional-Kelly position size, liquidity caps, scaling ladders, and drawdown tolerance bands.",
+        "operationId": "get_portfolio_sizing_api_v1_multibagger_portfolio__symbol__get",
+        "parameters": [
+          {
+            "name": "symbol",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Symbol"
+            }
+          },
+          {
+            "name": "mivs_score",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "number",
+              "default": 75.0,
+              "title": "Mivs Score"
+            }
+          },
+          {
+            "name": "archetype",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "default": "EARLY_GROWTH",
+              "title": "Archetype"
+            }
+          },
+          {
+            "name": "x-api-key",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "default": "",
+              "title": "X-Api-Key"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/multibagger/institutional-rank": {
+      "post": {
+        "tags": [
+          "Institutional Multibagger Framework"
+        ],
+        "summary": "Rank Universe via 27-Engine Multibagger Framework",
+        "description": "Executes 27-Engine scoring, archetype classification, risk penalty audit, and thesis generation.",
+        "operationId": "get_institutional_universe_rank_api_v1_multibagger_institutional_rank_post",
+        "parameters": [
+          {
+            "name": "min_score",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "number",
+              "default": 50.0,
+              "title": "Min Score"
+            }
+          },
+          {
+            "name": "x-api-key",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "default": "",
+              "title": "X-Api-Key"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/multibagger/institutional-score/{symbol}": {
+      "get": {
+        "tags": [
+          "Institutional Multibagger Framework"
+        ],
+        "summary": "Get Single Stock 27-Engine Scorecard & Archetype",
+        "description": "Returns single-stock 100-point breakdown, archetype, causal chain, and thesis invalidation rules.",
+        "operationId": "get_single_stock_institutional_score_api_v1_multibagger_institutional_score__symbol__get",
+        "parameters": [
+          {
+            "name": "symbol",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Symbol"
+            }
+          },
+          {
+            "name": "x-api-key",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "default": "",
+              "title": "X-Api-Key"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/technical/report/{symbol}": {
+      "get": {
+        "tags": [
+          "Institutional Technical Framework"
+        ],
+        "summary": "Get Technical Report",
+        "description": "Retrieves full standardized Machine-Readable Technical Report for a given ticker symbol.",
+        "operationId": "get_technical_report_api_v1_technical_report__symbol__get",
+        "parameters": [
+          {
+            "name": "symbol",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Symbol"
+            }
+          },
+          {
+            "name": "x-api-key",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "default": "",
+              "title": "X-Api-Key"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": true,
+                  "title": "Response Get Technical Report Api V1 Technical Report  Symbol  Get"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/technical/regime": {
+      "get": {
+        "tags": [
+          "Institutional Technical Framework"
+        ],
+        "summary": "Get Market Regime",
+        "description": "Retrieves current market regime classification for Indian equities.",
+        "operationId": "get_market_regime_api_v1_technical_regime_get",
+        "parameters": [
+          {
+            "name": "x-api-key",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "default": "",
+              "title": "X-Api-Key"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": true,
+                  "title": "Response Get Market Regime Api V1 Technical Regime Get"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/technical/screener": {
+      "get": {
+        "tags": [
+          "Institutional Technical Framework"
+        ],
+        "summary": "Run Screener",
+        "description": "Runs 3-tier technical universe screener and returns top setup candidates.",
+        "operationId": "run_screener_api_v1_technical_screener_get",
+        "parameters": [
+          {
+            "name": "min_tss_score",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "number",
+              "maximum": 100.0,
+              "minimum": 0.0,
+              "default": 65.0,
+              "title": "Min Tss Score"
+            }
+          },
+          {
+            "name": "setup_filter",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Setup Filter"
+            }
+          },
+          {
+            "name": "x-api-key",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "default": "",
+              "title": "X-Api-Key"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": true,
+                  "title": "Response Run Screener Api V1 Technical Screener Get"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/technical/probability/{symbol}": {
+      "get": {
+        "tags": [
+          "Institutional Technical Framework"
+        ],
+        "summary": "Get Probability Ladder",
+        "description": "Retrieves empirical probability ladder and MAE/MFE path statistics.",
+        "operationId": "get_probability_ladder_api_v1_technical_probability__symbol__get",
+        "parameters": [
+          {
+            "name": "symbol",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Symbol"
+            }
+          },
+          {
+            "name": "x-api-key",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "default": "",
+              "title": "X-Api-Key"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": true,
+                  "title": "Response Get Probability Ladder Api V1 Technical Probability  Symbol  Get"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/technical/trade_manager/{symbol}": {
+      "get": {
+        "tags": [
+          "Institutional Technical Framework"
+        ],
+        "summary": "Get Trade Management",
+        "description": "Evaluates active in-position trade management rules for a live position.",
+        "operationId": "get_trade_management_api_v1_technical_trade_manager__symbol__get",
+        "parameters": [
+          {
+            "name": "symbol",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Symbol"
+            }
+          },
+          {
+            "name": "entry_price",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "number",
+              "exclusiveMinimum": 0.0,
+              "default": 500.0,
+              "title": "Entry Price"
+            }
+          },
+          {
+            "name": "current_price",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "number",
+              "exclusiveMinimum": 0.0,
+              "default": 525.0,
+              "title": "Current Price"
+            }
+          },
+          {
+            "name": "highest_close",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "number",
+              "exclusiveMinimum": 0.0,
+              "default": 530.0,
+              "title": "Highest Close"
+            }
+          },
+          {
+            "name": "stop_price",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "number",
+              "exclusiveMinimum": 0.0,
+              "default": 475.0,
+              "title": "Stop Price"
+            }
+          },
+          {
+            "name": "days_in_trade",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "minimum": 0,
+              "default": 6,
+              "title": "Days In Trade"
+            }
+          },
+          {
+            "name": "x-api-key",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "default": "",
+              "title": "X-Api-Key"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": true,
+                  "title": "Response Get Trade Management Api V1 Technical Trade Manager  Symbol  Get"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/technical/surveillance/{symbol}": {
+      "get": {
+        "tags": [
+          "Institutional Technical Framework"
+        ],
+        "summary": "Get Surveillance Gate",
+        "description": "Retrieves ASM/GSM/T2T regulatory surveillance status and roundtrip trade cost breakdown.",
+        "operationId": "get_surveillance_gate_api_v1_technical_surveillance__symbol__get",
+        "parameters": [
+          {
+            "name": "symbol",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Symbol"
+            }
+          },
+          {
+            "name": "x-api-key",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "default": "",
+              "title": "X-Api-Key"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": true,
+                  "title": "Response Get Surveillance Gate Api V1 Technical Surveillance  Symbol  Get"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/v1/admin/llm-usage": {
       "get": {
         "tags": [
@@ -2673,6 +3664,48 @@
             "schema": {
               "type": "string",
               "title": "X-Api-Key"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/admin/sync-market-data": {
+      "post": {
+        "tags": [
+          "Admin"
+        ],
+        "summary": "Trigger On-Demand Market Data Refresh (Max 72h Gap Enforced)",
+        "description": "Triggers an on-demand market data freshness scan across universe symbols.",
+        "operationId": "sync_market_data_api_v1_admin_sync_market_data_post",
+        "parameters": [
+          {
+            "name": "max_age_hours",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "default": 72,
+              "title": "Max Age Hours"
             }
           }
         ],
@@ -4337,6 +5370,62 @@
         ],
         "title": "GovernanceQualityResponse"
       },
+      "GovernanceRedFlagChecklist": {
+        "properties": {
+          "ownership_pledge_risk": {
+            "type": "string",
+            "title": "Ownership Pledge Risk",
+            "default": "LOW"
+          },
+          "audit_integrity": {
+            "type": "string",
+            "title": "Audit Integrity",
+            "default": "CLEAN"
+          },
+          "related_party_risk": {
+            "type": "string",
+            "title": "Related Party Risk",
+            "default": "ARM_LENGTH"
+          },
+          "regulatory_litigation_risk": {
+            "type": "string",
+            "title": "Regulatory Litigation Risk",
+            "default": "LOW"
+          },
+          "beneish_m_score": {
+            "type": "number",
+            "title": "Beneish M Score",
+            "default": -2.45
+          },
+          "altman_z_score": {
+            "type": "number",
+            "title": "Altman Z Score",
+            "default": 3.82
+          },
+          "piotroski_f_score": {
+            "type": "integer",
+            "title": "Piotroski F Score",
+            "default": 8
+          },
+          "mohanram_g_score": {
+            "type": "integer",
+            "title": "Mohanram G Score",
+            "default": 7
+          },
+          "hard_gate_status": {
+            "type": "string",
+            "enum": [
+              "PASS",
+              "AMBER",
+              "FAIL"
+            ],
+            "title": "Hard Gate Status",
+            "default": "PASS"
+          }
+        },
+        "type": "object",
+        "title": "GovernanceRedFlagChecklist"
+      },
       "GrowthArbitrageResponse": {
         "properties": {
           "symbol": {
@@ -4626,6 +5715,49 @@
         "type": "object",
         "title": "HTTPValidationError"
       },
+      "InsiderConvictionSignal": {
+        "properties": {
+          "promoter_net_transaction_30d": {
+            "type": "number",
+            "title": "Promoter Net Transaction 30D",
+            "default": 0.0
+          },
+          "promoter_pledge_trend": {
+            "type": "string",
+            "title": "Promoter Pledge Trend",
+            "default": "DECREASING"
+          },
+          "bulk_block_deal_conviction": {
+            "type": "string",
+            "title": "Bulk Block Deal Conviction",
+            "default": "ACCUMULATION"
+          },
+          "esop_alignment_grade": {
+            "type": "string",
+            "title": "Esop Alignment Grade",
+            "default": "ALIGNED"
+          },
+          "promoter_comp_ratio": {
+            "type": "number",
+            "title": "Promoter Comp Ratio",
+            "default": 0.02
+          },
+          "buying_into_weakness_flag": {
+            "type": "boolean",
+            "title": "Buying Into Weakness Flag",
+            "default": true
+          },
+          "insider_conviction_score": {
+            "type": "number",
+            "maximum": 100.0,
+            "minimum": 0.0,
+            "title": "Insider Conviction Score",
+            "default": 78.0
+          }
+        },
+        "type": "object",
+        "title": "InsiderConvictionSignal"
+      },
       "LogPredictionRequest": {
         "properties": {
           "symbol": {
@@ -4678,6 +5810,192 @@
           "thesis"
         ],
         "title": "LogPredictionRequest"
+      },
+      "MachineReadableStockReport": {
+        "properties": {
+          "symbol": {
+            "type": "string",
+            "title": "Symbol"
+          },
+          "as_of": {
+            "type": "string",
+            "title": "As Of"
+          },
+          "company_name": {
+            "type": "string",
+            "title": "Company Name",
+            "default": "Company Ltd"
+          },
+          "sector": {
+            "type": "string",
+            "title": "Sector",
+            "default": "MANUFACTURING"
+          },
+          "archetype": {
+            "type": "string",
+            "title": "Archetype",
+            "default": "EARLY_GROWTH"
+          },
+          "mivs_composite_score": {
+            "type": "number",
+            "title": "Mivs Composite Score",
+            "default": 75.0
+          },
+          "multibagger_tier": {
+            "type": "string",
+            "title": "Multibagger Tier",
+            "default": "TIER_1_HIGH_CONVICTION_MULTIBAGGER"
+          },
+          "verdict": {
+            "type": "string",
+            "title": "Verdict",
+            "default": "Strong Buy"
+          },
+          "hard_gates_status": {
+            "type": "string",
+            "title": "Hard Gates Status",
+            "default": "PASS"
+          },
+          "hard_gate_reasons": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Hard Gate Reasons"
+          },
+          "mivs_breakdown": {
+            "additionalProperties": true,
+            "type": "object",
+            "title": "Mivs Breakdown"
+          },
+          "governance_signal": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/GovernanceRedFlagChecklist"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "insider_signal": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/InsiderConvictionSignal"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "shareholding_signal": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/ShareholdingPatternIntelligence"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "alt_data_signal": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/ScuttlebuttAltDataSignal"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "concall_nlp_signal": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/ManagementNLPCommentarySignal"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "policy_catalyst_signal": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/PolicyCatalystCorporateActionSignal"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "position_sizing_signal": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/PortfolioPositionSizingSignal"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "red_team_record": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/RedTeamReviewRecord"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "evidence_log": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Evidence Log"
+          }
+        },
+        "type": "object",
+        "required": [
+          "symbol",
+          "as_of"
+        ],
+        "title": "MachineReadableStockReport",
+        "description": "Standardized Machine-Readable Stock Report Schema (\u00a758)."
+      },
+      "ManagementNLPCommentarySignal": {
+        "properties": {
+          "tone_shift_direction": {
+            "type": "string",
+            "title": "Tone Shift Direction",
+            "default": "BULLISH_CONFIDENT"
+          },
+          "guidance_specificity_score": {
+            "type": "number",
+            "title": "Guidance Specificity Score",
+            "default": 85.0
+          },
+          "language_consistency_index": {
+            "type": "number",
+            "title": "Language Consistency Index",
+            "default": 90.0
+          },
+          "q_and_a_deflection_count": {
+            "type": "integer",
+            "title": "Q And A Deflection Count",
+            "default": 0
+          },
+          "commentary_confidence_score": {
+            "type": "number",
+            "maximum": 100.0,
+            "minimum": 0.0,
+            "title": "Commentary Confidence Score",
+            "default": 82.0
+          }
+        },
+        "type": "object",
+        "title": "ManagementNLPCommentarySignal"
       },
       "MarketDailySnapshotIn": {
         "properties": {
@@ -5594,6 +6912,83 @@
         ],
         "title": "OwnershipSnapshotResponse"
       },
+      "PolicyCatalystCorporateActionSignal": {
+        "properties": {
+          "pli_scheme_eligibility": {
+            "type": "boolean",
+            "title": "Pli Scheme Eligibility",
+            "default": true
+          },
+          "tariff_customs_protection": {
+            "type": "string",
+            "title": "Tariff Customs Protection",
+            "default": "POSITIVE"
+          },
+          "buyback_pricing_vs_intrinsic": {
+            "type": "string",
+            "title": "Buyback Pricing Vs Intrinsic",
+            "default": "ACCRETIVE_BUYBACK"
+          },
+          "credit_rating_trend": {
+            "type": "string",
+            "title": "Credit Rating Trend",
+            "default": "UPGRADE_WATCH"
+          },
+          "catalyst_timing_horizon": {
+            "type": "string",
+            "title": "Catalyst Timing Horizon",
+            "default": "6-12 MONTHS"
+          }
+        },
+        "type": "object",
+        "title": "PolicyCatalystCorporateActionSignal"
+      },
+      "PortfolioPositionSizingSignal": {
+        "properties": {
+          "recommended_position_pct": {
+            "type": "number",
+            "title": "Recommended Position Pct",
+            "default": 4.5
+          },
+          "fractional_kelly_weight": {
+            "type": "number",
+            "title": "Fractional Kelly Weight",
+            "default": 0.05
+          },
+          "liquidity_cap_pct": {
+            "type": "number",
+            "title": "Liquidity Cap Pct",
+            "default": 5.0
+          },
+          "correlation_group": {
+            "type": "string",
+            "title": "Correlation Group",
+            "default": "CAPITAL_GOODS_INFLECTION"
+          },
+          "scaling_ladder": {
+            "items": {
+              "additionalProperties": true,
+              "type": "object"
+            },
+            "type": "array",
+            "title": "Scaling Ladder"
+          },
+          "exit_triggers": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Exit Triggers"
+          },
+          "drawdown_tolerance_band_pct": {
+            "type": "number",
+            "title": "Drawdown Tolerance Band Pct",
+            "default": 25.0
+          }
+        },
+        "type": "object",
+        "title": "PortfolioPositionSizingSignal"
+      },
       "PortfolioSnapshot": {
         "properties": {
           "average_score": {
@@ -5828,6 +7223,37 @@
         ],
         "title": "RecordOutcomeRequest"
       },
+      "RedTeamReviewRecord": {
+        "properties": {
+          "written_bear_case": {
+            "type": "string",
+            "title": "Written Bear Case"
+          },
+          "adversarial_review_notes": {
+            "type": "string",
+            "title": "Adversarial Review Notes"
+          },
+          "pre_mortem_failure_causes": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Pre Mortem Failure Causes"
+          },
+          "forced_reevaluation_trigger": {
+            "type": "string",
+            "title": "Forced Reevaluation Trigger"
+          }
+        },
+        "type": "object",
+        "required": [
+          "written_bear_case",
+          "adversarial_review_notes",
+          "pre_mortem_failure_causes",
+          "forced_reevaluation_trigger"
+        ],
+        "title": "RedTeamReviewRecord"
+      },
       "ReturnProbabilityRequest": {
         "properties": {
           "symbol": {
@@ -5948,6 +7374,88 @@
           "meta"
         ],
         "title": "ReturnProbabilityResponse"
+      },
+      "ScuttlebuttAltDataSignal": {
+        "properties": {
+          "gst_eway_bill_momentum": {
+            "type": "string",
+            "title": "Gst Eway Bill Momentum",
+            "default": "ACCELERATING"
+          },
+          "epfo_payroll_growth_pct": {
+            "type": "number",
+            "title": "Epfo Payroll Growth Pct",
+            "default": 14.2
+          },
+          "vahan_registration_growth_pct": {
+            "type": "number",
+            "title": "Vahan Registration Growth Pct",
+            "default": 18.5
+          },
+          "channel_checks_summary": {
+            "type": "string",
+            "title": "Channel Checks Summary",
+            "default": "Strong dealer pull, zero pricing pressure"
+          },
+          "external_confirmation_score": {
+            "type": "string",
+            "enum": [
+              "HIGH",
+              "MEDIUM",
+              "LOW"
+            ],
+            "title": "External Confirmation Score",
+            "default": "HIGH"
+          }
+        },
+        "type": "object",
+        "title": "ScuttlebuttAltDataSignal"
+      },
+      "ShareholdingPatternIntelligence": {
+        "properties": {
+          "fii_holding_pct": {
+            "type": "number",
+            "title": "Fii Holding Pct",
+            "default": 12.5
+          },
+          "fii_qoq_change": {
+            "type": "number",
+            "title": "Fii Qoq Change",
+            "default": 1.2
+          },
+          "dii_mf_holding_pct": {
+            "type": "number",
+            "title": "Dii Mf Holding Pct",
+            "default": 18.2
+          },
+          "dii_qoq_change": {
+            "type": "number",
+            "title": "Dii Qoq Change",
+            "default": 0.8
+          },
+          "institutional_accumulation_quarters": {
+            "type": "integer",
+            "title": "Institutional Accumulation Quarters",
+            "default": 3
+          },
+          "retail_holding_trend": {
+            "type": "string",
+            "title": "Retail Holding Trend",
+            "default": "DECREASING"
+          },
+          "free_float_index_catalyst": {
+            "type": "string",
+            "title": "Free Float Index Catalyst",
+            "default": "NIFTY_MIDCAP_INCLUSION_CANDIDATE"
+          },
+          "ownership_concentration_risk": {
+            "type": "string",
+            "title": "Ownership Concentration Risk",
+            "default": "BALANCED"
+          }
+        },
+        "type": "object",
+        "title": "ShareholdingPatternIntelligence"
       },
       "StrategyModule": {
         "properties": {

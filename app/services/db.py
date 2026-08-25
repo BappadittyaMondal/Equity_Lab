@@ -308,6 +308,80 @@ def _ensure_tables() -> None:
     )
     conn.execute("CREATE INDEX IF NOT EXISTS idx_hist_px_sym_date ON historical_prices(symbol, date)")
 
+    conn.execute(
+        """
+        CREATE TABLE IF NOT EXISTS company_fundamentals (
+            symbol TEXT PRIMARY KEY,
+            company_name TEXT NOT NULL,
+            market_cap REAL DEFAULT 0.0,
+            current_price REAL DEFAULT 0.0,
+            volume INTEGER DEFAULT 0,
+            high_52w REAL DEFAULT 0.0,
+            low_52w REAL DEFAULT 0.0,
+            roe_3yr REAL DEFAULT 0.0,
+            roe_latest REAL DEFAULT 0.0,
+            roce_3yr REAL DEFAULT 0.0,
+            roce_latest REAL DEFAULT 0.0,
+            opm_5yr REAL DEFAULT 0.0,
+            opm_latest REAL DEFAULT 0.0,
+            operating_profit REAL DEFAULT 0.0,
+            op_growth REAL DEFAULT 0.0,
+            pat_growth_3yr REAL DEFAULT 0.0,
+            pat_growth_latest REAL DEFAULT 0.0,
+            sales_growth_3yr REAL DEFAULT 0.0,
+            sales_growth_latest REAL DEFAULT 0.0,
+            eps_growth_3yr REAL DEFAULT 0.0,
+            eps_latest REAL DEFAULT 0.0,
+            cfo_3yr REAL DEFAULT 0.0,
+            net_block REAL DEFAULT 0.0,
+            net_block_3yr_back REAL DEFAULT 0.0,
+            net_block_preceding_year REAL DEFAULT 0.0,
+            cwip REAL DEFAULT 0.0,
+            cwip_preceding_year REAL DEFAULT 0.0,
+            cfo_last_year REAL DEFAULT 0.0,
+            net_profit_last_year REAL DEFAULT 0.0,
+            vol_1w_avg REAL DEFAULT 0.0,
+            vol_1m_avg REAL DEFAULT 0.0,
+            vol_1y_avg REAL DEFAULT 0.0,
+            piotroski_score REAL DEFAULT 0.0,
+            promoter_holding REAL DEFAULT 0.0,
+            pledged_pct REAL DEFAULT 0.0,
+            debt_to_equity REAL DEFAULT 0.0,
+            interest_coverage REAL DEFAULT 0.0,
+            peg_ratio REAL DEFAULT 0.0,
+            updated_at TEXT NOT NULL
+        )
+        """
+    )
+    conn.execute("CREATE INDEX IF NOT EXISTS idx_comp_fund_mcap ON company_fundamentals(market_cap)")
+
+    # Migration for new company_fundamentals columns if existing table is present
+    try:
+        existing_cols = [r[1] for r in conn.execute("PRAGMA table_info(company_fundamentals)").fetchall()]
+        new_cols = [
+            ("net_block", "REAL DEFAULT 0.0"),
+            ("net_block_3yr_back", "REAL DEFAULT 0.0"),
+            ("net_block_preceding_year", "REAL DEFAULT 0.0"),
+            ("cwip", "REAL DEFAULT 0.0"),
+            ("cwip_preceding_year", "REAL DEFAULT 0.0"),
+            ("cfo_last_year", "REAL DEFAULT 0.0"),
+            ("net_profit_last_year", "REAL DEFAULT 0.0"),
+            ("vol_1w_avg", "REAL DEFAULT 0.0"),
+            ("vol_1m_avg", "REAL DEFAULT 0.0"),
+            ("vol_1y_avg", "REAL DEFAULT 0.0"),
+            ("piotroski_score", "REAL DEFAULT 0.0"),
+            ("promoter_holding", "REAL DEFAULT 0.0"),
+            ("pledged_pct", "REAL DEFAULT 0.0"),
+            ("debt_to_equity", "REAL DEFAULT 0.0"),
+            ("interest_coverage", "REAL DEFAULT 0.0"),
+            ("peg_ratio", "REAL DEFAULT 0.0")
+        ]
+        for col_name, col_def in new_cols:
+            if col_name not in existing_cols:
+                conn.execute(f"ALTER TABLE company_fundamentals ADD COLUMN {col_name} {col_def}")
+    except Exception:
+        pass
+
     conn.commit()
     conn.close()
 

@@ -1,119 +1,588 @@
-# IERL AI Equity OS — OpenAPI & Endpoint Reference
+# Equity Lab — Complete API Surface Documentation
 
-Base URL: `http://127.0.0.1:8000/api/v1` (or production domain)
+> **Version:** 1.0.0  
+> **Source of Truth:** `docs/api_contract.json`  
+> **Total Endpoints:** 65
 
-When `REQUIRE_AUTH=true`, every endpoint except `/health` requires an
-`X-API-Key` header. A2 options analytics are intentionally suspended by default
-and return HTTP 503 until independently validated.
+---
 
-## Endpoints Summary
+## Endpoint Catalog
 
-### 1. Health & Diagnostics
-- **`GET /api/v1/health`**
-  - Verifies live connectivity across yfinance NSE feeds and LLM providers.
-  - Returns IST timestamp and system status.
+### `GET` /api/v1/admin/llm-usage
+**Summary:** Get Llm Usage  
+**Parameters:**
+- `x-api-key` (header, required)
 
-### 2. Market Data
-- **`GET /api/v1/ticker/{symbol}`**
-  - Normalizes stock/index symbol (`RELIANCE` -> `RELIANCE.NS`, `NIFTY` -> `^NSEI`).
-  - Returns price, change %, 52W High/Low, P/E, Market Cap, and metadata.
-- **`GET /api/v1/regime`**
-  - Evaluates live India VIX and Nifty 50 volatility regime.
-  - Raises 503 if live market stream fails.
-- **`GET /api/v1/ticker-strip`**
-  - Returns list of benchmark quotes for live ticker tape.
+---
 
-### 3. Stock Comparison
-- **`POST /api/v1/compare`**
-  - Body: `{"symbols": ["RELIANCE", "TCS"], "period": "1y", "benchmark": "^NSEI"}`
-  - Returns side-by-side metric table, price returns, annualized volatility, max drawdown, relative benchmark return, and formula explanations.
+### `GET` /api/v1/admin/request-stats
+**Summary:** Get Request Stats  
+**Parameters:**
+- `x-api-key` (header, required)
 
-### 4. Return Probability
-- **`POST /api/v1/return-probability`**
-  - Body: `{"symbol": "RELIANCE", "horizon_days": 30, "return_threshold_pct": 5.0}`
-  - Returns historical empirical frequencies, median return, percentile bands (P5-P95), sample size, observation window, assumptions, and risk warnings. It is not a forward probability forecast.
+---
 
-### 5. Options Payoff (A2 Strategy)
-- **Status:** Suspended by default. The endpoint returns HTTP 503 unless a future validated release explicitly enables it.
-- **`POST /api/v1/options/a2-payoff`**
-  - Body: `{"underlying": "^NSEI", "lower_strike": 22200, "upper_strike": 22700, "call_premium": 45, "put_premium": 55, "lot_size": 25}`
-  - Returns total credit, breakevens, max profit, max loss, EV per lot, margin required, recommended lot limits, and 15-point payoff curve.
+### `POST` /api/v1/admin/sync-market-data
+**Summary:** Trigger On-Demand Market Data Refresh (Max 72h Gap Enforced)  
+**Description:** Triggers an on-demand market data freshness scan across universe symbols.  
+**Parameters:**
+- `max_age_hours` (query, optional)
 
-### 6. Strategy Modules
-- **`GET /api/v1/strategies`**: Catalog of all 18 IERL Expert Strategy Modules.
-- **`POST /api/v1/strategies/{strategy_id}/run`**: Executes diagnostic logic for specific strategy module.
+---
 
-### 7. AI Strategy Assistant
-- **`POST /api/v1/query`**: Rate-limited research prompt handler. Injects verified market context into system prompt.
+### `GET` /api/v1/community/posts
+**Summary:** Fetch Community Posts  
+**Description:** Fetches community research notes and institutional discussion posts.  
+**Parameters:**
+- `x-api-key` (header, optional)
 
-### 8. Point-in-Time Research Data
+---
 
-These endpoints form the source-linked foundation for future lifecycle and
-backtesting engines. Write endpoints always require the separate
-`X-Data-Write-Key` header matching `DATA_WRITE_API_KEY`; they remain unavailable
-until that secret is configured.
+### `POST` /api/v1/compare
+**Summary:** Execute Stock Comparison  
+**Description:** Executes side-by-side metric comparison across 2-5 stock tickers.  
+**Parameters:**
+- `x-api-key` (header, optional)
 
-- **`POST /api/v1/data/companies`**: Create or update company identity metadata.
-- **`POST /api/v1/data/financial-observations`**: Append a dated financial fact. Required fields include `period_end`, `published_at`, source URL, and confidence.
-- **`POST /api/v1/data/business-events`**: Append a sourced event such as capacity expansion, order win, new segment, or governance alert.
-- **`POST /api/v1/data/corporate-actions`**: Append sourced corporate actions (splits, bonuses, dividends, rights, buybacks).
-- **`POST /api/v1/data/ownership-snapshots`**: Append quarterly shareholding pattern observations (Promoter %, FII %, DII %, MF %, Public %, Promoter Pledge %).
-- **`POST /api/v1/data/document-metadata`**: Append filing document metadata (Annual reports, concall transcripts, presentations).
-- **`POST /api/v1/data/market-snapshots`**: Append daily market snapshots (OHLCV, delivery %, market cap).
-- **`GET /api/v1/data/companies/{symbol}/timeline?as_of=<ISO-8601>`**: Return only facts, events, corporate actions, ownership snapshots, and document metadata that were public by the supplied `as_of` timestamp. This is the endpoint strategies and backtests must use to avoid look-ahead bias.
+---
 
-The local SQLite database is intentionally excluded from Git and Docker images.
+### `GET` /api/v1/data/alerts
+**Summary:** Get Alerts  
+**Parameters:**
+- `limit` (query, optional)
+- `symbol` (query, optional)
+- `x-api-key` (header, optional)
 
-### 9. Core Equity Research MVP Engines (Phase 3)
+---
 
-Transparent, deterministic fundamental change detection engines operating on point-in-time datasets:
+### `POST` /api/v1/data/business-events
+**Summary:** Add Business Event  
+**Parameters:**
+- `x-data-write-key` (header, optional)
+- `x-api-key` (header, optional)
 
-- **`GET /api/v1/research/growth-inflection?symbol={symbol}&as_of=<ISO-8601>`**: Evaluates Strategy E1 (Growth Inflection Engine). Calculates revenue acceleration, operating leverage, margin expansion, ROCE expansion, and FCF inflection.
-- **`GET /api/v1/research/turnaround-stage?symbol={symbol}&as_of=<ISO-8601>`**: Evaluates Strategy E2 (Turnaround Stage Engine). Classifies 7 lifecycle turnaround stages (Distress -> Recovery) and detects False Turnaround traps (PAT positive with negative CFO or expanding debt).
-- **`GET /api/v1/research/growth-market-gap?symbol={symbol}&as_of=<ISO-8601>`**: Evaluates Strategy E3 (Growth vs Market Recognition Gap Engine). Compares fundamental CAGRs (Sales, PAT, EPS, FCF) vs Stock Price CAGR and reverse DCF expectations.
+---
 
-### 10. Multibagger Intelligence & Screening Engine (Phase 4)
+### `POST` /api/v1/data/companies
+**Summary:** Upsert Company  
+**Parameters:**
+- `x-data-write-key` (header, optional)
+- `x-api-key` (header, optional)
 
-Unified multi-factor screening engines integrating fundamental acceleration, turnaround diagnostics, recognition gap, governance quality, and ethical filtering:
+---
 
-- **`GET /api/v1/research/governance-quality?symbol={symbol}&as_of=<ISO-8601>`**: Evaluates corporate governance, promoter pledge risk %, promoter holding dilution, CFO/PAT accounting hygiene, and regulatory alerts.
-- **`GET /api/v1/research/multibagger-screener?symbol={symbol}&as_of=<ISO-8601>`**: Evaluates Strategy E4 (Multi-Factor Multibagger Intelligence Engine). Combines E1 (30%), E2 (25%), E3 (20%), Governance (15%), and Saatvik D18 (10%) into composite Multibagger Score (0-100), Conviction Category, Key Drivers, and Key Risks.
+### `GET` /api/v1/data/companies/{symbol}/timeline
+**Summary:** Get Company Timeline  
+**Parameters:**
+- `symbol` (path, required)
+- `as_of` (query, optional)
+- `x-api-key` (header, optional)
 
+---
 
+### `POST` /api/v1/data/corporate-actions
+**Summary:** Add Corporate Action  
+**Parameters:**
+- `x-data-write-key` (header, optional)
+- `x-api-key` (header, optional)
 
-## 11. Admin & Observability Endpoints
+---
 
-The admin API is protected by an `X-API-Key` header. The key must match the `ADMIN_API_KEY` environment variable (configured in `app/core/config.py`).
+### `POST` /api/v1/data/custom-screen
+**Summary:** Run Custom Screen  
+**Parameters:**
+- `x-api-key` (header, optional)
 
-- **`GET /api/v1/admin/llm-usage`**
-  - Returns a JSON payload with daily and monthly LLM token usage and estimated cost.
-  - Example response:
-    ```json
-    {
-      "daily": {"tokens": 342, "estimated_cost": 0.171},
-      "monthly": {"tokens": 8421, "estimated_cost": 4.2105}
-    }
-    ```
-  - Used for quota monitoring and cost‑control.
+---
 
-- **`GET /api/v1/admin/request-stats`**
-  - Returns rolling request counters (reset hourly) tracking total requests and error responses.
-  - Example response:
-    ```json
-    {"total": 1245, "errors": 3}
-    ```
-  - Helps surface request‑rate health without a full APM stack.
+### `POST` /api/v1/data/document-metadata
+**Summary:** Add Document Metadata  
+**Parameters:**
+- `x-data-write-key` (header, optional)
+- `x-api-key` (header, optional)
 
-Both endpoints are defined in `app/api/admin.py` and leverage the lightweight SQLite‑based `llm_usage` table and in‑memory request counters.
+---
 
-## 12. Conviction Decision & Watchlist Digest Endpoints (Phases 4–5)
+### `POST` /api/v1/data/financial-observations
+**Summary:** Add Financial Observation  
+**Parameters:**
+- `x-data-write-key` (header, optional)
+- `x-api-key` (header, optional)
 
-- **`GET /api/v1/decision/{symbol}`**
-  - Synthesizes market data, runs Arbiter decision brain across all strategy engines, logs thesis drift, and returns a unified `ConvictionCall`.
-  - Parameters: `symbol` (e.g. `RELIANCE`), `force_refresh` (boolean query param).
-  - Returns `symbol`, `verdict` (`STRONG_BUY`, `ACCUMULATE`, `NEUTRAL`, `TRIM`, `EXIT`), `conviction_score` (0–100), `primary_thesis`, `contributing_engines`, `contradicting_engines`, `confidence_tier`, `stale` flag, and timestamp.
+---
 
-- **`GET /api/v1/digest/watchlist`**
-  - Serves the latest nightly cron watchlist scan digest JSON file (`frontend_deploy/data/digests/watchlist_digest.json`).
-  - Returns `generated_at` timestamp and item list containing conviction scores, verdicts, and thesis drift delta arrows.
+### `GET` /api/v1/data/lifecycle/{symbol}
+**Summary:** Get Lifecycle State  
+**Parameters:**
+- `symbol` (path, required)
+- `x-api-key` (header, optional)
 
+---
+
+### `POST` /api/v1/data/market-snapshots
+**Summary:** Add Market Daily Snapshot  
+**Parameters:**
+- `x-data-write-key` (header, optional)
+- `x-api-key` (header, optional)
+
+---
+
+### `POST` /api/v1/data/ownership-snapshots
+**Summary:** Add Ownership Snapshot  
+**Parameters:**
+- `x-data-write-key` (header, optional)
+- `x-api-key` (header, optional)
+
+---
+
+### `GET` /api/v1/data/thesis/{symbol}
+**Summary:** Get Thesis State  
+**Parameters:**
+- `symbol` (path, required)
+- `x-api-key` (header, optional)
+
+---
+
+### `GET` /api/v1/decision/{symbol}
+**Summary:** Get Decision  
+**Parameters:**
+- `symbol` (path, required)
+- `x-api-key` (header, optional)
+
+---
+
+### `GET` /api/v1/digest/watchlist
+**Summary:** Get Watchlist Digest  
+**Description:** Return the watchlist digest JSON generated by the nightly cron.
+The file is stored under `frontend_deploy/data/digests/watchlist_digest.json`.  
+**Parameters:**
+- `x-api-key` (header, optional)
+
+---
+
+### `GET` /api/v1/health
+**Summary:** Get Health Status  
+**Description:** Runs actual connectivity verification across data feeds and LLM providers.  
+
+---
+
+### `GET` /api/v1/monitoring/drift
+**Summary:** Get Model Drift Status  
+**Description:** Evaluate current model drift, score monotonicity, and predictive decay.  
+**Parameters:**
+- `x-api-key` (header, optional)
+
+---
+
+### `POST` /api/v1/monitoring/outcome
+**Summary:** Record Outcome  
+**Description:** Record forward actual return outcome for a prediction.  
+**Parameters:**
+- `x-api-key` (header, optional)
+
+---
+
+### `GET` /api/v1/monitoring/prediction-ledger
+**Summary:** Get Prediction Ledger  
+**Description:** Fetch recorded historical decisions from prediction ledger.  
+**Parameters:**
+- `symbol` (query, optional)
+- `limit` (query, optional)
+- `x-api-key` (header, optional)
+
+---
+
+### `POST` /api/v1/monitoring/prediction-ledger
+**Summary:** Log Prediction  
+**Description:** Log a new live conviction decision into the prediction ledger.  
+**Parameters:**
+- `x-api-key` (header, optional)
+
+---
+
+### `GET` /api/v1/monitoring/strategy-health
+**Summary:** Get Strategy Health Summary  
+**Description:** Get system-level strategy engine accuracy and calibration health summary.  
+**Parameters:**
+- `x-api-key` (header, optional)
+
+---
+
+### `GET` /api/v1/multibagger/altdata/{symbol}
+**Summary:** Get Indian Alt-Data & Scuttlebutt Signal (§26, §27)  
+**Description:** Returns GST e-way bills, EPFO payroll growth, Vahan portal registrations, and channel check results.  
+**Parameters:**
+- `symbol` (path, required)
+- `x-api-key` (header, optional)
+
+---
+
+### `GET` /api/v1/multibagger/catalysts/{symbol}
+**Summary:** Get Policy Catalysts & Corporate Actions Signal (§47, §48)  
+**Description:** Returns PLI eligibility, tariff protection, buyback accretiveness, and credit rating agency actions.  
+**Parameters:**
+- `symbol` (path, required)
+- `x-api-key` (header, optional)
+
+---
+
+### `GET` /api/v1/multibagger/concall/{symbol}
+**Summary:** Get Management Commentary Concall NLP Signal (§30)  
+**Description:** Returns management tone shifts, guidance specificity, and Q&A deflection analysis.  
+**Parameters:**
+- `symbol` (path, required)
+- `x-api-key` (header, optional)
+
+---
+
+### `POST` /api/v1/multibagger/institutional-rank
+**Summary:** Rank Universe via 27-Engine Multibagger Framework  
+**Description:** Executes 27-Engine scoring, archetype classification, risk penalty audit, and thesis generation.  
+**Parameters:**
+- `min_score` (query, optional)
+- `x-api-key` (header, optional)
+
+---
+
+### `GET` /api/v1/multibagger/institutional-score/{symbol}
+**Summary:** Get Single Stock 27-Engine Scorecard & Archetype  
+**Description:** Returns single-stock 100-point breakdown, archetype, causal chain, and thesis invalidation rules.  
+**Parameters:**
+- `symbol` (path, required)
+- `x-api-key` (header, optional)
+
+---
+
+### `GET` /api/v1/multibagger/mivs/{symbol}
+**Summary:** Get MIVS 100-Point Score & 7 Hard Gates (§51, §52)  
+**Description:** Calculates 100-point MIVS composite vector across 9 components and 7 Hard Gates.  
+**Parameters:**
+- `symbol` (path, required)
+- `sector` (query, optional)
+- `x-api-key` (header, optional)
+
+---
+
+### `GET` /api/v1/multibagger/portfolio/{symbol}
+**Summary:** Get Position Sizing & Drawdown Discipline Signal (§35, §36, §37)  
+**Description:** Returns fractional-Kelly position size, liquidity caps, scaling ladders, and drawdown tolerance bands.  
+**Parameters:**
+- `symbol` (path, required)
+- `mivs_score` (query, optional)
+- `archetype` (query, optional)
+- `x-api-key` (header, optional)
+
+---
+
+### `GET` /api/v1/multibagger/promoter/{symbol}
+**Summary:** Get Promoter & Insider Behaviour Signal (§29)  
+**Description:** Returns promoter skin-in-the-game, pledge trajectory, and insider conviction score.  
+**Parameters:**
+- `symbol` (path, required)
+- `x-api-key` (header, optional)
+
+---
+
+### `GET` /api/v1/multibagger/report/{symbol}
+**Summary:** Get Machine-Readable Stock Report (§58)  
+**Description:** Generates complete Machine-Readable Stock Report incorporating all 18 institutional modules.  
+**Parameters:**
+- `symbol` (path, required)
+- `x-api-key` (header, optional)
+
+---
+
+### `GET` /api/v1/multibagger/shareholding/{symbol}
+**Summary:** Get Shareholding Pattern Intelligence Signal (§28)  
+**Description:** Returns institutional flow momentum, accumulation streaks, and index catalyst indicators.  
+**Parameters:**
+- `symbol` (path, required)
+- `x-api-key` (header, optional)
+
+---
+
+### `POST` /api/v1/options/a2-payoff
+**Summary:** Execute A2 Options Payoff  
+**Description:** Calculates A2 0-DTE Short Strangle range selling payoff, EV, and risk limits.  
+**Parameters:**
+- `x-api-key` (header, optional)
+
+---
+
+### `GET` /api/v1/portfolio/
+**Summary:** Get Portfolio  
+**Parameters:**
+- `x-api-key` (header, optional)
+
+---
+
+### `GET` /api/v1/portfolio/narrate/{symbol}
+**Summary:** Narrate  
+**Parameters:**
+- `symbol` (path, required)
+- `x-api-key` (header, optional)
+
+---
+
+### `POST` /api/v1/query
+**Summary:** Handle Ai Query  
+**Description:** Processes research queries through verified LLM or deterministic analytical engine.  
+**Parameters:**
+- `x-api-key` (header, optional)
+
+---
+
+### `GET` /api/v1/readiness
+**Summary:** Get Readiness Status  
+**Description:** Verify application readiness, database lock status, and dependency connectivity.  
+
+---
+
+### `GET` /api/v1/regime
+**Summary:** Fetch Market Regime  
+**Description:** Evaluates live India VIX and Nifty volatility regime.  
+**Parameters:**
+- `x-api-key` (header, optional)
+
+---
+
+### `GET` /api/v1/research/cagr-matrix
+**Summary:** Fetch Cagr Sensitivity Matrix  
+**Description:** Calculates 1Y, 3Y, 5Y price targets and return CAGRs across 5 growth scenarios (10%-30%).  
+**Parameters:**
+- `symbol` (query, required)
+- `x-api-key` (header, optional)
+
+---
+
+### `GET` /api/v1/research/governance-quality
+**Summary:** Run Governance Quality  
+**Description:** Evaluates Governance & Management Quality (Promoter pledge, CFO/PAT hygiene, governance events).  
+**Parameters:**
+- `symbol` (query, required)
+- `as_of` (query, optional)
+- `x-api-key` (header, optional)
+
+---
+
+### `GET` /api/v1/research/growth-arbitrage
+**Summary:** Run Growth Arbitrage  
+**Description:** Executes Strategy E5: AI Growth Arbitrage & DCF Valuation Engine (Institutional Grade).  
+**Parameters:**
+- `symbol` (query, required)
+- `as_of` (query, optional)
+- `x-api-key` (header, optional)
+
+---
+
+### `GET` /api/v1/research/growth-inflection
+**Summary:** Run Growth Inflection  
+**Description:** Executes Strategy E1: Growth Inflection Engine (Revenue, Profit, EPS, Margin, ROCE, FCF acceleration).  
+**Parameters:**
+- `symbol` (query, required)
+- `as_of` (query, optional)
+- `x-api-key` (header, optional)
+
+---
+
+### `GET` /api/v1/research/growth-market-gap
+**Summary:** Run Growth Market Gap  
+**Description:** Executes Strategy E3: Growth vs Market Recognition Gap Engine (Business growth CAGR vs Stock price CAGR).  
+**Parameters:**
+- `symbol` (query, required)
+- `as_of` (query, optional)
+- `x-api-key` (header, optional)
+
+---
+
+### `GET` /api/v1/research/multibagger-screener
+**Summary:** Run Multibagger Screener  
+**Description:** Executes Strategy E4: Multi-Factor Multibagger Intelligence & Screening Engine.  
+**Parameters:**
+- `symbol` (query, required)
+- `as_of` (query, optional)
+- `x-api-key` (header, optional)
+
+---
+
+### `GET` /api/v1/research/scorecard
+**Summary:** Fetch Symbol Scorecard  
+**Description:** Returns consolidated Scorecard item combining Arbiter, Multibagger, and Return Probabilities.  
+**Parameters:**
+- `symbol` (query, required)
+- `x-api-key` (header, optional)
+
+---
+
+### `POST` /api/v1/research/scorecard-matrix
+**Summary:** Fetch Scorecard Matrix  
+**Description:** Returns side-by-side comparison Scorecard Matrix for a list of tickers.  
+**Parameters:**
+- `x-api-key` (header, optional)
+
+---
+
+### `GET` /api/v1/research/turnaround-stage
+**Summary:** Run Turnaround Stage  
+**Description:** Executes Strategy E2: Turnaround Stage Engine (Distress to Recovery lifecycle & False Turnaround detection).  
+**Parameters:**
+- `symbol` (query, required)
+- `as_of` (query, optional)
+- `x-api-key` (header, optional)
+
+---
+
+### `POST` /api/v1/return-probability
+**Summary:** Execute Return Probability  
+**Description:** Calculates empirical return probability distribution over holding horizon.  
+**Parameters:**
+- `x-api-key` (header, optional)
+
+---
+
+### `GET` /api/v1/strategies
+**Summary:** Fetch All Strategies  
+**Description:** Returns list of all strategy modules and production status.  
+**Parameters:**
+- `x-api-key` (header, optional)
+
+---
+
+### `GET` /api/v1/strategies/swing-alerts
+**Summary:** Fetch Swing Trade Alerts  
+**Description:** Returns active short-to-medium term high-probability swing trade alerts.  
+**Parameters:**
+- `universe` (query, optional)
+- `x-api-key` (header, optional)
+
+---
+
+### `GET` /api/v1/strategies/{strategy_id}
+**Summary:** Fetch Strategy Detail  
+**Description:** Returns details for a specific strategy module.  
+**Parameters:**
+- `strategy_id` (path, required)
+- `x-api-key` (header, optional)
+
+---
+
+### `POST` /api/v1/strategies/{strategy_id}/run
+**Summary:** Run Strategy  
+**Description:** Runs screening or diagnostic analysis for a specific strategy module.  
+**Parameters:**
+- `strategy_id` (path, required)
+- `x-api-key` (header, optional)
+
+---
+
+### `GET` /api/v1/technical/probability/{symbol}
+**Summary:** Get Probability Ladder  
+**Description:** Retrieves empirical probability ladder and MAE/MFE path statistics.  
+**Parameters:**
+- `symbol` (path, required)
+- `x-api-key` (header, optional)
+
+---
+
+### `GET` /api/v1/technical/regime
+**Summary:** Get Market Regime  
+**Description:** Retrieves current market regime classification for Indian equities.  
+**Parameters:**
+- `x-api-key` (header, optional)
+
+---
+
+### `GET` /api/v1/technical/report/{symbol}
+**Summary:** Get Technical Report  
+**Description:** Retrieves full standardized Machine-Readable Technical Report for a given ticker symbol.  
+**Parameters:**
+- `symbol` (path, required)
+- `x-api-key` (header, optional)
+
+---
+
+### `GET` /api/v1/technical/screener
+**Summary:** Run Screener  
+**Description:** Runs 3-tier technical universe screener and returns top setup candidates.  
+**Parameters:**
+- `min_tss_score` (query, optional)
+- `setup_filter` (query, optional)
+- `x-api-key` (header, optional)
+
+---
+
+### `GET` /api/v1/technical/surveillance/{symbol}
+**Summary:** Get Surveillance Gate  
+**Description:** Retrieves ASM/GSM/T2T regulatory surveillance status and roundtrip trade cost breakdown.  
+**Parameters:**
+- `symbol` (path, required)
+- `x-api-key` (header, optional)
+
+---
+
+### `GET` /api/v1/technical/trade_manager/{symbol}
+**Summary:** Get Trade Management  
+**Description:** Evaluates active in-position trade management rules for a live position.  
+**Parameters:**
+- `symbol` (path, required)
+- `entry_price` (query, optional)
+- `current_price` (query, optional)
+- `highest_close` (query, optional)
+- `stop_price` (query, optional)
+- `days_in_trade` (query, optional)
+- `x-api-key` (header, optional)
+
+---
+
+### `GET` /api/v1/ticker-strip
+**Summary:** Fetch Ticker Strip  
+**Description:** Fetches quotes for live ticker tape strip.  
+**Parameters:**
+- `x-api-key` (header, optional)
+
+---
+
+### `GET` /api/v1/ticker/{symbol}
+**Summary:** Fetch Ticker Quote  
+**Description:** Fetches real-time price & metrics for any NSE/BSE stock or index.  
+**Parameters:**
+- `symbol` (path, required)
+- `x-api-key` (header, optional)
+
+---
+
+### `GET` /api/v1/ticker/{symbol}/history
+**Summary:** Fetch Ticker History  
+**Description:** Fetches historical OHLCV data for charting.  
+**Parameters:**
+- `symbol` (path, required)
+- `period` (query, optional)
+- `interval` (query, optional)
+- `x-api-key` (header, optional)
+
+---
+
+### `GET` /api/v1/watchlist
+**Summary:** Get Watchlist  
+**Description:** Retrieves all watchlist items enriched with live quote data.  
+**Parameters:**
+- `x-api-key` (header, optional)
+
+---
+
+### `POST` /api/v1/watchlist
+**Summary:** Add To Watchlist  
+**Description:** Adds or updates a security in the user watchlist.  
+**Parameters:**
+- `x-api-key` (header, optional)
+
+---
+
+### `DELETE` /api/v1/watchlist/{symbol}
+**Summary:** Delete From Watchlist  
+**Description:** Removes a security from the user watchlist.  
+**Parameters:**
+- `symbol` (path, required)
+- `x-api-key` (header, optional)
+
+---

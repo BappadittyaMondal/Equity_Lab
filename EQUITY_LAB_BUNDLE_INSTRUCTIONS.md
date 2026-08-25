@@ -1,9 +1,9 @@
 # Equity Lab (IERL AI Equity OS) — Master Consolidated Bundle Instruction Manual
 
 ## 1. System Overview & Architecture
-The **Equity Lab (IERL AI Equity OS v0.0.0)** is an institutional quantitative equity research, forensic accounting, valuation, options arbitrage, and decision-support OS for the Indian Equity Market. The core architecture aggregates 93 canonical specification documents, 35 registered strategy & research engines (A1–D18 + E1–E17), multi-engine arbiters, and 48 domain knowledge modules.
+The **Equity Lab (IERL AI Equity OS v0.0.0)** is an institutional quantitative equity research, forensic accounting, valuation, options arbitrage, and decision-support OS for the Indian Equity Market. The core architecture aggregates 95 canonical specification documents, 35 registered strategy & research engines (A1–D18 + E1–E17), multi-engine arbiters, and 48 domain knowledge modules.
 
-To optimize LLM context window limits and RAG vector search precision (especially when context windows exceed 200k tokens), the 93 canonical source files are compiled into two losslessly aggregated bundle formats:
+To optimize LLM context window limits and RAG vector search precision (especially when context windows exceed 200k tokens), the 95 canonical source files are compiled into two losslessly aggregated bundle formats:
 - **5-File Bundle (`CONSOLIDATED_5_FILE_SYSTEM/`)**: Context compression for large context windows (128k+ tokens), consolidating architecture, contracts, skills 01–41, and domains 01–48 into 5 master volumes.
 - **9-File Bundle (`CONSOLIDATED_9_FILE_SYSTEM/`)**: Modular distribution for mid-range context windows, separating workflow skills from analytical lens skills and dividing knowledge domains across 5 specialized volumes.
 

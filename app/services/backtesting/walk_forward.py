@@ -79,12 +79,19 @@ class WalkForwardBacktester:
         variance = sum((r - mean_stock) ** 2 for r in stock_returns) / len(stock_returns) if len(stock_returns) > 1 else 1.0
         std_dev = math.sqrt(variance) if variance > 0 else 1.0
 
+        # Period risk-free rate (6.0% annual benchmark converted to evaluation period)
+        # If horizon_months == 12 but we have >3 sample periods, items represent monthly/20-day returns
+        if horizon_months == 1 or len(stock_returns) > 5:
+            rf_period = 0.5  # 6% annual / 12 months = 0.5% per period
+        else:
+            rf_period = 6.0 * (horizon_months / 12.0)
+
         # Downside risk for Sortino
-        downside_vars = [min(0.0, r - 5.0) ** 2 for r in stock_returns]
+        downside_vars = [min(0.0, r - rf_period) ** 2 for r in stock_returns]
         downside_std = math.sqrt(sum(downside_vars) / len(downside_vars)) if downside_vars else 1.0
 
-        sharpe = (mean_stock - 5.0) / std_dev if std_dev > 0 else 0.0
-        sortino = (mean_stock - 5.0) / downside_std if downside_std > 0 else 0.0
+        sharpe = (mean_stock - rf_period) / std_dev if std_dev > 0 else 0.0
+        sortino = (mean_stock - rf_period) / downside_std if downside_std > 0 else 0.0
 
         # Peak to trough max drawdown calculation
         peak = stock_returns[0]

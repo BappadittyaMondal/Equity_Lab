@@ -46,8 +46,32 @@ def evaluate_portfolio_heat_and_risk(
 
     sector_concentration_pct = round(((same_sector_heat + candidate_risk_pct) / max(1.0, current_heat + candidate_risk_pct)) * 100.0, 1)
 
-    # 4. Correlation Discount Factor
-    correlation_discount = 0.80 if same_sector_count >= 2 else 1.0
+    # 4. Dynamic Sector & Covariance Correlation Discount Factor
+    # Computes correlation discount based on sector overlap weight & portfolio cross-correlation matrix
+    if same_sector_count >= 3:
+        correlation_discount = 0.70  # Heavy intra-sector concentration penalty
+    elif same_sector_count == 2:
+        correlation_discount = 0.82  # Moderate intra-sector discount
+    elif same_sector_count == 1:
+        correlation_discount = 0.92  # Slight intra-sector penalty
+    else:
+        correlation_discount = 1.00  # Zero cross-sector overlap
+
+    # Check if open_positions provides empirical returns series to compute pairwise correlation matrix
+    if isinstance(positions, dict) and any("returns" in p for p in positions.values() if isinstance(p, dict)):
+        try:
+            rets_list = [p["returns"] for p in positions.values() if isinstance(p, dict) and "returns" in p and len(p["returns"]) > 10]
+            if len(rets_list) >= 2:
+                import pandas as pd
+                df_rets = pd.DataFrame(rets_list).T
+                corr_matrix = df_rets.corr().values
+                # Average off-diagonal pairwise correlation
+                num_pairs = len(rets_list) * (len(rets_list) - 1)
+                avg_corr = (corr_matrix.sum() - len(rets_list)) / max(1, num_pairs)
+                # Map average correlation to discount factor (high correlation reduces effective independent bets)
+                correlation_discount = round(float(max(0.50, min(1.00, 1.0 - (avg_corr * 0.40)))), 2)
+        except Exception:
+            pass
 
     # 5. Gate 11 Verification
     projected_heat = current_heat + candidate_risk_pct
@@ -70,3 +94,29 @@ def evaluate_portfolio_heat_and_risk(
         correlation_discount_factor=correlation_discount,
         gate11_status=gate11_status
     )
+
+
+def compute_portfolio_covariance_matrix(returns_dict: Dict[str, Any]) -> Dict[str, Any]:
+    """Compute empirical factor covariance and correlation matrix for active portfolio holdings."""
+    import pandas as pd
+    import numpy as np
+
+    symbols = list(returns_dict.keys())
+    if len(symbols) < 2:
+        return {"symbols": symbols, "covariance_matrix": [[1.0]], "correlation_matrix": [[1.0]], "average_correlation": 0.0}
+
+    df = pd.DataFrame(returns_dict)
+    cov_df = df.cov()
+    corr_df = df.corr()
+
+    corr_matrix = corr_df.values
+    num_assets = len(symbols)
+    num_pairs = num_assets * (num_assets - 1)
+    avg_corr = (corr_matrix.sum() - num_assets) / max(1, num_pairs)
+
+    return {
+        "symbols": symbols,
+        "covariance_matrix": cov_df.values.tolist(),
+        "correlation_matrix": corr_df.values.tolist(),
+        "average_correlation": round(float(avg_corr), 4)
+    }

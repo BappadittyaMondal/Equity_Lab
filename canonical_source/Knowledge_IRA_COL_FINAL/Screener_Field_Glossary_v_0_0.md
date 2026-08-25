@@ -10,8 +10,6 @@
 
 **Purpose:** A compact reference so the AI correctly interprets whatever screener.in-style data you paste in — field names only, no new logic. Not a new engine, not a new skill — just vocabulary.
 
-**Paste Target:** Standalone reference file — no merge needed, upload as-is.
-
 ---
 
 ## How To Use This

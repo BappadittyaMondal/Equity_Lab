@@ -1,8 +1,8 @@
 # 03_Workflow_Skills_01_to_25
 
 > **IERL AI Equity OS — curated upload artifact**  
-> Project Version: `0.0.0` · Bundle Version: `2.0` · Source Commit: `ad0beda`  
-> Generated At: `2026-08-23T18:31:52.659405+00:00` · Source Hash: `9ef11ec99b01c3b4` · Compiler: `consolidate_project.py` v2.0
+> Project Version: `0.0.0` · Bundle Version: `2.0` · Source Commit: `b3f9522`  
+> Generated At: `2026-08-25T14:16:09.735759+00:00` · Source Hash: `cb1812ef9b1daa84` · Compiler: `consolidate_project.py` v2.0
 
 ## Operating contract
 
@@ -19,7 +19,7 @@ This is a generated, read-only working volume. The separately maintained source 
 | Upload file | Primary use | Sources |
 |---|---|---:|
 | `01_System_Core_Instructions_Architecture.md` | 01 System Core Instructions Architecture | 8 |
-| `02_Engine_Contracts_Schemas_Registries.md` | 02 Engine Contracts Schemas Registries | 16 |
+| `02_Engine_Contracts_Schemas_Registries.md` | 02 Engine Contracts Schemas Registries | 18 |
 | `03_Workflow_Skills_01_to_25.md` | 03 Workflow Skills 01 to 25 | 1 |
 | `04_Analytical_Lens_Skills_26_to_41.md` | 04 Analytical Lens Skills 26 to 41 | 17 |
 | `05_Knowledge_Base_Vol_1_Economics_Financials.md` | 05 Knowledge Base Vol 1 Economics Financials | 12 |
@@ -40,11 +40,11 @@ The SHA-256 values cover the exact UTF-8 source payload, not this wrapper. Use t
 
 | # | Source document | UTF-8 bytes | SHA-256 |
 |---:|---|---:|---|
-| 1 | `04_Skills_Reference_v_0_0.md` | 293,831 | `d85961728d082d4d5b7dd3bf5d4d48549b5d3a43d42dac96af0395f02971d028` |
+| 1 | `04_Skills_Reference_v_0_0.md` | 293,679 | `8d8512951723222d3e9c80279af8dc66d16e08a622f956ae42df64a5d36ebdd3` |
 
 ---
 
-<!-- BEGIN SYSTEM FILE 1: 04_Skills_Reference_v_0_0.md | SHA256: d85961728d082d4d5b7dd3bf5d4d48549b5d3a43d42dac96af0395f02971d028 -->
+<!-- BEGIN SYSTEM FILE 1: 04_Skills_Reference_v_0_0.md | SHA256: 8d8512951723222d3e9c80279af8dc66d16e08a622f956ae42df64a5d36ebdd3 -->
 ## Embedded source 1: 04 Skills Reference
 
 <!-- IERL-CANONICAL-METADATA v1.2 -->
@@ -1445,8 +1445,6 @@ RISK REDUCTION RECOMMENDATIONS:
 ---
 
 # Risk Auditor (Skill 09) — Missing Market/Ownership/Valuation Flags Addendum v_0.0
-
-**Paste Target:** `04_Skills_Reference_v_0.0.md` — insert as a new subsection immediately after the "## 13. Skill 09 — Risk Auditor" content block
 
 **Scope check:** Skill 09 already covers balance-sheet and earnings-quality risk (overlapping with Forensic Accounting) and portfolio-level risk aggregation. The four flags below are ownership-flow and valuation-behavior risks that weren't previously named.
 

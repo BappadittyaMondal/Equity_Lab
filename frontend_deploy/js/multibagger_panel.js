@@ -253,10 +253,7 @@ export async function executeFinderQuery(finderType = "multibagger") {
     document.body.appendChild(reportModal);
 
     try {
-      const apiKey = localStorage.getItem("equity_lab_api_key") || "demo-key";
-      const resp = await fetch(`/api/v1/multibagger/report/${symbol}`, {
-        headers: { "X-API-Key": apiKey }
-      });
+      const resp = await apiFetch(`/api/v1/multibagger/report/${symbol}`);
       if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
       const data = await resp.json();
 

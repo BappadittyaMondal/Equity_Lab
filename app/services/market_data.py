@@ -223,23 +223,74 @@ def _get_connection() -> sqlite3.Connection:
             fetched_at INTEGER NOT NULL
         )"""
     )
+    conn.execute(
+        """CREATE TABLE IF NOT EXISTS market_daily_snapshots (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            symbol TEXT NOT NULL,
+            trading_date TEXT NOT NULL,
+            open_price REAL NOT NULL,
+            high_price REAL NOT NULL,
+            low_price REAL NOT NULL,
+            close_price REAL NOT NULL,
+            volume INTEGER NOT NULL,
+            delivery_volume INTEGER,
+            delivery_pct REAL,
+            market_cap REAL,
+            published_at TEXT NOT NULL,
+            source_name TEXT NOT NULL,
+            source_url TEXT NOT NULL,
+            ingested_at TEXT NOT NULL
+        )"""
+    )
     return conn
 
 def _store_in_cache(symbol: str, quote: Quote) -> None:
     try:
         conn = _get_connection()
+        now_ts = int(datetime.datetime.now(timezone.utc).timestamp())
+        now_iso = datetime.datetime.now(timezone.utc).isoformat()
+        now_date = datetime.datetime.now(timezone.utc).strftime("%Y-%m-%d")
         try:
             conn.execute(
                 "INSERT OR REPLACE INTO market_cache VALUES (?, ?, ?)",
-                (symbol.upper(), json.dumps(quote), int(datetime.datetime.now(timezone.utc).timestamp())),
+                (symbol.upper(), json.dumps(quote), now_ts),
+            )
+            # Append-Only Ledger Insertion: Align with MarketDailySnapshot schema (Zero deletion)
+            price = float(quote.get("price", 0.0))
+            high = float(quote.get("fifty_two_week_high", price * 1.02))
+            low = float(quote.get("fifty_two_week_low", price * 0.98))
+            vol = int(quote.get("volume", 100000))
+            provider_name = str(quote.get("provider", quote.get("active_provider", "MarketDataProvider")))
+            
+            conn.execute(
+                """INSERT INTO market_daily_snapshots 
+                   (symbol, trading_date, open_price, high_price, low_price, close_price, volume, delivery_volume, delivery_pct, market_cap, published_at, source_name, source_url, ingested_at)
+                   VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)""",
+                (
+                    symbol.upper(),
+                    now_date,
+                    price,
+                    high,
+                    low,
+                    price,
+                    vol,
+                    None,
+                    None,
+                    None,
+                    now_iso,
+                    provider_name,
+                    "https://www.nseindia.com",
+                    now_iso
+                )
             )
             conn.commit()
         finally:
             conn.close()
-    except Exception:
-        pass
+    except Exception as e:
+        logger.warning("Failed to persist quote cache for %s: %s", symbol, e)
 
-def _load_from_cache(symbol: str) -> Optional[Quote]:
+def _load_from_cache(symbol: str, max_age_seconds: int = 259200) -> Optional[Quote]:
+    """Load cached quote if fetched within max_age_seconds (default 72 hours / 3 days max gap)."""
     try:
         conn = _get_connection()
         try:
@@ -248,8 +299,12 @@ def _load_from_cache(symbol: str) -> Optional[Quote]:
                 (symbol.upper(),),
             ).fetchone()
             if row:
-                blob, _ = row
-                return json.loads(blob)
+                blob, fetched_at = row
+                now_ts = int(datetime.datetime.now(timezone.utc).timestamp())
+                if now_ts - fetched_at <= max_age_seconds:
+                    return json.loads(blob)
+                else:
+                    logger.info("Cache entry for %s expired (age: %ds > max: %ds)", symbol, now_ts - fetched_at, max_age_seconds)
             return None
         finally:
             conn.close()
@@ -270,13 +325,14 @@ def get_ist_now_str() -> str:
     ist = timezone(timedelta(hours=5, minutes=30))
     return datetime.datetime.now(ist).isoformat()
 
-def create_meta_header(source: str = "IERL Market Data", stale: bool = False, limitations: list = None, data_mode: str = "LIVE") -> dict:
+def create_meta_header(source: str = "IERL Market Data", stale: bool = False, limitations: list = None, data_mode: str = "LIVE", market_data_type: str = None) -> dict:
     now = get_ist_now_str()
+    md_type = market_data_type or ("delayed" if data_mode == "LIVE" else "SIMULATION")
     return {
         "source": source,
         "as_of": now,
         "retrieved_at": now,
-        "market_data_type": "delayed" if data_mode == "LIVE" else "SIMULATION",
+        "market_data_type": md_type,
         "data_mode": data_mode,
         "stale": stale,
         "limitations": limitations or [],
@@ -431,6 +487,52 @@ def calculate_corporate_action_adjustment_factors(actions):
         factors[ex_d] = round(cum_factor, 4)
     return factors
 
+
+class AutoRefreshMarketDataService:
+    """Automated market data refresh service enforcing maximum 3-day (72h) freshness threshold."""
+
+    @staticmethod
+    def get_stale_symbols(symbols: List[str], max_age_hours: int = 72) -> List[str]:
+        stale = []
+        max_age_sec = max_age_hours * 3600
+        for sym in symbols:
+            q = _load_from_cache(sym, max_age_seconds=max_age_sec)
+            if q is None:
+                stale.append(sym)
+        return stale
+
+    @staticmethod
+    async def auto_refresh_universe(symbols: Optional[List[str]] = None, max_age_hours: int = 72) -> Dict[str, Any]:
+        if not symbols:
+            symbols = [
+                "RELIANCE.NS", "TCS.NS", "INFY.NS", "NETWEB.NS", "ZENTEC.NS", 
+                "PARAS.NS", "GENSOL.NS", "CYIENTDLM.NS", "AVALON.NS", "SYRMA.NS",
+                "JYOTICNC.NS", "PREMIERENE.NS", "DYNAMATECH.NS", "ASTRAMICRO.NS"
+            ]
+        
+        stale = AutoRefreshMarketDataService.get_stale_symbols(symbols, max_age_hours=max_age_hours)
+        refreshed = []
+        failed = []
+
+        for sym in stale:
+            try:
+                quote = await _async_get_market_quote(sym)
+                refreshed.append(sym)
+            except Exception as e:
+                logger.warning("Auto refresh failed for %s: %s", sym, e)
+                failed.append(sym)
+
+        return {
+            "scanned_count": len(symbols),
+            "stale_count": len(stale),
+            "refreshed_count": len(refreshed),
+            "refreshed_symbols": refreshed,
+            "failed_symbols": failed,
+            "timestamp": get_ist_now_str(),
+            "max_age_hours_threshold": max_age_hours
+        }
+
+
 __all__ = [
     "normalize_symbol",
     "create_meta_header",
@@ -441,6 +543,7 @@ __all__ = [
     "YFinanceProvider",
     "NSEIndiaProvider",
     "AlphaVantageProvider",
+    "AutoRefreshMarketDataService",
     "get_quote",
     "get_history",
     "get_market_regime",
