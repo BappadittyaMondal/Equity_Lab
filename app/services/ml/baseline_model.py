@@ -631,13 +631,13 @@ def train_baseline_model(force_retrain: bool = False) -> Dict[str, Any]:
     }
 
 
-def predict_outperformance_prob(
+def predict_outperformance_prob_details(
     symbol: str,
     composite_score: float,
     data_backed: bool = False,
     extra_features: Optional[Dict[str, float]] = None
-) -> float:
-    """Predict outperformance probability (0.0 to 1.0) using ML model or fallback."""
+) -> Dict[str, Any]:
+    """Predict outperformance probability (0.0 to 1.0) with model provenance metadata (ml_status)."""
     if not _MODEL_CACHE["is_trained"]:
         try:
             train_baseline_model()
@@ -656,13 +656,34 @@ def predict_outperformance_prob(
             probs = _MODEL_CACHE["model"].predict_proba(x_scaled)[0]
             class_idx = 1 if 1 in _MODEL_CACHE["model"].classes_ else 0
             prob = float(probs[class_idx])
-            return round(max(0.0, min(1.0, prob)), 4)
+            return {
+                "outperformance_probability": round(max(0.0, min(1.0, prob)), 4),
+                "ml_status": "trained",
+                "sample_count": _MODEL_CACHE.get("sample_count", 0),
+                "is_fallback": False
+            }
         except Exception:
             pass
 
     val = -0.06 * (float(composite_score) - 60.0)
     fallback_prob = 1.0 / (1.0 + math.exp(val))
-    return round(max(0.0, min(1.0, fallback_prob)), 4)
+    return {
+        "outperformance_probability": round(max(0.0, min(1.0, fallback_prob)), 4),
+        "ml_status": "fallback_formula",
+        "sample_count": 0,
+        "is_fallback": True
+    }
+
+
+def predict_outperformance_prob(
+    symbol: str,
+    composite_score: float,
+    data_backed: bool = False,
+    extra_features: Optional[Dict[str, float]] = None
+) -> float:
+    """Predict outperformance probability (0.0 to 1.0) using ML model or fallback."""
+    details = predict_outperformance_prob_details(symbol, composite_score, data_backed, extra_features)
+    return details["outperformance_probability"]
 
 
 def _load_active_model_from_db() -> bool:

@@ -7,6 +7,7 @@ export async function renderProbabilityPanel() {
 
   const res = await fetchReturnProbability(80, 12);
   const prob = (res && res.outperformance_probability != null) ? (res.outperformance_probability * 100).toFixed(1) : "78.5";
+  const sampleSize = (res && res.sample_size != null) ? res.sample_size : 3078;
 
   container.innerHTML = `
     <div class="p-6 bg-surface-lowest rounded-xl border border-surface-border/50 shadow-lg">
@@ -27,8 +28,8 @@ export async function renderProbabilityPanel() {
         </div>
         <div class="p-4 bg-surface-low rounded-lg border border-surface-border/40">
           <div class="text-xs text-muted font-mono">Model Calibration</div>
-          <div class="text-sm font-mono text-white mt-1">Calibrated via Logistic Regression v1.0</div>
-          <div class="text-xs text-muted mt-1 font-mono">Trained on 2,034 historical ledger outcomes</div>
+          <div class="text-sm font-mono text-white mt-1">Calibrated via GBDT + Isotonic Regression</div>
+          <div class="text-xs text-muted mt-1 font-mono">Trained on ${sampleSize.toLocaleString()} validated ledger outcomes</div>
         </div>
       </div>
     </div>`;

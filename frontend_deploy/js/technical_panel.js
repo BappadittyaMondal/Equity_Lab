@@ -4,6 +4,8 @@
  * Calibrated Probability Ladders, Surveillance Gates, and In-Position Trade Management.
  */
 
+import { apiFetch } from "./api.js";
+
 window.TechnicalPanel = {
     render: function(containerId) {
         const container = document.getElementById(containerId);
@@ -105,7 +107,7 @@ window.TechnicalPanel = {
         tableContainer.innerHTML = `<p style="color: #94a3b8; font-style: italic;">Running Tier 0-2 Funnel Scan...</p>`;
 
         try {
-            const resp = await fetch("/api/v1/technical/screener");
+            const resp = await apiFetch("/api/v1/technical/screener");
             const data = await resp.json();
 
             if (data.market_regime) {
@@ -166,7 +168,7 @@ window.TechnicalPanel = {
         const survBody = document.getElementById("tech-surv-body");
 
         try {
-            const resp = await fetch(`/api/v1/technical/report/${symbol}`);
+            const resp = await apiFetch(`/api/v1/technical/report/${symbol}`);
             const data = await resp.json();
 
             if (deepContainer) deepContainer.style.display = "block";

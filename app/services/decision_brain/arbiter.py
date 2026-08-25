@@ -144,10 +144,33 @@ class Arbiter:
 
             verdict = "Buy" if resp.passed_gates else "Avoid"
 
+            # Dynamic per-engine score extraction
+            score_0_100 = None
+            if hasattr(resp, "score_0_100") and resp.score_0_100 is not None:
+                score_0_100 = float(resp.score_0_100)
+            elif hasattr(resp, "score") and resp.score is not None:
+                score_0_100 = float(resp.score)
+            elif isinstance(getattr(resp, "metrics", None), dict):
+                for key in ["score", "multibagger_score", "composite_score", "moat_score", "f_score_0_9", "z_score", "tss_score", "growth_inflection_score", "insider_conviction_score", "institutional_flow_score", "commentary_confidence_score", "catalyst_score"]:
+                    if key in resp.metrics and isinstance(resp.metrics[key], (int, float)):
+                        val = float(resp.metrics[key])
+                        score_0_100 = (val / 9.0 * 100.0) if key == "f_score_0_9" else min(100.0, max(0.0, val))
+                        break
+            if score_0_100 is None and isinstance(getattr(resp, "results", None), dict):
+                for key in ["score", "multibagger_score", "composite_score", "moat_score", "governance_score"]:
+                    if key in resp.results and isinstance(resp.results[key], (int, float)):
+                        val = float(resp.results[key])
+                        score_0_100 = min(100.0, max(0.0, val))
+                        break
+
+            if score_0_100 is None:
+                score_0_100 = float(confidence) if resp.passed_gates else max(10.0, float(confidence) * 0.3)
+
             outputs.append({
                 "engine_id":  engine_id,
                 "verdict":    verdict,
                 "confidence": confidence,
+                "score_0_100": round(score_0_100, 1),
                 "regime":     regime,
                 "raw":        resp,
                 "status":     getattr(resp, "status", "unknown"),
@@ -164,7 +187,7 @@ class Arbiter:
     ) -> Tuple[float, Dict[str, float]]:
         """Compute weighted conviction score across engine categories.
 
-        Per-engine contribution = (passed_gates ? confidence : 0) × category_weight
+        Per-engine contribution = per-engine score_0_100 (if Buy) scaled by data confidence.
         Engines with status=data_insufficient contribute 0 (excluded).
         Returns (composite_score_0_100, category_breakdown_dict).
         """
@@ -181,15 +204,11 @@ class Arbiter:
             if CATEGORY_WEIGHTS.get(category, 0) == 0:
                 continue
 
-            # Score: confidence if Buy, 0 if Avoid
+            eng_score = out.get("score_0_100", float(out["confidence"]))
             if out["verdict"] == "Buy":
-                engine_score = out["confidence"]  # 0–100
+                engine_score = (eng_score * (out["confidence"] / 100.0)) if out["confidence"] > 0 else eng_score
             else:
-                engine_score = 0.0
-
-            # Penalty for Avoid engines: add negative contribution
-            if out["verdict"] == "Avoid":
-                engine_score = max(0.0, 50.0 - out["confidence"] * 0.5)
+                engine_score = max(0.0, 50.0 - eng_score * 0.5)
 
             category_scores[category].append(engine_score)
 
@@ -482,7 +501,7 @@ class Arbiter:
         variant_view_str = f"Variant Perception ({confidence_tier}): {primary_thesis}"
         invalidation_str = debate.falsification_conditions[0] if getattr(debate, "falsification_conditions", None) else f"Thesis invalidated if conviction score drops below 40 or governance alert is triggered."
         consensus_str = f"Market consensus pricing reflects standard sector baseline."
-        evidence_list = [f"{o['engine_id']}: {o.get('score_0_100', 50)}/100" for o in outputs if o.get("verdict") == "Buy"]
+        evidence_list = [f"{o['engine_id']}: {o.get('score_0_100', 'N/A')}/100" for o in outputs if o.get("verdict") == "Buy"]
 
         # Step 6.5: ML outperformance probability signal
         ml_prob: Optional[float] = None
