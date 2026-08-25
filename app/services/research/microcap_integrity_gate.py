@@ -37,20 +37,27 @@ def evaluate_microcap_integrity_gate(
     clean_sym = normalize_symbol(symbol)
     veto_reasons = []
 
-    # 1. 20-Day ADTV & Liquidity Sizing
-    adv_20d_inr = 50_000_000.0  # Default 5 Cr
+    # 1. 20-Day ADTV & Liquidity Sizing (Fail-closed on missing/corrupt data)
+    adv_20d_inr = 0.0
+    adtv_valid = False
     try:
         hist = get_history(clean_sym, period="1m", interval="1d")
-        if len(hist) >= 10:
+        if hist is not None and len(hist) >= 10 and 'Close' in hist and 'Volume' in hist:
             prices = hist['Close'].values[-20:]
             vols = hist['Volume'].values[-20:]
             daily_turnover = prices * vols
-            adv_20d_inr = float(np.mean(daily_turnover))
+            calc_adv = float(np.mean(daily_turnover))
+            if not np.isnan(calc_adv) and calc_adv > 0:
+                adv_20d_inr = calc_adv
+                adtv_valid = True
     except Exception:
-        pass
+        adtv_valid = False
+
+    if not adtv_valid:
+        veto_reasons.append("Insufficient historical price/volume data (minimum 10 trading days required) to reliably calculate 20D ADTV liquidity cap.")
 
     # 10% ADTV Position Cap
-    max_position_size_inr = adv_20d_inr * 0.10
+    max_position_size_inr = adv_20d_inr * 0.10 if adtv_valid else 0.0
 
     # 2. Promoter Pledge Check (Hard Veto if > 20.0%)
     pledge = promoter_pledge_pct if promoter_pledge_pct is not None else 0.0
@@ -68,11 +75,16 @@ def evaluate_microcap_integrity_gate(
         veto_reasons.append(f"Cash conversion quality (CFO/EBITDA = {cfo_ratio:.2f}) below minimum 0.70 threshold.")
 
     # 5. Position Capacity Check vs ADTV Cap
-    if target_portfolio_value_inr * 0.05 > max_position_size_inr:
+    if adtv_valid and target_portfolio_value_inr * 0.05 > max_position_size_inr:
         veto_reasons.append(f"Target allocation exceeds 10% 20D ADTV liquidity cap (Max ₹{max_position_size_inr:,.0f}).")
 
     pass_all = len(veto_reasons) == 0
-    status_code = "APPROVED" if pass_all else "REJECTED_GATE_VETO"
+    if pass_all:
+        status_code = "APPROVED"
+    elif not adtv_valid and len(veto_reasons) == 1:
+        status_code = "REJECTED_INSUFFICIENT_DATA"
+    else:
+        status_code = "REJECTED_GATE_VETO"
 
     return MicroCapGateResult(
         symbol=clean_sym,

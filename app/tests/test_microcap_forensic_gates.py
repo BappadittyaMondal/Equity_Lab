@@ -41,3 +41,27 @@ def test_forensic_auditor_resignation_veto():
     res = auditor.audit_equity("XYZ_MICRO", auditor_resigned_recently=True)
     assert res.governance_veto
     assert any("auditor" in r.lower() for r in res.red_flags)
+
+
+def test_microcap_integrity_gate_fail_closed_insufficient_data(monkeypatch):
+    """Verify microcap gate fails closed on bad/missing historical market data instead of defaulting to 5 Cr."""
+    from app.services.research import microcap_integrity_gate
+    
+    # Mock get_history to raise exception or return empty dataframe
+    monkeypatch.setattr(microcap_integrity_gate, "get_history", lambda *args, **kwargs: None)
+    
+    res = evaluate_microcap_integrity_gate("UNKNOWN_MICRO")
+    assert not res.pass_all_gates
+    assert res.status_code == "REJECTED_INSUFFICIENT_DATA"
+    assert any("minimum 10 trading days" in r for r in res.veto_reasons)
+    assert res.adv_20d_inr == 0.0
+
+
+def test_portfolio_risk_malformed_state_fail_closed():
+    """Verify portfolio risk engine rejects malformed open_positions state."""
+    from app.services.risk.portfolio_risk import evaluate_portfolio_heat_and_risk
+    
+    res = evaluate_portfolio_heat_and_risk("TCS", open_positions="INVALID_STRING_PAYLOAD")
+    assert res.gate11_status == "REJECTED_MALFORMED_STATE"
+    assert res.current_portfolio_heat_pct == 0.0
+

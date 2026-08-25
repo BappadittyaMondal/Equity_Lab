@@ -23,7 +23,6 @@ def evaluate_portfolio_heat_and_risk(
 ) -> PortfolioHeatRisk:
     """Evaluates portfolio heat, concurrent positions, sector caps, and correlation discount factor (Gate 11)."""
     norm_symbol = normalize_symbol(candidate_symbol)
-    positions = open_positions or {}
 
     # 1. Heat Cap Adjustment by Regime
     heat_caps = {
@@ -36,18 +35,32 @@ def evaluate_portfolio_heat_and_risk(
     }
     heat_cap = heat_caps.get(regime_code, 15.0)
 
+    # Fail-closed pattern: If open_positions is provided but not a dict, reject on malformed state
+    if open_positions is not None and not isinstance(open_positions, dict):
+        return PortfolioHeatRisk(
+            current_portfolio_heat_pct=0.0,
+            portfolio_heat_cap_pct=heat_cap,
+            concurrent_positions_count=0,
+            concurrent_positions_cap=10,
+            sector_concentration_pct=0.0,
+            sector_concentration_cap_pct=30.0,
+            correlation_discount_factor=1.00,
+            gate11_status="REJECTED_MALFORMED_STATE"
+        )
+
+    positions = open_positions or {}
+
     # 2. Existing Heat & Position Count
-    current_heat = sum(float(p.get("risk_pct", 1.5)) for p in positions.values()) if isinstance(positions, dict) else 10.5
-    current_count = len(positions) if isinstance(positions, dict) else 5
+    current_heat = sum(float(p.get("risk_pct", 1.5)) for p in positions.values() if isinstance(p, dict))
+    current_count = len(positions)
 
     # 3. Sector Concentration
-    same_sector_count = sum(1 for p in positions.values() if isinstance(p, dict) and p.get("sector") == candidate_sector) if isinstance(positions, dict) else 2
-    same_sector_heat = sum(float(p.get("risk_pct", 1.5)) for p in positions.values() if isinstance(p, dict) and p.get("sector") == candidate_sector) if isinstance(positions, dict) else 3.5
+    same_sector_count = sum(1 for p in positions.values() if isinstance(p, dict) and p.get("sector") == candidate_sector)
+    same_sector_heat = sum(float(p.get("risk_pct", 1.5)) for p in positions.values() if isinstance(p, dict) and p.get("sector") == candidate_sector)
 
     sector_concentration_pct = round(((same_sector_heat + candidate_risk_pct) / max(1.0, current_heat + candidate_risk_pct)) * 100.0, 1)
 
     # 4. Dynamic Sector & Covariance Correlation Discount Factor
-    # Computes correlation discount based on sector overlap weight & portfolio cross-correlation matrix
     if same_sector_count >= 3:
         correlation_discount = 0.70  # Heavy intra-sector concentration penalty
     elif same_sector_count == 2:
@@ -57,7 +70,6 @@ def evaluate_portfolio_heat_and_risk(
     else:
         correlation_discount = 1.00  # Zero cross-sector overlap
 
-    # Check if open_positions provides empirical returns series to compute pairwise correlation matrix
     if isinstance(positions, dict) and any("returns" in p for p in positions.values() if isinstance(p, dict)):
         try:
             rets_list = [p["returns"] for p in positions.values() if isinstance(p, dict) and "returns" in p and len(p["returns"]) > 10]
@@ -65,10 +77,8 @@ def evaluate_portfolio_heat_and_risk(
                 import pandas as pd
                 df_rets = pd.DataFrame(rets_list).T
                 corr_matrix = df_rets.corr().values
-                # Average off-diagonal pairwise correlation
                 num_pairs = len(rets_list) * (len(rets_list) - 1)
                 avg_corr = (corr_matrix.sum() - len(rets_list)) / max(1, num_pairs)
-                # Map average correlation to discount factor (high correlation reduces effective independent bets)
                 correlation_discount = round(float(max(0.50, min(1.00, 1.0 - (avg_corr * 0.40)))), 2)
         except Exception:
             pass

@@ -43,6 +43,7 @@ build/
 temp_pytest/
 temp_pytest*/
 temp_basetemp/
+temp_basetemp*/
 Upload_97Files_AI_Project/
 upload_*_AI_project/
 *.zip
