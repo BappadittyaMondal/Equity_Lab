@@ -24,8 +24,6 @@ node_modules/
 dist/
 build/
 *.zip
-app/
-api/
 app/tests/
 scripts/
 docs/

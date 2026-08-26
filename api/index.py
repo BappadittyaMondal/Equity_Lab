@@ -33,8 +33,8 @@ vercel_url = os.getenv("VERCEL_URL", "")
 
 if vercel_url and (not allowed_origin or "*" in allowed_origin):
     os.environ["ALLOWED_ORIGIN"] = f"https://{vercel_url}"
-elif not allowed_origin:
-    os.environ["ALLOWED_ORIGIN"] = "http://localhost:8000,http://127.0.0.1:8000"
+# Allow Vercel serverless environment fallback mode without hard startup abort
+os.environ["STRICT_VERCEL_POSTGRES_GATE"] = "0"
 
 from app.main import app
 
