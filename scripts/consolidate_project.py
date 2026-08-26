@@ -67,6 +67,7 @@ FIVE_FILE_MAP = {
         "AI_Custom_Screener_Engine_v_0_1.md", "AI_Institutional_Multibagger_Engine_v_0_1.md",
     ],
     "03_Master_Skill_Library.md": [
+        "AI_SKILL_IRA_col_final/Skill_Library_Manifest.md",
         "AI_SKILL_IRA_col_final/04_Skills_Reference_v_0_0.md",
         "AI_SKILL_IRA_col_final/AI_18_Expert_Strategies_Execution_Skill.md",
         "AI_SKILL_IRA_col_final/AI_Comparison_Engine_Skill.md",
@@ -82,6 +83,7 @@ FIVE_FILE_MAP = {
         "AI_SKILL_IRA_col_final/AI_Small_to_Mid_Cap_SIP_Stocks_Analysis_Skill.md",
         "AI_SKILL_IRA_col_final/AI_Swing_Trading_Skill.md",
         "AI_SKILL_IRA_col_final/AI_Technical_Analysis_Master_Skill.md",
+        "AI_SKILL_IRA_col_final/Technical_Analysis_Data_Input_Template_v_0.0.md",
         "AI_SKILL_IRA_col_final/AI_Turnaround_Analysis_Skill.md",
         "AI_SKILL_IRA_col_final/AI_Uptrend_Momentum_Stock_Skill.md",
         "AI_SKILL_IRA_col_final/AI_Volume_Delivery_Analysis_Skill.md",
@@ -125,8 +127,8 @@ FIVE_FILE_MAP = {
 NINE_FILE_MAP = {
     "01_System_Core_Instructions_Architecture.md": FIVE_FILE_MAP["01_Master_System_Core_Instructions_Architecture.md"],
     "02_Engine_Contracts_Schemas_Registries.md": FIVE_FILE_MAP["02_Master_Engine_Contracts_Schemas_Registries.md"],
-    "03_Workflow_Skills_01_to_25.md": ["AI_SKILL_IRA_col_final/04_Skills_Reference_v_0_0.md"],
-    "04_Analytical_Lens_Skills_26_to_41.md": FIVE_FILE_MAP["03_Master_Skill_Library.md"][1:],
+    "03_Workflow_Skills_01_to_25.md": FIVE_FILE_MAP["03_Master_Skill_Library.md"][:2],
+    "04_Analytical_Lens_Skills_26_to_41.md": FIVE_FILE_MAP["03_Master_Skill_Library.md"][2:],
     "05_Knowledge_Base_Vol_1_Economics_Financials.md": FIVE_FILE_MAP["04_Master_Knowledge_Base_Vol_1_Fundamentals_Valuation_Governance.md"][:12],
     "06_Knowledge_Base_Vol_2_Markets_Governance_Macro.md": FIVE_FILE_MAP["04_Master_Knowledge_Base_Vol_1_Fundamentals_Valuation_Governance.md"][12:],
     "07_Knowledge_Base_Vol_3_Forensics_Moats_Banking.md": FIVE_FILE_MAP["05_Master_Knowledge_Base_Vol_2_Sectors_Frameworks_Screening.md"][:8],
@@ -261,6 +263,21 @@ def validate(mapping: dict, target_dir: Path) -> None:
     print(f"Validated: {target_dir.name} — {len(expected)} unique embedded sources")
 
 
+def assert_canonical_completeness(targets: tuple) -> None:
+    canonical_files = {p.relative_to(SOURCE_DIR).as_posix() for p in SOURCE_DIR.rglob("*") if p.is_file()}
+    explicit_allowlist = set()
+    for mapping, target in targets:
+        mapped_files = {f for files in mapping.values() for f in files}
+        diff = canonical_files - (mapped_files | explicit_allowlist)
+        if diff:
+            raise ValueError(f"Bundle mapping for {target.name} is missing canonical source files: {diff}")
+        extra = mapped_files - canonical_files
+        if extra:
+            raise ValueError(f"Bundle mapping for {target.name} references non-existent files: {extra}")
+        assert canonical_files == (mapped_files | explicit_allowlist), f"Completeness assertion failed for {target.name}"
+    print(f"Completeness assertion passed: all {len(canonical_files)} files under canonical_source/ are mapped into every bundle.")
+
+
 def main() -> None:
     run_security_scan()
     git_commit_source = get_git_commit()
@@ -282,6 +299,7 @@ def main() -> None:
         (FIVE_FILE_MAP, BASE_DIR / "CONSOLIDATED_5_FILE_SYSTEM"),
         (NINE_FILE_MAP, BASE_DIR / "CONSOLIDATED_9_FILE_SYSTEM")
     )
+    assert_canonical_completeness(targets)
     for mapping, target in targets:
         build_master_files(mapping, target, manifest_meta)
         validate(mapping, target)

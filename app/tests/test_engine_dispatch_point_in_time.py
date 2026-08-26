@@ -101,3 +101,28 @@ def test_unmocked_arbiter_engine_dispatch_point_in_time():
     call_july = arbiter.arbitrate(symbol, as_of=as_of_july)
     assert call_july is not None
     assert call_july.symbol == "PIT_DISPATCH_TEST.NS" or call_july.symbol == "PIT_DISPATCH_TEST"
+
+
+def test_options_engines_respect_as_of():
+    """Verify options engines (A1 & A3) respect as_of point-in-time parameters during historical replay."""
+    from app.services.strategies.registry import run_strategy_module
+
+    as_of_historical = datetime(2024, 1, 1, 0, 0, tzinfo=timezone.utc)
+    as_of_recent = datetime(2024, 8, 1, 0, 0, tzinfo=timezone.utc)
+
+    # Test A1 Option Arbitrage Engine
+    res_a1_hist = run_strategy_module("A1", symbol="NIFTY", as_of=as_of_historical)
+    res_a1_rec = run_strategy_module("A1", symbol="NIFTY", as_of=as_of_recent)
+
+    assert res_a1_hist.meta.as_of == as_of_historical.isoformat()
+    assert res_a1_rec.meta.as_of == as_of_recent.isoformat()
+    assert res_a1_hist.results["spot_price"] != res_a1_rec.results["spot_price"], "A1 spot price should vary across distinct historical as_of dates"
+
+    # Test A3 Iron Condor Engine
+    res_a3_hist = run_strategy_module("A3", symbol="NIFTY", as_of=as_of_historical)
+    res_a3_rec = run_strategy_module("A3", symbol="NIFTY", as_of=as_of_recent)
+
+    assert res_a3_hist.meta.as_of == as_of_historical.isoformat()
+    assert res_a3_rec.meta.as_of == as_of_recent.isoformat()
+    assert res_a3_hist.results["spot_price"] != res_a3_rec.results["spot_price"], "A3 spot price should vary across distinct historical as_of dates"
+

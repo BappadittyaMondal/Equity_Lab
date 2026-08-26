@@ -924,7 +924,7 @@ def run_strategy_module(strategy_id: str, symbol: str = "RELIANCE", as_of: Optio
     elif module.id in ("C11", "C12", "FORENSIC"):
         return run_forensic_engine(symbol)
     elif module.id == "A1":
-        res_a1 = evaluate_option_arbitrage(symbol)
+        res_a1 = evaluate_option_arbitrage(symbol, as_of=as_of)
         return StrategyRunResponse(
             strategy_id="A1",
             strategy_name=module.name,
@@ -939,7 +939,7 @@ def run_strategy_module(strategy_id: str, symbol: str = "RELIANCE", as_of: Optio
             meta=res_a1["meta"]
         )
     elif module.id == "A3":
-        res_a3 = evaluate_iron_condor(symbol)
+        res_a3 = evaluate_iron_condor(symbol, as_of=as_of)
         return StrategyRunResponse(
             strategy_id="A3",
             strategy_name=module.name,

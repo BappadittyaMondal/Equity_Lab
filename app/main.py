@@ -88,6 +88,20 @@ async def _background_model_retrain_loop():
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
+    try:
+        try:
+            from app.core.db_health import check_db_health
+        except ImportError:
+            from core.db_health import check_db_health
+        health_status = check_db_health()
+        if health_status.get("is_vercel") and not health_status.get("is_postgres"):
+            if os.getenv("STRICT_VERCEL_POSTGRES_GATE", "1") == "1":
+                logger.critical("BOOT ABORTED: Vercel environment detected without PostgreSQL DATABASE_URL. Set DATABASE_URL or STRICT_VERCEL_POSTGRES_GATE=0.")
+                raise RuntimeError("Deployment aborted: Vercel environment requires PostgreSQL DATABASE_URL to prevent silent data loss.")
+    except Exception as e:
+        if isinstance(e, RuntimeError):
+            raise e
+        logger.warning(f"Database health startup check warning: {e}")
     refresh_task = asyncio.create_task(_background_market_data_refresh_loop())
     retrain_task = asyncio.create_task(_background_model_retrain_loop())
     yield

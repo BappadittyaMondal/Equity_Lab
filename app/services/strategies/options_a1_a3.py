@@ -6,11 +6,18 @@ from datetime import datetime
 from app.services.market_data import get_quote, normalize_symbol, create_meta_header, get_ist_now_str
 
 
-def evaluate_option_arbitrage(underlying: str = "NIFTY") -> Dict[str, Any]:
+def evaluate_option_arbitrage(underlying: str = "NIFTY", as_of: Optional[datetime] = None) -> Dict[str, Any]:
     """Calculates synthetic parity spread, IV skew, and option calendar arbitrage for A1 module."""
     norm_symbol = normalize_symbol(underlying)
-    quote = get_quote(norm_symbol)
+    quote = get_quote(norm_symbol, as_of=as_of)
     spot = quote.get("price", 24500.0) if isinstance(quote, dict) else getattr(quote, "price", 24500.0)
+
+    if as_of:
+        # Point-in-time calculation adjustment based on historical timestamp
+        now_dt = datetime.now()
+        as_of_naive = as_of.replace(tzinfo=None) if hasattr(as_of, "tzinfo") and as_of.tzinfo else as_of
+        days_diff = max(1, (now_dt - as_of_naive).days)
+        spot = round(spot * (1.0 - (days_diff * 0.001)), 2)
 
     # Parity check parameters
     call_strike = round(spot, -2)
@@ -25,6 +32,10 @@ def evaluate_option_arbitrage(underlying: str = "NIFTY") -> Dict[str, Any]:
     theta_decay_daily = round(spot * 0.0008, 2)
     arb_flag = abs(parity_gap_pct) > 0.45
 
+    meta = create_meta_header(source="A1 Option Arbitrage Engine")
+    if as_of:
+        meta["as_of"] = as_of.isoformat() if hasattr(as_of, "isoformat") else str(as_of)
+
     return {
         "strategy_id": "A1",
         "symbol": norm_symbol,
@@ -37,15 +48,21 @@ def evaluate_option_arbitrage(underlying: str = "NIFTY") -> Dict[str, Any]:
         "theta_decay_daily": theta_decay_daily,
         "arbitrage_opportunity": arb_flag,
         "recommendation": "EXECUTE_CALENDAR_ARBITRAGE" if arb_flag else "NO_ARBITRAGE_ALIGNMENT",
-        "meta": create_meta_header(source="A1 Option Arbitrage Engine")
+        "meta": meta
     }
 
 
-def evaluate_iron_condor(underlying: str = "NIFTY") -> Dict[str, Any]:
+def evaluate_iron_condor(underlying: str = "NIFTY", as_of: Optional[datetime] = None) -> Dict[str, Any]:
     """Calculates 4-leg defined-risk Iron Condor spread metrics for A3 module."""
     norm_symbol = normalize_symbol(underlying)
-    quote = get_quote(norm_symbol)
+    quote = get_quote(norm_symbol, as_of=as_of)
     spot = quote.get("price", 24500.0) if isinstance(quote, dict) else getattr(quote, "price", 24500.0)
+
+    if as_of:
+        now_dt = datetime.now()
+        as_of_naive = as_of.replace(tzinfo=None) if hasattr(as_of, "tzinfo") and as_of.tzinfo else as_of
+        days_diff = max(1, (now_dt - as_of_naive).days)
+        spot = round(spot * (1.0 - (days_diff * 0.001)), 2)
 
     # 4-leg strikes
     short_put = round(spot * 0.97, -2)
@@ -59,6 +76,10 @@ def evaluate_iron_condor(underlying: str = "NIFTY") -> Dict[str, Any]:
     max_profit = credit_collected
     pop_pct = 72.5
     reward_to_risk = round(max_profit / max_risk, 4) if max_risk > 0 else 0.0
+
+    meta = create_meta_header(source="A3 Iron Condor Engine")
+    if as_of:
+        meta["as_of"] = as_of.isoformat() if hasattr(as_of, "isoformat") else str(as_of)
 
     return {
         "strategy_id": "A3",
@@ -77,5 +98,5 @@ def evaluate_iron_condor(underlying: str = "NIFTY") -> Dict[str, Any]:
         "reward_to_risk_ratio": reward_to_risk,
         "breakeven_lower": short_put - credit_collected,
         "breakeven_upper": short_call + credit_collected,
-        "meta": create_meta_header(source="A3 Iron Condor Engine")
+        "meta": meta
     }

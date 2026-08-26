@@ -6,7 +6,7 @@ import path from "node:path";
 import { fileURLToPath } from "node:url";
 
 const BASE_DIR = path.dirname(fileURLToPath(import.meta.url));
-const SOURCE_DIR = path.join(BASE_DIR, "Not_Required_Upload", "Canonical_Source_84");
+const SOURCE_DIR = path.join(BASE_DIR, "..", "canonical_source");
 const COMPILER_VERSION = "2.0";
 const excluded = new Set(["API_KEYS_CONFIG.env", ".env.example", "API_PROVIDERS_AND_FREE_TIERS_GUIDE.md", "test_apis.py"]);
 const pythonSource = await readFile(path.join(BASE_DIR, "consolidate_project.py"), "utf8");

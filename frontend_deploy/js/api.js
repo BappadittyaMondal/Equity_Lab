@@ -435,6 +435,22 @@ export async function loadGrowthInflection(symbol = "RELIANCE") {
 }
 
 /**
+ * Fetch growth vs market recognition gap analysis for a symbol.
+ */
+export async function loadGrowthMarketGap(symbol = "RELIANCE") {
+  try {
+    const sym = encodeURIComponent(symbol);
+    const resp = await apiFetch(`/api/v1/research/growth-market-gap?symbol=${sym}`);
+    if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
+    return await resp.json();
+  } catch (err) {
+    console.warn("Growth market gap load failed:", err.message);
+    return null;
+  }
+}
+export const fetchGrowthMarketGap = loadGrowthMarketGap;
+
+/**
  * Fetch turnaround stage classification for a symbol.
  */
 export async function loadTurnaroundStage(symbol = "RELIANCE") {

@@ -1,8 +1,8 @@
 # 03_Workflow_Skills_01_to_25
 
 > **IERL AI Equity OS — curated upload artifact**  
-> Project Version: `0.0.0` · Bundle Version: `2.0` · Source Commit: `22d5c56`  
-> Generated At: `2026-08-25T17:21:09.808733+00:00` · Source Hash: `cb1812ef9b1daa84` · Compiler: `consolidate_project.py` v2.0
+> Project Version: `0.0.0` · Bundle Version: `2.0` · Source Commit: `90feeb6`  
+> Generated At: `2026-08-26T08:46:48.080450+00:00` · Source Hash: `bfdcdcc350589cb1` · Compiler: `consolidate_project.py` v2.0
 
 ## Operating contract
 
@@ -20,8 +20,8 @@ This is a generated, read-only working volume. The separately maintained source 
 |---|---|---:|
 | `01_System_Core_Instructions_Architecture.md` | 01 System Core Instructions Architecture | 8 |
 | `02_Engine_Contracts_Schemas_Registries.md` | 02 Engine Contracts Schemas Registries | 18 |
-| `03_Workflow_Skills_01_to_25.md` | 03 Workflow Skills 01 to 25 | 1 |
-| `04_Analytical_Lens_Skills_26_to_41.md` | 04 Analytical Lens Skills 26 to 41 | 17 |
+| `03_Workflow_Skills_01_to_25.md` | 03 Workflow Skills 01 to 25 | 2 |
+| `04_Analytical_Lens_Skills_26_to_41.md` | 04 Analytical Lens Skills 26 to 41 | 18 |
 | `05_Knowledge_Base_Vol_1_Economics_Financials.md` | 05 Knowledge Base Vol 1 Economics Financials | 12 |
 | `06_Knowledge_Base_Vol_2_Markets_Governance_Macro.md` | 06 Knowledge Base Vol 2 Markets Governance Macro | 12 |
 | `07_Knowledge_Base_Vol_3_Forensics_Moats_Banking.md` | 07 Knowledge Base Vol 3 Forensics Moats Banking | 8 |
@@ -40,12 +40,97 @@ The SHA-256 values cover the exact UTF-8 source payload, not this wrapper. Use t
 
 | # | Source document | UTF-8 bytes | SHA-256 |
 |---:|---|---:|---|
-| 1 | `04_Skills_Reference_v_0_0.md` | 293,679 | `8d8512951723222d3e9c80279af8dc66d16e08a622f956ae42df64a5d36ebdd3` |
+| 1 | `Skill_Library_Manifest.md` | 3,250 | `272a3bec84e3828db7792628a763ad508f35792caf6c29dbb89097859b4eda8b` |
+| 2 | `04_Skills_Reference_v_0_0.md` | 293,679 | `8d8512951723222d3e9c80279af8dc66d16e08a622f956ae42df64a5d36ebdd3` |
 
 ---
 
-<!-- BEGIN SYSTEM FILE 1: 04_Skills_Reference_v_0_0.md | SHA256: 8d8512951723222d3e9c80279af8dc66d16e08a622f956ae42df64a5d36ebdd3 -->
-## Embedded source 1: 04 Skills Reference
+<!-- BEGIN SYSTEM FILE 1: Skill_Library_Manifest.md | SHA256: 272a3bec84e3828db7792628a763ad508f35792caf6c29dbb89097859b4eda8b -->
+## Embedded source 1: Skill Library Manifest
+
+# Skill Library — Manifest (FINAL, v_0.0)
+
+**Status: Reconciled & Verified. Canonical skill total = 18 files (1 Workflow Reference + 17 Analytical Lens Skills).**
+
+---
+
+## CANONICAL SKILL FILES — 18 Files Total
+
+### A. Workflow + Sector Skills — 1 Master Reference File
+**File:** `04_Skills_Reference_v_0_0.md`
+
+Contains single source of truth for all 25 Workflow and Sector skills:
+Skill 01 Master Company Research, 02 Swing Stock Finder, 03 Positional Opportunity Finder, 04 Early Multibagger Finder, 05 Quarterly Results Analyzer, 06 Portfolio Auditor, 07 Valuation Comparator, 08 Sector Rotation Analyzer, 09 Risk Auditor, 10 IPO Analyzer, 11 Turnaround Screener, 12 Watchlist Prioritizer, 13 Concall Analyzer, 14 Corporate Action Analyzer, 15 Pre-Investment Checklist, 16 Screener.in Integration, 17 Banking, 18 NBFC, 19 Insurance, 20 Pharmaceutical, 21 Defence & Aerospace, 22 Manufacturing, 23 Power & Utilities, 24 Chemical, 25 Microcap Research.
+
+### B. Analytical Lens Skills — 17 Standalone Files
+```
+AI_18_Expert_Strategies_Execution_Skill.md
+AI_Comparison_Engine_Skill.md
+AI_Concentrated_SmallCap_Style_Thinking_Skill.md
+AI_DCF_Valuation_Skill.md
+AI_Forensic_Accounting_Skill.md
+AI_Fundamental_Analysis_Core_Skill.md
+AI_Future_Growth_Skill.md
+AI_Multibagger_Discovery_Skill.md
+AI_MultiSector_Momentum_Value_Style_Thinking_Skill.md
+AI_Options_Data_Skill.md
+AI_Portfolio_Construction_Skill.md
+AI_Small_to_Mid_Cap_SIP_Stocks_Analysis_Skill.md
+AI_Swing_Trading_Skill.md
+AI_Technical_Analysis_Master_Skill.md
+AI_Turnaround_Analysis_Skill.md
+AI_Uptrend_Momentum_Stock_Skill.md
+AI_Volume_Delivery_Analysis_Skill.md
+```
+
+---
+
+## NON-SKILL REFERENCE MATERIAL (Carved Out — Not Counted Towards Skill Total)
+
+| File | Type | Purpose |
+|---|---|---|
+| `Skill_Library_Manifest.md` | Governance Document | Skill library manifest & inventory auditor |
+| `Technical_Analysis_Data_Input_Template_v_0.0.md` | Data Template | Input schema template for technical chart patterns |
+
+---
+
+## DEPRECATED / SUPERSEDED FILES (EXCLUDED FROM RELEASE)
+
+| File | Reason |
+|---|---|
+| MASTER_FOLDER_26_SKILLS_COMPLETE.md | Superseded index |
+| AI_Skill_01_Master_Research_Governance_Forensic_Gate.md | Superseded by Skill 01 in 04_Skills_Reference_v_0_0.md |
+| AI_Skill_03_Positional_Opportunity_Finder.md | Superseded by Skill 03 |
+| AI_Skill_06_Portfolio_Auditor.md | Superseded by Skill 06 |
+| AI_Skill_07_Valuation_Comparator.md | Superseded by Skill 07 |
+| AI_Skill_08_Sector_Rotation_Analyzer.md | Superseded by Skill 08 |
+| AI_Skill_09_Risk_Auditor.md | Superseded by Skill 09 |
+| AI_Skill_15_PreInvestment_Master_Checklist.md | Superseded by Skill 15 |
+| Domain_24_Forensic_Accounting.md | Relocated to Knowledge Library |
+| Sector Skills 17-25 (standalone files) | Merged into 04_Skills_Reference_v_0_0.md |
+
+---
+
+## Final Inventory Summary
+
+| Category | File Count |
+|---|---|
+| Master Workflow Skill Reference (`04_Skills_Reference_v_0_0.md`) | 1 |
+| Standalone Analytical Lens Skill Files | 17 |
+| **Total Canonical Skill Files** | **18** |
+| Carved-Out Non-Skill Reference Material | 2 |
+| **Total Files on Disk in `AI_SKILL_IRA_col_final/`** | **20** |
+
+---
+
+Document: Skill_Library_Manifest.md  
+Version: v_0.0 (Reconciled Release Baseline)  
+<!-- END SYSTEM FILE 1: Skill_Library_Manifest.md -->
+
+---
+
+<!-- BEGIN SYSTEM FILE 2: 04_Skills_Reference_v_0_0.md | SHA256: 8d8512951723222d3e9c80279af8dc66d16e08a622f956ae42df64a5d36ebdd3 -->
+## Embedded source 2: 04 Skills Reference
 
 <!-- IERL-CANONICAL-METADATA v1.2 -->
 > **Canonical retrieval label:** 04 Skills Reference  
@@ -6984,7 +7069,7 @@ IPO anchor analysis, GMP context, and watchlist staleness protocol.*
 Master Field List constraining all screening criteria in this document to real screener.in fields,
 Saved Screen template and naming convention, Screen Category Taxonomy, and a Screen → Skill hand-off
 map closing the gap between raw screener output and deep-dive analysis (Skills 01, 02, 03, 04, 09, 11, 15).*
-<!-- END SYSTEM FILE 1: 04_Skills_Reference_v_0_0.md -->
+<!-- END SYSTEM FILE 2: 04_Skills_Reference_v_0_0.md -->
 
 ---
 

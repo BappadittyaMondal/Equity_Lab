@@ -1,8 +1,8 @@
 # 05_Knowledge_Base_Vol_1_Economics_Financials
 
 > **IERL AI Equity OS — curated upload artifact**  
-> Project Version: `0.0.0` · Bundle Version: `2.0` · Source Commit: `22d5c56`  
-> Generated At: `2026-08-25T17:21:09.808733+00:00` · Source Hash: `cb1812ef9b1daa84` · Compiler: `consolidate_project.py` v2.0
+> Project Version: `0.0.0` · Bundle Version: `2.0` · Source Commit: `90feeb6`  
+> Generated At: `2026-08-26T08:46:48.080450+00:00` · Source Hash: `bfdcdcc350589cb1` · Compiler: `consolidate_project.py` v2.0
 
 ## Operating contract
 
@@ -20,8 +20,8 @@ This is a generated, read-only working volume. The separately maintained source 
 |---|---|---:|
 | `01_System_Core_Instructions_Architecture.md` | 01 System Core Instructions Architecture | 8 |
 | `02_Engine_Contracts_Schemas_Registries.md` | 02 Engine Contracts Schemas Registries | 18 |
-| `03_Workflow_Skills_01_to_25.md` | 03 Workflow Skills 01 to 25 | 1 |
-| `04_Analytical_Lens_Skills_26_to_41.md` | 04 Analytical Lens Skills 26 to 41 | 17 |
+| `03_Workflow_Skills_01_to_25.md` | 03 Workflow Skills 01 to 25 | 2 |
+| `04_Analytical_Lens_Skills_26_to_41.md` | 04 Analytical Lens Skills 26 to 41 | 18 |
 | `05_Knowledge_Base_Vol_1_Economics_Financials.md` | 05 Knowledge Base Vol 1 Economics Financials | 12 |
 | `06_Knowledge_Base_Vol_2_Markets_Governance_Macro.md` | 06 Knowledge Base Vol 2 Markets Governance Macro | 12 |
 | `07_Knowledge_Base_Vol_3_Forensics_Moats_Banking.md` | 07 Knowledge Base Vol 3 Forensics Moats Banking | 8 |

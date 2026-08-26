@@ -8,6 +8,8 @@ CONSOLIDATED_5_FILE_SYSTEM/**/*.md text eol=lf
 CONSOLIDATED_9_FILE_SYSTEM/**/*.md text eol=lf
 AI_SKILL_IRA_col_final/**/*.md text eol=lf
 Knowledge_IRA_COL_FINAL/**/*.md text eol=lf
+canonical_source/**/*.md text eol=lf
+canonical_source/** text eol=lf
 docs/**/*.md text eol=lf
 
 # Enforce LF line endings for Python and Web assets

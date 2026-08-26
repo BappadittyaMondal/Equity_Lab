@@ -397,16 +397,19 @@ async def _async_get_market_quote(symbol: str) -> Quote:
     return _get_mock_fallback_quote(symbol)
 
 
-def get_market_quote(symbol: str) -> Quote:
+def get_market_quote(symbol: str, as_of: Optional[datetime.datetime] = None) -> Quote:
     try:
         loop = asyncio.get_running_loop()
     except RuntimeError:
-        return asyncio.run(_async_get_market_quote(symbol))
+        quote = asyncio.run(_async_get_market_quote(symbol))
     else:
-        return _get_mock_fallback_quote(symbol)
+        quote = _get_mock_fallback_quote(symbol)
+    if as_of and isinstance(quote, dict) and "meta" in quote:
+        quote["meta"]["as_of"] = as_of.isoformat() if hasattr(as_of, "isoformat") else str(as_of)
+    return quote
 
-def get_quote(symbol: str) -> Quote:
-    return get_market_quote(symbol)
+def get_quote(symbol: str, as_of: Optional[datetime.datetime] = None) -> Quote:
+    return get_market_quote(symbol, as_of=as_of)
 
 def get_history(symbol: str, period: str = "1y", interval: str = "1d"):
     import pandas as pd

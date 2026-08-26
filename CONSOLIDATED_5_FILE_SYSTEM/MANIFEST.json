@@ -3,17 +3,17 @@
     "PROJECT_VERSION": "0.0.0",
     "BUNDLE_VERSION": "2.0",
     "SCHEMA_VERSION": "1.0",
-    "GIT_COMMIT_SOURCE": "22d5c56",
-    "GIT_COMMIT": "22d5c56",
-    "GENERATED_AT": "2026-08-25T17:21:09.808733+00:00",
+    "GIT_COMMIT_SOURCE": "90feeb6",
+    "GIT_COMMIT": "90feeb6",
+    "GENERATED_AT": "2026-08-26T08:46:48.080450+00:00",
     "GENERATOR_VERSION": "2.0",
-    "SOURCE_HASH": "cb1812ef9b1daa84088ab73421b75704dca1691efd53d89f5b8e4e8946a4b9d0"
+    "SOURCE_HASH": "bfdcdcc350589cb17d8c5abf05cf24f9011f2abcae8e03be3441f941fe33753e"
   },
   "bundle_files": {
     "01_Master_System_Core_Instructions_Architecture.md": {
       "sources_count": 8,
       "output_bytes": 139171,
-      "sha256": "f1e6a4dfbad2b0d2136d453ed4c2f5afccaa8f11683e6ba7e2b593e41a89d186",
+      "sha256": "295c223ad98207be99448af47a765f8ab0a09c26048b3563dac893e348434317",
       "embedded_sources": [
         {
           "position": 1,
@@ -76,7 +76,7 @@
     "02_Master_Engine_Contracts_Schemas_Registries.md": {
       "sources_count": 18,
       "output_bytes": 261142,
-      "sha256": "feb0be6a81a2b61e5ee5216bcafdba3c63e1c31a7debe3bbde9b977004f12f2b",
+      "sha256": "11afd2b6a4d452a843304d236a584ab631e37cbccd75d867725713c14006cb58",
       "embedded_sources": [
         {
           "position": 1,
@@ -207,131 +207,145 @@
       ]
     },
     "03_Master_Skill_Library.md": {
-      "sources_count": 18,
-      "output_bytes": 620691,
-      "sha256": "22a8c7473b7dc4e3453c225989c351b81366a012443152ab1176aa96b893234d",
+      "sources_count": 20,
+      "output_bytes": 628109,
+      "sha256": "ce8a65f35ab50862ff01e870c8daf0b08a3026c78a37426e2484ab357dc37c2f",
       "embedded_sources": [
         {
           "position": 1,
+          "source": "AI_SKILL_IRA_col_final/Skill_Library_Manifest.md",
+          "source_path": "canonical_source/AI_SKILL_IRA_col_final/Skill_Library_Manifest.md",
+          "sha256": "272a3bec84e3828db7792628a763ad508f35792caf6c29dbb89097859b4eda8b",
+          "bytes": 3250
+        },
+        {
+          "position": 2,
           "source": "AI_SKILL_IRA_col_final/04_Skills_Reference_v_0_0.md",
           "source_path": "canonical_source/AI_SKILL_IRA_col_final/04_Skills_Reference_v_0_0.md",
           "sha256": "8d8512951723222d3e9c80279af8dc66d16e08a622f956ae42df64a5d36ebdd3",
           "bytes": 293679
         },
         {
-          "position": 2,
+          "position": 3,
           "source": "AI_SKILL_IRA_col_final/AI_18_Expert_Strategies_Execution_Skill.md",
           "source_path": "canonical_source/AI_SKILL_IRA_col_final/AI_18_Expert_Strategies_Execution_Skill.md",
           "sha256": "a7d5dfcc99cc6ee87f1524ba76de7b9a1341ed8c6b5beb5a7b3904728a8a0d39",
           "bytes": 20746
         },
         {
-          "position": 3,
+          "position": 4,
           "source": "AI_SKILL_IRA_col_final/AI_Comparison_Engine_Skill.md",
           "source_path": "canonical_source/AI_SKILL_IRA_col_final/AI_Comparison_Engine_Skill.md",
           "sha256": "347a6c211877aa7c9c2b90c5ce80652ada167ca53d8446bb60c0767a89d000fb",
           "bytes": 11607
         },
         {
-          "position": 4,
+          "position": 5,
           "source": "AI_SKILL_IRA_col_final/AI_Concentrated_SmallCap_Style_Thinking_Skill.md",
           "source_path": "canonical_source/AI_SKILL_IRA_col_final/AI_Concentrated_SmallCap_Style_Thinking_Skill.md",
           "sha256": "1bf7e975808e08991688f65a4b64d0572eecc5b4abd6503231981ffe0c607e22",
           "bytes": 14363
         },
         {
-          "position": 5,
+          "position": 6,
           "source": "AI_SKILL_IRA_col_final/AI_DCF_Valuation_Skill.md",
           "source_path": "canonical_source/AI_SKILL_IRA_col_final/AI_DCF_Valuation_Skill.md",
           "sha256": "9ffb983cae45bd92e8392b39aafb423199e0040632c93f4991b5120e6cf27c93",
           "bytes": 19216
         },
         {
-          "position": 6,
+          "position": 7,
           "source": "AI_SKILL_IRA_col_final/AI_Forensic_Accounting_Skill.md",
           "source_path": "canonical_source/AI_SKILL_IRA_col_final/AI_Forensic_Accounting_Skill.md",
           "sha256": "2bbc743275aaa8789b2f7873d4b6ca81db8521f319261855e685a6040ea6bd62",
           "bytes": 25476
         },
         {
-          "position": 7,
+          "position": 8,
           "source": "AI_SKILL_IRA_col_final/AI_Fundamental_Analysis_Core_Skill.md",
           "source_path": "canonical_source/AI_SKILL_IRA_col_final/AI_Fundamental_Analysis_Core_Skill.md",
           "sha256": "e3ecd22e85697df038889cb69b5b3f39efb9195fd96ab920bb8b31cd6050b693",
           "bytes": 19520
         },
         {
-          "position": 8,
+          "position": 9,
           "source": "AI_SKILL_IRA_col_final/AI_Future_Growth_Skill.md",
           "source_path": "canonical_source/AI_SKILL_IRA_col_final/AI_Future_Growth_Skill.md",
           "sha256": "f76aca49aba770c2172ecd42d012ab364949724a04291c7431ea03fe8e006e9b",
           "bytes": 15062
         },
         {
-          "position": 9,
+          "position": 10,
           "source": "AI_SKILL_IRA_col_final/AI_Multibagger_Discovery_Skill.md",
           "source_path": "canonical_source/AI_SKILL_IRA_col_final/AI_Multibagger_Discovery_Skill.md",
           "sha256": "c01bc8846978d6acbfacc88bcd8215ad6e95bf8e09c3cf13672a249467087ee1",
           "bytes": 27065
         },
         {
-          "position": 10,
+          "position": 11,
           "source": "AI_SKILL_IRA_col_final/AI_MultiSector_Momentum_Value_Style_Thinking_Skill.md",
           "source_path": "canonical_source/AI_SKILL_IRA_col_final/AI_MultiSector_Momentum_Value_Style_Thinking_Skill.md",
           "sha256": "cccd6bb37a97037adc43532ab84d9be5698b19eecb427ea4afbd9da49a629cae",
           "bytes": 15351
         },
         {
-          "position": 11,
+          "position": 12,
           "source": "AI_SKILL_IRA_col_final/AI_Options_Data_Skill.md",
           "source_path": "canonical_source/AI_SKILL_IRA_col_final/AI_Options_Data_Skill.md",
           "sha256": "0cbf74e08253796a4cde2ad3f0c7237b3f6b14a10c43b573ee8b9346cc33a6e0",
           "bytes": 15645
         },
         {
-          "position": 12,
+          "position": 13,
           "source": "AI_SKILL_IRA_col_final/AI_Portfolio_Construction_Skill.md",
           "source_path": "canonical_source/AI_SKILL_IRA_col_final/AI_Portfolio_Construction_Skill.md",
           "sha256": "956392fffa8ccf7af50df6737415ffdd09d8914ec370884d15f6204823ad8189",
           "bytes": 17722
         },
         {
-          "position": 13,
+          "position": 14,
           "source": "AI_SKILL_IRA_col_final/AI_Small_to_Mid_Cap_SIP_Stocks_Analysis_Skill.md",
           "source_path": "canonical_source/AI_SKILL_IRA_col_final/AI_Small_to_Mid_Cap_SIP_Stocks_Analysis_Skill.md",
           "sha256": "47d95e38d502403ad70582c96d8265db2e4cc23dd52d6bd808c80d90efdb8660",
           "bytes": 18336
         },
         {
-          "position": 14,
+          "position": 15,
           "source": "AI_SKILL_IRA_col_final/AI_Swing_Trading_Skill.md",
           "source_path": "canonical_source/AI_SKILL_IRA_col_final/AI_Swing_Trading_Skill.md",
           "sha256": "3719df5eb93f4dd027bbfb56825649a6db6a5462cae4af9096689d733da21172",
           "bytes": 22833
         },
         {
-          "position": 15,
+          "position": 16,
           "source": "AI_SKILL_IRA_col_final/AI_Technical_Analysis_Master_Skill.md",
           "source_path": "canonical_source/AI_SKILL_IRA_col_final/AI_Technical_Analysis_Master_Skill.md",
           "sha256": "39016471186c06d2ff7fb271aa44e19e8529b56a705aa4d9ba92b13674279ea5",
           "bytes": 27297
         },
         {
-          "position": 16,
+          "position": 17,
+          "source": "AI_SKILL_IRA_col_final/Technical_Analysis_Data_Input_Template_v_0.0.md",
+          "source_path": "canonical_source/AI_SKILL_IRA_col_final/Technical_Analysis_Data_Input_Template_v_0.0.md",
+          "sha256": "d3d197d73284c932385c45eff34fcf82c96bed6cda473782d2b486eced42f170",
+          "bytes": 3372
+        },
+        {
+          "position": 18,
           "source": "AI_SKILL_IRA_col_final/AI_Turnaround_Analysis_Skill.md",
           "source_path": "canonical_source/AI_SKILL_IRA_col_final/AI_Turnaround_Analysis_Skill.md",
           "sha256": "acaa4c25f8f169e9eaa1a23f0cc74632aa836ea2293c31c3851828097e91b124",
           "bytes": 14942
         },
         {
-          "position": 17,
+          "position": 19,
           "source": "AI_SKILL_IRA_col_final/AI_Uptrend_Momentum_Stock_Skill.md",
           "source_path": "canonical_source/AI_SKILL_IRA_col_final/AI_Uptrend_Momentum_Stock_Skill.md",
           "sha256": "22d53163913f3eb56761046a7dea391ab72457e8d2b153d08bfb94416e3c87c4",
           "bytes": 17985
         },
         {
-          "position": 18,
+          "position": 20,
           "source": "AI_SKILL_IRA_col_final/AI_Volume_Delivery_Analysis_Skill.md",
           "source_path": "canonical_source/AI_SKILL_IRA_col_final/AI_Volume_Delivery_Analysis_Skill.md",
           "sha256": "a5d06dfab9833ebb5788345cfb0359f7b977f38ea1198483f4789e5d8525a9bb",
@@ -342,7 +356,7 @@
     "04_Master_Knowledge_Base_Vol_1_Fundamentals_Valuation_Governance.md": {
       "sources_count": 24,
       "output_bytes": 167532,
-      "sha256": "4cb0f1768176894b5ab4c99da1bb783d7c8b7886075c0555a46239225915ca43",
+      "sha256": "68660296a7ab00b8d171a0361633aef75b4ced0f1aad906b3029c3fe2792916e",
       "embedded_sources": [
         {
           "position": 1,
@@ -517,7 +531,7 @@
     "05_Master_Knowledge_Base_Vol_2_Sectors_Frameworks_Screening.md": {
       "sources_count": 27,
       "output_bytes": 216508,
-      "sha256": "f54ef16c628a8c85de6f909697a1928216037760471c5760332b061d13d705bc",
+      "sha256": "3d281c97bf2a7652d87e440b01c3a17ec4dd4d2c008a89dbfcbcf8bf5dc797f0",
       "embedded_sources": [
         {
           "position": 1,

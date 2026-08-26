@@ -47,6 +47,7 @@ def get_health_status():
 def get_readiness_status():
     """Verify application readiness, database lock status, and dependency connectivity."""
     from app.services.db import get_connection
+    from app.core.db_health import check_db_health
 
     db_ready = False
     table_count = 0
@@ -59,6 +60,7 @@ def get_readiness_status():
     except Exception:
         db_ready = False
 
+    db_health = check_db_health()
     is_ready = db_ready and table_count > 0
 
     return {
@@ -66,6 +68,9 @@ def get_readiness_status():
         "database": {
             "connected": db_ready,
             "table_count": table_count,
+            "db_type": db_health["db_type"],
+            "postgres_health": db_health["status"],
+            "warning": db_health["warning"]
         },
         "version": settings.VERSION,
         "timestamp_ist": get_ist_now_str(),

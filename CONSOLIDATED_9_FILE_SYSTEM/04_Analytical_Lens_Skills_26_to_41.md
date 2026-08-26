@@ -1,8 +1,8 @@
 # 04_Analytical_Lens_Skills_26_to_41
 
 > **IERL AI Equity OS — curated upload artifact**  
-> Project Version: `0.0.0` · Bundle Version: `2.0` · Source Commit: `22d5c56`  
-> Generated At: `2026-08-25T17:21:09.808733+00:00` · Source Hash: `cb1812ef9b1daa84` · Compiler: `consolidate_project.py` v2.0
+> Project Version: `0.0.0` · Bundle Version: `2.0` · Source Commit: `90feeb6`  
+> Generated At: `2026-08-26T08:46:48.080450+00:00` · Source Hash: `bfdcdcc350589cb1` · Compiler: `consolidate_project.py` v2.0
 
 ## Operating contract
 
@@ -20,8 +20,8 @@ This is a generated, read-only working volume. The separately maintained source 
 |---|---|---:|
 | `01_System_Core_Instructions_Architecture.md` | 01 System Core Instructions Architecture | 8 |
 | `02_Engine_Contracts_Schemas_Registries.md` | 02 Engine Contracts Schemas Registries | 18 |
-| `03_Workflow_Skills_01_to_25.md` | 03 Workflow Skills 01 to 25 | 1 |
-| `04_Analytical_Lens_Skills_26_to_41.md` | 04 Analytical Lens Skills 26 to 41 | 17 |
+| `03_Workflow_Skills_01_to_25.md` | 03 Workflow Skills 01 to 25 | 2 |
+| `04_Analytical_Lens_Skills_26_to_41.md` | 04 Analytical Lens Skills 26 to 41 | 18 |
 | `05_Knowledge_Base_Vol_1_Economics_Financials.md` | 05 Knowledge Base Vol 1 Economics Financials | 12 |
 | `06_Knowledge_Base_Vol_2_Markets_Governance_Macro.md` | 06 Knowledge Base Vol 2 Markets Governance Macro | 12 |
 | `07_Knowledge_Base_Vol_3_Forensics_Moats_Banking.md` | 07 Knowledge Base Vol 3 Forensics Moats Banking | 8 |
@@ -54,9 +54,10 @@ The SHA-256 values cover the exact UTF-8 source payload, not this wrapper. Use t
 | 12 | `AI_Small_to_Mid_Cap_SIP_Stocks_Analysis_Skill.md` | 18,336 | `47d95e38d502403ad70582c96d8265db2e4cc23dd52d6bd808c80d90efdb8660` |
 | 13 | `AI_Swing_Trading_Skill.md` | 22,833 | `3719df5eb93f4dd027bbfb56825649a6db6a5462cae4af9096689d733da21172` |
 | 14 | `AI_Technical_Analysis_Master_Skill.md` | 27,297 | `39016471186c06d2ff7fb271aa44e19e8529b56a705aa4d9ba92b13674279ea5` |
-| 15 | `AI_Turnaround_Analysis_Skill.md` | 14,942 | `acaa4c25f8f169e9eaa1a23f0cc74632aa836ea2293c31c3851828097e91b124` |
-| 16 | `AI_Uptrend_Momentum_Stock_Skill.md` | 17,985 | `22d53163913f3eb56761046a7dea391ab72457e8d2b153d08bfb94416e3c87c4` |
-| 17 | `AI_Volume_Delivery_Analysis_Skill.md` | 13,617 | `a5d06dfab9833ebb5788345cfb0359f7b977f38ea1198483f4789e5d8525a9bb` |
+| 15 | `Technical_Analysis_Data_Input_Template_v_0.0.md` | 3,372 | `d3d197d73284c932385c45eff34fcf82c96bed6cda473782d2b486eced42f170` |
+| 16 | `AI_Turnaround_Analysis_Skill.md` | 14,942 | `acaa4c25f8f169e9eaa1a23f0cc74632aa836ea2293c31c3851828097e91b124` |
+| 17 | `AI_Uptrend_Momentum_Stock_Skill.md` | 17,985 | `22d53163913f3eb56761046a7dea391ab72457e8d2b153d08bfb94416e3c87c4` |
+| 18 | `AI_Volume_Delivery_Analysis_Skill.md` | 13,617 | `a5d06dfab9833ebb5788345cfb0359f7b977f38ea1198483f4789e5d8525a9bb` |
 
 ---
 
@@ -5603,8 +5604,88 @@ This addendum makes the existing indicator modules usable with pasted historical
 
 ---
 
-<!-- BEGIN SYSTEM FILE 15: AI_Turnaround_Analysis_Skill.md | SHA256: acaa4c25f8f169e9eaa1a23f0cc74632aa836ea2293c31c3851828097e91b124 -->
-## Embedded source 15: AI Turnaround Analysis Skill
+<!-- BEGIN SYSTEM FILE 15: Technical_Analysis_Data_Input_Template_v_0.0.md | SHA256: d3d197d73284c932385c45eff34fcf82c96bed6cda473782d2b486eced42f170 -->
+## Embedded source 15: Technical Analysis Data Input Template v 0.0
+
+# Technical Analysis — Data Input Template (Addendum v_0.0)
+
+---
+
+## Why This Addendum Exists
+
+This skill already has full indicator logic (Moving Averages, RSI, MACD, Bollinger Bands, OBV, ADX, Fibonacci — Modules 1–8). What it never specified was **exactly what data the user needs to paste in** for the AI to actually compute these — without a live price feed, the AI can only be as good as the numbers it's given. This addendum closes that gap. It does not add new indicator logic; it makes the existing logic usable.
+
+---
+
+## Minimum Data Required (Paste This In Before Requesting Technical Analysis)
+
+For a **single-timeframe** analysis (e.g., daily chart only), provide:
+
+```
+Stock: [Name/Ticker]
+Timeframe: [Daily / Weekly / Intraday]
+Date Range: [At least 60 trading periods — 200+ preferred for 200-DMA]
+
+OHLCV data (one row per period), minimum:
+Date | Open | High | Low | Close | Volume
+
+Example:
+2026-07-01 | 1420 | 1435 | 1415 | 1428 | 3,200,000
+2026-07-02 | 1428 | 1440 | 1422 | 1432 | 2,850,000
+...
+```
+
+**Minimum period counts needed per indicator** (so the AI can tell you if your data is insufficient before running an incomplete analysis):
+
+| Indicator | Minimum Periods Needed |
+|---|---|
+| 20-DMA / 50-DMA | 50 (for 50-DMA to be valid) |
+| 200-DMA | 200 |
+| RSI (14) | 15 |
+| MACD (12,26,9) | 35 |
+| Bollinger Bands (20,2) | 20 |
+| ADX (14) | 28 (needs a warm-up period beyond the base 14) |
+| Fibonacci Retracement | 1 clear swing high + 1 clear swing low (no minimum count, but must be visually/numerically identifiable in the data provided) |
+
+**Rule:** If the data provided is shorter than an indicator's minimum, the AI states explicitly "insufficient data for [indicator] — need at least N periods" rather than computing an unreliable value silently.
+
+---
+
+## For Multi-Timeframe Confluence (Module 6B — Timeframe Conflict Resolution)
+
+Provide OHLCV for **each** timeframe being compared (e.g., both Daily and Weekly), clearly labeled. The AI cannot infer a weekly trend from daily data alone with full reliability — always provide each timeframe's data separately if multi-timeframe analysis is requested.
+
+---
+
+## Where To Get This Data
+
+This skill does not fetch data itself. Common sources: your broker's historical data export (Zerodha Kite, Upstox, etc.), NSE/BSE historical data downloads, or a financial data site's CSV export. Paste the relevant rows directly into the chat, or upload as a CSV/spreadsheet file.
+
+---
+
+## What This Does Not Fix
+
+This addendum makes the existing indicator modules usable with pasted historical data. It does **not** provide live/real-time price updates, live order book depth, or automatic data retrieval — those require a connected market-data source (broker API or data connector), which is outside what any document in this project can do on its own.
+
+---
+
+## Self-Audit
+
+- ✓ No new indicator logic added — Modules 1–8 remain the single source of truth for calculation methodology
+- ✓ Does not overstate capability — explicitly states the live-data limitation rather than implying it's solved
+- ✓ Gives the user a concrete, actionable template rather than a vague "provide price data" instruction
+
+---
+
+**Document:** Technical_Analysis_Data_Input_Template_v_0.0.md
+**Version:** v_0.0
+**Paste Into:** AI_Technical_Analysis_Master_Skill.md (after Pre-Flight Requirements)
+<!-- END SYSTEM FILE 15: Technical_Analysis_Data_Input_Template_v_0.0.md -->
+
+---
+
+<!-- BEGIN SYSTEM FILE 16: AI_Turnaround_Analysis_Skill.md | SHA256: acaa4c25f8f169e9eaa1a23f0cc74632aa836ea2293c31c3851828097e91b124 -->
+## Embedded source 16: AI Turnaround Analysis Skill
 
 <!-- IERL-CANONICAL-METADATA v1.2 -->
 > **Canonical retrieval label:** AI Turnaround Analysis Skill  
@@ -5905,12 +5986,12 @@ HANDOFF NOTE: [If Stage T2 or higher — recommend running the Forensic
 *Skill Version 1.0 | IERL Specialist Skill Library | Style Specialist — Turnaround Analysis*
 *Integrates with: Forensic Accounting Skill, Skill 06 (Portfolio Auditor), Skill 09 (Risk Auditor),
 Skill 15 (Pre-Investment Master Checklist)*
-<!-- END SYSTEM FILE 15: AI_Turnaround_Analysis_Skill.md -->
+<!-- END SYSTEM FILE 16: AI_Turnaround_Analysis_Skill.md -->
 
 ---
 
-<!-- BEGIN SYSTEM FILE 16: AI_Uptrend_Momentum_Stock_Skill.md | SHA256: 22d53163913f3eb56761046a7dea391ab72457e8d2b153d08bfb94416e3c87c4 -->
-## Embedded source 16: AI Uptrend Momentum Stock Skill
+<!-- BEGIN SYSTEM FILE 17: AI_Uptrend_Momentum_Stock_Skill.md | SHA256: 22d53163913f3eb56761046a7dea391ab72457e8d2b153d08bfb94416e3c87c4 -->
+## Embedded source 17: AI Uptrend Momentum Stock Skill
 
 <!-- IERL-CANONICAL-METADATA v1.2 -->
 > **Canonical retrieval label:** AI Uptrend Momentum Stock Skill  
@@ -6260,12 +6341,12 @@ HIGH FLAGS:      [List, or "None detected"]
 *Skill Version 1.0 | IERL Specialist Skill Library | Style Specialist — Uptrend Momentum (Trend-Following)*
 *Integrates with: AI_Swing_Trading_Skill (shares regime filter, distinct exit philosophy),
 AI_Portfolio_Construction_Skill (Tier 4 tactical capital), Skill 08 (Sector Rotation Analyzer)*
-<!-- END SYSTEM FILE 16: AI_Uptrend_Momentum_Stock_Skill.md -->
+<!-- END SYSTEM FILE 17: AI_Uptrend_Momentum_Stock_Skill.md -->
 
 ---
 
-<!-- BEGIN SYSTEM FILE 17: AI_Volume_Delivery_Analysis_Skill.md | SHA256: a5d06dfab9833ebb5788345cfb0359f7b977f38ea1198483f4789e5d8525a9bb -->
-## Embedded source 17: AI Volume Delivery Analysis Skill
+<!-- BEGIN SYSTEM FILE 18: AI_Volume_Delivery_Analysis_Skill.md | SHA256: a5d06dfab9833ebb5788345cfb0359f7b977f38ea1198483f4789e5d8525a9bb -->
+## Embedded source 18: AI Volume Delivery Analysis Skill
 
 <!-- IERL-CANONICAL-METADATA v1.2 -->
 > **Canonical retrieval label:** AI Volume Delivery Analysis Skill  
@@ -6530,7 +6611,7 @@ FEEDS INTO: [Which calling skill — Swing, Uptrend, Multibagger Discovery,
 *Skill Version 1.0 | IERL Specialist Skill Library | Core Toolkit — Volume & Delivery Analysis*
 *Integrates with: AI_Technical_Analysis_Master_Skill, AI_Swing_Trading_Skill, AI_Uptrend_Momentum_Stock_Skill,
 Skill 01 (Master Research, Governance Gate), AI_Turnaround_Analysis_Skill, AI_Multibagger_Discovery_Skill*
-<!-- END SYSTEM FILE 17: AI_Volume_Delivery_Analysis_Skill.md -->
+<!-- END SYSTEM FILE 18: AI_Volume_Delivery_Analysis_Skill.md -->
 
 ---
 

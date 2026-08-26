@@ -17,6 +17,7 @@ import { initNewsAndNotifications, closeNewsModal, closeNotificationsModal, clos
 import { initApiHealth, loadTickerStrip } from "./api.js";
 
 import { renderMIVSScorecard } from "./mivs_scorecard_panel.js";
+import { renderGrowthMarketGapPanel } from "./growth_market_gap_panel.js";
 
 async function initApp() {
   // 1. Load Header Component
@@ -38,6 +39,7 @@ async function initApp() {
   // Initial Scorecard rendering
   renderConvictionPanel("RELIANCE");
   renderScorecardPanel("RELIANCE");
+  renderGrowthMarketGapPanel("RELIANCE");
   renderMIVSScorecard("mivs-scorecard-panel", { mivs_score: 82.5, passed_hard_gates: true, verdict: "Buy", gate_reasons: [] });
 
   // Live Ticker Tape & Health
@@ -53,6 +55,7 @@ async function initApp() {
     selectSymbol(sym);
     renderConvictionPanel(sym);
     renderScorecardPanel(sym);
+    renderGrowthMarketGapPanel(sym);
     renderMIVSScorecard("mivs-scorecard-panel", { mivs_score: 82.5, passed_hard_gates: true, verdict: "Buy", gate_reasons: [] });
   };
 }

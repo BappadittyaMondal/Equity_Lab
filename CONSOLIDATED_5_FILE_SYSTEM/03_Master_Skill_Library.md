@@ -1,8 +1,8 @@
 # 03_Master_Skill_Library
 
 > **IERL AI Equity OS — curated upload artifact**  
-> Project Version: `0.0.0` · Bundle Version: `2.0` · Source Commit: `22d5c56`  
-> Generated At: `2026-08-25T17:21:09.808733+00:00` · Source Hash: `cb1812ef9b1daa84` · Compiler: `consolidate_project.py` v2.0
+> Project Version: `0.0.0` · Bundle Version: `2.0` · Source Commit: `90feeb6`  
+> Generated At: `2026-08-26T08:46:48.080450+00:00` · Source Hash: `bfdcdcc350589cb1` · Compiler: `consolidate_project.py` v2.0
 
 ## Operating contract
 
@@ -20,7 +20,7 @@ This is a generated, read-only working volume. The separately maintained source 
 |---|---|---:|
 | `01_Master_System_Core_Instructions_Architecture.md` | 01 System Core Instructions Architecture | 8 |
 | `02_Master_Engine_Contracts_Schemas_Registries.md` | 02 Engine Contracts Schemas Registries | 18 |
-| `03_Master_Skill_Library.md` | 03 Skill Library | 18 |
+| `03_Master_Skill_Library.md` | 03 Skill Library | 20 |
 | `04_Master_Knowledge_Base_Vol_1_Fundamentals_Valuation_Governance.md` | 04 Knowledge Base Vol 1 Fundamentals Valuation Governance | 24 |
 | `05_Master_Knowledge_Base_Vol_2_Sectors_Frameworks_Screening.md` | 05 Knowledge Base Vol 2 Sectors Frameworks Screening | 27 |
 
@@ -36,29 +36,115 @@ The SHA-256 values cover the exact UTF-8 source payload, not this wrapper. Use t
 
 | # | Source document | UTF-8 bytes | SHA-256 |
 |---:|---|---:|---|
-| 1 | `04_Skills_Reference_v_0_0.md` | 293,679 | `8d8512951723222d3e9c80279af8dc66d16e08a622f956ae42df64a5d36ebdd3` |
-| 2 | `AI_18_Expert_Strategies_Execution_Skill.md` | 20,746 | `a7d5dfcc99cc6ee87f1524ba76de7b9a1341ed8c6b5beb5a7b3904728a8a0d39` |
-| 3 | `AI_Comparison_Engine_Skill.md` | 11,607 | `347a6c211877aa7c9c2b90c5ce80652ada167ca53d8446bb60c0767a89d000fb` |
-| 4 | `AI_Concentrated_SmallCap_Style_Thinking_Skill.md` | 14,363 | `1bf7e975808e08991688f65a4b64d0572eecc5b4abd6503231981ffe0c607e22` |
-| 5 | `AI_DCF_Valuation_Skill.md` | 19,216 | `9ffb983cae45bd92e8392b39aafb423199e0040632c93f4991b5120e6cf27c93` |
-| 6 | `AI_Forensic_Accounting_Skill.md` | 25,476 | `2bbc743275aaa8789b2f7873d4b6ca81db8521f319261855e685a6040ea6bd62` |
-| 7 | `AI_Fundamental_Analysis_Core_Skill.md` | 19,520 | `e3ecd22e85697df038889cb69b5b3f39efb9195fd96ab920bb8b31cd6050b693` |
-| 8 | `AI_Future_Growth_Skill.md` | 15,062 | `f76aca49aba770c2172ecd42d012ab364949724a04291c7431ea03fe8e006e9b` |
-| 9 | `AI_Multibagger_Discovery_Skill.md` | 27,065 | `c01bc8846978d6acbfacc88bcd8215ad6e95bf8e09c3cf13672a249467087ee1` |
-| 10 | `AI_MultiSector_Momentum_Value_Style_Thinking_Skill.md` | 15,351 | `cccd6bb37a97037adc43532ab84d9be5698b19eecb427ea4afbd9da49a629cae` |
-| 11 | `AI_Options_Data_Skill.md` | 15,645 | `0cbf74e08253796a4cde2ad3f0c7237b3f6b14a10c43b573ee8b9346cc33a6e0` |
-| 12 | `AI_Portfolio_Construction_Skill.md` | 17,722 | `956392fffa8ccf7af50df6737415ffdd09d8914ec370884d15f6204823ad8189` |
-| 13 | `AI_Small_to_Mid_Cap_SIP_Stocks_Analysis_Skill.md` | 18,336 | `47d95e38d502403ad70582c96d8265db2e4cc23dd52d6bd808c80d90efdb8660` |
-| 14 | `AI_Swing_Trading_Skill.md` | 22,833 | `3719df5eb93f4dd027bbfb56825649a6db6a5462cae4af9096689d733da21172` |
-| 15 | `AI_Technical_Analysis_Master_Skill.md` | 27,297 | `39016471186c06d2ff7fb271aa44e19e8529b56a705aa4d9ba92b13674279ea5` |
-| 16 | `AI_Turnaround_Analysis_Skill.md` | 14,942 | `acaa4c25f8f169e9eaa1a23f0cc74632aa836ea2293c31c3851828097e91b124` |
-| 17 | `AI_Uptrend_Momentum_Stock_Skill.md` | 17,985 | `22d53163913f3eb56761046a7dea391ab72457e8d2b153d08bfb94416e3c87c4` |
-| 18 | `AI_Volume_Delivery_Analysis_Skill.md` | 13,617 | `a5d06dfab9833ebb5788345cfb0359f7b977f38ea1198483f4789e5d8525a9bb` |
+| 1 | `Skill_Library_Manifest.md` | 3,250 | `272a3bec84e3828db7792628a763ad508f35792caf6c29dbb89097859b4eda8b` |
+| 2 | `04_Skills_Reference_v_0_0.md` | 293,679 | `8d8512951723222d3e9c80279af8dc66d16e08a622f956ae42df64a5d36ebdd3` |
+| 3 | `AI_18_Expert_Strategies_Execution_Skill.md` | 20,746 | `a7d5dfcc99cc6ee87f1524ba76de7b9a1341ed8c6b5beb5a7b3904728a8a0d39` |
+| 4 | `AI_Comparison_Engine_Skill.md` | 11,607 | `347a6c211877aa7c9c2b90c5ce80652ada167ca53d8446bb60c0767a89d000fb` |
+| 5 | `AI_Concentrated_SmallCap_Style_Thinking_Skill.md` | 14,363 | `1bf7e975808e08991688f65a4b64d0572eecc5b4abd6503231981ffe0c607e22` |
+| 6 | `AI_DCF_Valuation_Skill.md` | 19,216 | `9ffb983cae45bd92e8392b39aafb423199e0040632c93f4991b5120e6cf27c93` |
+| 7 | `AI_Forensic_Accounting_Skill.md` | 25,476 | `2bbc743275aaa8789b2f7873d4b6ca81db8521f319261855e685a6040ea6bd62` |
+| 8 | `AI_Fundamental_Analysis_Core_Skill.md` | 19,520 | `e3ecd22e85697df038889cb69b5b3f39efb9195fd96ab920bb8b31cd6050b693` |
+| 9 | `AI_Future_Growth_Skill.md` | 15,062 | `f76aca49aba770c2172ecd42d012ab364949724a04291c7431ea03fe8e006e9b` |
+| 10 | `AI_Multibagger_Discovery_Skill.md` | 27,065 | `c01bc8846978d6acbfacc88bcd8215ad6e95bf8e09c3cf13672a249467087ee1` |
+| 11 | `AI_MultiSector_Momentum_Value_Style_Thinking_Skill.md` | 15,351 | `cccd6bb37a97037adc43532ab84d9be5698b19eecb427ea4afbd9da49a629cae` |
+| 12 | `AI_Options_Data_Skill.md` | 15,645 | `0cbf74e08253796a4cde2ad3f0c7237b3f6b14a10c43b573ee8b9346cc33a6e0` |
+| 13 | `AI_Portfolio_Construction_Skill.md` | 17,722 | `956392fffa8ccf7af50df6737415ffdd09d8914ec370884d15f6204823ad8189` |
+| 14 | `AI_Small_to_Mid_Cap_SIP_Stocks_Analysis_Skill.md` | 18,336 | `47d95e38d502403ad70582c96d8265db2e4cc23dd52d6bd808c80d90efdb8660` |
+| 15 | `AI_Swing_Trading_Skill.md` | 22,833 | `3719df5eb93f4dd027bbfb56825649a6db6a5462cae4af9096689d733da21172` |
+| 16 | `AI_Technical_Analysis_Master_Skill.md` | 27,297 | `39016471186c06d2ff7fb271aa44e19e8529b56a705aa4d9ba92b13674279ea5` |
+| 17 | `Technical_Analysis_Data_Input_Template_v_0.0.md` | 3,372 | `d3d197d73284c932385c45eff34fcf82c96bed6cda473782d2b486eced42f170` |
+| 18 | `AI_Turnaround_Analysis_Skill.md` | 14,942 | `acaa4c25f8f169e9eaa1a23f0cc74632aa836ea2293c31c3851828097e91b124` |
+| 19 | `AI_Uptrend_Momentum_Stock_Skill.md` | 17,985 | `22d53163913f3eb56761046a7dea391ab72457e8d2b153d08bfb94416e3c87c4` |
+| 20 | `AI_Volume_Delivery_Analysis_Skill.md` | 13,617 | `a5d06dfab9833ebb5788345cfb0359f7b977f38ea1198483f4789e5d8525a9bb` |
 
 ---
 
-<!-- BEGIN SYSTEM FILE 1: 04_Skills_Reference_v_0_0.md | SHA256: 8d8512951723222d3e9c80279af8dc66d16e08a622f956ae42df64a5d36ebdd3 -->
-## Embedded source 1: 04 Skills Reference
+<!-- BEGIN SYSTEM FILE 1: Skill_Library_Manifest.md | SHA256: 272a3bec84e3828db7792628a763ad508f35792caf6c29dbb89097859b4eda8b -->
+## Embedded source 1: Skill Library Manifest
+
+# Skill Library — Manifest (FINAL, v_0.0)
+
+**Status: Reconciled & Verified. Canonical skill total = 18 files (1 Workflow Reference + 17 Analytical Lens Skills).**
+
+---
+
+## CANONICAL SKILL FILES — 18 Files Total
+
+### A. Workflow + Sector Skills — 1 Master Reference File
+**File:** `04_Skills_Reference_v_0_0.md`
+
+Contains single source of truth for all 25 Workflow and Sector skills:
+Skill 01 Master Company Research, 02 Swing Stock Finder, 03 Positional Opportunity Finder, 04 Early Multibagger Finder, 05 Quarterly Results Analyzer, 06 Portfolio Auditor, 07 Valuation Comparator, 08 Sector Rotation Analyzer, 09 Risk Auditor, 10 IPO Analyzer, 11 Turnaround Screener, 12 Watchlist Prioritizer, 13 Concall Analyzer, 14 Corporate Action Analyzer, 15 Pre-Investment Checklist, 16 Screener.in Integration, 17 Banking, 18 NBFC, 19 Insurance, 20 Pharmaceutical, 21 Defence & Aerospace, 22 Manufacturing, 23 Power & Utilities, 24 Chemical, 25 Microcap Research.
+
+### B. Analytical Lens Skills — 17 Standalone Files
+```
+AI_18_Expert_Strategies_Execution_Skill.md
+AI_Comparison_Engine_Skill.md
+AI_Concentrated_SmallCap_Style_Thinking_Skill.md
+AI_DCF_Valuation_Skill.md
+AI_Forensic_Accounting_Skill.md
+AI_Fundamental_Analysis_Core_Skill.md
+AI_Future_Growth_Skill.md
+AI_Multibagger_Discovery_Skill.md
+AI_MultiSector_Momentum_Value_Style_Thinking_Skill.md
+AI_Options_Data_Skill.md
+AI_Portfolio_Construction_Skill.md
+AI_Small_to_Mid_Cap_SIP_Stocks_Analysis_Skill.md
+AI_Swing_Trading_Skill.md
+AI_Technical_Analysis_Master_Skill.md
+AI_Turnaround_Analysis_Skill.md
+AI_Uptrend_Momentum_Stock_Skill.md
+AI_Volume_Delivery_Analysis_Skill.md
+```
+
+---
+
+## NON-SKILL REFERENCE MATERIAL (Carved Out — Not Counted Towards Skill Total)
+
+| File | Type | Purpose |
+|---|---|---|
+| `Skill_Library_Manifest.md` | Governance Document | Skill library manifest & inventory auditor |
+| `Technical_Analysis_Data_Input_Template_v_0.0.md` | Data Template | Input schema template for technical chart patterns |
+
+---
+
+## DEPRECATED / SUPERSEDED FILES (EXCLUDED FROM RELEASE)
+
+| File | Reason |
+|---|---|
+| MASTER_FOLDER_26_SKILLS_COMPLETE.md | Superseded index |
+| AI_Skill_01_Master_Research_Governance_Forensic_Gate.md | Superseded by Skill 01 in 04_Skills_Reference_v_0_0.md |
+| AI_Skill_03_Positional_Opportunity_Finder.md | Superseded by Skill 03 |
+| AI_Skill_06_Portfolio_Auditor.md | Superseded by Skill 06 |
+| AI_Skill_07_Valuation_Comparator.md | Superseded by Skill 07 |
+| AI_Skill_08_Sector_Rotation_Analyzer.md | Superseded by Skill 08 |
+| AI_Skill_09_Risk_Auditor.md | Superseded by Skill 09 |
+| AI_Skill_15_PreInvestment_Master_Checklist.md | Superseded by Skill 15 |
+| Domain_24_Forensic_Accounting.md | Relocated to Knowledge Library |
+| Sector Skills 17-25 (standalone files) | Merged into 04_Skills_Reference_v_0_0.md |
+
+---
+
+## Final Inventory Summary
+
+| Category | File Count |
+|---|---|
+| Master Workflow Skill Reference (`04_Skills_Reference_v_0_0.md`) | 1 |
+| Standalone Analytical Lens Skill Files | 17 |
+| **Total Canonical Skill Files** | **18** |
+| Carved-Out Non-Skill Reference Material | 2 |
+| **Total Files on Disk in `AI_SKILL_IRA_col_final/`** | **20** |
+
+---
+
+Document: Skill_Library_Manifest.md  
+Version: v_0.0 (Reconciled Release Baseline)  
+<!-- END SYSTEM FILE 1: Skill_Library_Manifest.md -->
+
+---
+
+<!-- BEGIN SYSTEM FILE 2: 04_Skills_Reference_v_0_0.md | SHA256: 8d8512951723222d3e9c80279af8dc66d16e08a622f956ae42df64a5d36ebdd3 -->
+## Embedded source 2: 04 Skills Reference
 
 <!-- IERL-CANONICAL-METADATA v1.2 -->
 > **Canonical retrieval label:** 04 Skills Reference  
@@ -6997,12 +7083,12 @@ IPO anchor analysis, GMP context, and watchlist staleness protocol.*
 Master Field List constraining all screening criteria in this document to real screener.in fields,
 Saved Screen template and naming convention, Screen Category Taxonomy, and a Screen → Skill hand-off
 map closing the gap between raw screener output and deep-dive analysis (Skills 01, 02, 03, 04, 09, 11, 15).*
-<!-- END SYSTEM FILE 1: 04_Skills_Reference_v_0_0.md -->
+<!-- END SYSTEM FILE 2: 04_Skills_Reference_v_0_0.md -->
 
 ---
 
-<!-- BEGIN SYSTEM FILE 2: AI_18_Expert_Strategies_Execution_Skill.md | SHA256: a7d5dfcc99cc6ee87f1524ba76de7b9a1341ed8c6b5beb5a7b3904728a8a0d39 -->
-## Embedded source 2: AI 18 Expert Strategies Execution Skill
+<!-- BEGIN SYSTEM FILE 3: AI_18_Expert_Strategies_Execution_Skill.md | SHA256: a7d5dfcc99cc6ee87f1524ba76de7b9a1341ed8c6b5beb5a7b3904728a8a0d39 -->
+## Embedded source 3: AI 18 Expert Strategies Execution Skill
 
 <!-- IERL-CANONICAL-METADATA v1.2 -->
 > **Canonical retrieval label:** AI 18 Expert Strategies Execution Skill  
@@ -7309,12 +7395,12 @@ CURRENT PRICE (CMP): [Price / Spot Level] | As-of: [Timestamp]
 
 ---
 End of Document — AI 18 Expert Strategies Execution Skill
-<!-- END SYSTEM FILE 2: AI_18_Expert_Strategies_Execution_Skill.md -->
+<!-- END SYSTEM FILE 3: AI_18_Expert_Strategies_Execution_Skill.md -->
 
 ---
 
-<!-- BEGIN SYSTEM FILE 3: AI_Comparison_Engine_Skill.md | SHA256: 347a6c211877aa7c9c2b90c5ce80652ada167ca53d8446bb60c0767a89d000fb -->
-## Embedded source 3: AI Comparison Engine Skill
+<!-- BEGIN SYSTEM FILE 4: AI_Comparison_Engine_Skill.md | SHA256: 347a6c211877aa7c9c2b90c5ce80652ada167ca53d8446bb60c0767a89d000fb -->
+## Embedded source 4: AI Comparison Engine Skill
 
 <!-- IERL-CANONICAL-METADATA v1.2 -->
 > **Canonical retrieval label:** AI Comparison Engine Skill  
@@ -7537,12 +7623,12 @@ The Comparison Report requires an explicit "Decisive Factor" field. Do not repla
 
 **Document:** AI_Comparison_Engine_Skill.md  
 **Version:** 1.1 (expanded with Pre-Flight, Output Template, Non-Negotiable Rules)
-<!-- END SYSTEM FILE 3: AI_Comparison_Engine_Skill.md -->
+<!-- END SYSTEM FILE 4: AI_Comparison_Engine_Skill.md -->
 
 ---
 
-<!-- BEGIN SYSTEM FILE 4: AI_Concentrated_SmallCap_Style_Thinking_Skill.md | SHA256: 1bf7e975808e08991688f65a4b64d0572eecc5b4abd6503231981ffe0c607e22 -->
-## Embedded source 4: AI Concentrated SmallCap Style Thinking Skill
+<!-- BEGIN SYSTEM FILE 5: AI_Concentrated_SmallCap_Style_Thinking_Skill.md | SHA256: 1bf7e975808e08991688f65a4b64d0572eecc5b4abd6503231981ffe0c607e22 -->
+## Embedded source 5: AI Concentrated SmallCap Style Thinking Skill
 
 <!-- IERL-CANONICAL-METADATA v1.2 -->
 > **Canonical retrieval label:** AI Concentrated SmallCap Style Thinking Skill  
@@ -7815,12 +7901,12 @@ mandatory Governance/Forensic gates or portfolio-level position ceilings.
 *Skill Version 1.0 | IERL Specialist Skill Library | Heuristic Lens — Concentrated Small-Cap Style*
 *Integrates with: Skill 01 (Master Research — Governance/Forensic Gates), AI_Turnaround_Analysis_Skill,
 AI_Multibagger_Discovery_Skill, AI_Portfolio_Construction_Skill, Skill 15 (Pre-Investment Master Checklist)*
-<!-- END SYSTEM FILE 4: AI_Concentrated_SmallCap_Style_Thinking_Skill.md -->
+<!-- END SYSTEM FILE 5: AI_Concentrated_SmallCap_Style_Thinking_Skill.md -->
 
 ---
 
-<!-- BEGIN SYSTEM FILE 5: AI_DCF_Valuation_Skill.md | SHA256: 9ffb983cae45bd92e8392b39aafb423199e0040632c93f4991b5120e6cf27c93 -->
-## Embedded source 5: AI DCF Valuation Skill
+<!-- BEGIN SYSTEM FILE 6: AI_DCF_Valuation_Skill.md | SHA256: 9ffb983cae45bd92e8392b39aafb423199e0040632c93f4991b5120e6cf27c93 -->
+## Embedded source 6: AI DCF Valuation Skill
 
 <!-- IERL-CANONICAL-METADATA v1.2 -->
 > **Canonical retrieval label:** AI DCF Valuation Skill  
@@ -8314,12 +8400,12 @@ VALUATION CONCLUSION:
 
 *Skill Version 1.0 | IERL Specialist Skill Library | Indian Equity Research Lab*
 *This skill integrates with: Skill 01 (Master Research), Skill 07 (Valuation Comparator), Skill 15 (Pre-Investment Checklist)*
-<!-- END SYSTEM FILE 5: AI_DCF_Valuation_Skill.md -->
+<!-- END SYSTEM FILE 6: AI_DCF_Valuation_Skill.md -->
 
 ---
 
-<!-- BEGIN SYSTEM FILE 6: AI_Forensic_Accounting_Skill.md | SHA256: 2bbc743275aaa8789b2f7873d4b6ca81db8521f319261855e685a6040ea6bd62 -->
-## Embedded source 6: AI Forensic Accounting Skill
+<!-- BEGIN SYSTEM FILE 7: AI_Forensic_Accounting_Skill.md | SHA256: 2bbc743275aaa8789b2f7873d4b6ca81db8521f319261855e685a6040ea6bd62 -->
+## Embedded source 7: AI Forensic Accounting Skill
 
 <!-- IERL-CANONICAL-METADATA v1.2 -->
 > **Canonical retrieval label:** AI Forensic Accounting Skill  
@@ -8952,12 +9038,12 @@ FORENSIC VERDICT:
 
 **Document:** Forensic_Accounting_Missing_Flags_Addendum_v_0.0.md
 **Paste Into:** AI_Forensic_Accounting_Skill.md (new Module 7D, before Red Flag Master Register)
-<!-- END SYSTEM FILE 6: AI_Forensic_Accounting_Skill.md -->
+<!-- END SYSTEM FILE 7: AI_Forensic_Accounting_Skill.md -->
 
 ---
 
-<!-- BEGIN SYSTEM FILE 7: AI_Fundamental_Analysis_Core_Skill.md | SHA256: e3ecd22e85697df038889cb69b5b3f39efb9195fd96ab920bb8b31cd6050b693 -->
-## Embedded source 7: AI Fundamental Analysis Core Skill
+<!-- BEGIN SYSTEM FILE 8: AI_Fundamental_Analysis_Core_Skill.md | SHA256: e3ecd22e85697df038889cb69b5b3f39efb9195fd96ab920bb8b31cd6050b693 -->
+## Embedded source 8: AI Fundamental Analysis Core Skill
 
 <!-- IERL-CANONICAL-METADATA v1.2 -->
 > **Canonical retrieval label:** AI Fundamental Analysis Core Skill  
@@ -9354,12 +9440,12 @@ HANDOFF: [Forensic Accounting Skill if OCF/PAT or receivable-day flags
 *Skill Version 1.0 | IERL Specialist Skill Library | Core Toolkit — Fundamental Analysis*
 *Integrates with: Skill 01 (Master Research, Step 6), Forensic Accounting Skill, AI_Future_Growth_Skill,
 AI_Banking_Analysis_Skill, AI_NBFC_Analysis_Skill, AI_Small_to_Mid_Cap_SIP_Stocks_Analysis_Skill*
-<!-- END SYSTEM FILE 7: AI_Fundamental_Analysis_Core_Skill.md -->
+<!-- END SYSTEM FILE 8: AI_Fundamental_Analysis_Core_Skill.md -->
 
 ---
 
-<!-- BEGIN SYSTEM FILE 8: AI_Future_Growth_Skill.md | SHA256: f76aca49aba770c2172ecd42d012ab364949724a04291c7431ea03fe8e006e9b -->
-## Embedded source 8: AI Future Growth Skill
+<!-- BEGIN SYSTEM FILE 9: AI_Future_Growth_Skill.md | SHA256: f76aca49aba770c2172ecd42d012ab364949724a04291c7431ea03fe8e006e9b -->
+## Embedded source 9: AI Future Growth Skill
 
 <!-- IERL-CANONICAL-METADATA v1.2 -->
 > **Canonical retrieval label:** AI Future Growth Skill  
@@ -9653,12 +9739,12 @@ SUMMARY VERDICT: [Growth story is well-evidenced / Growth story is
 *Skill Version 1.0 | IERL Specialist Skill Library | Cross-Cutting Discipline — Future Growth Tiering*
 *Integrates with: Skill 01 (Master Research, Step 10 Valuation), Skill 07 (Valuation Comparator),
 AI_Multibagger_Discovery_Skill, AI_DCF_Valuation_Skill, Skill 13 (Concall Analyzer)*
-<!-- END SYSTEM FILE 8: AI_Future_Growth_Skill.md -->
+<!-- END SYSTEM FILE 9: AI_Future_Growth_Skill.md -->
 
 ---
 
-<!-- BEGIN SYSTEM FILE 9: AI_Multibagger_Discovery_Skill.md | SHA256: c01bc8846978d6acbfacc88bcd8215ad6e95bf8e09c3cf13672a249467087ee1 -->
-## Embedded source 9: AI Multibagger Discovery Skill
+<!-- BEGIN SYSTEM FILE 10: AI_Multibagger_Discovery_Skill.md | SHA256: c01bc8846978d6acbfacc88bcd8215ad6e95bf8e09c3cf13672a249467087ee1 -->
+## Embedded source 10: AI Multibagger Discovery Skill
 
 <!-- IERL-CANONICAL-METADATA v1.2 -->
 > **Canonical retrieval label:** AI Multibagger Discovery Skill  
@@ -10214,12 +10300,12 @@ Category 2/3/4 matches → each confirmed check adds up to +2 points to the
 **Document:** Top12_Combination_Checks_Addendum_v_0.0.md
 **Version:** v_0.0
 **Paste Into:** Multibagger Quick Screen (Module 0B, after the 7-gate pre-filter)
-<!-- END SYSTEM FILE 9: AI_Multibagger_Discovery_Skill.md -->
+<!-- END SYSTEM FILE 10: AI_Multibagger_Discovery_Skill.md -->
 
 ---
 
-<!-- BEGIN SYSTEM FILE 10: AI_MultiSector_Momentum_Value_Style_Thinking_Skill.md | SHA256: cccd6bb37a97037adc43532ab84d9be5698b19eecb427ea4afbd9da49a629cae -->
-## Embedded source 10: AI MultiSector Momentum Value Style Thinking Skill
+<!-- BEGIN SYSTEM FILE 11: AI_MultiSector_Momentum_Value_Style_Thinking_Skill.md | SHA256: cccd6bb37a97037adc43532ab84d9be5698b19eecb427ea4afbd9da49a629cae -->
+## Embedded source 11: AI MultiSector Momentum Value Style Thinking Skill
 
 <!-- IERL-CANONICAL-METADATA v1.2 -->
 > **Canonical retrieval label:** AI MultiSector Momentum Value Style Thinking Skill  
@@ -10509,12 +10595,12 @@ specific circumstances.
 *Skill Version 1.0 | IERL Specialist Skill Library | Heuristic Lens — Multi-Sector Momentum-Value Style*
 *Integrates with: Skill 08 (Sector Rotation Analyzer), Skill 03 (Positional Opportunity Finder),
 Skill 07 (Valuation Comparator), AI_Portfolio_Construction_Skill, AI_Future_Growth_Skill*
-<!-- END SYSTEM FILE 10: AI_MultiSector_Momentum_Value_Style_Thinking_Skill.md -->
+<!-- END SYSTEM FILE 11: AI_MultiSector_Momentum_Value_Style_Thinking_Skill.md -->
 
 ---
 
-<!-- BEGIN SYSTEM FILE 11: AI_Options_Data_Skill.md | SHA256: 0cbf74e08253796a4cde2ad3f0c7237b3f6b14a10c43b573ee8b9346cc33a6e0 -->
-## Embedded source 11: AI Options Data Skill
+<!-- BEGIN SYSTEM FILE 12: AI_Options_Data_Skill.md | SHA256: 0cbf74e08253796a4cde2ad3f0c7237b3f6b14a10c43b573ee8b9346cc33a6e0 -->
+## Embedded source 12: AI Options Data Skill
 
 <!-- IERL-CANONICAL-METADATA v1.2 -->
 > **Canonical retrieval label:** AI Options Data Skill  
@@ -10829,12 +10915,12 @@ HIGH FLAGS:      [List, or "None detected"]
 
 *Skill Version 1.0 | IERL Specialist Skill Library | Core Toolkit — Options Data Analysis*
 *Integrates with: AI_Swing_Trading_Skill, AI_Technical_Analysis_Master_Skill, AI_Volume_Delivery_Analysis_Skill*
-<!-- END SYSTEM FILE 11: AI_Options_Data_Skill.md -->
+<!-- END SYSTEM FILE 12: AI_Options_Data_Skill.md -->
 
 ---
 
-<!-- BEGIN SYSTEM FILE 12: AI_Portfolio_Construction_Skill.md | SHA256: 956392fffa8ccf7af50df6737415ffdd09d8914ec370884d15f6204823ad8189 -->
-## Embedded source 12: AI Portfolio Construction Skill
+<!-- BEGIN SYSTEM FILE 13: AI_Portfolio_Construction_Skill.md | SHA256: 956392fffa8ccf7af50df6737415ffdd09d8914ec370884d15f6204823ad8189 -->
+## Embedded source 13: AI Portfolio Construction Skill
 
 <!-- IERL-CANONICAL-METADATA v1.2 -->
 > **Canonical retrieval label:** AI Portfolio Construction Skill  
@@ -11180,12 +11266,12 @@ RECOMMENDED ACTIONS:
 *Skill Version 1.0 | IERL Specialist Skill Library | Style Specialist — Portfolio Construction*
 *Integrates with: Skill 06 (Portfolio Auditor), Skill 09 (Risk Auditor), AI_Swing_Trading_Skill,
 AI_Multibagger_Discovery_Skill, AI_Turnaround_Analysis_Skill, AI_Small_to_Mid_Cap_SIP_Stocks_Analysis_Skill*
-<!-- END SYSTEM FILE 12: AI_Portfolio_Construction_Skill.md -->
+<!-- END SYSTEM FILE 13: AI_Portfolio_Construction_Skill.md -->
 
 ---
 
-<!-- BEGIN SYSTEM FILE 13: AI_Small_to_Mid_Cap_SIP_Stocks_Analysis_Skill.md | SHA256: 47d95e38d502403ad70582c96d8265db2e4cc23dd52d6bd808c80d90efdb8660 -->
-## Embedded source 13: AI Small to Mid Cap SIP Stocks Analysis Skill
+<!-- BEGIN SYSTEM FILE 14: AI_Small_to_Mid_Cap_SIP_Stocks_Analysis_Skill.md | SHA256: 47d95e38d502403ad70582c96d8265db2e4cc23dd52d6bd808c80d90efdb8660 -->
+## Embedded source 14: AI Small to Mid Cap SIP Stocks Analysis Skill
 
 <!-- IERL-CANONICAL-METADATA v1.2 -->
 > **Canonical retrieval label:** AI Small to Mid Cap SIP Stocks Analysis Skill  
@@ -11538,12 +11624,12 @@ Re-Screen Trigger:          [What event — leadership change, debt spike, next
 *Skill Version 1.0 | IERL Specialist Skill Library | Style Specialist — SIP Durability Screening*
 *Integrates with: Forensic Accounting Skill, Skill 09 (Risk Auditor), AI_Portfolio_Construction_Skill,
 AI_Turnaround_Analysis_Skill (for deep-cyclical/distressed redirect)*
-<!-- END SYSTEM FILE 13: AI_Small_to_Mid_Cap_SIP_Stocks_Analysis_Skill.md -->
+<!-- END SYSTEM FILE 14: AI_Small_to_Mid_Cap_SIP_Stocks_Analysis_Skill.md -->
 
 ---
 
-<!-- BEGIN SYSTEM FILE 14: AI_Swing_Trading_Skill.md | SHA256: 3719df5eb93f4dd027bbfb56825649a6db6a5462cae4af9096689d733da21172 -->
-## Embedded source 14: AI Swing Trading Skill
+<!-- BEGIN SYSTEM FILE 15: AI_Swing_Trading_Skill.md | SHA256: 3719df5eb93f4dd027bbfb56825649a6db6a5462cae4af9096689d733da21172 -->
+## Embedded source 15: AI Swing Trading Skill
 
 <!-- IERL-CANONICAL-METADATA v1.2 -->
 > **Canonical retrieval label:** AI Swing Trading Skill  
@@ -11984,12 +12070,12 @@ if more than 1 trading session has passed since this analysis.
 *Skill Version 1.0 | IERL Specialist Skill Library | Style Specialist — Swing Trading*
 *Integrates with: Skill 08 (Sector Rotation Analyzer), Forensic Accounting Skill (fundamental floor check),
 Skill 12 (Watchlist Prioritizer for post-trade monitoring), Skill 09 (Risk Auditor for portfolio-level exposure)*
-<!-- END SYSTEM FILE 14: AI_Swing_Trading_Skill.md -->
+<!-- END SYSTEM FILE 15: AI_Swing_Trading_Skill.md -->
 
 ---
 
-<!-- BEGIN SYSTEM FILE 15: AI_Technical_Analysis_Master_Skill.md | SHA256: 39016471186c06d2ff7fb271aa44e19e8529b56a705aa4d9ba92b13674279ea5 -->
-## Embedded source 15: AI Technical Analysis Master Skill
+<!-- BEGIN SYSTEM FILE 16: AI_Technical_Analysis_Master_Skill.md | SHA256: 39016471186c06d2ff7fb271aa44e19e8529b56a705aa4d9ba92b13674279ea5 -->
+## Embedded source 16: AI Technical Analysis Master Skill
 
 <!-- IERL-CANONICAL-METADATA v1.2 -->
 > **Canonical retrieval label:** AI Technical Analysis Master Skill  
@@ -12540,12 +12626,92 @@ This addendum makes the existing indicator modules usable with pasted historical
 **Version:** v_0.0
 **Paste Into:** AI_Technical_Analysis_Master_Skill.md (after Pre-Flight Requirements)
 
-<!-- END SYSTEM FILE 15: AI_Technical_Analysis_Master_Skill.md -->
+<!-- END SYSTEM FILE 16: AI_Technical_Analysis_Master_Skill.md -->
 
 ---
 
-<!-- BEGIN SYSTEM FILE 16: AI_Turnaround_Analysis_Skill.md | SHA256: acaa4c25f8f169e9eaa1a23f0cc74632aa836ea2293c31c3851828097e91b124 -->
-## Embedded source 16: AI Turnaround Analysis Skill
+<!-- BEGIN SYSTEM FILE 17: Technical_Analysis_Data_Input_Template_v_0.0.md | SHA256: d3d197d73284c932385c45eff34fcf82c96bed6cda473782d2b486eced42f170 -->
+## Embedded source 17: Technical Analysis Data Input Template v 0.0
+
+# Technical Analysis — Data Input Template (Addendum v_0.0)
+
+---
+
+## Why This Addendum Exists
+
+This skill already has full indicator logic (Moving Averages, RSI, MACD, Bollinger Bands, OBV, ADX, Fibonacci — Modules 1–8). What it never specified was **exactly what data the user needs to paste in** for the AI to actually compute these — without a live price feed, the AI can only be as good as the numbers it's given. This addendum closes that gap. It does not add new indicator logic; it makes the existing logic usable.
+
+---
+
+## Minimum Data Required (Paste This In Before Requesting Technical Analysis)
+
+For a **single-timeframe** analysis (e.g., daily chart only), provide:
+
+```
+Stock: [Name/Ticker]
+Timeframe: [Daily / Weekly / Intraday]
+Date Range: [At least 60 trading periods — 200+ preferred for 200-DMA]
+
+OHLCV data (one row per period), minimum:
+Date | Open | High | Low | Close | Volume
+
+Example:
+2026-07-01 | 1420 | 1435 | 1415 | 1428 | 3,200,000
+2026-07-02 | 1428 | 1440 | 1422 | 1432 | 2,850,000
+...
+```
+
+**Minimum period counts needed per indicator** (so the AI can tell you if your data is insufficient before running an incomplete analysis):
+
+| Indicator | Minimum Periods Needed |
+|---|---|
+| 20-DMA / 50-DMA | 50 (for 50-DMA to be valid) |
+| 200-DMA | 200 |
+| RSI (14) | 15 |
+| MACD (12,26,9) | 35 |
+| Bollinger Bands (20,2) | 20 |
+| ADX (14) | 28 (needs a warm-up period beyond the base 14) |
+| Fibonacci Retracement | 1 clear swing high + 1 clear swing low (no minimum count, but must be visually/numerically identifiable in the data provided) |
+
+**Rule:** If the data provided is shorter than an indicator's minimum, the AI states explicitly "insufficient data for [indicator] — need at least N periods" rather than computing an unreliable value silently.
+
+---
+
+## For Multi-Timeframe Confluence (Module 6B — Timeframe Conflict Resolution)
+
+Provide OHLCV for **each** timeframe being compared (e.g., both Daily and Weekly), clearly labeled. The AI cannot infer a weekly trend from daily data alone with full reliability — always provide each timeframe's data separately if multi-timeframe analysis is requested.
+
+---
+
+## Where To Get This Data
+
+This skill does not fetch data itself. Common sources: your broker's historical data export (Zerodha Kite, Upstox, etc.), NSE/BSE historical data downloads, or a financial data site's CSV export. Paste the relevant rows directly into the chat, or upload as a CSV/spreadsheet file.
+
+---
+
+## What This Does Not Fix
+
+This addendum makes the existing indicator modules usable with pasted historical data. It does **not** provide live/real-time price updates, live order book depth, or automatic data retrieval — those require a connected market-data source (broker API or data connector), which is outside what any document in this project can do on its own.
+
+---
+
+## Self-Audit
+
+- ✓ No new indicator logic added — Modules 1–8 remain the single source of truth for calculation methodology
+- ✓ Does not overstate capability — explicitly states the live-data limitation rather than implying it's solved
+- ✓ Gives the user a concrete, actionable template rather than a vague "provide price data" instruction
+
+---
+
+**Document:** Technical_Analysis_Data_Input_Template_v_0.0.md
+**Version:** v_0.0
+**Paste Into:** AI_Technical_Analysis_Master_Skill.md (after Pre-Flight Requirements)
+<!-- END SYSTEM FILE 17: Technical_Analysis_Data_Input_Template_v_0.0.md -->
+
+---
+
+<!-- BEGIN SYSTEM FILE 18: AI_Turnaround_Analysis_Skill.md | SHA256: acaa4c25f8f169e9eaa1a23f0cc74632aa836ea2293c31c3851828097e91b124 -->
+## Embedded source 18: AI Turnaround Analysis Skill
 
 <!-- IERL-CANONICAL-METADATA v1.2 -->
 > **Canonical retrieval label:** AI Turnaround Analysis Skill  
@@ -12846,12 +13012,12 @@ HANDOFF NOTE: [If Stage T2 or higher — recommend running the Forensic
 *Skill Version 1.0 | IERL Specialist Skill Library | Style Specialist — Turnaround Analysis*
 *Integrates with: Forensic Accounting Skill, Skill 06 (Portfolio Auditor), Skill 09 (Risk Auditor),
 Skill 15 (Pre-Investment Master Checklist)*
-<!-- END SYSTEM FILE 16: AI_Turnaround_Analysis_Skill.md -->
+<!-- END SYSTEM FILE 18: AI_Turnaround_Analysis_Skill.md -->
 
 ---
 
-<!-- BEGIN SYSTEM FILE 17: AI_Uptrend_Momentum_Stock_Skill.md | SHA256: 22d53163913f3eb56761046a7dea391ab72457e8d2b153d08bfb94416e3c87c4 -->
-## Embedded source 17: AI Uptrend Momentum Stock Skill
+<!-- BEGIN SYSTEM FILE 19: AI_Uptrend_Momentum_Stock_Skill.md | SHA256: 22d53163913f3eb56761046a7dea391ab72457e8d2b153d08bfb94416e3c87c4 -->
+## Embedded source 19: AI Uptrend Momentum Stock Skill
 
 <!-- IERL-CANONICAL-METADATA v1.2 -->
 > **Canonical retrieval label:** AI Uptrend Momentum Stock Skill  
@@ -13201,12 +13367,12 @@ HIGH FLAGS:      [List, or "None detected"]
 *Skill Version 1.0 | IERL Specialist Skill Library | Style Specialist — Uptrend Momentum (Trend-Following)*
 *Integrates with: AI_Swing_Trading_Skill (shares regime filter, distinct exit philosophy),
 AI_Portfolio_Construction_Skill (Tier 4 tactical capital), Skill 08 (Sector Rotation Analyzer)*
-<!-- END SYSTEM FILE 17: AI_Uptrend_Momentum_Stock_Skill.md -->
+<!-- END SYSTEM FILE 19: AI_Uptrend_Momentum_Stock_Skill.md -->
 
 ---
 
-<!-- BEGIN SYSTEM FILE 18: AI_Volume_Delivery_Analysis_Skill.md | SHA256: a5d06dfab9833ebb5788345cfb0359f7b977f38ea1198483f4789e5d8525a9bb -->
-## Embedded source 18: AI Volume Delivery Analysis Skill
+<!-- BEGIN SYSTEM FILE 20: AI_Volume_Delivery_Analysis_Skill.md | SHA256: a5d06dfab9833ebb5788345cfb0359f7b977f38ea1198483f4789e5d8525a9bb -->
+## Embedded source 20: AI Volume Delivery Analysis Skill
 
 <!-- IERL-CANONICAL-METADATA v1.2 -->
 > **Canonical retrieval label:** AI Volume Delivery Analysis Skill  
@@ -13471,7 +13637,7 @@ FEEDS INTO: [Which calling skill — Swing, Uptrend, Multibagger Discovery,
 *Skill Version 1.0 | IERL Specialist Skill Library | Core Toolkit — Volume & Delivery Analysis*
 *Integrates with: AI_Technical_Analysis_Master_Skill, AI_Swing_Trading_Skill, AI_Uptrend_Momentum_Stock_Skill,
 Skill 01 (Master Research, Governance Gate), AI_Turnaround_Analysis_Skill, AI_Multibagger_Discovery_Skill*
-<!-- END SYSTEM FILE 18: AI_Volume_Delivery_Analysis_Skill.md -->
+<!-- END SYSTEM FILE 20: AI_Volume_Delivery_Analysis_Skill.md -->
 
 ---
 
