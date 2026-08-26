@@ -1,20 +1,11 @@
 {
   "version": 2,
   "cleanUrls": true,
-  "builds": [
-    {
-      "src": "frontend_deploy/**",
-      "use": "@vercel/static"
-    }
-  ],
+  "outputDirectory": "frontend_deploy",
   "rewrites": [
     {
-      "source": "/",
-      "destination": "/frontend_deploy/index.html"
-    },
-    {
       "source": "/(.*)",
-      "destination": "/frontend_deploy/$1"
+      "destination": "/$1"
     }
   ]
 }
