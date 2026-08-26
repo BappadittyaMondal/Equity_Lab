@@ -28,7 +28,7 @@ def test_full_pipeline_roundtrip():
     conviction = arbiter.arbitrate(symbol)
     assert conviction.symbol == "RELIANCE.NS" or conviction.symbol == "RELIANCE"
     assert conviction.conviction_score >= 0
-    assert conviction.verdict in ["Strong Buy", "Buy", "Accumulate", "Watch", "Avoid"]
+    assert conviction.verdict in ["Strong Buy", "Buy", "Accumulate", "Watch", "Avoid", "ABSTAIN"]
 
     # Step 3: Orchestration Layer
     orchestrator = Orchestrator()

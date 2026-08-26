@@ -51,7 +51,7 @@ def get_request_stats():
     _reset_counters_if_needed()
     return _request_counters
 
-@router.post("/sync-market-data", summary="Trigger On-Demand Market Data Refresh (Max 72h Gap Enforced)")
+@router.post("/sync-market-data", dependencies=[Depends(verify_admin_key)], summary="Trigger On-Demand Market Data Refresh (Max 72h Gap Enforced)")
 async def sync_market_data(max_age_hours: int = 72):
     """Triggers an on-demand market data freshness scan across universe symbols."""
     try:

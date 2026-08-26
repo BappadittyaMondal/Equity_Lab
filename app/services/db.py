@@ -316,6 +316,9 @@ def _ensure_tables() -> None:
             estimate_type TEXT NOT NULL,
             estimate_value REAL NOT NULL,
             as_of_date TEXT NOT NULL,
+            published_at TEXT,
+            available_at TEXT,
+            effective_at TEXT,
             source TEXT NOT NULL,
             revision_of INTEGER REFERENCES earnings_estimates(id)
         )
@@ -338,6 +341,9 @@ def _ensure_tables() -> None:
             roce_pct REAL,
             roe_pct REAL,
             as_of_date TEXT NOT NULL,
+            published_at TEXT,
+            available_at TEXT,
+            effective_at TEXT,
             source TEXT NOT NULL,
             UNIQUE(symbol, period_ended)
         )
@@ -355,6 +361,9 @@ def _ensure_tables() -> None:
             pledged_pct REAL DEFAULT 0.0,
             institutional_holding_pct REAL DEFAULT 0.0,
             as_of_date TEXT NOT NULL,
+            published_at TEXT,
+            available_at TEXT,
+            effective_at TEXT,
             source TEXT NOT NULL,
             UNIQUE(symbol, period_ended)
         )
@@ -372,6 +381,9 @@ def _ensure_tables() -> None:
             ratio_or_amount REAL NOT NULL,
             details TEXT,
             as_of_date TEXT NOT NULL,
+            published_at TEXT,
+            available_at TEXT,
+            effective_at TEXT,
             UNIQUE(symbol, action_type, ex_date)
         )
         """
@@ -391,11 +403,25 @@ def _ensure_tables() -> None:
             volume INTEGER NOT NULL,
             adjusted_close REAL NOT NULL,
             as_of_date TEXT NOT NULL,
+            published_at TEXT,
+            available_at TEXT,
+            effective_at TEXT,
             UNIQUE(symbol, date)
         )
         """
     )
     conn.execute("CREATE INDEX IF NOT EXISTS idx_hist_px_sym_date ON historical_prices(symbol, date)")
+
+    # Auto-migration for published_at, available_at, effective_at columns across point-in-time tables
+    try:
+        pit_tables = ["earnings_estimates", "quarterly_financials", "promoter_shareholding", "market_corporate_actions", "historical_prices"]
+        for tbl in pit_tables:
+            existing_cols = [r[1] for r in conn.execute(f"PRAGMA table_info({tbl})").fetchall()]
+            for col in ["published_at", "available_at", "effective_at"]:
+                if col not in existing_cols:
+                    conn.execute(f"ALTER TABLE {tbl} ADD COLUMN {col} TEXT")
+    except Exception:
+        pass
 
     conn.execute(
         """

@@ -1,20 +1,13 @@
 {
   "version": 2,
+  "cleanUrls": true,
   "builds": [
-    {
-      "src": "api/index.py",
-      "use": "@vercel/python"
-    },
     {
       "src": "frontend_deploy/**",
       "use": "@vercel/static"
     }
   ],
   "rewrites": [
-    {
-      "source": "/api/(.*)",
-      "destination": "/api/index.py"
-    },
     {
       "source": "/",
       "destination": "/frontend_deploy/index.html"

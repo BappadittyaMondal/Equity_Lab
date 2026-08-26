@@ -435,6 +435,48 @@ class Arbiter:
             logger.warning("Failed to log to prediction ledger: %s", e)
 
     # ──────────────────────────────────────────────────────────────────────
+    # 10.5 Abstention Evaluation (Phase C Hardening)
+    # ──────────────────────────────────────────────────────────────────────
+    def _check_abstention_triggers(
+        self,
+        outputs: List[Dict[str, Any]],
+        snap: Any,
+        regime: str,
+        vix_level: float = 15.0
+    ) -> Optional[str]:
+        """Evaluate explicit triggers for ABSTAIN prediction state.
+
+        Returns string reason if abstention is triggered, or None otherwise.
+        Triggers:
+        1. Low Data Confidence (< 0.25)
+        2. Extreme Engine Disagreement (score std dev > 25.0 with balanced Buy/Avoid split)
+        3. Crisis/Extreme Market Volatility regime (VIX > 30 or CRISIS regime) without high consensus
+        """
+        # 1. Low data confidence
+        confidence_score = getattr(snap, "data_confidence_score", 1.0)
+        if confidence_score < 0.25:
+            return f"low data confidence ({confidence_score:.2f} < 0.25 threshold)"
+
+        # 2. High engine score variance / disagreement
+        scores = [o.get("score_0_100") for o in outputs if o.get("score_0_100") is not None]
+        if len(scores) >= 4:
+            import statistics
+            stdev = statistics.stdev(scores) if len(scores) > 1 else 0.0
+            buy_count = sum(1 for o in outputs if o.get("verdict") == "Buy")
+            avoid_count = sum(1 for o in outputs if o.get("verdict") == "Avoid")
+
+            if stdev > 25.0 and abs(buy_count - avoid_count) <= 2:
+                return f"high engine score variance (std={stdev:.1f}, buy={buy_count}, avoid={avoid_count})"
+
+        # 3. Crisis / extreme market volatility
+        if (regime in ("CRISIS", "PANIC") or vix_level > 30.0):
+            buy_count = sum(1 for o in outputs if o.get("verdict") == "Buy")
+            if buy_count < len(outputs) * 0.7:
+                return f"high market regime stress (regime={regime}, VIX={vix_level:.1f}) without strong consensus"
+
+        return None
+
+    # ──────────────────────────────────────────────────────────────────────
     # 11. Public: arbitrate() — the canonical entry point
     # ──────────────────────────────────────────────────────────────────────
     def arbitrate(self, symbol: str, as_of: Optional[datetime] = None) -> ConvictionCall:
@@ -481,6 +523,8 @@ class Arbiter:
             logger.warning("MIVS Engine computation failed for %s: %s", normalized, exc)
 
         # Step 6: Weighted composite score (Layer 11 core)
+        abstain_reason = self._check_abstention_triggers(outputs, snap, regime, india_vix or 15.0)
+
         if veto or (mivs_result and not mivs_result.passed_hard_gates):
             final_score_f = self.VETO_SCORE_CAP * 0.5  # Hard cap under veto
         else:
@@ -493,9 +537,15 @@ class Arbiter:
             final_score_f = max(0.0, final_score_f - penalty)
 
         final_score = int(round(final_score_f))
-        final_verdict = self._score_to_verdict(final_score_f, veto)
-        confidence_tier = self._confidence_tier(final_score_f)
-        primary_thesis = self._generate_thesis(normalized, outputs, final_verdict, regime)
+
+        if abstain_reason:
+            final_verdict = "ABSTAIN"
+            confidence_tier = "Contested"
+            primary_thesis = f"ABSTAIN: Prediction state gated due to {abstain_reason}. Refusing forced prediction."
+        else:
+            final_verdict = self._score_to_verdict(final_score_f, veto)
+            confidence_tier = self._confidence_tier(final_score_f)
+            primary_thesis = self._generate_thesis(normalized, outputs, final_verdict, regime)
 
         # Variant perception synthesis
         variant_view_str = f"Variant Perception ({confidence_tier}): {primary_thesis}"

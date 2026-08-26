@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-08-26T09:01:29.184117+00:00",
+  "generated_at": "2026-08-26T11:50:29.452640+00:00",
   "auto_refresh_summary": {
     "scanned_count": 14,
     "stale_count": 14,
@@ -21,7 +21,7 @@
       "ASTRAMICRO.NS"
     ],
     "failed_symbols": [],
-    "timestamp": "2026-08-26T14:31:29.162117+05:30",
+    "timestamp": "2026-08-26T17:20:29.428279+05:30",
     "max_age_hours_threshold": 72
   },
   "data": {
@@ -53,7 +53,7 @@
       "supporting_evidence": null,
       "invalidation_condition": null,
       "catalyst_timing": null,
-      "timestamp": "2026-08-26T09:01:29.179744+00:00",
+      "timestamp": "2026-08-26T11:50:29.448361+00:00",
       "data_backed": true,
       "ml_outperformance_probability": null
     },
@@ -85,7 +85,7 @@
       "supporting_evidence": null,
       "invalidation_condition": null,
       "catalyst_timing": null,
-      "timestamp": "2026-08-26T09:01:29.180370+00:00",
+      "timestamp": "2026-08-26T11:50:29.449017+00:00",
       "data_backed": true,
       "ml_outperformance_probability": null
     },
@@ -117,7 +117,7 @@
       "supporting_evidence": null,
       "invalidation_condition": null,
       "catalyst_timing": null,
-      "timestamp": "2026-08-26T09:01:29.180515+00:00",
+      "timestamp": "2026-08-26T11:50:29.449145+00:00",
       "data_backed": true,
       "ml_outperformance_probability": null
     },
@@ -149,7 +149,7 @@
       "supporting_evidence": null,
       "invalidation_condition": null,
       "catalyst_timing": null,
-      "timestamp": "2026-08-26T09:01:29.180638+00:00",
+      "timestamp": "2026-08-26T11:50:29.449255+00:00",
       "data_backed": true,
       "ml_outperformance_probability": null
     },
@@ -181,7 +181,7 @@
       "supporting_evidence": null,
       "invalidation_condition": null,
       "catalyst_timing": null,
-      "timestamp": "2026-08-26T09:01:29.180755+00:00",
+      "timestamp": "2026-08-26T11:50:29.449359+00:00",
       "data_backed": true,
       "ml_outperformance_probability": null
     },
@@ -213,7 +213,7 @@
       "supporting_evidence": null,
       "invalidation_condition": null,
       "catalyst_timing": null,
-      "timestamp": "2026-08-26T09:01:29.180870+00:00",
+      "timestamp": "2026-08-26T11:50:29.449460+00:00",
       "data_backed": true,
       "ml_outperformance_probability": null
     },
@@ -245,7 +245,7 @@
       "supporting_evidence": null,
       "invalidation_condition": null,
       "catalyst_timing": null,
-      "timestamp": "2026-08-26T09:01:29.180982+00:00",
+      "timestamp": "2026-08-26T11:50:29.449560+00:00",
       "data_backed": true,
       "ml_outperformance_probability": null
     },
@@ -277,7 +277,7 @@
       "supporting_evidence": null,
       "invalidation_condition": null,
       "catalyst_timing": null,
-      "timestamp": "2026-08-26T09:01:29.181090+00:00",
+      "timestamp": "2026-08-26T11:50:29.449658+00:00",
       "data_backed": true,
       "ml_outperformance_probability": null
     },
@@ -309,7 +309,7 @@
       "supporting_evidence": null,
       "invalidation_condition": null,
       "catalyst_timing": null,
-      "timestamp": "2026-08-26T09:01:29.181202+00:00",
+      "timestamp": "2026-08-26T11:50:29.449787+00:00",
       "data_backed": true,
       "ml_outperformance_probability": null
     },
@@ -341,7 +341,7 @@
       "supporting_evidence": null,
       "invalidation_condition": null,
       "catalyst_timing": null,
-      "timestamp": "2026-08-26T09:01:29.181312+00:00",
+      "timestamp": "2026-08-26T11:50:29.449884+00:00",
       "data_backed": true,
       "ml_outperformance_probability": null
     },
@@ -373,7 +373,7 @@
       "supporting_evidence": null,
       "invalidation_condition": null,
       "catalyst_timing": null,
-      "timestamp": "2026-08-26T09:01:29.181419+00:00",
+      "timestamp": "2026-08-26T11:50:29.449981+00:00",
       "data_backed": true,
       "ml_outperformance_probability": null
     },
@@ -405,7 +405,7 @@
       "supporting_evidence": null,
       "invalidation_condition": null,
       "catalyst_timing": null,
-      "timestamp": "2026-08-26T09:01:29.181526+00:00",
+      "timestamp": "2026-08-26T11:50:29.450078+00:00",
       "data_backed": true,
       "ml_outperformance_probability": null
     },
@@ -437,7 +437,7 @@
       "supporting_evidence": null,
       "invalidation_condition": null,
       "catalyst_timing": null,
-      "timestamp": "2026-08-26T09:01:29.181635+00:00",
+      "timestamp": "2026-08-26T11:50:29.450175+00:00",
       "data_backed": true,
       "ml_outperformance_probability": null
     },
@@ -469,7 +469,7 @@
       "supporting_evidence": null,
       "invalidation_condition": null,
       "catalyst_timing": null,
-      "timestamp": "2026-08-26T09:01:29.181743+00:00",
+      "timestamp": "2026-08-26T11:50:29.450272+00:00",
       "data_backed": true,
       "ml_outperformance_probability": null
     },
@@ -501,7 +501,7 @@
       "supporting_evidence": null,
       "invalidation_condition": null,
       "catalyst_timing": null,
-      "timestamp": "2026-08-26T09:01:29.181851+00:00",
+      "timestamp": "2026-08-26T11:50:29.450368+00:00",
       "data_backed": true,
       "ml_outperformance_probability": null
     },
@@ -533,7 +533,7 @@
       "supporting_evidence": null,
       "invalidation_condition": null,
       "catalyst_timing": null,
-      "timestamp": "2026-08-26T09:01:29.181957+00:00",
+      "timestamp": "2026-08-26T11:50:29.450463+00:00",
       "data_backed": true,
       "ml_outperformance_probability": null
     },
@@ -565,7 +565,7 @@
       "supporting_evidence": null,
       "invalidation_condition": null,
       "catalyst_timing": null,
-      "timestamp": "2026-08-26T09:01:29.182063+00:00",
+      "timestamp": "2026-08-26T11:50:29.450558+00:00",
       "data_backed": true,
       "ml_outperformance_probability": null
     },
@@ -597,7 +597,7 @@
       "supporting_evidence": null,
       "invalidation_condition": null,
       "catalyst_timing": null,
-      "timestamp": "2026-08-26T09:01:29.182169+00:00",
+      "timestamp": "2026-08-26T11:50:29.450656+00:00",
       "data_backed": true,
       "ml_outperformance_probability": null
     },
@@ -629,7 +629,7 @@
       "supporting_evidence": null,
       "invalidation_condition": null,
       "catalyst_timing": null,
-      "timestamp": "2026-08-26T09:01:29.182275+00:00",
+      "timestamp": "2026-08-26T11:50:29.450755+00:00",
       "data_backed": true,
       "ml_outperformance_probability": null
     },
@@ -661,7 +661,7 @@
       "supporting_evidence": null,
       "invalidation_condition": null,
       "catalyst_timing": null,
-      "timestamp": "2026-08-26T09:01:29.182381+00:00",
+      "timestamp": "2026-08-26T11:50:29.450851+00:00",
       "data_backed": true,
       "ml_outperformance_probability": null
     },
@@ -693,7 +693,7 @@
       "supporting_evidence": null,
       "invalidation_condition": null,
       "catalyst_timing": null,
-      "timestamp": "2026-08-26T09:01:29.182487+00:00",
+      "timestamp": "2026-08-26T11:50:29.450946+00:00",
       "data_backed": true,
       "ml_outperformance_probability": null
     },
@@ -725,7 +725,7 @@
       "supporting_evidence": null,
       "invalidation_condition": null,
       "catalyst_timing": null,
-      "timestamp": "2026-08-26T09:01:29.182592+00:00",
+      "timestamp": "2026-08-26T11:50:29.451041+00:00",
       "data_backed": true,
       "ml_outperformance_probability": null
     },
@@ -757,7 +757,7 @@
       "supporting_evidence": null,
       "invalidation_condition": null,
       "catalyst_timing": null,
-      "timestamp": "2026-08-26T09:01:29.182698+00:00",
+      "timestamp": "2026-08-26T11:50:29.451136+00:00",
       "data_backed": true,
       "ml_outperformance_probability": null
     },
@@ -789,7 +789,7 @@
       "supporting_evidence": null,
       "invalidation_condition": null,
       "catalyst_timing": null,
-      "timestamp": "2026-08-26T09:01:29.182805+00:00",
+      "timestamp": "2026-08-26T11:50:29.451249+00:00",
       "data_backed": true,
       "ml_outperformance_probability": null
     },
@@ -821,7 +821,7 @@
       "supporting_evidence": null,
       "invalidation_condition": null,
       "catalyst_timing": null,
-      "timestamp": "2026-08-26T09:01:29.182911+00:00",
+      "timestamp": "2026-08-26T11:50:29.451412+00:00",
       "data_backed": true,
       "ml_outperformance_probability": null
     },
@@ -853,7 +853,7 @@
       "supporting_evidence": null,
       "invalidation_condition": null,
       "catalyst_timing": null,
-      "timestamp": "2026-08-26T09:01:29.183016+00:00",
+      "timestamp": "2026-08-26T11:50:29.451517+00:00",
       "data_backed": true,
       "ml_outperformance_probability": null
     },
@@ -885,7 +885,7 @@
       "supporting_evidence": null,
       "invalidation_condition": null,
       "catalyst_timing": null,
-      "timestamp": "2026-08-26T09:01:29.183121+00:00",
+      "timestamp": "2026-08-26T11:50:29.451620+00:00",
       "data_backed": true,
       "ml_outperformance_probability": null
     },
@@ -920,7 +920,7 @@
       "supporting_evidence": null,
       "invalidation_condition": null,
       "catalyst_timing": null,
-      "timestamp": "2026-08-26T09:01:29.183191+00:00",
+      "timestamp": "2026-08-26T11:50:29.451689+00:00",
       "data_backed": true,
       "ml_outperformance_probability": null
     },
@@ -972,7 +972,7 @@
       "supporting_evidence": null,
       "invalidation_condition": null,
       "catalyst_timing": null,
-      "timestamp": "2026-08-26T09:01:29.183356+00:00",
+      "timestamp": "2026-08-26T11:50:29.451850+00:00",
       "data_backed": false,
       "ml_outperformance_probability": null
     },
@@ -1015,7 +1015,7 @@
       "supporting_evidence": null,
       "invalidation_condition": null,
       "catalyst_timing": null,
-      "timestamp": "2026-08-26T09:01:29.183708+00:00",
+      "timestamp": "2026-08-26T11:50:29.452175+00:00",
       "data_backed": false,
       "ml_outperformance_probability": null
     }

@@ -40,6 +40,23 @@ def evaluate_peer_normalization(
     scores = raw_scores or {}
     evidence = []
 
+    if not scores:
+        import logging
+        logger = logging.getLogger(__name__)
+        logger.info("Peer Normalization Engine: No raw score inputs provided for %s. Setting sector_relative_percentile to INSUFFICIENT_DATA.", norm_symbol)
+        evidence.append("Sector-Relative Composite Percentile: INSUFFICIENT_DATA (No fundamental or valuation metrics available for normalization)")
+        return {
+            "symbol": norm_symbol,
+            "sector": sector_upper,
+            "executed_at": datetime.now().isoformat(),
+            "sector_relative_percentile": None,
+            "data_status": "INSUFFICIENT_DATA",
+            "z_scores": {},
+            "percentile_ranks": {},
+            "evidence": evidence,
+            "meta": create_meta_header(source="Peer Normalization Engine (§44, §52)")
+        }
+
     bench = SECTOR_BENCHMARKS.get(sector_upper, SECTOR_BENCHMARKS["DEFAULT"])
 
     # Compute Z-Scores and Percentiles

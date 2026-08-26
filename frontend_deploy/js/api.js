@@ -599,19 +599,17 @@ export async function loadSystemDataAlerts() {
 }
 
 /**
- * Compute multi-symbol scorecard matrix.
+ * Fetch 100-Point MIVS Scorecard for a symbol.
  */
-export async function postScorecardMatrix(symbols = ["RELIANCE", "TCS"]) {
+export async function loadMIVSScore(symbol = "RELIANCE") {
   try {
-    const resp = await apiFetch(`/api/v1/research/scorecard-matrix`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ symbols })
-    });
+    const sym = encodeURIComponent(symbol);
+    const resp = await apiFetch(`/api/v1/multibagger/mivs/${sym}`);
     if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
     return await resp.json();
   } catch (err) {
-    console.warn("Scorecard matrix fetch failed:", err.message);
+    console.warn("MIVS score load failed:", err.message);
     return null;
   }
 }
+

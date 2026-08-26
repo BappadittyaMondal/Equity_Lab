@@ -1,4 +1,18 @@
-// mivs_scorecard_panel.js – Multi-Factor Investment Vector Score UI Component (Institutional Edition)
+import { loadMIVSScore } from "./api.js";
+
+export async function renderMIVSScorecardPanel(containerId = "mivs-scorecard-panel", symbol = "RELIANCE") {
+  const el = document.getElementById(containerId);
+  if (!el) return;
+
+  el.innerHTML = `
+    <div class="p-3 bg-surface-lowest rounded border border-surface-border font-mono text-xs text-muted animate-pulse">
+      Loading MIVS Scorecard for ${symbol}...
+    </div>
+  `;
+
+  const mivsData = await loadMIVSScore(symbol);
+  renderMIVSScorecard(containerId, mivsData);
+}
 
 export function renderMIVSScorecard(containerId, mivsData) {
   const el = document.getElementById(containerId);
@@ -6,8 +20,8 @@ export function renderMIVSScorecard(containerId, mivsData) {
 
   if (!mivsData) {
     el.innerHTML = `
-      <div class="p-3 bg-surface-lowest rounded border border-surface-border font-mono text-xs text-muted">
-        MIVS Vector Scorecard: Loading...
+      <div class="p-3 bg-surface-lowest rounded border border-surface-border font-mono text-xs text-amber-400">
+        ⚠️ MIVS Vector Scorecard unavailable for selected symbol.
       </div>
     `;
     return;

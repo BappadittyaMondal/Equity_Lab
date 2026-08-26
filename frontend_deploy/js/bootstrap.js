@@ -16,8 +16,9 @@ import { renderWatchlistPanel } from "./watchlist_panel.js";
 import { initNewsAndNotifications, closeNewsModal, closeNotificationsModal, closeShortcutsModal, openShortcutsModal } from "./news_notifications.js";
 import { initApiHealth, loadTickerStrip } from "./api.js";
 
-import { renderMIVSScorecard } from "./mivs_scorecard_panel.js";
+import { renderMIVSScorecardPanel } from "./mivs_scorecard_panel.js";
 import { renderGrowthMarketGapPanel } from "./growth_market_gap_panel.js";
+import { initFooter } from "./footer.js";
 
 async function initApp() {
   // 1. Load Header Component
@@ -35,12 +36,13 @@ async function initApp() {
   renderMultibaggerPanel();
   renderWatchlistPanel();
   initNewsAndNotifications();
+  initFooter();
 
   // Initial Scorecard rendering
   renderConvictionPanel("RELIANCE");
   renderScorecardPanel("RELIANCE");
   renderGrowthMarketGapPanel("RELIANCE");
-  renderMIVSScorecard("mivs-scorecard-panel", { mivs_score: 82.5, passed_hard_gates: true, verdict: "Buy", gate_reasons: [] });
+  renderMIVSScorecardPanel("mivs-scorecard-panel", "RELIANCE");
 
   // Live Ticker Tape & Health
   initApiHealth();
@@ -56,7 +58,7 @@ async function initApp() {
     renderConvictionPanel(sym);
     renderScorecardPanel(sym);
     renderGrowthMarketGapPanel(sym);
-    renderMIVSScorecard("mivs-scorecard-panel", { mivs_score: 82.5, passed_hard_gates: true, verdict: "Buy", gate_reasons: [] });
+    renderMIVSScorecardPanel("mivs-scorecard-panel", sym);
   };
 }
 

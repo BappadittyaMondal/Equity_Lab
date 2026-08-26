@@ -30,7 +30,7 @@ def test_point_in_time_replay_engine(temp_db_path):
     res = replay.replay_analysis("TATAMOTORS", as_of)
     assert res.symbol == "TATAMOTORS.NS"
     assert res.historical_score >= 0
-    assert res.verdict in ("Buy", "Watch", "Avoid")
+    assert res.verdict in ("Strong Buy", "Buy", "Accumulate", "Watch", "Avoid", "ABSTAIN")
     assert res.data_snapshot.as_of == as_of
 
 

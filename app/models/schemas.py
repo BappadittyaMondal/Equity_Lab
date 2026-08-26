@@ -520,7 +520,7 @@ class WatchlistListResponse(BaseModel):
 class ConvictionCall(BaseModel):
     """Arbitrated decision for a ticker."""
     symbol: str
-    verdict: Literal["Strong Buy", "Buy", "Accumulate", "Watch", "Avoid"]
+    verdict: Literal["Strong Buy", "Buy", "Accumulate", "Watch", "Avoid", "ABSTAIN"]
     conviction_score: int = Field(..., ge=0, le=100)
     primary_thesis: str
     contributing_engines: List[str] = []
@@ -773,7 +773,7 @@ class DecisionAuditTrail(BaseModel):
 
     # Final verdict
     final_score: int = 0
-    final_verdict: Literal["Strong Buy", "Buy", "Accumulate", "Watch", "Avoid"] = "Watch"
+    final_verdict: Literal["Strong Buy", "Buy", "Accumulate", "Watch", "Avoid", "ABSTAIN"] = "Watch"
     governance_veto_applied: bool = False
 
     # Explainability (Layer 14 core outputs)

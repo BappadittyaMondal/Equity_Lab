@@ -35,6 +35,7 @@ class MarketDataProvider(ABC):
 
     @abstractmethod
     async def get_quote(self, symbol: str) -> Quote:
+        # Abstract method — never called directly; overridden by concrete subclasses (YFinanceProvider, YahooDirectJSONProvider, NSEIndiaProvider, AlphaVantageProvider)
         raise NotImplementedError
 
 # ---------------------------------------------------------------------------

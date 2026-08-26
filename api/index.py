@@ -1,3 +1,4 @@
+# DEPRECATED: Legacy Vercel serverless Python handler. Production topology runs backend standalone on Render (https://equity-lab-c90s.onrender.com).
 import os
 import sys
 import tempfile
