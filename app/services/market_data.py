@@ -320,6 +320,20 @@ _OFFLINE_MOCK_QUOTES = {
     "RELIANCE": {"symbol": "RELIANCE.NS", "price": 1310.0, "change_percent": 1.25, "fifty_two_week_high": 1604.38, "fifty_two_week_low": 1249.80, "pe_ratio": 24.5, "volume": 1250000},
     "TCS": {"symbol": "TCS.NS", "price": 3850.0, "change_percent": -0.45, "fifty_two_week_high": 4250.00, "fifty_two_week_low": 3300.00, "pe_ratio": 28.0, "volume": 850000},
     "INFY": {"symbol": "INFY.NS", "price": 1620.0, "change_percent": 0.80, "fifty_two_week_high": 1900.00, "fifty_two_week_low": 1350.00, "pe_ratio": 25.0, "volume": 1100000},
+    "HDFCBANK": {"symbol": "HDFCBANK.NS", "price": 1680.0, "change_percent": 0.40, "fifty_two_week_high": 1794.00, "fifty_two_week_low": 1363.00, "pe_ratio": 18.5, "volume": 2100000},
+    "ICICIBANK": {"symbol": "ICICIBANK.NS", "price": 1220.0, "change_percent": 1.10, "fifty_two_week_high": 1300.00, "fifty_two_week_low": 980.00, "pe_ratio": 17.2, "volume": 1800000},
+    "TATAMOTORS": {"symbol": "TATAMOTORS.NS", "price": 985.0, "change_percent": -0.75, "fifty_two_week_high": 1179.00, "fifty_two_week_low": 593.00, "pe_ratio": 10.4, "volume": 1500000},
+    "ITC": {"symbol": "ITC.NS", "price": 485.0, "change_percent": 0.30, "fifty_two_week_high": 528.00, "fifty_two_week_low": 399.00, "pe_ratio": 28.2, "volume": 3200000},
+    "TITAN": {"symbol": "TITAN.NS", "price": 3450.0, "change_percent": 0.90, "fifty_two_week_high": 3886.00, "fifty_two_week_low": 3055.00, "pe_ratio": 82.0, "volume": 450000},
+    "TATAPOWER": {"symbol": "TATAPOWER.NS", "price": 425.0, "change_percent": 1.40, "fifty_two_week_high": 485.00, "fifty_two_week_low": 222.00, "pe_ratio": 36.0, "volume": 2800000},
+    "POWERGRID": {"symbol": "POWERGRID.NS", "price": 335.0, "change_percent": 0.20, "fifty_two_week_high": 366.00, "fifty_two_week_low": 200.00, "pe_ratio": 18.0, "volume": 1900000},
+    "NTPC": {"symbol": "NTPC.NS", "price": 410.0, "change_percent": 0.65, "fifty_two_week_high": 448.00, "fifty_two_week_low": 210.00, "pe_ratio": 19.5, "volume": 2400000},
+    "BHARATFORG": {"symbol": "BHARATFORG.NS", "price": 1420.0, "change_percent": -0.30, "fifty_two_week_high": 1740.00, "fifty_two_week_low": 950.00, "pe_ratio": 42.0, "volume": 380000},
+    "TECHM": {"symbol": "TECHM.NS", "price": 1650.0, "change_percent": 1.05, "fifty_two_week_high": 1780.00, "fifty_two_week_low": 1150.00, "pe_ratio": 48.0, "volume": 720000},
+    "HCLTECH": {"symbol": "HCLTECH.NS", "price": 1820.0, "change_percent": 0.55, "fifty_two_week_high": 1888.00, "fifty_two_week_low": 1280.00, "pe_ratio": 28.5, "volume": 910000},
+    "WIPRO": {"symbol": "WIPRO.NS", "price": 540.0, "change_percent": -0.20, "fifty_two_week_high": 585.00, "fifty_two_week_low": 420.00, "pe_ratio": 24.0, "volume": 1300000},
+    "BPCL": {"symbol": "BPCL.NS", "price": 345.0, "change_percent": 0.15, "fifty_two_week_high": 375.00, "fifty_two_week_low": 195.00, "pe_ratio": 11.5, "volume": 1600000},
+    "ONGC": {"symbol": "ONGC.NS", "price": 310.0, "change_percent": 0.45, "fifty_two_week_high": 344.00, "fifty_two_week_low": 180.00, "pe_ratio": 7.8, "volume": 2900000},
 }
 
 def get_ist_now_str() -> str:
@@ -433,7 +447,9 @@ def get_history(symbol: str, period: str = "1y", interval: str = "1d"):
     try:
         import yfinance as yf
         import warnings
-        with warnings.catch_warnings():
+        import contextlib
+        import io
+        with warnings.catch_warnings(), contextlib.redirect_stderr(io.StringIO()):
             warnings.simplefilter("ignore")
             df = yf.download(symbol, period=period, interval=interval, progress=False, timeout=2.0)
             if isinstance(df, pd.DataFrame) and not df.empty and len(df) > 5:
