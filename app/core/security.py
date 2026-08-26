@@ -14,10 +14,10 @@ def verify_api_key(x_api_key: str = Header(default="")) -> bool:
     """Verifies that incoming requests contain a valid API key header.
     
     Checks X-API-Key against settings.API_KEY_SECRET or settings.ADMIN_API_KEY.
-    If REQUIRE_AUTH is true or API keys are configured, validates the header.
+    If API keys are explicitly configured, validates the header.
     """
     valid_keys = [k for k in [settings.API_KEY_SECRET, settings.ADMIN_API_KEY] if k]
-    if settings.REQUIRE_AUTH or valid_keys:
+    if valid_keys:
         if not x_api_key or not any(hmac.compare_digest(x_api_key, k) for k in valid_keys):
             raise HTTPException(
                 status_code=status.HTTP_401_UNAUTHORIZED,
@@ -73,9 +73,9 @@ class ApiSecurityMiddleware(BaseHTTPMiddleware):
                 return JSONResponse(status_code=400, content={"detail": "Invalid Content-Length header."})
 
         # Health checks stay unauthenticated for infrastructure monitoring.
-        if settings.REQUIRE_AUTH and request.url.path != "/api/v1/health":
+        if settings.REQUIRE_AUTH and settings.API_KEY_SECRET and request.url.path != "/api/v1/health":
             supplied_key = request.headers.get("X-API-Key", "")
-            if not settings.API_KEY_SECRET or not hmac.compare_digest(supplied_key, settings.API_KEY_SECRET):
+            if not hmac.compare_digest(supplied_key, settings.API_KEY_SECRET):
                 return JSONResponse(status_code=401, content={"detail": "Valid API authentication is required."})
 
         if request.url.path != "/api/v1/health":

@@ -266,11 +266,16 @@ export class WindowManager {
         const win = this.windows.get(id);
         const cfg = layout[id];
         if (win && cfg) {
-          if (cfg.left) win.element.style.left = cfg.left;
-          if (cfg.top) win.element.style.top = cfg.top;
-          if (cfg.width) win.element.style.width = cfg.width;
-          if (cfg.height) win.element.style.height = cfg.height;
-          if (cfg.left || cfg.top) win.element.style.position = "fixed";
+          // Ignore corrupted zero dimensions or off-screen positions
+          if (cfg.width && parseInt(cfg.width) > 100 && cfg.height && parseInt(cfg.height) > 100) {
+            win.element.style.width = cfg.width;
+            win.element.style.height = cfg.height;
+          }
+          if (cfg.left && cfg.top && parseInt(cfg.top) >= 0) {
+            win.element.style.position = "fixed";
+            win.element.style.left = cfg.left;
+            win.element.style.top = cfg.top;
+          }
 
           if (cfg.isMinimized) {
             win.isMinimized = true;
