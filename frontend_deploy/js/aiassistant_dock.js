@@ -6,8 +6,7 @@
 
 import { apiFetch } from "./api.js";
 
-const metaApiBase = typeof document !== 'undefined' ? document.querySelector('meta[name="ierl-api-base"]')?.getAttribute('content') : "";
-const API_BASE = window.API_BASE || metaApiBase || "";
+const API_BASE = "";
 
 export function initAiDock() {
   initStockChatPanel();

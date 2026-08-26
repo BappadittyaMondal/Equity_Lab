@@ -130,6 +130,16 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+@app.get("/api/health")
+def api_root_health():
+    """Root health endpoint alias for top-level health probe compatibility."""
+    return {
+        "status": "ONLINE",
+        "system": settings.PROJECT_NAME,
+        "version": settings.VERSION,
+        "active_llm": settings.ACTIVE_LLM_PROVIDER,
+    }
+
 # Global Exception Handler for uniform JSON error responses
 @app.exception_handler(Exception)
 async def global_exception_handler(request: Request, exc: Exception):
