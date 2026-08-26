@@ -6,6 +6,93 @@ from typing import Optional
 from app.core.config import settings
 
 
+class PostgresCursorWrapper:
+    def __init__(self, cursor):
+        self._cursor = cursor
+        self.lastrowid = None
+
+    def execute(self, sql: str, params: Optional[tuple] = None):
+        pg_sql = sql.replace("?", "%s")
+        pg_sql = pg_sql.replace("INTEGER PRIMARY KEY AUTOINCREMENT", "SERIAL PRIMARY KEY")
+        pg_sql = pg_sql.replace("AUTOINCREMENT", "")
+        
+        if pg_sql.strip().upper().startswith("PRAGMA TABLE_INFO"):
+            raw = pg_sql.strip()
+            table_name = raw[raw.find("(")+1:raw.find(")")].strip("'\" ")
+            pg_sql = "SELECT ordinal_position as cid, column_name as name, data_type as type FROM information_schema.columns WHERE table_name = %s"
+            params = (table_name,)
+            
+        if params is not None:
+            self._cursor.execute(pg_sql, params)
+        else:
+            self._cursor.execute(pg_sql)
+            
+        if pg_sql.strip().upper().startswith("INSERT") and "RETURNING" not in pg_sql.upper():
+            try:
+                self._cursor.execute("SELECT LASTVAL()")
+                row = self._cursor.fetchone()
+                if row:
+                    self.lastrowid = list(row.values())[0] if isinstance(row, dict) else row[0]
+            except Exception:
+                pass
+        return self
+
+    def fetchone(self):
+        return self._cursor.fetchone()
+
+    def fetchall(self):
+        return self._cursor.fetchall()
+
+    def fetchmany(self, size: int):
+        return self._cursor.fetchmany(size)
+
+    @property
+    def rowcount(self):
+        return self._cursor.rowcount
+
+    def __iter__(self):
+        return iter(self._cursor)
+
+
+class PostgresConnectionWrapper:
+    def __init__(self, pg_conn):
+        self._conn = pg_conn
+
+    def execute(self, sql: str, params: Optional[tuple] = None):
+        cursor = self._conn.cursor()
+        wrapper = PostgresCursorWrapper(cursor)
+        wrapper.execute(sql, params)
+        return wrapper
+
+    def executescript(self, sql: str):
+        statements = [s.strip() for s in sql.split(";") if s.strip()]
+        for stmt in statements:
+            self.execute(stmt)
+        self.commit()
+
+    def cursor(self):
+        return PostgresCursorWrapper(self._conn.cursor())
+
+    def commit(self):
+        self._conn.commit()
+
+    def rollback(self):
+        self._conn.rollback()
+
+    def close(self):
+        self._conn.close()
+
+    def __enter__(self):
+        return self
+
+    def __exit__(self, exc_type, exc_val, exc_tb):
+        if exc_type is None:
+            self.commit()
+        else:
+            self.rollback()
+        self.close()
+
+
 def get_connection():
     """Return a database connection to the shared data store.
     Supports PostgreSQL if `DATABASE_URL` is set, with seamless fallback to SQLite.
@@ -17,9 +104,10 @@ def get_connection():
             import psycopg2
             import psycopg2.extras
             conn = psycopg2.connect(db_url, cursor_factory=psycopg2.extras.RealDictCursor)
-            return conn
-        except Exception:
-            pass
+            return PostgresConnectionWrapper(conn)
+        except Exception as exc:
+            import logging
+            logging.getLogger(__name__).warning("Failed to connect to DATABASE_URL, falling back to SQLite: %s", exc)
 
     # SQLite connection with /tmp fallback for Vercel serverless execution
     db_path = settings.DATA_STORE_PATH
@@ -42,6 +130,7 @@ def get_connection():
     except Exception:
         pass
     return conn
+
 
 
 def _ensure_tables() -> None:

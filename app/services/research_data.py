@@ -7,11 +7,13 @@ given date and avoid silently introducing look-ahead bias.
 
 from __future__ import annotations
 
+import os
 import json
 import sqlite3
 from datetime import datetime, timezone
 from pathlib import Path
 from typing import Optional
+
 
 from fastapi import HTTPException, status
 
@@ -74,7 +76,11 @@ class ResearchDataStore:
         self.database_path.parent.mkdir(parents=True, exist_ok=True)
         self._initialize()
 
-    def _connect(self) -> sqlite3.Connection:
+    def _connect(self):
+        db_url = os.getenv("DATABASE_URL")
+        if db_url and (db_url.startswith("postgres://") or db_url.startswith("postgresql://")):
+            from app.services.db import get_connection
+            return get_connection()
         connection = sqlite3.connect(self.database_path, timeout=30.0)
         connection.row_factory = sqlite3.Row
         connection.execute("PRAGMA foreign_keys = ON")
@@ -83,6 +89,7 @@ class ResearchDataStore:
         except Exception:
             pass
         return connection
+
 
     def _initialize(self) -> None:
         with self._connect() as conn:
