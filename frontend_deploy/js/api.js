@@ -1,9 +1,15 @@
 // api.js — Centralized API interaction layer for IERL frontend
 // Handles health checks, data fetching, and chart rendering with authenticated API key injection.
 
+const isLocalhost = typeof window !== 'undefined' && (
+  window.location.hostname === "localhost" ||
+  window.location.hostname === "127.0.0.1" ||
+  window.location.hostname === "" ||
+  window.location.protocol === "file:"
+);
 const metaApiBase = typeof document !== 'undefined' ? document.querySelector('meta[name="ierl-api-base"]')?.getAttribute('content') : "";
 const defaultProductionBackend = (typeof window !== 'undefined' && window.location.hostname.includes("vercel.app")) ? "https://equity-lab-c90s.onrender.com" : "";
-const API_BASE = window.API_BASE || metaApiBase || defaultProductionBackend;
+const API_BASE = isLocalhost ? "" : (window.API_BASE || metaApiBase || defaultProductionBackend);
 
 /**
  * Helper wrapper for fetch that automatically attaches the X-API-Key header.

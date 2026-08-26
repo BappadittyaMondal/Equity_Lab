@@ -22,7 +22,11 @@ import { initFooter } from "./footer.js";
 
 async function initApp() {
   // 1. Load Header Component
-  await initHeaderNav();
+  try {
+    await initHeaderNav();
+  } catch (e) {
+    console.error("Header nav load non-critical error:", e);
+  }
 
   // 2. Initialize Multi-Window Manager Engine
   windowManager.init();
