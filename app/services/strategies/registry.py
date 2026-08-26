@@ -816,7 +816,7 @@ def run_strategy_module(strategy_id: str, symbol: str = "RELIANCE", as_of: Optio
             status="production",
             executed_at=res_e15["executed_at"],
             symbol=res_e15["symbol"],
-            passed_gates=(res_e15["sector_relative_percentile"] >= 50.0),
+            passed_gates=(res_e15.get("sector_relative_percentile") is not None and res_e15["sector_relative_percentile"] >= 50.0),
             results=res_e15,
             metrics={"sector_relative_percentile": res_e15["sector_relative_percentile"]},
             risk_warnings=module.risk_warnings,
