@@ -304,9 +304,11 @@ export async function loadDriftStatus() {
 /**
  * Fetch multibagger screening candidates across Indian equity universe.
  */
-export async function loadMultibaggerScreener() {
+export async function loadMultibaggerScreener(params = {}) {
   try {
-    const resp = await apiFetch(`/api/v1/research/multibagger-screener`);
+    const query = new URLSearchParams(params).toString();
+    const url = `/api/v1/research/multibagger-screener${query ? `?${query}` : ''}`;
+    const resp = await apiFetch(url);
     if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
     return await resp.json();
   } catch (err) {

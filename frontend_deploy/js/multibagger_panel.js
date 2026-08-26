@@ -152,10 +152,14 @@ export async function executeFinderQuery(finderType = "multibagger") {
 
   window.executeFinderQuery = executeFinderQuery;
 
+  const cagrVal = document.getElementById("multibagger-cagr")?.value || 20;
+  const roceVal = document.getElementById("multibagger-roce")?.value || 15;
+  const deVal = document.getElementById("multibagger-de")?.value || 0.5;
+
   let candidates = [];
   let isFallbackMode = false;
   try {
-    const apiData = await loadMultibaggerScreener();
+    const apiData = await loadMultibaggerScreener({ finder_type: finderType, min_cagr: cagrVal, min_roce: roceVal, max_de: deVal });
     if (apiData && apiData.candidates && apiData.candidates.length > 0) {
       candidates = apiData.candidates;
     }
