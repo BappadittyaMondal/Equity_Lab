@@ -350,3 +350,5 @@ Target Score After Improvements:
 > 3. **API Key Authentication Enforced**: Shared authentication (`verify_api_key` enforcing `X-API-Key`) has been extended across all product API routers in `app/main.py`. Only infrastructure health-check endpoints (`/api/v1/health*`) remain unauthenticated for uptime monitoring.
 > 4. **Superseded Audit Baseline**: The prior score of 68.52/100 is now considered superseded pending formal re-calibration against post-fix backtest datasets.
 
+
+---

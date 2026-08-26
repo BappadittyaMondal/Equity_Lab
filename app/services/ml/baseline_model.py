@@ -522,7 +522,13 @@ def train_baseline_model(force_retrain: bool = False) -> Dict[str, Any]:
         FROM prediction_ledger p
         JOIN outcome_ledger o ON p.id = o.prediction_id
         LEFT JOIN conviction_calls c ON p.conviction_call_id = c.id
-        WHERE p.score IS NOT NULL AND o.excess_return_pct IS NOT NULL
+        WHERE p.score IS NOT NULL 
+          AND o.excess_return_pct IS NOT NULL
+          AND (p.pre_fix_unverified IS NULL OR p.pre_fix_unverified = 0)
+          AND (o.pre_fix_unverified IS NULL OR o.pre_fix_unverified = 0)
+          AND p.symbol NOT LIKE 'FILTX%'
+          AND (p.symbol IS NULL OR UPPER(p.symbol) NOT LIKE '%TEST%')
+          AND (p.thesis IS NULL OR (UPPER(p.thesis) NOT LIKE '%TEST%' AND UPPER(p.thesis) NOT LIKE '%DUMMY%'))
         """
     ).fetchall()
     conn.close()
@@ -741,7 +747,13 @@ def evaluate_and_retrain_model() -> Dict[str, Any]:
         FROM prediction_ledger p
         JOIN outcome_ledger o ON p.id = o.prediction_id
         LEFT JOIN conviction_calls c ON p.conviction_call_id = c.id
-        WHERE p.score IS NOT NULL AND o.excess_return_pct IS NOT NULL
+        WHERE p.score IS NOT NULL 
+          AND o.excess_return_pct IS NOT NULL
+          AND (p.pre_fix_unverified IS NULL OR p.pre_fix_unverified = 0)
+          AND (o.pre_fix_unverified IS NULL OR o.pre_fix_unverified = 0)
+          AND p.symbol NOT LIKE 'FILTX%'
+          AND (p.symbol IS NULL OR UPPER(p.symbol) NOT LIKE '%TEST%')
+          AND (p.thesis IS NULL OR (UPPER(p.thesis) NOT LIKE '%TEST%' AND UPPER(p.thesis) NOT LIKE '%DUMMY%'))
         """
     ).fetchall()
     conn.close()
