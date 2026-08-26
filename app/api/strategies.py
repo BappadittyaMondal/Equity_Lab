@@ -77,9 +77,17 @@ def run_governance_quality(symbol: str = Query(..., description="Stock symbol (e
 
 
 @router.get("/research/multibagger-screener", response_model=MultibaggerScreenerResponse)
-def run_multibagger_screener(symbol: str = Query(..., description="Stock symbol (e.g. RELIANCE)"), as_of: Optional[datetime] = None):
+def run_multibagger_screener(
+    symbol: Optional[str] = Query(default="RELIANCE", description="Stock symbol (e.g. RELIANCE)"),
+    finder_type: Optional[str] = Query(default=None, description="Finder strategy type: multibagger, sip, swing, turnaround"),
+    min_cagr: Optional[float] = Query(default=None, description="Minimum revenue CAGR %"),
+    min_roce: Optional[float] = Query(default=None, description="Minimum ROCE %"),
+    max_de: Optional[float] = Query(default=None, description="Maximum Debt/Equity ratio"),
+    as_of: Optional[datetime] = None
+):
     """Executes Strategy E4: Multi-Factor Multibagger Intelligence & Screening Engine."""
-    return evaluate_multibagger_score(symbol=symbol, as_of=as_of)
+    target_sym = symbol or "RELIANCE"
+    return evaluate_multibagger_score(symbol=target_sym, as_of=as_of)
 
 
 @router.get("/research/growth-arbitrage", response_model=GrowthArbitrageResponse)
