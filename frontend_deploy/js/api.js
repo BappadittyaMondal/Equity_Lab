@@ -2,7 +2,8 @@
 // Handles health checks, data fetching, and chart rendering with authenticated API key injection.
 
 const metaApiBase = typeof document !== 'undefined' ? document.querySelector('meta[name="ierl-api-base"]')?.getAttribute('content') : "";
-const API_BASE = window.API_BASE || metaApiBase || "";
+const defaultProductionBackend = (typeof window !== 'undefined' && window.location.hostname.includes("vercel.app")) ? "https://equity-lab-c90s.onrender.com" : "";
+const API_BASE = window.API_BASE || metaApiBase || defaultProductionBackend;
 
 /**
  * Helper wrapper for fetch that automatically attaches the X-API-Key header.
