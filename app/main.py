@@ -123,7 +123,7 @@ app.add_middleware(SecurityHeadersMiddleware)
 # Restrict CORS to explicit allowed origins from environment configuration
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=settings.ALLOWED_ORIGINS or ["*"],
+    allow_origins=settings.ALLOWED_ORIGINS if settings.ALLOWED_ORIGINS else ["http://localhost:3000", "http://127.0.0.1:8000", "http://localhost:8000", "https://equity-lab-c90s.onrender.com"],
     allow_origin_regex=r"https://.*\.vercel\.app",
     allow_credentials=True,
     allow_methods=["GET", "POST", "OPTIONS"],
