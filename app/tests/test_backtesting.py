@@ -15,7 +15,7 @@ def temp_db_path(tmp_path):
     db_file = tmp_path / "test_backtesting.sqlite"
     original = settings.DATA_STORE_PATH
     settings.DATA_STORE_PATH = str(db_file)
-    from app.services.db import _ensure_tables
+    from app.services.db import _ensure_tables, get_connection
     _ensure_tables()
     yield str(db_file)
     settings.DATA_STORE_PATH = original

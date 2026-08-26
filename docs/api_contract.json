@@ -6,6 +6,23 @@
     "version": "1.0.0"
   },
   "paths": {
+    "/api/health": {
+      "get": {
+        "summary": "Api Root Health",
+        "description": "Root health endpoint alias for top-level health probe compatibility.",
+        "operationId": "api_root_health_api_health_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/v1/health": {
       "get": {
         "tags": [
@@ -990,13 +1007,93 @@
           {
             "name": "symbol",
             "in": "query",
-            "required": true,
+            "required": false,
             "schema": {
-              "type": "string",
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
               "description": "Stock symbol (e.g. RELIANCE)",
+              "default": "RELIANCE",
               "title": "Symbol"
             },
             "description": "Stock symbol (e.g. RELIANCE)"
+          },
+          {
+            "name": "finder_type",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Finder strategy type: multibagger, sip, swing, turnaround",
+              "title": "Finder Type"
+            },
+            "description": "Finder strategy type: multibagger, sip, swing, turnaround"
+          },
+          {
+            "name": "min_cagr",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "number"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Minimum revenue CAGR %",
+              "title": "Min Cagr"
+            },
+            "description": "Minimum revenue CAGR %"
+          },
+          {
+            "name": "min_roce",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "number"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Minimum ROCE %",
+              "title": "Min Roce"
+            },
+            "description": "Minimum ROCE %"
+          },
+          {
+            "name": "max_de",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "number"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Maximum Debt/Equity ratio",
+              "title": "Max De"
+            },
+            "description": "Maximum Debt/Equity ratio"
           },
           {
             "name": "as_of",
@@ -3707,6 +3804,15 @@
               "default": 72,
               "title": "Max Age Hours"
             }
+          },
+          {
+            "name": "x-api-key",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "X-Api-Key"
+            }
           }
         ],
         "responses": {
@@ -4294,7 +4400,8 @@
               "Buy",
               "Accumulate",
               "Watch",
-              "Avoid"
+              "Avoid",
+              "ABSTAIN"
             ],
             "title": "Verdict"
           },

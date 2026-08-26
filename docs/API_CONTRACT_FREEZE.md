@@ -1,10 +1,10 @@
 # API Contract Freeze — Equity Lab OS v0.0.0
 
-> **FREEZE NOTICE**: All 67 backend REST endpoints are frozen and certified for production handoff. 100% of frontend calls map cleanly to valid backend routes.
+> **FREEZE NOTICE**: All 68 backend REST endpoints are frozen and certified for production handoff. 100% of frontend calls map cleanly to valid backend routes.
 
 ## 1. Summary Metrics
 
-- **Total Backend Endpoints**: 67
+- **Total Backend Endpoints**: 68
 - **API Spec Contract File**: `docs/api_contract.json`
 
 ---

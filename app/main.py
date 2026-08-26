@@ -130,28 +130,6 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-@app.get("/api/health")
-def api_root_health():
-    """Root health endpoint alias for top-level health probe compatibility."""
-    return {
-        "status": "ONLINE",
-        "system": settings.PROJECT_NAME,
-        "version": settings.VERSION,
-        "active_llm": settings.ACTIVE_LLM_PROVIDER,
-    }
-
-# Global Exception Handler for uniform JSON error responses
-@app.exception_handler(Exception)
-async def global_exception_handler(request: Request, exc: Exception):
-    return JSONResponse(
-        status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-        content={
-            "status": "error",
-            "message": "An unexpected error occurred during analytical execution.",
-            "path": request.url.path
-        }
-    )
-
 # Include API Routers under /api/v1
 # Health check endpoints stay unauthenticated for infrastructure monitoring / readiness probes
 app.include_router(health.router)

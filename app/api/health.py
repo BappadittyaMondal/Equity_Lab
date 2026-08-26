@@ -10,6 +10,7 @@ import yfinance as yf
 router = APIRouter(prefix="/api/v1", tags=["Health & Diagnostics"])
 
 
+@router.get("/api/health")
 @router.get("/health")
 def get_health_status():
     """Runs actual connectivity verification across data feeds and LLM providers."""

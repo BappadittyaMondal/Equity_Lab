@@ -16,6 +16,8 @@ def temp_db_path(tmp_path, monkeypatch):
     yield str(db_file)
     monkeypatch.setattr(market_data, "_CACHE_DB", original_path)
     monkeypatch.setattr(settings, "DATA_STORE_PATH", original_path)
+    import gc
+    gc.collect()
 
 def test_store_and_load_cache(temp_db_path):
     quote = {"symbol": "TEST", "price": 100.5, "currency": "INR"}
