@@ -3,9 +3,9 @@
         "PROJECT_VERSION": "0.0.0",
         "BUNDLE_VERSION": "2.0",
         "SCHEMA_VERSION": "1.0",
-        "GIT_COMMIT_SOURCE": "b2bc250",
-        "GIT_COMMIT": "b2bc250",
-        "GENERATED_AT": "2026-08-26T08:46:48.080450+00:00",
+        "GIT_COMMIT_SOURCE": "3be403e",
+        "GIT_COMMIT": "3be403e",
+        "GENERATED_AT": "2026-08-26T16:29:53.393186+00:00",
         "GENERATOR_VERSION": "2.0",
         "SOURCE_HASH": "bfdcdcc350589cb17d8c5abf05cf24f9011f2abcae8e03be3441f941fe33753e"
     },
@@ -13,7 +13,7 @@
         "01_Master_System_Core_Instructions_Architecture.md": {
             "sources_count": 8,
             "output_bytes": 139171,
-            "sha256": "295c223ad98207be99448af47a765f8ab0a09c26048b3563dac893e348434317",
+            "sha256": "d44741831a386e360ac8079a98fc1bc8f803a179dd149b68f32b7fa7d85a0661",
             "embedded_sources": [
                 {
                     "position": 1,
@@ -76,7 +76,7 @@
         "02_Master_Engine_Contracts_Schemas_Registries.md": {
             "sources_count": 18,
             "output_bytes": 261142,
-            "sha256": "11afd2b6a4d452a843304d236a584ab631e37cbccd75d867725713c14006cb58",
+            "sha256": "56b5a19bff18229ee82dcca7fbf6fdc217ae64dc0ce038844a527544aff85efc",
             "embedded_sources": [
                 {
                     "position": 1,
@@ -209,7 +209,7 @@
         "03_Master_Skill_Library.md": {
             "sources_count": 20,
             "output_bytes": 628109,
-            "sha256": "ce8a65f35ab50862ff01e870c8daf0b08a3026c78a37426e2484ab357dc37c2f",
+            "sha256": "29792c5ab11bcdd1f72913969b9d56a49a776b54756f5d28d5290a4b4e6aa297",
             "embedded_sources": [
                 {
                     "position": 1,
@@ -356,7 +356,7 @@
         "04_Master_Knowledge_Base_Vol_1_Fundamentals_Valuation_Governance.md": {
             "sources_count": 24,
             "output_bytes": 167532,
-            "sha256": "68660296a7ab00b8d171a0361633aef75b4ced0f1aad906b3029c3fe2792916e",
+            "sha256": "c0cdce2a1920f66c05758aec6c2c921ac12a1c60bb300c5f6c74cf3d96b1ff00",
             "embedded_sources": [
                 {
                     "position": 1,
@@ -531,7 +531,7 @@
         "05_Master_Knowledge_Base_Vol_2_Sectors_Frameworks_Screening.md": {
             "sources_count": 27,
             "output_bytes": 216508,
-            "sha256": "3d281c97bf2a7652d87e440b01c3a17ec4dd4d2c008a89dbfcbcf8bf5dc797f0",
+            "sha256": "77aa3b303a97f655e7c6e46d70ab7d76db19f5e623f1aafb49d1867af21ff278",
             "embedded_sources": [
                 {
                     "position": 1,
@@ -725,6 +725,6 @@
             ]
         }
     },
-    "GIT_COMMIT_SOURCE": "35ff0a0",
-    "GIT_COMMIT": "35ff0a0"
+    "GIT_COMMIT_SOURCE": "3be403e",
+    "GIT_COMMIT": "3be403e"
 }

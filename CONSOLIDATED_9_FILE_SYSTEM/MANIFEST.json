@@ -3,9 +3,9 @@
         "PROJECT_VERSION": "0.0.0",
         "BUNDLE_VERSION": "2.0",
         "SCHEMA_VERSION": "1.0",
-        "GIT_COMMIT_SOURCE": "b2bc250",
-        "GIT_COMMIT": "b2bc250",
-        "GENERATED_AT": "2026-08-26T08:46:48.080450+00:00",
+        "GIT_COMMIT_SOURCE": "3be403e",
+        "GIT_COMMIT": "3be403e",
+        "GENERATED_AT": "2026-08-26T16:29:53.393186+00:00",
         "GENERATOR_VERSION": "2.0",
         "SOURCE_HASH": "bfdcdcc350589cb17d8c5abf05cf24f9011f2abcae8e03be3441f941fe33753e"
     },
@@ -13,7 +13,7 @@
         "01_System_Core_Instructions_Architecture.md": {
             "sources_count": 8,
             "output_bytes": 139538,
-            "sha256": "400c66d77ffaa498a3d4d3b0b3307e762aaff0fd8138c1859c8a8dcf5f962a00",
+            "sha256": "1e203999067f5204cefc1ee871ac9dfefd6bb262b610c6b6282d4743cae46c2c",
             "embedded_sources": [
                 {
                     "position": 1,
@@ -76,7 +76,7 @@
         "02_Engine_Contracts_Schemas_Registries.md": {
             "sources_count": 18,
             "output_bytes": 261509,
-            "sha256": "974bf1a3a56793eb455831cd715d0ded60871ce8c02a33e459233ce82dd37d40",
+            "sha256": "cae61108fbfc2a0c3d3be415e97e18ce60eb7235508c0abebc76a3723e9312cd",
             "embedded_sources": [
                 {
                     "position": 1,
@@ -209,7 +209,7 @@
         "03_Workflow_Skills_01_to_25.md": {
             "sources_count": 2,
             "output_bytes": 301215,
-            "sha256": "bb4258f706fe565804f624772d3f49e8417ce21c758125a850163ea44ee80c71",
+            "sha256": "63a4539adda8da891206ccd05118986b1d099e6c5c9826dc88147bb0372c24ce",
             "embedded_sources": [
                 {
                     "position": 1,
@@ -230,7 +230,7 @@
         "04_Analytical_Lens_Skills_26_to_41.md": {
             "sources_count": 18,
             "output_bytes": 330849,
-            "sha256": "be9f5b30ee29e8a3c9dd5456567c7cd018109207d1ae51d3341570fd035e27d5",
+            "sha256": "47ce2f61c38821bcc995b407886d3d8f420f4eebbda32263fa2df50d2383c32e",
             "embedded_sources": [
                 {
                     "position": 1,
@@ -363,7 +363,7 @@
         "05_Knowledge_Base_Vol_1_Economics_Financials.md": {
             "sources_count": 12,
             "output_bytes": 86695,
-            "sha256": "9729ff96e794466ef21c9b27155e7bb22e807eaeba71aad86e3aa6ab46cfc2f6",
+            "sha256": "766b3374ed4fe2d41a797f685a625823e3eec592963e864425de78ad8c3bd4ba",
             "embedded_sources": [
                 {
                     "position": 1,
@@ -454,7 +454,7 @@
         "06_Knowledge_Base_Vol_2_Markets_Governance_Macro.md": {
             "sources_count": 12,
             "output_bytes": 84754,
-            "sha256": "43ea8b30b4ca75eb4fcbc3b696bb4ac5e786fda9c717918401267ac95f44b980",
+            "sha256": "7bb544aa9a5a52a65686b2dd67d3fb473c97b47957ee8dfd7ccaf6ed7fb2b5b8",
             "embedded_sources": [
                 {
                     "position": 1,
@@ -545,7 +545,7 @@
         "07_Knowledge_Base_Vol_3_Forensics_Moats_Banking.md": {
             "sources_count": 8,
             "output_bytes": 64691,
-            "sha256": "26d8bcb59ccca9f2f6361dc8589324c6528ffadce74ee3f4c272b0ad49b801c1",
+            "sha256": "71baff11dfeefc6e983a022a01cdb25e3ce8bc7b5a886609a65edd5577857647",
             "embedded_sources": [
                 {
                     "position": 1,
@@ -608,7 +608,7 @@
         "08_Knowledge_Base_Vol_4_Sector_Deep_Dives.md": {
             "sources_count": 9,
             "output_bytes": 71298,
-            "sha256": "713531b13f3f7a9070607bd374228f3627009a9fa54bfdfeb737076e8b017b3d",
+            "sha256": "e9bf2b6c5471618b2a4a1bab09b1c8d6531b9348a9841763a36aba51cffd9302",
             "embedded_sources": [
                 {
                     "position": 1,
@@ -678,7 +678,7 @@
         "09_Knowledge_Base_Vol_5_Screening_Portfolio_Glossaries.md": {
             "sources_count": 10,
             "output_bytes": 88010,
-            "sha256": "980c2f0b5508a9e5975b77af81f98715ddd1e942e18da55f084d614ce4f57370",
+            "sha256": "c0944796dde3a0a0e0880445842a5930279178529224d80f64f12ebdd62b7435",
             "embedded_sources": [
                 {
                     "position": 1,
@@ -753,6 +753,6 @@
             ]
         }
     },
-    "GIT_COMMIT_SOURCE": "35ff0a0",
-    "GIT_COMMIT": "35ff0a0"
+    "GIT_COMMIT_SOURCE": "3be403e",
+    "GIT_COMMIT": "3be403e"
 }
