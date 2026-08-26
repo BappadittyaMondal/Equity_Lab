@@ -1,7 +1,7 @@
 # 09_Knowledge_Base_Vol_5_Screening_Portfolio_Glossaries
 
 > **IERL AI Equity OS — curated upload artifact**  
-> Project Version: `0.0.0` · Bundle Version: `2.0` · Source Commit: `2680eea`  
+> Project Version: `0.0.0` · Bundle Version: `2.0` · Source Commit: `61a0924`  
 > Generated At: `2026-08-26T08:46:48.080450+00:00` · Source Hash: `bfdcdcc350589cb1` · Compiler: `consolidate_project.py` v2.0
 
 ## Operating contract
