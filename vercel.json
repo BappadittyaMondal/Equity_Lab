@@ -1,35 +1,26 @@
 {
   "version": 2,
-  "builds": [
+  "outputDirectory": "frontend_deploy",
+  "rewrites": [
     {
-      "src": "api/index.py",
-      "use": "@vercel/python"
+      "source": "/api/(.*)",
+      "destination": "https://equity-lab-c90s.onrender.com/api/$1"
     },
     {
-      "src": "frontend_deploy/**",
-      "use": "@vercel/static"
-    }
-  ],
-  "routes": [
-    {
-      "src": "/api/(.*)",
-      "dest": "api/index.py"
+      "source": "/js/(.*)",
+      "destination": "/js/$1"
     },
     {
-      "src": "/js/(.*)",
-      "dest": "frontend_deploy/js/$1"
+      "source": "/style.css",
+      "destination": "/style.css"
     },
     {
-      "src": "/style.css",
-      "dest": "frontend_deploy/style.css"
+      "source": "/data/(.*)",
+      "destination": "/data/$1"
     },
     {
-      "src": "/data/(.*)",
-      "dest": "frontend_deploy/data/$1"
-    },
-    {
-      "src": "/(.*)",
-      "dest": "frontend_deploy/index.html"
+      "source": "/(.*)",
+      "destination": "/index.html"
     }
   ]
 }

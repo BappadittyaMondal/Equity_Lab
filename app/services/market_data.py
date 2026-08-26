@@ -334,6 +334,15 @@ _OFFLINE_MOCK_QUOTES = {
     "WIPRO": {"symbol": "WIPRO.NS", "price": 540.0, "change_percent": -0.20, "fifty_two_week_high": 585.00, "fifty_two_week_low": 420.00, "pe_ratio": 24.0, "volume": 1300000},
     "BPCL": {"symbol": "BPCL.NS", "price": 345.0, "change_percent": 0.15, "fifty_two_week_high": 375.00, "fifty_two_week_low": 195.00, "pe_ratio": 11.5, "volume": 1600000},
     "ONGC": {"symbol": "ONGC.NS", "price": 310.0, "change_percent": 0.45, "fifty_two_week_high": 344.00, "fifty_two_week_low": 180.00, "pe_ratio": 7.8, "volume": 2900000},
+    "CIPLA": {"symbol": "CIPLA.NS", "price": 1540.0, "change_percent": 0.60, "fifty_two_week_high": 1680.00, "fifty_two_week_low": 1180.00, "pe_ratio": 29.5, "volume": 1400000},
+    "LT": {"symbol": "LT.NS", "price": 3650.0, "change_percent": 0.85, "fifty_two_week_high": 3900.00, "fifty_two_week_low": 2900.00, "pe_ratio": 32.0, "volume": 980000},
+    "SUNPHARMA": {"symbol": "SUNPHARMA.NS", "price": 1780.0, "change_percent": 0.50, "fifty_two_week_high": 1920.00, "fifty_two_week_low": 1100.00, "pe_ratio": 38.0, "volume": 1150000},
+    "MARUTI": {"symbol": "MARUTI.NS", "price": 11200.0, "change_percent": -0.25, "fifty_two_week_high": 13680.00, "fifty_two_week_low": 9250.00, "pe_ratio": 26.0, "volume": 310000},
+    "KOTAKBANK": {"symbol": "KOTAKBANK.NS", "price": 1750.0, "change_percent": 0.10, "fifty_two_week_high": 1860.00, "fifty_two_week_low": 1540.00, "pe_ratio": 21.0, "volume": 1450000},
+    "AXISBANK": {"symbol": "AXISBANK.NS", "price": 1180.0, "change_percent": 0.70, "fifty_two_week_high": 1339.00, "fifty_two_week_low": 930.00, "pe_ratio": 14.5, "volume": 2200000},
+    "SBIN": {"symbol": "SBIN.NS", "price": 820.0, "change_percent": 0.95, "fifty_two_week_high": 912.00, "fifty_two_week_low": 560.00, "pe_ratio": 10.8, "volume": 4100000},
+    "BAJFINANCE": {"symbol": "BAJFINANCE.NS", "price": 6850.0, "change_percent": -0.50, "fifty_two_week_high": 7800.00, "fifty_two_week_low": 6350.00, "pe_ratio": 27.5, "volume": 680000},
+    "ASIANPAINT": {"symbol": "ASIANPAINT.NS", "price": 2450.0, "change_percent": -0.80, "fifty_two_week_high": 3340.00, "fifty_two_week_low": 2350.00, "pe_ratio": 49.0, "volume": 890000},
 }
 
 def get_ist_now_str() -> str:
