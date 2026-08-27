@@ -97,7 +97,7 @@ def check_database_population() -> bool:
         if not db_path.exists():
             # Seed via ResearchDataStore
             store = ResearchDataStore()
-            db_path = Path(store.db_path)
+            db_path = Path(store.database_path)
 
         if not db_path.exists():
             print(f"[FAIL] PREFLIGHT FAIL: SQLite database file not found at {db_path}")
