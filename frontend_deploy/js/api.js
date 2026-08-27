@@ -528,12 +528,26 @@ export async function loadTickerHistory(symbol = "RELIANCE", period = "1y") {
 /**
  * Simulate options payoff matrix for a symbol.
  */
-export async function postOptionsPayoff(symbol = "RELIANCE", spotPrice = 2500, strikePrice = 2500) {
+export async function postOptionsPayoff(symbolOrPayload = "^NSEI", spotPrice = 25000, strikePrice = 25000) {
   try {
+    let payload = {};
+    if (typeof symbolOrPayload === "object" && symbolOrPayload !== null) {
+      payload = symbolOrPayload;
+    } else {
+      payload = {
+        underlying: symbolOrPayload,
+        spot_price: spotPrice,
+        lower_strike: Math.floor(spotPrice * 0.98),
+        upper_strike: Math.ceil(spotPrice * 1.02),
+        call_premium: 45.0,
+        put_premium: 45.0,
+        lot_size: 25
+      };
+    }
     const resp = await apiFetch(`/api/v1/options/a2-payoff`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ symbol, spot_price: spotPrice, strike_price: strikePrice })
+      body: JSON.stringify(payload)
     });
     if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
     return await resp.json();

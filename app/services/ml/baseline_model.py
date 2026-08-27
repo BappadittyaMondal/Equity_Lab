@@ -501,10 +501,9 @@ _MODEL_CACHE: Dict[str, Any] = {
 }
 
 
-def _get_db_connection() -> sqlite3.Connection:
-    conn = sqlite3.connect(settings.DATA_STORE_PATH)
-    conn.row_factory = sqlite3.Row
-    return conn
+def _get_db_connection():
+    from app.services.db import get_connection
+    return get_connection()
 
 
 def train_baseline_model(force_retrain: bool = False) -> Dict[str, Any]:

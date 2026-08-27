@@ -25,10 +25,13 @@ class RevisionTracker:
     def __init__(self, db_path: Optional[str] = None):
         self.db_path = db_path or settings.DATA_STORE_PATH
 
-    def _get_connection(self) -> sqlite3.Connection:
-        conn = sqlite3.connect(self.db_path)
-        conn.row_factory = sqlite3.Row
-        return conn
+    def _get_connection(self):
+        if self.db_path != settings.DATA_STORE_PATH:
+            conn = sqlite3.connect(self.db_path)
+            conn.row_factory = sqlite3.Row
+            return conn
+        from app.services.db import get_connection
+        return get_connection()
 
     def add_estimate(
         self,

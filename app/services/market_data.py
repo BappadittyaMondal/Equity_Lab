@@ -215,7 +215,11 @@ def _ensure_providers() -> List[MarketDataProvider]:
 
 _CACHE_DB = settings.DATA_STORE_PATH
 
-def _get_connection() -> sqlite3.Connection:
+def _get_connection():
+    db_url = os.getenv("DATABASE_URL")
+    if db_url and (db_url.startswith("postgres://") or db_url.startswith("postgresql://")):
+        from app.services.db import get_connection
+        return get_connection()
     conn = sqlite3.connect(_CACHE_DB, detect_types=sqlite3.PARSE_DECLTYPES, timeout=30.0)
     conn.execute(
         """CREATE TABLE IF NOT EXISTS market_cache (

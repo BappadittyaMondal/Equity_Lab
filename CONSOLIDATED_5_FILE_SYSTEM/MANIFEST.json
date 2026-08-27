@@ -1,730 +1,728 @@
 {
-    "manifest_metadata": {
-        "PROJECT_VERSION": "0.0.0",
-        "BUNDLE_VERSION": "2.0",
-        "SCHEMA_VERSION": "1.0",
-        "GIT_COMMIT_SOURCE": "3be403e",
-        "GIT_COMMIT": "3be403e",
-        "GENERATED_AT": "2026-08-26T16:29:53.393186+00:00",
-        "GENERATOR_VERSION": "2.0",
-        "SOURCE_HASH": "bfdcdcc350589cb17d8c5abf05cf24f9011f2abcae8e03be3441f941fe33753e"
-    },
-    "bundle_files": {
-        "01_Master_System_Core_Instructions_Architecture.md": {
-            "sources_count": 8,
-            "output_bytes": 139171,
-            "sha256": "d44741831a386e360ac8079a98fc1bc8f803a179dd149b68f32b7fa7d85a0661",
-            "embedded_sources": [
-                {
-                    "position": 1,
-                    "source": "AI_Project_Instructions_v_0_0.md",
-                    "source_path": "canonical_source/AI_Project_Instructions_v_0_0.md",
-                    "sha256": "06a035b01d7dc720c71973c26c0228a8c8661b345351d4ee02af1f1f18a68988",
-                    "bytes": 5658
-                },
-                {
-                    "position": 2,
-                    "source": "AI_Architecture_Overview_v_0_0.md",
-                    "source_path": "canonical_source/AI_Architecture_Overview_v_0_0.md",
-                    "sha256": "723f1b6f9145f0da08137a30de2624b7f04c6c347347f2cae159bf21252495a2",
-                    "bytes": 44635
-                },
-                {
-                    "position": 3,
-                    "source": "AI_Pipeline_Specification_v_0_0.md",
-                    "source_path": "canonical_source/AI_Pipeline_Specification_v_0_0.md",
-                    "sha256": "3cd2c5abf48b617bce1402de8bec156a41ebab116b281449770f1d8660e473dc",
-                    "bytes": 13093
-                },
-                {
-                    "position": 4,
-                    "source": "AI_Task_Orchestrator_v_0_0.md",
-                    "source_path": "canonical_source/AI_Task_Orchestrator_v_0_0.md",
-                    "sha256": "bd87c94df4e323367a224d8f259f05336f10ae19533673beff6cd7d607e4f7e0",
-                    "bytes": 28810
-                },
-                {
-                    "position": 5,
-                    "source": "AI_State_Manager_v_0_0.md",
-                    "source_path": "canonical_source/AI_State_Manager_v_0_0.md",
-                    "sha256": "90bbff840a8b2db879e97ae6bc3775f351977d0740ba51ea21e88c79f97a9015",
-                    "bytes": 10133
-                },
-                {
-                    "position": 6,
-                    "source": "AI_Context_Manager_v_0_0.md",
-                    "source_path": "canonical_source/AI_Context_Manager_v_0_0.md",
-                    "sha256": "1aca7a69c529a8a3872de6b4bdf02a9e38c599b7dbaae65e473dab2cdc5002fb",
-                    "bytes": 11311
-                },
-                {
-                    "position": 7,
-                    "source": "AI_Confidence_Standard_v_0_0.md",
-                    "source_path": "canonical_source/AI_Confidence_Standard_v_0_0.md",
-                    "sha256": "3a85bef2f6e98ad0eec61c46d3cbb59ab7d0ea9697aa80c4ffb024d897dac38e",
-                    "bytes": 13432
-                },
-                {
-                    "position": 8,
-                    "source": "AI_Explainability_Standard_v_0_0.md",
-                    "source_path": "canonical_source/AI_Explainability_Standard_v_0_0.md",
-                    "sha256": "dc945149d1491c05cafbd8fda6eb56c41e50cb51862fb6baf408a84effc57a7e",
-                    "bytes": 5933
-                }
-            ]
+  "manifest_metadata": {
+    "PROJECT_VERSION": "0.0.0",
+    "BUNDLE_VERSION": "2.0",
+    "SCHEMA_VERSION": "1.0",
+    "GIT_COMMIT_SOURCE": "3837cc8",
+    "GIT_COMMIT": "3837cc8",
+    "GENERATED_AT": "2026-08-27T06:48:10.561464+00:00",
+    "GENERATOR_VERSION": "2.0",
+    "SOURCE_HASH": "bfdcdcc350589cb17d8c5abf05cf24f9011f2abcae8e03be3441f941fe33753e"
+  },
+  "bundle_files": {
+    "01_Master_System_Core_Instructions_Architecture.md": {
+      "sources_count": 8,
+      "output_bytes": 139171,
+      "sha256": "794ffcb6c2091f8c2a3781f53ff14f6f466a1520c8d5d7e8f923d463f7cd8d46",
+      "embedded_sources": [
+        {
+          "position": 1,
+          "source": "AI_Project_Instructions_v_0_0.md",
+          "source_path": "canonical_source/AI_Project_Instructions_v_0_0.md",
+          "sha256": "06a035b01d7dc720c71973c26c0228a8c8661b345351d4ee02af1f1f18a68988",
+          "bytes": 5658
         },
-        "02_Master_Engine_Contracts_Schemas_Registries.md": {
-            "sources_count": 18,
-            "output_bytes": 261142,
-            "sha256": "56b5a19bff18229ee82dcca7fbf6fdc217ae64dc0ce038844a527544aff85efc",
-            "embedded_sources": [
-                {
-                    "position": 1,
-                    "source": "AI_Intelligence_Engine_v_0_0.md",
-                    "source_path": "canonical_source/AI_Intelligence_Engine_v_0_0.md",
-                    "sha256": "f8d29c47d85ad8b8475f6f79e478bb9acf6c56a8f84f6b74b63a244acae855a6",
-                    "bytes": 23319
-                },
-                {
-                    "position": 2,
-                    "source": "AI_Execution_Engine_v_0_0.md",
-                    "source_path": "canonical_source/AI_Execution_Engine_v_0_0.md",
-                    "sha256": "029de2a10f6dfd174e70b2ea1fcea4f37c5e8aeaa89b401a7d71281d647bc56b",
-                    "bytes": 27052
-                },
-                {
-                    "position": 3,
-                    "source": "AI_Research_Engine_v_0_0.md",
-                    "source_path": "canonical_source/AI_Research_Engine_v_0_0.md",
-                    "sha256": "c2f5feb84c3aa00dc36fc703c00541e00675ae7d7eb6df24f01c931f0465c9b8",
-                    "bytes": 25869
-                },
-                {
-                    "position": 4,
-                    "source": "AI_Reasoning_Skills_v_0_0.md",
-                    "source_path": "canonical_source/AI_Reasoning_Skills_v_0_0.md",
-                    "sha256": "de3f8cefc4708c988c311cdf44638455e288158087d3143db84332e0f585f93b",
-                    "bytes": 21705
-                },
-                {
-                    "position": 5,
-                    "source": "AI_Quality_Audit_v_0_0.md",
-                    "source_path": "canonical_source/AI_Quality_Audit_v_0_0.md",
-                    "sha256": "8acf83fe3dc2ef16453159b7a959092706b31dfbaa8cdaec6bf8d440c0981eb8",
-                    "bytes": 37607
-                },
-                {
-                    "position": 6,
-                    "source": "AI_Output_System_v_0_0.md",
-                    "source_path": "canonical_source/AI_Output_System_v_0_0.md",
-                    "sha256": "0b78399a6404212ae50c150146056826f1161b77720ff3b5a1dd7d80a3e120dc",
-                    "bytes": 14138
-                },
-                {
-                    "position": 7,
-                    "source": "AI_Object_Schemas_v_0_0.md",
-                    "source_path": "canonical_source/AI_Object_Schemas_v_0_0.md",
-                    "sha256": "5bc5a1416017a5155fd4601041dcdd634da513f6c41d120c32ddcc47e9fa9e65",
-                    "bytes": 16613
-                },
-                {
-                    "position": 8,
-                    "source": "AI_Dependency_Map_v_0_0.md",
-                    "source_path": "canonical_source/AI_Dependency_Map_v_0_0.md",
-                    "sha256": "f8f34ad7b854b3e45396ca96976440e3a5f06fced916374c834521e7a9c4a6f3",
-                    "bytes": 20172
-                },
-                {
-                    "position": 9,
-                    "source": "AI_Unified_Pattern_Taxonomy_v_0_0.md",
-                    "source_path": "canonical_source/AI_Unified_Pattern_Taxonomy_v_0_0.md",
-                    "sha256": "186781e4e56abc0e73116bdbbc928e6370a809a2eea48d1a0bba2524b666195e",
-                    "bytes": 8039
-                },
-                {
-                    "position": 10,
-                    "source": "AI_Module_Registry_v_0_0.md",
-                    "source_path": "canonical_source/AI_Module_Registry_v_0_0.md",
-                    "sha256": "d021aa44bb210aecb887268a8a82aff807ffe3435a39b7adaee75d838d3a80e9",
-                    "bytes": 18207
-                },
-                {
-                    "position": 11,
-                    "source": "AI_Framework_Registry_v_0_0.md",
-                    "source_path": "canonical_source/AI_Framework_Registry_v_0_0.md",
-                    "sha256": "f4e6af682e8e43484b09b8e6292c4cb619f77afa5852bb73ffa1fd632b627dd2",
-                    "bytes": 9689
-                },
-                {
-                    "position": 12,
-                    "source": "AI_Conformance_Matrix_v_0_0.md",
-                    "source_path": "canonical_source/AI_Conformance_Matrix_v_0_0.md",
-                    "sha256": "53aeb4b117858cebd43bfb84429ae25f1c217002afcd63589f0760389ec05519",
-                    "bytes": 6482
-                },
-                {
-                    "position": 13,
-                    "source": "AI_E6_Quality_Growth_Screener_v_0_0.md",
-                    "source_path": "canonical_source/AI_E6_Quality_Growth_Screener_v_0_0.md",
-                    "sha256": "e951bc9256aaadd04b1cc04940577228e0397f3693291c0ecaba7e145789706e",
-                    "bytes": 2114
-                },
-                {
-                    "position": 14,
-                    "source": "AI_Causal_Analysis_Engine_v_0_0.md",
-                    "source_path": "canonical_source/AI_Causal_Analysis_Engine_v_0_0.md",
-                    "sha256": "93714b75cdc21b1beef7e71bf381385301251b23c0a1e68dce696f3c55a4f9a8",
-                    "bytes": 1969
-                },
-                {
-                    "position": 15,
-                    "source": "AI_Geopolitical_Risk_Engine_v_0_0.md",
-                    "source_path": "canonical_source/AI_Geopolitical_Risk_Engine_v_0_0.md",
-                    "sha256": "04d04e76beaf2f0edd7d95a4314bf83b318197173be9f6325608c4550f7c2272",
-                    "bytes": 1776
-                },
-                {
-                    "position": 16,
-                    "source": "AI_Expectation_Gap_Engine_v_0_0.md",
-                    "source_path": "canonical_source/AI_Expectation_Gap_Engine_v_0_0.md",
-                    "sha256": "bc25de721f29f328791a5dbc46cd2a5144838e193a5a3975c10cef72ba2371d9",
-                    "bytes": 3075
-                },
-                {
-                    "position": 17,
-                    "source": "AI_Custom_Screener_Engine_v_0_1.md",
-                    "source_path": "canonical_source/AI_Custom_Screener_Engine_v_0_1.md",
-                    "sha256": "73eaf37e9954dad165ccdb64749a3a1a58c9bbf5d7d788d175e83b7675589cf9",
-                    "bytes": 6434
-                },
-                {
-                    "position": 18,
-                    "source": "AI_Institutional_Multibagger_Engine_v_0_1.md",
-                    "source_path": "canonical_source/AI_Institutional_Multibagger_Engine_v_0_1.md",
-                    "sha256": "75f829094344ff324c8af992fb1fa25cd7d843cfb6b80726462f06d8e2d43bc8",
-                    "bytes": 6974
-                }
-            ]
+        {
+          "position": 2,
+          "source": "AI_Architecture_Overview_v_0_0.md",
+          "source_path": "canonical_source/AI_Architecture_Overview_v_0_0.md",
+          "sha256": "723f1b6f9145f0da08137a30de2624b7f04c6c347347f2cae159bf21252495a2",
+          "bytes": 44635
         },
-        "03_Master_Skill_Library.md": {
-            "sources_count": 20,
-            "output_bytes": 628109,
-            "sha256": "29792c5ab11bcdd1f72913969b9d56a49a776b54756f5d28d5290a4b4e6aa297",
-            "embedded_sources": [
-                {
-                    "position": 1,
-                    "source": "AI_SKILL_IRA_col_final/Skill_Library_Manifest.md",
-                    "source_path": "canonical_source/AI_SKILL_IRA_col_final/Skill_Library_Manifest.md",
-                    "sha256": "272a3bec84e3828db7792628a763ad508f35792caf6c29dbb89097859b4eda8b",
-                    "bytes": 3250
-                },
-                {
-                    "position": 2,
-                    "source": "AI_SKILL_IRA_col_final/04_Skills_Reference_v_0_0.md",
-                    "source_path": "canonical_source/AI_SKILL_IRA_col_final/04_Skills_Reference_v_0_0.md",
-                    "sha256": "8d8512951723222d3e9c80279af8dc66d16e08a622f956ae42df64a5d36ebdd3",
-                    "bytes": 293679
-                },
-                {
-                    "position": 3,
-                    "source": "AI_SKILL_IRA_col_final/AI_18_Expert_Strategies_Execution_Skill.md",
-                    "source_path": "canonical_source/AI_SKILL_IRA_col_final/AI_18_Expert_Strategies_Execution_Skill.md",
-                    "sha256": "a7d5dfcc99cc6ee87f1524ba76de7b9a1341ed8c6b5beb5a7b3904728a8a0d39",
-                    "bytes": 20746
-                },
-                {
-                    "position": 4,
-                    "source": "AI_SKILL_IRA_col_final/AI_Comparison_Engine_Skill.md",
-                    "source_path": "canonical_source/AI_SKILL_IRA_col_final/AI_Comparison_Engine_Skill.md",
-                    "sha256": "347a6c211877aa7c9c2b90c5ce80652ada167ca53d8446bb60c0767a89d000fb",
-                    "bytes": 11607
-                },
-                {
-                    "position": 5,
-                    "source": "AI_SKILL_IRA_col_final/AI_Concentrated_SmallCap_Style_Thinking_Skill.md",
-                    "source_path": "canonical_source/AI_SKILL_IRA_col_final/AI_Concentrated_SmallCap_Style_Thinking_Skill.md",
-                    "sha256": "1bf7e975808e08991688f65a4b64d0572eecc5b4abd6503231981ffe0c607e22",
-                    "bytes": 14363
-                },
-                {
-                    "position": 6,
-                    "source": "AI_SKILL_IRA_col_final/AI_DCF_Valuation_Skill.md",
-                    "source_path": "canonical_source/AI_SKILL_IRA_col_final/AI_DCF_Valuation_Skill.md",
-                    "sha256": "9ffb983cae45bd92e8392b39aafb423199e0040632c93f4991b5120e6cf27c93",
-                    "bytes": 19216
-                },
-                {
-                    "position": 7,
-                    "source": "AI_SKILL_IRA_col_final/AI_Forensic_Accounting_Skill.md",
-                    "source_path": "canonical_source/AI_SKILL_IRA_col_final/AI_Forensic_Accounting_Skill.md",
-                    "sha256": "2bbc743275aaa8789b2f7873d4b6ca81db8521f319261855e685a6040ea6bd62",
-                    "bytes": 25476
-                },
-                {
-                    "position": 8,
-                    "source": "AI_SKILL_IRA_col_final/AI_Fundamental_Analysis_Core_Skill.md",
-                    "source_path": "canonical_source/AI_SKILL_IRA_col_final/AI_Fundamental_Analysis_Core_Skill.md",
-                    "sha256": "e3ecd22e85697df038889cb69b5b3f39efb9195fd96ab920bb8b31cd6050b693",
-                    "bytes": 19520
-                },
-                {
-                    "position": 9,
-                    "source": "AI_SKILL_IRA_col_final/AI_Future_Growth_Skill.md",
-                    "source_path": "canonical_source/AI_SKILL_IRA_col_final/AI_Future_Growth_Skill.md",
-                    "sha256": "f76aca49aba770c2172ecd42d012ab364949724a04291c7431ea03fe8e006e9b",
-                    "bytes": 15062
-                },
-                {
-                    "position": 10,
-                    "source": "AI_SKILL_IRA_col_final/AI_Multibagger_Discovery_Skill.md",
-                    "source_path": "canonical_source/AI_SKILL_IRA_col_final/AI_Multibagger_Discovery_Skill.md",
-                    "sha256": "c01bc8846978d6acbfacc88bcd8215ad6e95bf8e09c3cf13672a249467087ee1",
-                    "bytes": 27065
-                },
-                {
-                    "position": 11,
-                    "source": "AI_SKILL_IRA_col_final/AI_MultiSector_Momentum_Value_Style_Thinking_Skill.md",
-                    "source_path": "canonical_source/AI_SKILL_IRA_col_final/AI_MultiSector_Momentum_Value_Style_Thinking_Skill.md",
-                    "sha256": "cccd6bb37a97037adc43532ab84d9be5698b19eecb427ea4afbd9da49a629cae",
-                    "bytes": 15351
-                },
-                {
-                    "position": 12,
-                    "source": "AI_SKILL_IRA_col_final/AI_Options_Data_Skill.md",
-                    "source_path": "canonical_source/AI_SKILL_IRA_col_final/AI_Options_Data_Skill.md",
-                    "sha256": "0cbf74e08253796a4cde2ad3f0c7237b3f6b14a10c43b573ee8b9346cc33a6e0",
-                    "bytes": 15645
-                },
-                {
-                    "position": 13,
-                    "source": "AI_SKILL_IRA_col_final/AI_Portfolio_Construction_Skill.md",
-                    "source_path": "canonical_source/AI_SKILL_IRA_col_final/AI_Portfolio_Construction_Skill.md",
-                    "sha256": "956392fffa8ccf7af50df6737415ffdd09d8914ec370884d15f6204823ad8189",
-                    "bytes": 17722
-                },
-                {
-                    "position": 14,
-                    "source": "AI_SKILL_IRA_col_final/AI_Small_to_Mid_Cap_SIP_Stocks_Analysis_Skill.md",
-                    "source_path": "canonical_source/AI_SKILL_IRA_col_final/AI_Small_to_Mid_Cap_SIP_Stocks_Analysis_Skill.md",
-                    "sha256": "47d95e38d502403ad70582c96d8265db2e4cc23dd52d6bd808c80d90efdb8660",
-                    "bytes": 18336
-                },
-                {
-                    "position": 15,
-                    "source": "AI_SKILL_IRA_col_final/AI_Swing_Trading_Skill.md",
-                    "source_path": "canonical_source/AI_SKILL_IRA_col_final/AI_Swing_Trading_Skill.md",
-                    "sha256": "3719df5eb93f4dd027bbfb56825649a6db6a5462cae4af9096689d733da21172",
-                    "bytes": 22833
-                },
-                {
-                    "position": 16,
-                    "source": "AI_SKILL_IRA_col_final/AI_Technical_Analysis_Master_Skill.md",
-                    "source_path": "canonical_source/AI_SKILL_IRA_col_final/AI_Technical_Analysis_Master_Skill.md",
-                    "sha256": "39016471186c06d2ff7fb271aa44e19e8529b56a705aa4d9ba92b13674279ea5",
-                    "bytes": 27297
-                },
-                {
-                    "position": 17,
-                    "source": "AI_SKILL_IRA_col_final/Technical_Analysis_Data_Input_Template_v_0.0.md",
-                    "source_path": "canonical_source/AI_SKILL_IRA_col_final/Technical_Analysis_Data_Input_Template_v_0.0.md",
-                    "sha256": "d3d197d73284c932385c45eff34fcf82c96bed6cda473782d2b486eced42f170",
-                    "bytes": 3372
-                },
-                {
-                    "position": 18,
-                    "source": "AI_SKILL_IRA_col_final/AI_Turnaround_Analysis_Skill.md",
-                    "source_path": "canonical_source/AI_SKILL_IRA_col_final/AI_Turnaround_Analysis_Skill.md",
-                    "sha256": "acaa4c25f8f169e9eaa1a23f0cc74632aa836ea2293c31c3851828097e91b124",
-                    "bytes": 14942
-                },
-                {
-                    "position": 19,
-                    "source": "AI_SKILL_IRA_col_final/AI_Uptrend_Momentum_Stock_Skill.md",
-                    "source_path": "canonical_source/AI_SKILL_IRA_col_final/AI_Uptrend_Momentum_Stock_Skill.md",
-                    "sha256": "22d53163913f3eb56761046a7dea391ab72457e8d2b153d08bfb94416e3c87c4",
-                    "bytes": 17985
-                },
-                {
-                    "position": 20,
-                    "source": "AI_SKILL_IRA_col_final/AI_Volume_Delivery_Analysis_Skill.md",
-                    "source_path": "canonical_source/AI_SKILL_IRA_col_final/AI_Volume_Delivery_Analysis_Skill.md",
-                    "sha256": "a5d06dfab9833ebb5788345cfb0359f7b977f38ea1198483f4789e5d8525a9bb",
-                    "bytes": 13617
-                }
-            ]
+        {
+          "position": 3,
+          "source": "AI_Pipeline_Specification_v_0_0.md",
+          "source_path": "canonical_source/AI_Pipeline_Specification_v_0_0.md",
+          "sha256": "3cd2c5abf48b617bce1402de8bec156a41ebab116b281449770f1d8660e473dc",
+          "bytes": 13093
         },
-        "04_Master_Knowledge_Base_Vol_1_Fundamentals_Valuation_Governance.md": {
-            "sources_count": 24,
-            "output_bytes": 167532,
-            "sha256": "c0cdce2a1920f66c05758aec6c2c921ac12a1c60bb300c5f6c74cf3d96b1ff00",
-            "embedded_sources": [
-                {
-                    "position": 1,
-                    "source": "Knowledge_IRA_COL_FINAL/00_Index.md",
-                    "source_path": "canonical_source/Knowledge_IRA_COL_FINAL/00_Index.md",
-                    "sha256": "cc9e649869212b3a9d063234a58bf494b8ef2b1d0fe99a1d379a8a6dff20e19a",
-                    "bytes": 6054
-                },
-                {
-                    "position": 2,
-                    "source": "Knowledge_IRA_COL_FINAL/Domain_01_Economics.md",
-                    "source_path": "canonical_source/Knowledge_IRA_COL_FINAL/Domain_01_Economics.md",
-                    "sha256": "0b245c72f562eb2bbeaee03c28a0b086db3e68107affa54be372f816d03eab53",
-                    "bytes": 8136
-                },
-                {
-                    "position": 3,
-                    "source": "Knowledge_IRA_COL_FINAL/Domain_02_Financial_Statements.md",
-                    "source_path": "canonical_source/Knowledge_IRA_COL_FINAL/Domain_02_Financial_Statements.md",
-                    "sha256": "0ae984098d1d368bca85daf2beb2ccd8f0e9f1da1539d18349634312713c0680",
-                    "bytes": 6406
-                },
-                {
-                    "position": 4,
-                    "source": "Knowledge_IRA_COL_FINAL/Domain_03_Accounting.md",
-                    "source_path": "canonical_source/Knowledge_IRA_COL_FINAL/Domain_03_Accounting.md",
-                    "sha256": "dbb3017864aff792943b08804f98a51f536737e83ebee768cc9234d269b3777c",
-                    "bytes": 6096
-                },
-                {
-                    "position": 5,
-                    "source": "Knowledge_IRA_COL_FINAL/Domain_04_Financial_Ratios.md",
-                    "source_path": "canonical_source/Knowledge_IRA_COL_FINAL/Domain_04_Financial_Ratios.md",
-                    "sha256": "a7c5177d2214cf91dcf26fef2fade8bf54e9cb67984b2013159749d49fe4e90a",
-                    "bytes": 5951
-                },
-                {
-                    "position": 6,
-                    "source": "Knowledge_IRA_COL_FINAL/Domain_05_Valuation.md",
-                    "source_path": "canonical_source/Knowledge_IRA_COL_FINAL/Domain_05_Valuation.md",
-                    "sha256": "eebfcdb8e631f888ec237d7af3fa706da6d228b83c5cf8abbc1796f4fac7e84c",
-                    "bytes": 12455
-                },
-                {
-                    "position": 7,
-                    "source": "Knowledge_IRA_COL_FINAL/Domain_06_Fundamental_Analysis.md",
-                    "source_path": "canonical_source/Knowledge_IRA_COL_FINAL/Domain_06_Fundamental_Analysis.md",
-                    "sha256": "6ed4011cae8d68e17bfd7162f0debdc82a681f49c5afbdc37f2f4f61fa75090a",
-                    "bytes": 5617
-                },
-                {
-                    "position": 8,
-                    "source": "Knowledge_IRA_COL_FINAL/Domain_07_Technical_Analysis.md",
-                    "source_path": "canonical_source/Knowledge_IRA_COL_FINAL/Domain_07_Technical_Analysis.md",
-                    "sha256": "0ac7a84cfded2e8d525a7229c5ed61e358a147f66bc105bbe18abc9efac9dd29",
-                    "bytes": 5351
-                },
-                {
-                    "position": 9,
-                    "source": "Knowledge_IRA_COL_FINAL/Domain_08_Corporate_Governance.md",
-                    "source_path": "canonical_source/Knowledge_IRA_COL_FINAL/Domain_08_Corporate_Governance.md",
-                    "sha256": "05c6b15cc25c5293d6b4e63562519b7b6bbd5ac571a21bd974380f53c763e98c",
-                    "bytes": 6284
-                },
-                {
-                    "position": 10,
-                    "source": "Knowledge_IRA_COL_FINAL/Domain_09_Risk_Management.md",
-                    "source_path": "canonical_source/Knowledge_IRA_COL_FINAL/Domain_09_Risk_Management.md",
-                    "sha256": "27ced20c7f77d63a38a42dcd23870f061842436fa489e17a23837ebea20e8522",
-                    "bytes": 5748
-                },
-                {
-                    "position": 11,
-                    "source": "Knowledge_IRA_COL_FINAL/Domain_10_Portfolio_Management.md",
-                    "source_path": "canonical_source/Knowledge_IRA_COL_FINAL/Domain_10_Portfolio_Management.md",
-                    "sha256": "7c9512e9f0acfc44c7542fad66d655c90e9b6362b2f5f3c92b25635ca45f5320",
-                    "bytes": 5423
-                },
-                {
-                    "position": 12,
-                    "source": "Knowledge_IRA_COL_FINAL/Domain_11_Behavioural_Finance.md",
-                    "source_path": "canonical_source/Knowledge_IRA_COL_FINAL/Domain_11_Behavioural_Finance.md",
-                    "sha256": "8611a3e97af7fcf67c45eb793e65fe3a41d7e18e03f5788e70d5349ec36e6435",
-                    "bytes": 5246
-                },
-                {
-                    "position": 13,
-                    "source": "Knowledge_IRA_COL_FINAL/Domain_12_Industry_Knowledge.md",
-                    "source_path": "canonical_source/Knowledge_IRA_COL_FINAL/Domain_12_Industry_Knowledge.md",
-                    "sha256": "5228b73df56ef8ff4e2c05ea2af97101e19eb86af7982838ea1ced6f4a23bc6d",
-                    "bytes": 8237
-                },
-                {
-                    "position": 14,
-                    "source": "Knowledge_IRA_COL_FINAL/Domain_13_Macroeconomic_Themes.md",
-                    "source_path": "canonical_source/Knowledge_IRA_COL_FINAL/Domain_13_Macroeconomic_Themes.md",
-                    "sha256": "5198d68a549ade81c59aaf197d1879ed0ed582097201b80f6fb22419d49422bb",
-                    "bytes": 6095
-                },
-                {
-                    "position": 15,
-                    "source": "Knowledge_IRA_COL_FINAL/Domain_14_Indian_Capital_Markets.md",
-                    "source_path": "canonical_source/Knowledge_IRA_COL_FINAL/Domain_14_Indian_Capital_Markets.md",
-                    "sha256": "ec283707cbc306626c8d8931aa9b7295ef3b78b402fa9cb5c55769ae5d43345f",
-                    "bytes": 5902
-                },
-                {
-                    "position": 16,
-                    "source": "Knowledge_IRA_COL_FINAL/Domain_15_Investor_Frameworks.md",
-                    "source_path": "canonical_source/Knowledge_IRA_COL_FINAL/Domain_15_Investor_Frameworks.md",
-                    "sha256": "884f2156528e494a58ef91cdfbccf58661c83d7ce7f14b7a648ed7df35b5735e",
-                    "bytes": 5563
-                },
-                {
-                    "position": 17,
-                    "source": "Knowledge_IRA_COL_FINAL/Domain_16_Special_Situations.md",
-                    "source_path": "canonical_source/Knowledge_IRA_COL_FINAL/Domain_16_Special_Situations.md",
-                    "sha256": "f38318bda38aa4c016c463d5e2df92b4b9ae4a08e511ec85e9f1aa9b1d472e32",
-                    "bytes": 6110
-                },
-                {
-                    "position": 18,
-                    "source": "Knowledge_IRA_COL_FINAL/Domain_17_Research_Sources.md",
-                    "source_path": "canonical_source/Knowledge_IRA_COL_FINAL/Domain_17_Research_Sources.md",
-                    "sha256": "2b9a74ee3749b3fd1dcc775a0cc5582a77e3b59ced1a6860515f7a23733ff3ed",
-                    "bytes": 5288
-                },
-                {
-                    "position": 19,
-                    "source": "Knowledge_IRA_COL_FINAL/Domain_18_ESG_Sustainability.md",
-                    "source_path": "canonical_source/Knowledge_IRA_COL_FINAL/Domain_18_ESG_Sustainability.md",
-                    "sha256": "cd8adee6933474f9906a09998c76e88adff52b51862852ad6c1fdedeac8024a4",
-                    "bytes": 4936
-                },
-                {
-                    "position": 20,
-                    "source": "Knowledge_IRA_COL_FINAL/Domain_19_Derivatives_Options.md",
-                    "source_path": "canonical_source/Knowledge_IRA_COL_FINAL/Domain_19_Derivatives_Options.md",
-                    "sha256": "4082cdb7fefc091518d34f48b89c168a8a8241d45857fd9dcd4671fe6c4f82db",
-                    "bytes": 10651
-                },
-                {
-                    "position": 21,
-                    "source": "Knowledge_IRA_COL_FINAL/Domain_20_Credit_Debt_Markets.md",
-                    "source_path": "canonical_source/Knowledge_IRA_COL_FINAL/Domain_20_Credit_Debt_Markets.md",
-                    "sha256": "85fe9925dd72d39a28225a7277e65a411e8e503df13c1ebbf09f18c299105daf",
-                    "bytes": 5678
-                },
-                {
-                    "position": 22,
-                    "source": "Knowledge_IRA_COL_FINAL/Domain_21_Quantitative_Factor_Models.md",
-                    "source_path": "canonical_source/Knowledge_IRA_COL_FINAL/Domain_21_Quantitative_Factor_Models.md",
-                    "sha256": "c42986b65600388fda31292f1670b43c3b816e597b6157f1335013173c16ee5c",
-                    "bytes": 5609
-                },
-                {
-                    "position": 23,
-                    "source": "Knowledge_IRA_COL_FINAL/Domain_22_Regulatory_Tax_Framework.md",
-                    "source_path": "canonical_source/Knowledge_IRA_COL_FINAL/Domain_22_Regulatory_Tax_Framework.md",
-                    "sha256": "ef9df03be2e90c2e8f10a0b7844756d0b5b534fb07df8b948664de160532f000",
-                    "bytes": 6479
-                },
-                {
-                    "position": 24,
-                    "source": "Knowledge_IRA_COL_FINAL/Domain_23_MA_Deal_Analysis.md",
-                    "source_path": "canonical_source/Knowledge_IRA_COL_FINAL/Domain_23_MA_Deal_Analysis.md",
-                    "sha256": "a588b260c469ab0d41ad277fe64a27d22b4452e3d0e47ba2c6f6421d8fd20743",
-                    "bytes": 6030
-                }
-            ]
+        {
+          "position": 4,
+          "source": "AI_Task_Orchestrator_v_0_0.md",
+          "source_path": "canonical_source/AI_Task_Orchestrator_v_0_0.md",
+          "sha256": "bd87c94df4e323367a224d8f259f05336f10ae19533673beff6cd7d607e4f7e0",
+          "bytes": 28810
         },
-        "05_Master_Knowledge_Base_Vol_2_Sectors_Frameworks_Screening.md": {
-            "sources_count": 27,
-            "output_bytes": 216508,
-            "sha256": "77aa3b303a97f655e7c6e46d70ab7d76db19f5e623f1aafb49d1867af21ff278",
-            "embedded_sources": [
-                {
-                    "position": 1,
-                    "source": "Knowledge_IRA_COL_FINAL/Domain_24_Forensic_Accounting.md",
-                    "source_path": "canonical_source/Knowledge_IRA_COL_FINAL/Domain_24_Forensic_Accounting.md",
-                    "sha256": "bccd0fe75b1977b96f7929e1a5c6040789f7264521c138f4e4f8d5cb4e9e5744",
-                    "bytes": 10757
-                },
-                {
-                    "position": 2,
-                    "source": "Knowledge_IRA_COL_FINAL/Domain_25_Moat_Competitive_Advantage.md",
-                    "source_path": "canonical_source/Knowledge_IRA_COL_FINAL/Domain_25_Moat_Competitive_Advantage.md",
-                    "sha256": "12a254d1020c5e233135034f0c5c76d55cda01821ead26c8273724d738452ae9",
-                    "bytes": 6446
-                },
-                {
-                    "position": 3,
-                    "source": "Knowledge_IRA_COL_FINAL/Domain_26_Financial_Institution_Analysis.md",
-                    "source_path": "canonical_source/Knowledge_IRA_COL_FINAL/Domain_26_Financial_Institution_Analysis.md",
-                    "sha256": "076e65a14c3916fb7743347db0418292fe6b418be8781e04fba5dd230ae2c498",
-                    "bytes": 6670
-                },
-                {
-                    "position": 4,
-                    "source": "Knowledge_IRA_COL_FINAL/Domain_27_Super_Investor_Tracking.md",
-                    "source_path": "canonical_source/Knowledge_IRA_COL_FINAL/Domain_27_Super_Investor_Tracking.md",
-                    "sha256": "da4d6bfb28712e95a1969fcc174b1b752c90089a57b53b093d188e010a7eb50c",
-                    "bytes": 6054
-                },
-                {
-                    "position": 5,
-                    "source": "Knowledge_IRA_COL_FINAL/Domain_28_Multibagger_Turnaround_Framework.md",
-                    "source_path": "canonical_source/Knowledge_IRA_COL_FINAL/Domain_28_Multibagger_Turnaround_Framework.md",
-                    "sha256": "4ee8c146d0e4d3d1d4574122861f9aead033c8f2c43f1ee7da7b788efc2414fc",
-                    "bytes": 7808
-                },
-                {
-                    "position": 6,
-                    "source": "Knowledge_IRA_COL_FINAL/Domain_29_MicroCap_Risk_Framework.md",
-                    "source_path": "canonical_source/Knowledge_IRA_COL_FINAL/Domain_29_MicroCap_Risk_Framework.md",
-                    "sha256": "4c124fca006a91594a052f114fc3a3028e37faf785960404df5c436346259591",
-                    "bytes": 6713
-                },
-                {
-                    "position": 7,
-                    "source": "Knowledge_IRA_COL_FINAL/Domain_30_Swing_Positional_Technical_Patterns.md",
-                    "source_path": "canonical_source/Knowledge_IRA_COL_FINAL/Domain_30_Swing_Positional_Technical_Patterns.md",
-                    "sha256": "1b9afd0ee57bf3d1b7e2f2b3536c66627516981f8f8a49f13c2cb47f2a33f657",
-                    "bytes": 7019
-                },
-                {
-                    "position": 8,
-                    "source": "Knowledge_IRA_COL_FINAL/Domain_31_Banking_Sector_DeepDive.md",
-                    "source_path": "canonical_source/Knowledge_IRA_COL_FINAL/Domain_31_Banking_Sector_DeepDive.md",
-                    "sha256": "7d7088ba0264c54988eec986e4c022af6565d2ffa6e878b67e180c049c855353",
-                    "bytes": 6365
-                },
-                {
-                    "position": 9,
-                    "source": "Knowledge_IRA_COL_FINAL/Domain_32_Pharma_Sector_DeepDive.md",
-                    "source_path": "canonical_source/Knowledge_IRA_COL_FINAL/Domain_32_Pharma_Sector_DeepDive.md",
-                    "sha256": "7e00ed77b4ac13f1871aec34d16f4994d4cd6d95e95e150afa7ca848d92e5814",
-                    "bytes": 7092
-                },
-                {
-                    "position": 10,
-                    "source": "Knowledge_IRA_COL_FINAL/Domain_33_Defence_Sector_DeepDive.md",
-                    "source_path": "canonical_source/Knowledge_IRA_COL_FINAL/Domain_33_Defence_Sector_DeepDive.md",
-                    "sha256": "9f8e104fbc526c27689f898184d3f86d99a8234a94c23b3bbbabdfa1fe7e4b15",
-                    "bytes": 6791
-                },
-                {
-                    "position": 11,
-                    "source": "Knowledge_IRA_COL_FINAL/Domain_34_Manufacturing_Sector_DeepDive.md",
-                    "source_path": "canonical_source/Knowledge_IRA_COL_FINAL/Domain_34_Manufacturing_Sector_DeepDive.md",
-                    "sha256": "695c9b4e9ee93d85fb491d80dba3084a52b0ae5d958ee94859933b31460d6264",
-                    "bytes": 7425
-                },
-                {
-                    "position": 12,
-                    "source": "Knowledge_IRA_COL_FINAL/Domain_35_REIT_InvIT_Sector_DeepDive.md",
-                    "source_path": "canonical_source/Knowledge_IRA_COL_FINAL/Domain_35_REIT_InvIT_Sector_DeepDive.md",
-                    "sha256": "935500eb9fe49f45826ce583b3129e789905d2c8728fcea929368d52731247c6",
-                    "bytes": 6866
-                },
-                {
-                    "position": 13,
-                    "source": "Knowledge_IRA_COL_FINAL/Domain_36_Insurance_Sector_DeepDive.md",
-                    "source_path": "canonical_source/Knowledge_IRA_COL_FINAL/Domain_36_Insurance_Sector_DeepDive.md",
-                    "sha256": "2fc7abe0d17df6d23a67c407896581671a3ef6e29967cc35f2ab6a85dd8754ef",
-                    "bytes": 6898
-                },
-                {
-                    "position": 14,
-                    "source": "Knowledge_IRA_COL_FINAL/Domain_37_Logistics_Sector_DeepDive.md",
-                    "source_path": "canonical_source/Knowledge_IRA_COL_FINAL/Domain_37_Logistics_Sector_DeepDive.md",
-                    "sha256": "046f08d556705f214b6958c8f45c98d18873fb3e884f20cf216208651cfae22a",
-                    "bytes": 7217
-                },
-                {
-                    "position": 15,
-                    "source": "Knowledge_IRA_COL_FINAL/Domain_38_Power_Sector_DeepDive.md",
-                    "source_path": "canonical_source/Knowledge_IRA_COL_FINAL/Domain_38_Power_Sector_DeepDive.md",
-                    "sha256": "647367aae8c20f1c2bf881a82f10d3a3669095301a2b80a81e47113bef986623",
-                    "bytes": 7718
-                },
-                {
-                    "position": 16,
-                    "source": "Knowledge_IRA_COL_FINAL/Domain_39_Railways_Sector_DeepDive.md",
-                    "source_path": "canonical_source/Knowledge_IRA_COL_FINAL/Domain_39_Railways_Sector_DeepDive.md",
-                    "sha256": "79fcaa8e85b31a70a17d8634f5cec9df44ce46ffad674a9f4ebbf116bdc228f6",
-                    "bytes": 7769
-                },
-                {
-                    "position": 17,
-                    "source": "Knowledge_IRA_COL_FINAL/Domain_40_Screening_Strategies.md",
-                    "source_path": "canonical_source/Knowledge_IRA_COL_FINAL/Domain_40_Screening_Strategies.md",
-                    "sha256": "7c83fcee154cf6165d47219594b70c964d516f83b187560e118a9d1a39bc2ff2",
-                    "bytes": 6352
-                },
-                {
-                    "position": 18,
-                    "source": "Knowledge_IRA_COL_FINAL/Domain_41_Dividend_Analysis.md",
-                    "source_path": "canonical_source/Knowledge_IRA_COL_FINAL/Domain_41_Dividend_Analysis.md",
-                    "sha256": "8d3903b6b7eb2e4b152a6ce629a628d73ae6f7d5e3650f48872de6c889f49bf6",
-                    "bytes": 6956
-                },
-                {
-                    "position": 19,
-                    "source": "Knowledge_IRA_COL_FINAL/Domain_42_Scuttlebutt_Research.md",
-                    "source_path": "canonical_source/Knowledge_IRA_COL_FINAL/Domain_42_Scuttlebutt_Research.md",
-                    "sha256": "f84cf8cff5b0f0d383593f42193e77d5d994e5d36d72e0173940b66cf0970bc3",
-                    "bytes": 7249
-                },
-                {
-                    "position": 20,
-                    "source": "Knowledge_IRA_COL_FINAL/Domain_43_Portfolio_Management_Rules.md",
-                    "source_path": "canonical_source/Knowledge_IRA_COL_FINAL/Domain_43_Portfolio_Management_Rules.md",
-                    "sha256": "30b297079dfb458f8bf255b3874fb6d014411646819faffe18f1c67755e78c92",
-                    "bytes": 8180
-                },
-                {
-                    "position": 21,
-                    "source": "Knowledge_IRA_COL_FINAL/Domain_44_Geo_Economic_Impact.md",
-                    "source_path": "canonical_source/Knowledge_IRA_COL_FINAL/Domain_44_Geo_Economic_Impact.md",
-                    "sha256": "c9869fc4ecbdfaa93b7fd803dd875145e2cda2a35e3dd82b2cc2b62dcf74144a",
-                    "bytes": 7529
-                },
-                {
-                    "position": 22,
-                    "source": "Knowledge_IRA_COL_FINAL/Domain_45_Rule_Based_Options_Systematic_Strategies.md",
-                    "source_path": "canonical_source/Knowledge_IRA_COL_FINAL/Domain_45_Rule_Based_Options_Systematic_Strategies.md",
-                    "sha256": "83e53e758977c89d259d99335b8429e393ea359f5025ed05660dd537f5d65982",
-                    "bytes": 8693
-                },
-                {
-                    "position": 23,
-                    "source": "Knowledge_IRA_COL_FINAL/Domain_46_Technical_Growth_Second_Brain_Strategies.md",
-                    "source_path": "canonical_source/Knowledge_IRA_COL_FINAL/Domain_46_Technical_Growth_Second_Brain_Strategies.md",
-                    "sha256": "304b6b625eda120bd631db6c23b367cf6115f057348b5b624e0b260decd1efe0",
-                    "bytes": 8590
-                },
-                {
-                    "position": 24,
-                    "source": "Knowledge_IRA_COL_FINAL/Domain_47_Fundamental_Value_Structural_Strategies.md",
-                    "source_path": "canonical_source/Knowledge_IRA_COL_FINAL/Domain_47_Fundamental_Value_Structural_Strategies.md",
-                    "sha256": "2aa2ff4a478f956c13222d66c16ff96574e9c92f7f150ee7777c3256e451f1d7",
-                    "bytes": 12145
-                },
-                {
-                    "position": 25,
-                    "source": "Knowledge_IRA_COL_FINAL/Domain_48_Quant_Momentum_Ethical_Screening_Strategies.md",
-                    "source_path": "canonical_source/Knowledge_IRA_COL_FINAL/Domain_48_Quant_Momentum_Ethical_Screening_Strategies.md",
-                    "sha256": "d21ffa06684dcd6c1893a4322e8585be9d0afae095a1a1f1eb1824821d4e53fd",
-                    "bytes": 8322
-                },
-                {
-                    "position": 26,
-                    "source": "Knowledge_IRA_COL_FINAL/Screener_Field_Glossary_v_0_0.md",
-                    "source_path": "canonical_source/Knowledge_IRA_COL_FINAL/Screener_Field_Glossary_v_0_0.md",
-                    "sha256": "dfc5983dcc65e76fe48e49451b3b12b3ceb0c67277bdd191bb668b3f53b836ce",
-                    "bytes": 4608
-                },
-                {
-                    "position": 27,
-                    "source": "Knowledge_IRA_COL_FINAL/Sector_Quick_Reference_v_0_0.md",
-                    "source_path": "canonical_source/Knowledge_IRA_COL_FINAL/Sector_Quick_Reference_v_0_0.md",
-                    "sha256": "3f407215c6098dc55567482d9eb22a3cc26c3091d89f0fd4d2411f7dbdd27c4b",
-                    "bytes": 7996
-                }
-            ]
+        {
+          "position": 5,
+          "source": "AI_State_Manager_v_0_0.md",
+          "source_path": "canonical_source/AI_State_Manager_v_0_0.md",
+          "sha256": "90bbff840a8b2db879e97ae6bc3775f351977d0740ba51ea21e88c79f97a9015",
+          "bytes": 10133
+        },
+        {
+          "position": 6,
+          "source": "AI_Context_Manager_v_0_0.md",
+          "source_path": "canonical_source/AI_Context_Manager_v_0_0.md",
+          "sha256": "1aca7a69c529a8a3872de6b4bdf02a9e38c599b7dbaae65e473dab2cdc5002fb",
+          "bytes": 11311
+        },
+        {
+          "position": 7,
+          "source": "AI_Confidence_Standard_v_0_0.md",
+          "source_path": "canonical_source/AI_Confidence_Standard_v_0_0.md",
+          "sha256": "3a85bef2f6e98ad0eec61c46d3cbb59ab7d0ea9697aa80c4ffb024d897dac38e",
+          "bytes": 13432
+        },
+        {
+          "position": 8,
+          "source": "AI_Explainability_Standard_v_0_0.md",
+          "source_path": "canonical_source/AI_Explainability_Standard_v_0_0.md",
+          "sha256": "dc945149d1491c05cafbd8fda6eb56c41e50cb51862fb6baf408a84effc57a7e",
+          "bytes": 5933
         }
+      ]
     },
-    "GIT_COMMIT_SOURCE": "fed44a2",
-    "GIT_COMMIT": "fed44a2"
+    "02_Master_Engine_Contracts_Schemas_Registries.md": {
+      "sources_count": 18,
+      "output_bytes": 261142,
+      "sha256": "5e6e72b8ad6647173b7df83516178e3f8f87503a933146b39023fc18232c23d5",
+      "embedded_sources": [
+        {
+          "position": 1,
+          "source": "AI_Intelligence_Engine_v_0_0.md",
+          "source_path": "canonical_source/AI_Intelligence_Engine_v_0_0.md",
+          "sha256": "f8d29c47d85ad8b8475f6f79e478bb9acf6c56a8f84f6b74b63a244acae855a6",
+          "bytes": 23319
+        },
+        {
+          "position": 2,
+          "source": "AI_Execution_Engine_v_0_0.md",
+          "source_path": "canonical_source/AI_Execution_Engine_v_0_0.md",
+          "sha256": "029de2a10f6dfd174e70b2ea1fcea4f37c5e8aeaa89b401a7d71281d647bc56b",
+          "bytes": 27052
+        },
+        {
+          "position": 3,
+          "source": "AI_Research_Engine_v_0_0.md",
+          "source_path": "canonical_source/AI_Research_Engine_v_0_0.md",
+          "sha256": "c2f5feb84c3aa00dc36fc703c00541e00675ae7d7eb6df24f01c931f0465c9b8",
+          "bytes": 25869
+        },
+        {
+          "position": 4,
+          "source": "AI_Reasoning_Skills_v_0_0.md",
+          "source_path": "canonical_source/AI_Reasoning_Skills_v_0_0.md",
+          "sha256": "de3f8cefc4708c988c311cdf44638455e288158087d3143db84332e0f585f93b",
+          "bytes": 21705
+        },
+        {
+          "position": 5,
+          "source": "AI_Quality_Audit_v_0_0.md",
+          "source_path": "canonical_source/AI_Quality_Audit_v_0_0.md",
+          "sha256": "8acf83fe3dc2ef16453159b7a959092706b31dfbaa8cdaec6bf8d440c0981eb8",
+          "bytes": 37607
+        },
+        {
+          "position": 6,
+          "source": "AI_Output_System_v_0_0.md",
+          "source_path": "canonical_source/AI_Output_System_v_0_0.md",
+          "sha256": "0b78399a6404212ae50c150146056826f1161b77720ff3b5a1dd7d80a3e120dc",
+          "bytes": 14138
+        },
+        {
+          "position": 7,
+          "source": "AI_Object_Schemas_v_0_0.md",
+          "source_path": "canonical_source/AI_Object_Schemas_v_0_0.md",
+          "sha256": "5bc5a1416017a5155fd4601041dcdd634da513f6c41d120c32ddcc47e9fa9e65",
+          "bytes": 16613
+        },
+        {
+          "position": 8,
+          "source": "AI_Dependency_Map_v_0_0.md",
+          "source_path": "canonical_source/AI_Dependency_Map_v_0_0.md",
+          "sha256": "f8f34ad7b854b3e45396ca96976440e3a5f06fced916374c834521e7a9c4a6f3",
+          "bytes": 20172
+        },
+        {
+          "position": 9,
+          "source": "AI_Unified_Pattern_Taxonomy_v_0_0.md",
+          "source_path": "canonical_source/AI_Unified_Pattern_Taxonomy_v_0_0.md",
+          "sha256": "186781e4e56abc0e73116bdbbc928e6370a809a2eea48d1a0bba2524b666195e",
+          "bytes": 8039
+        },
+        {
+          "position": 10,
+          "source": "AI_Module_Registry_v_0_0.md",
+          "source_path": "canonical_source/AI_Module_Registry_v_0_0.md",
+          "sha256": "d021aa44bb210aecb887268a8a82aff807ffe3435a39b7adaee75d838d3a80e9",
+          "bytes": 18207
+        },
+        {
+          "position": 11,
+          "source": "AI_Framework_Registry_v_0_0.md",
+          "source_path": "canonical_source/AI_Framework_Registry_v_0_0.md",
+          "sha256": "f4e6af682e8e43484b09b8e6292c4cb619f77afa5852bb73ffa1fd632b627dd2",
+          "bytes": 9689
+        },
+        {
+          "position": 12,
+          "source": "AI_Conformance_Matrix_v_0_0.md",
+          "source_path": "canonical_source/AI_Conformance_Matrix_v_0_0.md",
+          "sha256": "53aeb4b117858cebd43bfb84429ae25f1c217002afcd63589f0760389ec05519",
+          "bytes": 6482
+        },
+        {
+          "position": 13,
+          "source": "AI_E6_Quality_Growth_Screener_v_0_0.md",
+          "source_path": "canonical_source/AI_E6_Quality_Growth_Screener_v_0_0.md",
+          "sha256": "e951bc9256aaadd04b1cc04940577228e0397f3693291c0ecaba7e145789706e",
+          "bytes": 2114
+        },
+        {
+          "position": 14,
+          "source": "AI_Causal_Analysis_Engine_v_0_0.md",
+          "source_path": "canonical_source/AI_Causal_Analysis_Engine_v_0_0.md",
+          "sha256": "93714b75cdc21b1beef7e71bf381385301251b23c0a1e68dce696f3c55a4f9a8",
+          "bytes": 1969
+        },
+        {
+          "position": 15,
+          "source": "AI_Geopolitical_Risk_Engine_v_0_0.md",
+          "source_path": "canonical_source/AI_Geopolitical_Risk_Engine_v_0_0.md",
+          "sha256": "04d04e76beaf2f0edd7d95a4314bf83b318197173be9f6325608c4550f7c2272",
+          "bytes": 1776
+        },
+        {
+          "position": 16,
+          "source": "AI_Expectation_Gap_Engine_v_0_0.md",
+          "source_path": "canonical_source/AI_Expectation_Gap_Engine_v_0_0.md",
+          "sha256": "bc25de721f29f328791a5dbc46cd2a5144838e193a5a3975c10cef72ba2371d9",
+          "bytes": 3075
+        },
+        {
+          "position": 17,
+          "source": "AI_Custom_Screener_Engine_v_0_1.md",
+          "source_path": "canonical_source/AI_Custom_Screener_Engine_v_0_1.md",
+          "sha256": "73eaf37e9954dad165ccdb64749a3a1a58c9bbf5d7d788d175e83b7675589cf9",
+          "bytes": 6434
+        },
+        {
+          "position": 18,
+          "source": "AI_Institutional_Multibagger_Engine_v_0_1.md",
+          "source_path": "canonical_source/AI_Institutional_Multibagger_Engine_v_0_1.md",
+          "sha256": "75f829094344ff324c8af992fb1fa25cd7d843cfb6b80726462f06d8e2d43bc8",
+          "bytes": 6974
+        }
+      ]
+    },
+    "03_Master_Skill_Library.md": {
+      "sources_count": 20,
+      "output_bytes": 628109,
+      "sha256": "26789b798beb81ecd9c8a47ece3a8c44ed0cd6e9cc76c2283635d52c7d048194",
+      "embedded_sources": [
+        {
+          "position": 1,
+          "source": "AI_SKILL_IRA_col_final/Skill_Library_Manifest.md",
+          "source_path": "canonical_source/AI_SKILL_IRA_col_final/Skill_Library_Manifest.md",
+          "sha256": "272a3bec84e3828db7792628a763ad508f35792caf6c29dbb89097859b4eda8b",
+          "bytes": 3250
+        },
+        {
+          "position": 2,
+          "source": "AI_SKILL_IRA_col_final/04_Skills_Reference_v_0_0.md",
+          "source_path": "canonical_source/AI_SKILL_IRA_col_final/04_Skills_Reference_v_0_0.md",
+          "sha256": "8d8512951723222d3e9c80279af8dc66d16e08a622f956ae42df64a5d36ebdd3",
+          "bytes": 293679
+        },
+        {
+          "position": 3,
+          "source": "AI_SKILL_IRA_col_final/AI_18_Expert_Strategies_Execution_Skill.md",
+          "source_path": "canonical_source/AI_SKILL_IRA_col_final/AI_18_Expert_Strategies_Execution_Skill.md",
+          "sha256": "a7d5dfcc99cc6ee87f1524ba76de7b9a1341ed8c6b5beb5a7b3904728a8a0d39",
+          "bytes": 20746
+        },
+        {
+          "position": 4,
+          "source": "AI_SKILL_IRA_col_final/AI_Comparison_Engine_Skill.md",
+          "source_path": "canonical_source/AI_SKILL_IRA_col_final/AI_Comparison_Engine_Skill.md",
+          "sha256": "347a6c211877aa7c9c2b90c5ce80652ada167ca53d8446bb60c0767a89d000fb",
+          "bytes": 11607
+        },
+        {
+          "position": 5,
+          "source": "AI_SKILL_IRA_col_final/AI_Concentrated_SmallCap_Style_Thinking_Skill.md",
+          "source_path": "canonical_source/AI_SKILL_IRA_col_final/AI_Concentrated_SmallCap_Style_Thinking_Skill.md",
+          "sha256": "1bf7e975808e08991688f65a4b64d0572eecc5b4abd6503231981ffe0c607e22",
+          "bytes": 14363
+        },
+        {
+          "position": 6,
+          "source": "AI_SKILL_IRA_col_final/AI_DCF_Valuation_Skill.md",
+          "source_path": "canonical_source/AI_SKILL_IRA_col_final/AI_DCF_Valuation_Skill.md",
+          "sha256": "9ffb983cae45bd92e8392b39aafb423199e0040632c93f4991b5120e6cf27c93",
+          "bytes": 19216
+        },
+        {
+          "position": 7,
+          "source": "AI_SKILL_IRA_col_final/AI_Forensic_Accounting_Skill.md",
+          "source_path": "canonical_source/AI_SKILL_IRA_col_final/AI_Forensic_Accounting_Skill.md",
+          "sha256": "2bbc743275aaa8789b2f7873d4b6ca81db8521f319261855e685a6040ea6bd62",
+          "bytes": 25476
+        },
+        {
+          "position": 8,
+          "source": "AI_SKILL_IRA_col_final/AI_Fundamental_Analysis_Core_Skill.md",
+          "source_path": "canonical_source/AI_SKILL_IRA_col_final/AI_Fundamental_Analysis_Core_Skill.md",
+          "sha256": "e3ecd22e85697df038889cb69b5b3f39efb9195fd96ab920bb8b31cd6050b693",
+          "bytes": 19520
+        },
+        {
+          "position": 9,
+          "source": "AI_SKILL_IRA_col_final/AI_Future_Growth_Skill.md",
+          "source_path": "canonical_source/AI_SKILL_IRA_col_final/AI_Future_Growth_Skill.md",
+          "sha256": "f76aca49aba770c2172ecd42d012ab364949724a04291c7431ea03fe8e006e9b",
+          "bytes": 15062
+        },
+        {
+          "position": 10,
+          "source": "AI_SKILL_IRA_col_final/AI_Multibagger_Discovery_Skill.md",
+          "source_path": "canonical_source/AI_SKILL_IRA_col_final/AI_Multibagger_Discovery_Skill.md",
+          "sha256": "c01bc8846978d6acbfacc88bcd8215ad6e95bf8e09c3cf13672a249467087ee1",
+          "bytes": 27065
+        },
+        {
+          "position": 11,
+          "source": "AI_SKILL_IRA_col_final/AI_MultiSector_Momentum_Value_Style_Thinking_Skill.md",
+          "source_path": "canonical_source/AI_SKILL_IRA_col_final/AI_MultiSector_Momentum_Value_Style_Thinking_Skill.md",
+          "sha256": "cccd6bb37a97037adc43532ab84d9be5698b19eecb427ea4afbd9da49a629cae",
+          "bytes": 15351
+        },
+        {
+          "position": 12,
+          "source": "AI_SKILL_IRA_col_final/AI_Options_Data_Skill.md",
+          "source_path": "canonical_source/AI_SKILL_IRA_col_final/AI_Options_Data_Skill.md",
+          "sha256": "0cbf74e08253796a4cde2ad3f0c7237b3f6b14a10c43b573ee8b9346cc33a6e0",
+          "bytes": 15645
+        },
+        {
+          "position": 13,
+          "source": "AI_SKILL_IRA_col_final/AI_Portfolio_Construction_Skill.md",
+          "source_path": "canonical_source/AI_SKILL_IRA_col_final/AI_Portfolio_Construction_Skill.md",
+          "sha256": "956392fffa8ccf7af50df6737415ffdd09d8914ec370884d15f6204823ad8189",
+          "bytes": 17722
+        },
+        {
+          "position": 14,
+          "source": "AI_SKILL_IRA_col_final/AI_Small_to_Mid_Cap_SIP_Stocks_Analysis_Skill.md",
+          "source_path": "canonical_source/AI_SKILL_IRA_col_final/AI_Small_to_Mid_Cap_SIP_Stocks_Analysis_Skill.md",
+          "sha256": "47d95e38d502403ad70582c96d8265db2e4cc23dd52d6bd808c80d90efdb8660",
+          "bytes": 18336
+        },
+        {
+          "position": 15,
+          "source": "AI_SKILL_IRA_col_final/AI_Swing_Trading_Skill.md",
+          "source_path": "canonical_source/AI_SKILL_IRA_col_final/AI_Swing_Trading_Skill.md",
+          "sha256": "3719df5eb93f4dd027bbfb56825649a6db6a5462cae4af9096689d733da21172",
+          "bytes": 22833
+        },
+        {
+          "position": 16,
+          "source": "AI_SKILL_IRA_col_final/AI_Technical_Analysis_Master_Skill.md",
+          "source_path": "canonical_source/AI_SKILL_IRA_col_final/AI_Technical_Analysis_Master_Skill.md",
+          "sha256": "39016471186c06d2ff7fb271aa44e19e8529b56a705aa4d9ba92b13674279ea5",
+          "bytes": 27297
+        },
+        {
+          "position": 17,
+          "source": "AI_SKILL_IRA_col_final/Technical_Analysis_Data_Input_Template_v_0.0.md",
+          "source_path": "canonical_source/AI_SKILL_IRA_col_final/Technical_Analysis_Data_Input_Template_v_0.0.md",
+          "sha256": "d3d197d73284c932385c45eff34fcf82c96bed6cda473782d2b486eced42f170",
+          "bytes": 3372
+        },
+        {
+          "position": 18,
+          "source": "AI_SKILL_IRA_col_final/AI_Turnaround_Analysis_Skill.md",
+          "source_path": "canonical_source/AI_SKILL_IRA_col_final/AI_Turnaround_Analysis_Skill.md",
+          "sha256": "acaa4c25f8f169e9eaa1a23f0cc74632aa836ea2293c31c3851828097e91b124",
+          "bytes": 14942
+        },
+        {
+          "position": 19,
+          "source": "AI_SKILL_IRA_col_final/AI_Uptrend_Momentum_Stock_Skill.md",
+          "source_path": "canonical_source/AI_SKILL_IRA_col_final/AI_Uptrend_Momentum_Stock_Skill.md",
+          "sha256": "22d53163913f3eb56761046a7dea391ab72457e8d2b153d08bfb94416e3c87c4",
+          "bytes": 17985
+        },
+        {
+          "position": 20,
+          "source": "AI_SKILL_IRA_col_final/AI_Volume_Delivery_Analysis_Skill.md",
+          "source_path": "canonical_source/AI_SKILL_IRA_col_final/AI_Volume_Delivery_Analysis_Skill.md",
+          "sha256": "a5d06dfab9833ebb5788345cfb0359f7b977f38ea1198483f4789e5d8525a9bb",
+          "bytes": 13617
+        }
+      ]
+    },
+    "04_Master_Knowledge_Base_Vol_1_Fundamentals_Valuation_Governance.md": {
+      "sources_count": 24,
+      "output_bytes": 167532,
+      "sha256": "795f46ddc2273412789edc8788f7099554010727ad39c0038081955e0bf4f3df",
+      "embedded_sources": [
+        {
+          "position": 1,
+          "source": "Knowledge_IRA_COL_FINAL/00_Index.md",
+          "source_path": "canonical_source/Knowledge_IRA_COL_FINAL/00_Index.md",
+          "sha256": "cc9e649869212b3a9d063234a58bf494b8ef2b1d0fe99a1d379a8a6dff20e19a",
+          "bytes": 6054
+        },
+        {
+          "position": 2,
+          "source": "Knowledge_IRA_COL_FINAL/Domain_01_Economics.md",
+          "source_path": "canonical_source/Knowledge_IRA_COL_FINAL/Domain_01_Economics.md",
+          "sha256": "0b245c72f562eb2bbeaee03c28a0b086db3e68107affa54be372f816d03eab53",
+          "bytes": 8136
+        },
+        {
+          "position": 3,
+          "source": "Knowledge_IRA_COL_FINAL/Domain_02_Financial_Statements.md",
+          "source_path": "canonical_source/Knowledge_IRA_COL_FINAL/Domain_02_Financial_Statements.md",
+          "sha256": "0ae984098d1d368bca85daf2beb2ccd8f0e9f1da1539d18349634312713c0680",
+          "bytes": 6406
+        },
+        {
+          "position": 4,
+          "source": "Knowledge_IRA_COL_FINAL/Domain_03_Accounting.md",
+          "source_path": "canonical_source/Knowledge_IRA_COL_FINAL/Domain_03_Accounting.md",
+          "sha256": "dbb3017864aff792943b08804f98a51f536737e83ebee768cc9234d269b3777c",
+          "bytes": 6096
+        },
+        {
+          "position": 5,
+          "source": "Knowledge_IRA_COL_FINAL/Domain_04_Financial_Ratios.md",
+          "source_path": "canonical_source/Knowledge_IRA_COL_FINAL/Domain_04_Financial_Ratios.md",
+          "sha256": "a7c5177d2214cf91dcf26fef2fade8bf54e9cb67984b2013159749d49fe4e90a",
+          "bytes": 5951
+        },
+        {
+          "position": 6,
+          "source": "Knowledge_IRA_COL_FINAL/Domain_05_Valuation.md",
+          "source_path": "canonical_source/Knowledge_IRA_COL_FINAL/Domain_05_Valuation.md",
+          "sha256": "eebfcdb8e631f888ec237d7af3fa706da6d228b83c5cf8abbc1796f4fac7e84c",
+          "bytes": 12455
+        },
+        {
+          "position": 7,
+          "source": "Knowledge_IRA_COL_FINAL/Domain_06_Fundamental_Analysis.md",
+          "source_path": "canonical_source/Knowledge_IRA_COL_FINAL/Domain_06_Fundamental_Analysis.md",
+          "sha256": "6ed4011cae8d68e17bfd7162f0debdc82a681f49c5afbdc37f2f4f61fa75090a",
+          "bytes": 5617
+        },
+        {
+          "position": 8,
+          "source": "Knowledge_IRA_COL_FINAL/Domain_07_Technical_Analysis.md",
+          "source_path": "canonical_source/Knowledge_IRA_COL_FINAL/Domain_07_Technical_Analysis.md",
+          "sha256": "0ac7a84cfded2e8d525a7229c5ed61e358a147f66bc105bbe18abc9efac9dd29",
+          "bytes": 5351
+        },
+        {
+          "position": 9,
+          "source": "Knowledge_IRA_COL_FINAL/Domain_08_Corporate_Governance.md",
+          "source_path": "canonical_source/Knowledge_IRA_COL_FINAL/Domain_08_Corporate_Governance.md",
+          "sha256": "05c6b15cc25c5293d6b4e63562519b7b6bbd5ac571a21bd974380f53c763e98c",
+          "bytes": 6284
+        },
+        {
+          "position": 10,
+          "source": "Knowledge_IRA_COL_FINAL/Domain_09_Risk_Management.md",
+          "source_path": "canonical_source/Knowledge_IRA_COL_FINAL/Domain_09_Risk_Management.md",
+          "sha256": "27ced20c7f77d63a38a42dcd23870f061842436fa489e17a23837ebea20e8522",
+          "bytes": 5748
+        },
+        {
+          "position": 11,
+          "source": "Knowledge_IRA_COL_FINAL/Domain_10_Portfolio_Management.md",
+          "source_path": "canonical_source/Knowledge_IRA_COL_FINAL/Domain_10_Portfolio_Management.md",
+          "sha256": "7c9512e9f0acfc44c7542fad66d655c90e9b6362b2f5f3c92b25635ca45f5320",
+          "bytes": 5423
+        },
+        {
+          "position": 12,
+          "source": "Knowledge_IRA_COL_FINAL/Domain_11_Behavioural_Finance.md",
+          "source_path": "canonical_source/Knowledge_IRA_COL_FINAL/Domain_11_Behavioural_Finance.md",
+          "sha256": "8611a3e97af7fcf67c45eb793e65fe3a41d7e18e03f5788e70d5349ec36e6435",
+          "bytes": 5246
+        },
+        {
+          "position": 13,
+          "source": "Knowledge_IRA_COL_FINAL/Domain_12_Industry_Knowledge.md",
+          "source_path": "canonical_source/Knowledge_IRA_COL_FINAL/Domain_12_Industry_Knowledge.md",
+          "sha256": "5228b73df56ef8ff4e2c05ea2af97101e19eb86af7982838ea1ced6f4a23bc6d",
+          "bytes": 8237
+        },
+        {
+          "position": 14,
+          "source": "Knowledge_IRA_COL_FINAL/Domain_13_Macroeconomic_Themes.md",
+          "source_path": "canonical_source/Knowledge_IRA_COL_FINAL/Domain_13_Macroeconomic_Themes.md",
+          "sha256": "5198d68a549ade81c59aaf197d1879ed0ed582097201b80f6fb22419d49422bb",
+          "bytes": 6095
+        },
+        {
+          "position": 15,
+          "source": "Knowledge_IRA_COL_FINAL/Domain_14_Indian_Capital_Markets.md",
+          "source_path": "canonical_source/Knowledge_IRA_COL_FINAL/Domain_14_Indian_Capital_Markets.md",
+          "sha256": "ec283707cbc306626c8d8931aa9b7295ef3b78b402fa9cb5c55769ae5d43345f",
+          "bytes": 5902
+        },
+        {
+          "position": 16,
+          "source": "Knowledge_IRA_COL_FINAL/Domain_15_Investor_Frameworks.md",
+          "source_path": "canonical_source/Knowledge_IRA_COL_FINAL/Domain_15_Investor_Frameworks.md",
+          "sha256": "884f2156528e494a58ef91cdfbccf58661c83d7ce7f14b7a648ed7df35b5735e",
+          "bytes": 5563
+        },
+        {
+          "position": 17,
+          "source": "Knowledge_IRA_COL_FINAL/Domain_16_Special_Situations.md",
+          "source_path": "canonical_source/Knowledge_IRA_COL_FINAL/Domain_16_Special_Situations.md",
+          "sha256": "f38318bda38aa4c016c463d5e2df92b4b9ae4a08e511ec85e9f1aa9b1d472e32",
+          "bytes": 6110
+        },
+        {
+          "position": 18,
+          "source": "Knowledge_IRA_COL_FINAL/Domain_17_Research_Sources.md",
+          "source_path": "canonical_source/Knowledge_IRA_COL_FINAL/Domain_17_Research_Sources.md",
+          "sha256": "2b9a74ee3749b3fd1dcc775a0cc5582a77e3b59ced1a6860515f7a23733ff3ed",
+          "bytes": 5288
+        },
+        {
+          "position": 19,
+          "source": "Knowledge_IRA_COL_FINAL/Domain_18_ESG_Sustainability.md",
+          "source_path": "canonical_source/Knowledge_IRA_COL_FINAL/Domain_18_ESG_Sustainability.md",
+          "sha256": "cd8adee6933474f9906a09998c76e88adff52b51862852ad6c1fdedeac8024a4",
+          "bytes": 4936
+        },
+        {
+          "position": 20,
+          "source": "Knowledge_IRA_COL_FINAL/Domain_19_Derivatives_Options.md",
+          "source_path": "canonical_source/Knowledge_IRA_COL_FINAL/Domain_19_Derivatives_Options.md",
+          "sha256": "4082cdb7fefc091518d34f48b89c168a8a8241d45857fd9dcd4671fe6c4f82db",
+          "bytes": 10651
+        },
+        {
+          "position": 21,
+          "source": "Knowledge_IRA_COL_FINAL/Domain_20_Credit_Debt_Markets.md",
+          "source_path": "canonical_source/Knowledge_IRA_COL_FINAL/Domain_20_Credit_Debt_Markets.md",
+          "sha256": "85fe9925dd72d39a28225a7277e65a411e8e503df13c1ebbf09f18c299105daf",
+          "bytes": 5678
+        },
+        {
+          "position": 22,
+          "source": "Knowledge_IRA_COL_FINAL/Domain_21_Quantitative_Factor_Models.md",
+          "source_path": "canonical_source/Knowledge_IRA_COL_FINAL/Domain_21_Quantitative_Factor_Models.md",
+          "sha256": "c42986b65600388fda31292f1670b43c3b816e597b6157f1335013173c16ee5c",
+          "bytes": 5609
+        },
+        {
+          "position": 23,
+          "source": "Knowledge_IRA_COL_FINAL/Domain_22_Regulatory_Tax_Framework.md",
+          "source_path": "canonical_source/Knowledge_IRA_COL_FINAL/Domain_22_Regulatory_Tax_Framework.md",
+          "sha256": "ef9df03be2e90c2e8f10a0b7844756d0b5b534fb07df8b948664de160532f000",
+          "bytes": 6479
+        },
+        {
+          "position": 24,
+          "source": "Knowledge_IRA_COL_FINAL/Domain_23_MA_Deal_Analysis.md",
+          "source_path": "canonical_source/Knowledge_IRA_COL_FINAL/Domain_23_MA_Deal_Analysis.md",
+          "sha256": "a588b260c469ab0d41ad277fe64a27d22b4452e3d0e47ba2c6f6421d8fd20743",
+          "bytes": 6030
+        }
+      ]
+    },
+    "05_Master_Knowledge_Base_Vol_2_Sectors_Frameworks_Screening.md": {
+      "sources_count": 27,
+      "output_bytes": 216508,
+      "sha256": "ccf570f0c86236ee505bb528e7cc1a35adfb2fe2e58326d415bde39d5148f04e",
+      "embedded_sources": [
+        {
+          "position": 1,
+          "source": "Knowledge_IRA_COL_FINAL/Domain_24_Forensic_Accounting.md",
+          "source_path": "canonical_source/Knowledge_IRA_COL_FINAL/Domain_24_Forensic_Accounting.md",
+          "sha256": "bccd0fe75b1977b96f7929e1a5c6040789f7264521c138f4e4f8d5cb4e9e5744",
+          "bytes": 10757
+        },
+        {
+          "position": 2,
+          "source": "Knowledge_IRA_COL_FINAL/Domain_25_Moat_Competitive_Advantage.md",
+          "source_path": "canonical_source/Knowledge_IRA_COL_FINAL/Domain_25_Moat_Competitive_Advantage.md",
+          "sha256": "12a254d1020c5e233135034f0c5c76d55cda01821ead26c8273724d738452ae9",
+          "bytes": 6446
+        },
+        {
+          "position": 3,
+          "source": "Knowledge_IRA_COL_FINAL/Domain_26_Financial_Institution_Analysis.md",
+          "source_path": "canonical_source/Knowledge_IRA_COL_FINAL/Domain_26_Financial_Institution_Analysis.md",
+          "sha256": "076e65a14c3916fb7743347db0418292fe6b418be8781e04fba5dd230ae2c498",
+          "bytes": 6670
+        },
+        {
+          "position": 4,
+          "source": "Knowledge_IRA_COL_FINAL/Domain_27_Super_Investor_Tracking.md",
+          "source_path": "canonical_source/Knowledge_IRA_COL_FINAL/Domain_27_Super_Investor_Tracking.md",
+          "sha256": "da4d6bfb28712e95a1969fcc174b1b752c90089a57b53b093d188e010a7eb50c",
+          "bytes": 6054
+        },
+        {
+          "position": 5,
+          "source": "Knowledge_IRA_COL_FINAL/Domain_28_Multibagger_Turnaround_Framework.md",
+          "source_path": "canonical_source/Knowledge_IRA_COL_FINAL/Domain_28_Multibagger_Turnaround_Framework.md",
+          "sha256": "4ee8c146d0e4d3d1d4574122861f9aead033c8f2c43f1ee7da7b788efc2414fc",
+          "bytes": 7808
+        },
+        {
+          "position": 6,
+          "source": "Knowledge_IRA_COL_FINAL/Domain_29_MicroCap_Risk_Framework.md",
+          "source_path": "canonical_source/Knowledge_IRA_COL_FINAL/Domain_29_MicroCap_Risk_Framework.md",
+          "sha256": "4c124fca006a91594a052f114fc3a3028e37faf785960404df5c436346259591",
+          "bytes": 6713
+        },
+        {
+          "position": 7,
+          "source": "Knowledge_IRA_COL_FINAL/Domain_30_Swing_Positional_Technical_Patterns.md",
+          "source_path": "canonical_source/Knowledge_IRA_COL_FINAL/Domain_30_Swing_Positional_Technical_Patterns.md",
+          "sha256": "1b9afd0ee57bf3d1b7e2f2b3536c66627516981f8f8a49f13c2cb47f2a33f657",
+          "bytes": 7019
+        },
+        {
+          "position": 8,
+          "source": "Knowledge_IRA_COL_FINAL/Domain_31_Banking_Sector_DeepDive.md",
+          "source_path": "canonical_source/Knowledge_IRA_COL_FINAL/Domain_31_Banking_Sector_DeepDive.md",
+          "sha256": "7d7088ba0264c54988eec986e4c022af6565d2ffa6e878b67e180c049c855353",
+          "bytes": 6365
+        },
+        {
+          "position": 9,
+          "source": "Knowledge_IRA_COL_FINAL/Domain_32_Pharma_Sector_DeepDive.md",
+          "source_path": "canonical_source/Knowledge_IRA_COL_FINAL/Domain_32_Pharma_Sector_DeepDive.md",
+          "sha256": "7e00ed77b4ac13f1871aec34d16f4994d4cd6d95e95e150afa7ca848d92e5814",
+          "bytes": 7092
+        },
+        {
+          "position": 10,
+          "source": "Knowledge_IRA_COL_FINAL/Domain_33_Defence_Sector_DeepDive.md",
+          "source_path": "canonical_source/Knowledge_IRA_COL_FINAL/Domain_33_Defence_Sector_DeepDive.md",
+          "sha256": "9f8e104fbc526c27689f898184d3f86d99a8234a94c23b3bbbabdfa1fe7e4b15",
+          "bytes": 6791
+        },
+        {
+          "position": 11,
+          "source": "Knowledge_IRA_COL_FINAL/Domain_34_Manufacturing_Sector_DeepDive.md",
+          "source_path": "canonical_source/Knowledge_IRA_COL_FINAL/Domain_34_Manufacturing_Sector_DeepDive.md",
+          "sha256": "695c9b4e9ee93d85fb491d80dba3084a52b0ae5d958ee94859933b31460d6264",
+          "bytes": 7425
+        },
+        {
+          "position": 12,
+          "source": "Knowledge_IRA_COL_FINAL/Domain_35_REIT_InvIT_Sector_DeepDive.md",
+          "source_path": "canonical_source/Knowledge_IRA_COL_FINAL/Domain_35_REIT_InvIT_Sector_DeepDive.md",
+          "sha256": "935500eb9fe49f45826ce583b3129e789905d2c8728fcea929368d52731247c6",
+          "bytes": 6866
+        },
+        {
+          "position": 13,
+          "source": "Knowledge_IRA_COL_FINAL/Domain_36_Insurance_Sector_DeepDive.md",
+          "source_path": "canonical_source/Knowledge_IRA_COL_FINAL/Domain_36_Insurance_Sector_DeepDive.md",
+          "sha256": "2fc7abe0d17df6d23a67c407896581671a3ef6e29967cc35f2ab6a85dd8754ef",
+          "bytes": 6898
+        },
+        {
+          "position": 14,
+          "source": "Knowledge_IRA_COL_FINAL/Domain_37_Logistics_Sector_DeepDive.md",
+          "source_path": "canonical_source/Knowledge_IRA_COL_FINAL/Domain_37_Logistics_Sector_DeepDive.md",
+          "sha256": "046f08d556705f214b6958c8f45c98d18873fb3e884f20cf216208651cfae22a",
+          "bytes": 7217
+        },
+        {
+          "position": 15,
+          "source": "Knowledge_IRA_COL_FINAL/Domain_38_Power_Sector_DeepDive.md",
+          "source_path": "canonical_source/Knowledge_IRA_COL_FINAL/Domain_38_Power_Sector_DeepDive.md",
+          "sha256": "647367aae8c20f1c2bf881a82f10d3a3669095301a2b80a81e47113bef986623",
+          "bytes": 7718
+        },
+        {
+          "position": 16,
+          "source": "Knowledge_IRA_COL_FINAL/Domain_39_Railways_Sector_DeepDive.md",
+          "source_path": "canonical_source/Knowledge_IRA_COL_FINAL/Domain_39_Railways_Sector_DeepDive.md",
+          "sha256": "79fcaa8e85b31a70a17d8634f5cec9df44ce46ffad674a9f4ebbf116bdc228f6",
+          "bytes": 7769
+        },
+        {
+          "position": 17,
+          "source": "Knowledge_IRA_COL_FINAL/Domain_40_Screening_Strategies.md",
+          "source_path": "canonical_source/Knowledge_IRA_COL_FINAL/Domain_40_Screening_Strategies.md",
+          "sha256": "7c83fcee154cf6165d47219594b70c964d516f83b187560e118a9d1a39bc2ff2",
+          "bytes": 6352
+        },
+        {
+          "position": 18,
+          "source": "Knowledge_IRA_COL_FINAL/Domain_41_Dividend_Analysis.md",
+          "source_path": "canonical_source/Knowledge_IRA_COL_FINAL/Domain_41_Dividend_Analysis.md",
+          "sha256": "8d3903b6b7eb2e4b152a6ce629a628d73ae6f7d5e3650f48872de6c889f49bf6",
+          "bytes": 6956
+        },
+        {
+          "position": 19,
+          "source": "Knowledge_IRA_COL_FINAL/Domain_42_Scuttlebutt_Research.md",
+          "source_path": "canonical_source/Knowledge_IRA_COL_FINAL/Domain_42_Scuttlebutt_Research.md",
+          "sha256": "f84cf8cff5b0f0d383593f42193e77d5d994e5d36d72e0173940b66cf0970bc3",
+          "bytes": 7249
+        },
+        {
+          "position": 20,
+          "source": "Knowledge_IRA_COL_FINAL/Domain_43_Portfolio_Management_Rules.md",
+          "source_path": "canonical_source/Knowledge_IRA_COL_FINAL/Domain_43_Portfolio_Management_Rules.md",
+          "sha256": "30b297079dfb458f8bf255b3874fb6d014411646819faffe18f1c67755e78c92",
+          "bytes": 8180
+        },
+        {
+          "position": 21,
+          "source": "Knowledge_IRA_COL_FINAL/Domain_44_Geo_Economic_Impact.md",
+          "source_path": "canonical_source/Knowledge_IRA_COL_FINAL/Domain_44_Geo_Economic_Impact.md",
+          "sha256": "c9869fc4ecbdfaa93b7fd803dd875145e2cda2a35e3dd82b2cc2b62dcf74144a",
+          "bytes": 7529
+        },
+        {
+          "position": 22,
+          "source": "Knowledge_IRA_COL_FINAL/Domain_45_Rule_Based_Options_Systematic_Strategies.md",
+          "source_path": "canonical_source/Knowledge_IRA_COL_FINAL/Domain_45_Rule_Based_Options_Systematic_Strategies.md",
+          "sha256": "83e53e758977c89d259d99335b8429e393ea359f5025ed05660dd537f5d65982",
+          "bytes": 8693
+        },
+        {
+          "position": 23,
+          "source": "Knowledge_IRA_COL_FINAL/Domain_46_Technical_Growth_Second_Brain_Strategies.md",
+          "source_path": "canonical_source/Knowledge_IRA_COL_FINAL/Domain_46_Technical_Growth_Second_Brain_Strategies.md",
+          "sha256": "304b6b625eda120bd631db6c23b367cf6115f057348b5b624e0b260decd1efe0",
+          "bytes": 8590
+        },
+        {
+          "position": 24,
+          "source": "Knowledge_IRA_COL_FINAL/Domain_47_Fundamental_Value_Structural_Strategies.md",
+          "source_path": "canonical_source/Knowledge_IRA_COL_FINAL/Domain_47_Fundamental_Value_Structural_Strategies.md",
+          "sha256": "2aa2ff4a478f956c13222d66c16ff96574e9c92f7f150ee7777c3256e451f1d7",
+          "bytes": 12145
+        },
+        {
+          "position": 25,
+          "source": "Knowledge_IRA_COL_FINAL/Domain_48_Quant_Momentum_Ethical_Screening_Strategies.md",
+          "source_path": "canonical_source/Knowledge_IRA_COL_FINAL/Domain_48_Quant_Momentum_Ethical_Screening_Strategies.md",
+          "sha256": "d21ffa06684dcd6c1893a4322e8585be9d0afae095a1a1f1eb1824821d4e53fd",
+          "bytes": 8322
+        },
+        {
+          "position": 26,
+          "source": "Knowledge_IRA_COL_FINAL/Screener_Field_Glossary_v_0_0.md",
+          "source_path": "canonical_source/Knowledge_IRA_COL_FINAL/Screener_Field_Glossary_v_0_0.md",
+          "sha256": "dfc5983dcc65e76fe48e49451b3b12b3ceb0c67277bdd191bb668b3f53b836ce",
+          "bytes": 4608
+        },
+        {
+          "position": 27,
+          "source": "Knowledge_IRA_COL_FINAL/Sector_Quick_Reference_v_0_0.md",
+          "source_path": "canonical_source/Knowledge_IRA_COL_FINAL/Sector_Quick_Reference_v_0_0.md",
+          "sha256": "3f407215c6098dc55567482d9eb22a3cc26c3091d89f0fd4d2411f7dbdd27c4b",
+          "bytes": 7996
+        }
+      ]
+    }
+  }
 }

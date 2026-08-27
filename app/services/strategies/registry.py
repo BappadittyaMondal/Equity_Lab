@@ -922,7 +922,7 @@ def run_strategy_module(strategy_id: str, symbol: str = "RELIANCE", as_of: Optio
     elif module.id == "D17":
         return run_mean_reversion_d17(symbol)
     elif module.id in ("C11", "C12", "FORENSIC"):
-        return run_forensic_engine(symbol)
+        return run_forensic_engine(symbol, strategy_id=module.id)
     elif module.id == "A1":
         res_a1 = evaluate_option_arbitrage(symbol, as_of=as_of)
         return StrategyRunResponse(

@@ -3,7 +3,7 @@
 
 from datetime import date, datetime, timezone
 from typing import List, Dict, Any, Literal, Optional
-from pydantic import BaseModel, Field, HttpUrl, ConfigDict
+from pydantic import BaseModel, Field, HttpUrl, ConfigDict, model_validator
 
 
 class MetaHeader(BaseModel):
@@ -93,12 +93,28 @@ class OptionsA2Request(BaseModel):
     underlying: str = Field(default="^NSEI", description="Index or ticker symbol (default ^NSEI)")
     expiry: str = Field(default="0-DTE", description="Expiry label (e.g. 0-DTE, Weekly)")
     spot_price: Optional[float] = Field(default=None, gt=0, description="Current spot price. If None, fetched live.")
-    lower_strike: float = Field(..., gt=0, description="Short Put strike price")
-    upper_strike: float = Field(..., gt=0, description="Short Call strike price")
-    call_premium: float = Field(..., ge=0, description="Call option premium collected")
-    put_premium: float = Field(..., ge=0, description="Put option premium collected")
+    lower_strike: Optional[float] = Field(default=None, description="Short Put strike price. Auto-calculated if None.")
+    upper_strike: Optional[float] = Field(default=None, description="Short Call strike price. Auto-calculated if None.")
+    call_premium: float = Field(default=45.0, ge=0, description="Call option premium collected")
+    put_premium: float = Field(default=45.0, ge=0, description="Put option premium collected")
     lot_size: int = Field(default=25, gt=0, description="Contract lot size (Nifty default 25)")
     risk_limit_amount: Optional[float] = Field(default=None, gt=0, description="Max total risk capital allocation")
+
+    @model_validator(mode="before")
+    @classmethod
+    def alias_symbol_and_strikes(cls, data: Any) -> Any:
+        if isinstance(data, dict):
+            if "symbol" in data and "underlying" not in data:
+                data["underlying"] = data["symbol"]
+            spot = float(data.get("spot_price") or 22000.0)
+            if not data.get("lower_strike"):
+                data["lower_strike"] = data.get("strike_price") or round(spot * 0.98, 2)
+            if not data.get("upper_strike"):
+                data["upper_strike"] = data.get("strike_price") or round(spot * 1.02, 2)
+            if data.get("lower_strike") == data.get("upper_strike"):
+                data["lower_strike"] = round(spot * 0.98, 2)
+                data["upper_strike"] = round(spot * 1.02, 2)
+        return data
 
 
 class OptionsA2Response(BaseModel):

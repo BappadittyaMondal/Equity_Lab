@@ -367,6 +367,7 @@ def compute_piotroski_fscore(financials: List[Any]) -> Dict[str, Any]:
 def run_forensic_engine(
     symbol: str,
     store: Optional[ResearchDataStore] = None,
+    strategy_id: str = "FORENSIC",
 ) -> StrategyRunResponse:
     """Run all three forensic models and combine into a single StrategyRunResponse."""
     norm = normalize_symbol(symbol)
@@ -378,7 +379,7 @@ def run_forensic_engine(
         _, financials, _, _, _, _ = data_store.get_timeline(norm)
     except Exception as e:
         return StrategyRunResponse(
-            strategy_id="FORENSIC",
+            strategy_id=strategy_id,
             strategy_name="Forensic & Governance Engine (Beneish + Altman + Piotroski)",
             status="data_insufficient",
             executed_at=get_ist_now_str(),
@@ -416,7 +417,7 @@ def run_forensic_engine(
     forensic_risk = "CRITICAL" if beneish_flag or altman_distress else ("HIGH" if piotroski_weak else "LOW")
 
     return StrategyRunResponse(
-        strategy_id="FORENSIC",
+        strategy_id=strategy_id,
         strategy_name="Forensic & Governance Engine",
         status="production",
         executed_at=get_ist_now_str(),

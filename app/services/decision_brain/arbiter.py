@@ -42,10 +42,9 @@ CATEGORY_WEIGHTS: Dict[str, float] = {
 MODEL_VERSION = "0.4.0"
 
 
-def _get_connection() -> sqlite3.Connection:
-    conn = sqlite3.connect(settings.DATA_STORE_PATH, detect_types=sqlite3.PARSE_DECLTYPES)
-    conn.row_factory = sqlite3.Row
-    return conn
+def _get_connection():
+    from app.services.db import get_connection
+    return get_connection()
 
 
 def _ensure_table():
@@ -235,7 +234,7 @@ class Arbiter:
     # ──────────────────────────────────────────────────────────────────────
     # 3. Forensic veto (enhanced — checks real forensic flags)
     # ──────────────────────────────────────────────────────────────────────
-    def _apply_governance_veto(self, outputs: List[Dict[str, Any]]) -> bool:
+    def _apply_governance_veto(self, outputs: List[Dict[str, Any]], snap: Optional[Any] = None) -> bool:
         """Veto fires if ANY forensic/governance engine raises a CRITICAL flag.
 
         Triggers:
@@ -302,7 +301,18 @@ class Arbiter:
                     logger.warning("Microcap integrity gate veto triggered for %s: %s", symbol, m_res.veto_reasons)
                     return True
 
-                f_res = ForensicAuditor().audit_equity(symbol)
+                related_party_pct = getattr(snap, "related_party_pct", None) if snap else None
+                auditor_resigned = getattr(snap, "auditor_resigned_recently", None) if snap else None
+                net_income_cagr = getattr(snap, "net_income_3y_cagr", None) if snap else None
+                ocf_cagr = getattr(snap, "ocf_3y_cagr", None) if snap else None
+
+                f_res = ForensicAuditor().audit_equity(
+                    symbol,
+                    related_party_pct=related_party_pct,
+                    auditor_resigned_recently=auditor_resigned,
+                    net_income_3y_cagr=net_income_cagr,
+                    ocf_3y_cagr=ocf_cagr,
+                )
                 if f_res.governance_veto:
                     logger.warning("Forensic auditor veto triggered for %s: %s", symbol, f_res.red_flags)
                     return True
@@ -497,7 +507,7 @@ class Arbiter:
         outputs = self._collect_engine_outputs(normalized, snap=snap, as_of=as_of)
 
         # Step 2: Governance veto check (before scoring)
-        veto = self._apply_governance_veto(outputs)
+        veto = self._apply_governance_veto(outputs, snap=snap)
 
         # Step 3: Detect contradictions
         contradictions = self._detect_contradictions(outputs)

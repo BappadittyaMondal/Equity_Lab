@@ -7,6 +7,7 @@ Evaluates automated financial and market kill-conditions (e.g. CFO/EBITDA deteri
 promoter pledge spikes, unexpected quarterly earnings misses) to automatically re-test theses.
 """
 
+import os
 import json
 import sqlite3
 from dataclasses import dataclass, field, asdict
@@ -42,11 +43,15 @@ class ThesisTracker:
     """SQLite-backed thesis lifecycle manager and invalidation monitor."""
 
     def __init__(self, db_path: Optional[str] = None):
-        self.db_path = db_path or str(Path(settings.BASE_DIR) / "data" / "thesis_tracker.db")
+        self.db_path = db_path or settings.DATA_STORE_PATH
         Path(self.db_path).parent.mkdir(parents=True, exist_ok=True)
         self._init_db()
 
-    def _get_connection(self) -> sqlite3.Connection:
+    def _get_connection(self):
+        db_url = os.getenv("DATABASE_URL")
+        if db_url and (db_url.startswith("postgres://") or db_url.startswith("postgresql://")):
+            from app.services.db import get_connection
+            return get_connection()
         conn = sqlite3.connect(self.db_path)
         conn.row_factory = sqlite3.Row
         return conn
