@@ -1,6 +1,7 @@
 """Unit and integration tests for Phase 2 Point-in-Time Backtesting Engine.
 """
 
+import os
 from datetime import datetime, timezone
 import pytest
 
@@ -11,15 +12,22 @@ from app.core.config import settings
 
 
 @pytest.fixture
-def temp_db_path(tmp_path):
-    db_file = tmp_path / "test_backtesting.sqlite"
+def temp_db_path():
+    os.makedirs("data", exist_ok=True)
+    db_file = os.path.abspath("data/test_backtesting.sqlite")
     original = settings.DATA_STORE_PATH
-    settings.DATA_STORE_PATH = str(db_file)
-    from app.services.db import _ensure_tables, get_connection
+    settings.DATA_STORE_PATH = db_file
+    from app.services.db import _ensure_tables
     _ensure_tables()
-    yield str(db_file)
+    yield db_file
     settings.DATA_STORE_PATH = original
     import gc
+    gc.collect()
+    try:
+        from app.services.db import close_all_connections
+        close_all_connections()
+    except Exception:
+        pass
     gc.collect()
 
 

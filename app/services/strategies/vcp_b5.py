@@ -27,11 +27,32 @@ def run_vcp_b5(symbol: str) -> StrategyRunResponse:
     hist = get_history(norm_symbol, period="1y")
     quote = get_quote(norm_symbol)
 
-    spot = _safe_float(quote.get("price") if isinstance(quote, dict) else getattr(quote, "price", 1000.0), 1000.0)
+    spot = _safe_float(quote.get("price") if isinstance(quote, dict) else getattr(quote, "price", None), None)
+    is_mock = getattr(quote, "data_mode", "") == "MOCK" if not isinstance(quote, dict) else quote.get("data_mode") == "MOCK"
+    hist_is_mock = getattr(hist, "attrs", {}).get("is_mock", False)
 
-    closes = hist['Close'].values if 'Close' in hist and not hist.empty else np.array([spot])
-    highs = hist['High'].values if 'High' in hist and not hist.empty else np.array([spot * 1.05])
-    lows = hist['Low'].values if 'Low' in hist and not hist.empty else np.array([spot * 0.95])
+    if spot is None or spot <= 0 or is_mock or hist_is_mock or 'Close' not in hist or len(hist['Close']) < 50:
+        return StrategyRunResponse(
+            strategy_id="B5",
+            strategy_name="B5 VCP Pattern Breakout Screen",
+            status="data_insufficient",
+            executed_at=get_ist_now_str(),
+            symbol=norm_symbol,
+            passed_gates=False,
+            results={
+                "status": "data_insufficient",
+                "reason": "Live price and historical OHLC data unavailable. VCP calculation aborted.",
+                "vcp_signal": "NO_SIGNAL"
+            },
+            metrics={},
+            risk_warnings=["Insufficient live historical market data — no VCP breakout signal generated."],
+            disclaimer="Technical volatility contraction pattern scanner requires observed daily market data.",
+            meta=create_meta_header(source=f"IERL VCP Engine ({norm_symbol})")
+        )
+
+    closes = hist['Close'].values
+    highs = hist['High'].values
+    lows = hist['Low'].values
 
     # 1. Trend Template: Price > 150d MA and 200d MA
     ma_50 = float(np.mean(closes[-50:]))

@@ -35,19 +35,22 @@ def test_options_a2_schema_contract_full():
 
 
 def test_options_a2_schema_contract_aliased_frontend():
-    """Verify frontend aliased/legacy payload ({symbol, spot_price, strike_price}) parses gracefully."""
+    """Verify frontend aliased payload parsing with explicit strikes & premiums (synthetic defaults disabled)."""
     raw_payload = {
         "symbol": "RELIANCE",
         "spot_price": 2500.0,
-        "strike_price": 2500.0
+        "lower_strike": 2450.0,
+        "upper_strike": 2550.0,
+        "call_premium": 25.0,
+        "put_premium": 25.0
     }
     req = OptionsA2Request(**raw_payload)
     assert req.underlying == "RELIANCE"
     assert req.spot_price == 2500.0
-    assert req.lower_strike < 2500.0
-    assert req.upper_strike > 2500.0
-    assert req.call_premium == 45.0
-    assert req.put_premium == 45.0
+    assert req.lower_strike == 2450.0
+    assert req.upper_strike == 2550.0
+    assert req.call_premium == 25.0
+    assert req.put_premium == 25.0
 
     res = calculate_a2_payoff(req)
     assert res.underlying.startswith("RELIANCE")

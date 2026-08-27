@@ -13,15 +13,15 @@ export function initCommunityFeed() {
       <div class="space-y-2">
         <div class="p-2 bg-surface-low rounded border border-surface-border/40">
           <div class="flex items-center justify-between text-[11px] mb-1">
-            <span class="text-white font-semibold">@AlphaTrader_IN</span>
-            <span class="text-muted text-[10px]">Sample Insight</span>
+            <span class="text-white font-semibold">Institutional Technical Note (Sample)</span>
+            <span class="text-muted text-[10px]">Reference Example</span>
           </div>
-          <p class="text-cream-light text-[11px]">POLYCAB shows strong volume accumulation at ₹6,450 support level. Pre-breakout RS indicator flashing bullish §44 signals.</p>
+          <p class="text-cream-light text-[11px]">POLYCAB shows volume accumulation near support. Pre-breakout RS indicator flashing constructive signals.</p>
         </div>
         <div class="p-2 bg-surface-low rounded border border-surface-border/40">
           <div class="flex items-center justify-between text-[11px] mb-1">
-            <span class="text-white font-semibold">@ForensicQuant</span>
-            <span class="text-muted text-[10px]">Sample Insight</span>
+            <span class="text-white font-semibold">Forensic Accounting Note (Sample)</span>
+            <span class="text-muted text-[10px]">Reference Example</span>
           </div>
           <p class="text-cream-light text-[11px]">Beneish M-Score for RELIANCE verified clean (-2.84). Governance promoter pledge ratio zero.</p>
         </div>

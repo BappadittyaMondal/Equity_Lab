@@ -27,10 +27,12 @@ _MIN_BARS = 60  # Minimum bars for meaningful technical analysis
 
 
 def _get_price_data(symbol: str, period: str = _FALLBACK_PERIOD) -> Optional[pd.DataFrame]:
-    """Safely fetch OHLCV data as a DataFrame."""
+    """Safely fetch observed OHLCV data as a DataFrame. Rejects synthetic/mock data."""
     try:
         hist = get_history(symbol, period=period, interval="1d")
         if hist is not None and not hist.empty and len(hist) >= _MIN_BARS:
+            if getattr(hist, "attrs", {}).get("is_mock", False) or getattr(hist, "attrs", {}).get("data_mode") == "MOCK":
+                return None
             return hist
         return None
     except Exception as e:

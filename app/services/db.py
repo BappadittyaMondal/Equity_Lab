@@ -93,6 +93,17 @@ class PostgresConnectionWrapper:
         self.close()
 
 
+_OPEN_CONNECTIONS = set()
+
+def close_all_connections():
+    global _OPEN_CONNECTIONS
+    for conn in list(_OPEN_CONNECTIONS):
+        try:
+            conn.close()
+        except Exception:
+            pass
+    _OPEN_CONNECTIONS.clear()
+
 def get_connection():
     """Return a database connection to the shared data store.
     Supports PostgreSQL if `DATABASE_URL` is set, with seamless fallback to SQLite.
@@ -129,6 +140,7 @@ def get_connection():
         conn.execute("PRAGMA journal_mode = WAL")
     except Exception:
         pass
+    _OPEN_CONNECTIONS.add(conn)
     return conn
 
 

@@ -870,50 +870,53 @@ def run_strategy_module(strategy_id: str, symbol: str = "RELIANCE", as_of: Optio
 
 
     elif module.id == "A2":
-        from app.services.strategies.options_a2 import calculate_a2_payoff
-        from app.models.schemas import OptionsA2Request
-        from app.services.market_data import get_quote
-        quote = get_quote(symbol)
-        spot = float(quote.get("price", 24500.0)) if isinstance(quote, dict) else getattr(quote, "price", 24500.0)
-        step = 100.0 if spot >= 10000.0 else (50.0 if spot >= 1000.0 else 10.0)
-        call_strike = round((spot * 1.025) / step) * step
-        put_strike = round((spot * 0.975) / step) * step
-        if put_strike >= call_strike:
-            call_strike = put_strike + step
-        call_prem = round(spot * 0.008, 2)
-        put_prem = round(spot * 0.009, 2)
-        a2_res = calculate_a2_payoff(OptionsA2Request(
-            underlying=symbol,
-            lower_strike=put_strike,
-            upper_strike=call_strike,
-            call_premium=call_prem,
-            put_premium=put_prem
-        ))
-        warnings = list(a2_res.risk_warnings or [])
-        return StrategyRunResponse(
-            strategy_id="A2",
-            strategy_name=module.name,
-            status=module.status,
-            executed_at=a2_res.meta.retrieved_at,
-            symbol=a2_res.underlying,
-            passed_gates=bool(a2_res.expected_value_per_lot > 0),
-            results={
-                "total_credit_per_lot": a2_res.total_credit_per_lot,
-                "breakevens": f"{a2_res.breakeven_lower} - {a2_res.breakeven_upper}",
-                "expected_value_per_lot": a2_res.expected_value_per_lot,
-                "estimated_margin_required": a2_res.estimated_margin_required,
-                "dynamic_strikes": f"Put: {put_strike} | Call: {call_strike}"
-            },
-            metrics={
-                "spot_price": a2_res.spot_price,
-                "win_probability_pct": a2_res.probability_of_profit_empirical_pct,
-                "max_profit": a2_res.max_profit,
-                "max_loss": a2_res.max_loss
-            },
-            risk_warnings=warnings,
-            disclaimer="A2 Short Strangle options strategy payoff model.",
-            meta=a2_res.meta
-        )
+        from app.core.config import settings
+        if not settings.ENABLE_OPTIONS_A2:
+            return StrategyRunResponse(
+                strategy_id="A2",
+                strategy_name=module.name,
+                status="suspended",
+                executed_at=get_ist_now_str(),
+                symbol=normalize_symbol(symbol),
+                passed_gates=False,
+                results={
+                    "status": "suspended",
+                    "reason": "A2 Short Strangle options engine is suspended until live option chain data is integrated.",
+                    "required_inputs": ["underlying", "lower_strike", "upper_strike", "call_premium", "put_premium"]
+                },
+                metrics={},
+                risk_warnings=["A2 Engine suspended — synthetic option premiums are disabled in production."],
+                disclaimer="A2 Short Strangle options strategy payoff model is suspended.",
+                meta=create_meta_header(source="IERL Strategy Registry (A2)")
+            )
+        else:
+            from app.services.strategies.options_a2 import calculate_a2_payoff
+            from app.models.schemas import OptionsA2Request
+            a2_res = calculate_a2_payoff(OptionsA2Request(underlying=symbol))
+            warnings = list(a2_res.risk_warnings or [])
+            return StrategyRunResponse(
+                strategy_id="A2",
+                strategy_name=module.name,
+                status="production",
+                executed_at=a2_res.meta.retrieved_at,
+                symbol=a2_res.underlying,
+                passed_gates=bool(a2_res.expected_value_per_lot > 0),
+                results={
+                    "total_credit_per_lot": a2_res.total_credit_per_lot,
+                    "breakevens": f"{a2_res.breakeven_lower} - {a2_res.breakeven_upper}",
+                    "expected_value_per_lot": a2_res.expected_value_per_lot,
+                    "estimated_margin_required": a2_res.estimated_margin_required,
+                },
+                metrics={
+                    "spot_price": a2_res.spot_price,
+                    "win_probability_pct": a2_res.probability_of_profit_empirical_pct,
+                    "max_profit": a2_res.max_profit,
+                    "max_loss": a2_res.max_loss
+                },
+                risk_warnings=warnings,
+                disclaimer="A2 Short Strangle options strategy payoff model.",
+                meta=a2_res.meta
+            )
     elif module.id == "D18":
         return run_saatvik_d18(symbol)
     elif module.id == "B4":

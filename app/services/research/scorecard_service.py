@@ -49,12 +49,12 @@ def generate_scorecard_for_symbol(symbol: str, rank: Optional[int] = None) -> Sc
         logger.warning("Multibagger score fallback for %s: %s", norm, e)
         mb_score = call.conviction_score * 0.9
 
-    # 3. Probability matrix
-    prob_1y = "75%"
-    prob_2y = "82%"
-    prob_3y = "86%"
-    prob_3y_2x = "70%"
-    prob_5y_15x = "15-20%"
+    # 3. Probability matrix — fail open with N/A on missing data (no hardcoded synthetic probabilities)
+    prob_1y = "N/A"
+    prob_2y = "N/A"
+    prob_3y = "N/A"
+    prob_3y_2x = "N/A"
+    prob_5y_15x = "N/A"
     try:
         req = ReturnProbabilityRequest(symbol=norm, horizon_days=252, return_threshold_pct=10.0)
         prob_res = calculate_return_probability(req)
@@ -63,8 +63,9 @@ def generate_scorecard_for_symbol(symbol: str, rank: Optional[int] = None) -> Sc
         prob_2y = f"{min(99, p1 + 7)}%"
         prob_3y = f"{min(99, p1 + 11)}%"
         prob_3y_2x = f"{max(10, p1 - 5)}%"
+        prob_5y_15x = f"{max(5, round(p1 * 0.25))}%"
     except Exception as e:
-        logger.warning("Probability calculation fallback for %s: %s", norm, e)
+        logger.warning("Probability calculation unavailable for %s: %s", norm, e)
 
     # Convert scores to /10 ratings
     bq_val = min(10.0, round(call.conviction_score * 0.1, 1))

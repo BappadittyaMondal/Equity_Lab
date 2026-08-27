@@ -37,14 +37,15 @@ def get_git_commit() -> str:
 
 def compute_source_hash() -> str:
     hasher = hashlib.sha256()
-    if not SOURCE_DIR.exists():
-        return "UNKNOWN"
-    for filepath in sorted(SOURCE_DIR.rglob("*")):
-        if filepath.is_file():
-            try:
-                hasher.update(filepath.read_bytes())
-            except Exception:
-                pass
+    search_dirs = [SOURCE_DIR, BASE_DIR / "app"]
+    for sdir in search_dirs:
+        if sdir.exists():
+            for filepath in sorted(sdir.rglob("*")):
+                if filepath.is_file() and not filepath.name.endswith(".pyc") and "__pycache__" not in str(filepath):
+                    try:
+                        hasher.update(filepath.read_bytes())
+                    except Exception:
+                        pass
     return hasher.hexdigest()
 
 
@@ -260,7 +261,16 @@ def validate(mapping: dict, target_dir: Path) -> None:
         actual = output.count("<!-- BEGIN SYSTEM FILE ")
         if actual != len(files):
             raise ValueError(f"{filename}: expected {len(files)} source markers, found {actual}")
-    print(f"Validated: {target_dir.name} — {len(expected)} unique embedded sources")
+    
+    manifest_path = target_dir / "MANIFEST.json"
+    if manifest_path.exists():
+        manifest_data = json.loads(manifest_path.read_text(encoding="utf-8"))
+        stored_hash = manifest_data.get("manifest_metadata", {}).get("SOURCE_HASH")
+        current_hash = compute_source_hash()
+        if stored_hash != current_hash:
+            raise ValueError(f"MANIFEST.json hash mismatch for {target_dir.name}: stored '{stored_hash}' != current '{current_hash}'")
+
+    print(f"Validated: {target_dir.name} — {len(expected)} unique embedded sources (Source Hash verified)")
 
 
 def assert_canonical_completeness(targets: tuple) -> None:

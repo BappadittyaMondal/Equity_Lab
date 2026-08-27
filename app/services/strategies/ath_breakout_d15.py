@@ -39,7 +39,28 @@ def run_ath_breakout_d15(
     quote = get_quote(norm_symbol)
     hist = get_history(norm_symbol, period="1y")
 
-    spot = _safe_float(quote.get("price") if isinstance(quote, dict) else getattr(quote, "price", 1000.0), 1000.0)
+    spot = _safe_float(quote.get("price") if isinstance(quote, dict) else getattr(quote, "price", None), None)
+    is_mock = getattr(quote, "data_mode", "") == "MOCK" if not isinstance(quote, dict) else quote.get("data_mode") == "MOCK"
+    hist_is_mock = getattr(hist, "attrs", {}).get("is_mock", False)
+
+    if spot is None or spot <= 0 or is_mock or hist_is_mock or 'Close' not in hist or len(hist['Close']) < 50:
+        return StrategyRunResponse(
+            strategy_id="D15",
+            strategy_name="D15 All-Time High & Triple-Filter Quant Momentum",
+            status="data_insufficient",
+            executed_at=get_ist_now_str(),
+            symbol=norm_symbol,
+            passed_gates=False,
+            results={
+                "status": "data_insufficient",
+                "reason": "Live price and historical OHLC data unavailable. ATH breakout calculation aborted.",
+                "ath_breakout_status": "NO_SIGNAL"
+            },
+            metrics={},
+            risk_warnings=["Insufficient live historical market data — no ATH momentum breakout signal generated."],
+            disclaimer="Quantitative momentum model requires observed daily market data.",
+            meta=create_meta_header(source=f"IERL D15 Momentum Engine ({norm_symbol})")
+        )
 
     # 52w High / Low calculation with safe scalar extraction
     raw_high_52 = quote.get("fifty_two_week_high") if isinstance(quote, dict) else getattr(quote, "fifty_two_week_high", None)

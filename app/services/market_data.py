@@ -456,6 +456,8 @@ def get_history(symbol: str, period: str = "1y", interval: str = "1d"):
         'Close': close_prices,
         'Volume': vol_data
     }, index=dates)
+    mock_df.attrs["is_mock"] = True
+    mock_df.attrs["data_mode"] = "MOCK"
 
     try:
         import yfinance as yf
@@ -468,6 +470,8 @@ def get_history(symbol: str, period: str = "1y", interval: str = "1d"):
             if isinstance(df, pd.DataFrame) and not df.empty and len(df) > 5:
                 if isinstance(df.columns, pd.MultiIndex):
                     df.columns = df.columns.get_level_values(0)
+                df.attrs["is_mock"] = False
+                df.attrs["data_mode"] = "LIVE"
                 return df
     except Exception:
         pass
