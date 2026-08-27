@@ -1,5 +1,7 @@
 """Thesis Lifecycle & Invalidation / Kill-Condition Engine.
 
+STORAGE_ROLE = "PRODUCTION_PERSISTENCE"
+
 Tracks investment theses over time across state lifecycles:
 NEW -> VALIDATING -> CONFIRMED -> STRETCHED -> BROKEN / REJECTED
 

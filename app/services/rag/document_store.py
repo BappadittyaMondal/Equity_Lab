@@ -4,6 +4,8 @@ Ingests, indexes, and retrieves BSE corporate disclosures, Annual Reports, DRHP 
 and Earnings Call Transcripts with SHA256 cryptographic provenance and strict point-in-time temporal boundaries.
 """
 
+STORAGE_ROLE = "LOCAL_ANALYTICS / RAG_VECTOR_STORE"
+
 import os
 import hashlib
 import json

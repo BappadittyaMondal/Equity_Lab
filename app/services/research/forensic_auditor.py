@@ -35,6 +35,24 @@ class ForensicAuditor:
         is_mock: bool = False
     ) -> ForensicAuditResult:
         """Perform comprehensive forensic audit on an equity without silent default assumptions."""
+        # Attempt to populate missing parameters from canonical ResearchDataStore timeline
+        if related_party_pct is None or auditor_resigned_recently is None or net_income_3y_cagr is None or ocf_3y_cagr is None:
+            try:
+                from app.services.research_data import ResearchDataStore
+                timeline = ResearchDataStore().get_timeline(symbol)
+                for obs in timeline.financial_observations:
+                    if related_party_pct is None and obs.metric == "related_party_pct":
+                        related_party_pct = float(obs.value)
+                    elif net_income_3y_cagr is None and obs.metric == "net_income_3y_cagr":
+                        net_income_3y_cagr = float(obs.value)
+                    elif ocf_3y_cagr is None and obs.metric == "ocf_3y_cagr":
+                        ocf_3y_cagr = float(obs.value)
+                for ev in timeline.events:
+                    if auditor_resigned_recently is None and getattr(ev, "event_type", None) == "auditor_resignation":
+                        auditor_resigned_recently = True
+            except Exception:
+                pass
+
         missing_metrics = []
         if related_party_pct is None:
             missing_metrics.append("related_party_pct")

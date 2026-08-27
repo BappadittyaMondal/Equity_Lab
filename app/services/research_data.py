@@ -1,5 +1,7 @@
 """Append-only, point-in-time research data storage.
 
+STORAGE_ROLE = "PRODUCTION_PERSISTENCE"
+
 This module intentionally stores sourced observations rather than a mutable
 "latest financials" record. Analyses can therefore ask what was known on a
 given date and avoid silently introducing look-ahead bias.

@@ -457,10 +457,21 @@ RESEARCH_ENGINES: Dict[str, StrategyModule] = {
 
 def list_strategy_modules() -> List[StrategyModule]:
     """Returns list of all 35 master strategy modules & research engines with status."""
+    from app.core.config import settings
+    if not settings.ENABLE_OPTIONS_A2:
+        STRATEGY_MODULES["A2"].status = "suspended"
+    else:
+        STRATEGY_MODULES["A2"].status = "production"
     return list(STRATEGY_MODULES.values()) + list(RESEARCH_ENGINES.values())
 
 
 def get_strategy_module(strategy_id: str) -> StrategyModule:
+    from app.core.config import settings
+    if not settings.ENABLE_OPTIONS_A2:
+        STRATEGY_MODULES["A2"].status = "suspended"
+    else:
+        STRATEGY_MODULES["A2"].status = "production"
+
     clean_id = strategy_id.upper().strip()
     if clean_id in STRATEGY_MODULES:
         return STRATEGY_MODULES[clean_id]

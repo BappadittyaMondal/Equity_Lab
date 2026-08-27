@@ -90,13 +90,13 @@ class ReturnProbabilityResponse(BaseModel):
 
 
 class OptionsA2Request(BaseModel):
-    underlying: str = Field(default="^NSEI", description="Index or ticker symbol (default ^NSEI)")
+    underlying: str = Field(default="^NSEI", description="Index or ticker symbol (e.g. ^NSEI, RELIANCE)")
     expiry: str = Field(default="0-DTE", description="Expiry label (e.g. 0-DTE, Weekly)")
     spot_price: Optional[float] = Field(default=None, gt=0, description="Current spot price. If None, fetched live.")
-    lower_strike: Optional[float] = Field(default=None, description="Short Put strike price. Auto-calculated if None.")
-    upper_strike: Optional[float] = Field(default=None, description="Short Call strike price. Auto-calculated if None.")
-    call_premium: float = Field(default=45.0, ge=0, description="Call option premium collected")
-    put_premium: float = Field(default=45.0, ge=0, description="Put option premium collected")
+    lower_strike: Optional[float] = Field(default=None, gt=0, description="Short Put strike price.")
+    upper_strike: Optional[float] = Field(default=None, gt=0, description="Short Call strike price.")
+    call_premium: Optional[float] = Field(default=None, ge=0, description="Call option premium collected")
+    put_premium: Optional[float] = Field(default=None, ge=0, description="Put option premium collected")
     lot_size: int = Field(default=25, gt=0, description="Contract lot size (Nifty default 25)")
     risk_limit_amount: Optional[float] = Field(default=None, gt=0, description="Max total risk capital allocation")
 
@@ -106,14 +106,9 @@ class OptionsA2Request(BaseModel):
         if isinstance(data, dict):
             if "symbol" in data and "underlying" not in data:
                 data["underlying"] = data["symbol"]
-            spot = float(data.get("spot_price") or 22000.0)
-            if not data.get("lower_strike"):
-                data["lower_strike"] = data.get("strike_price") or round(spot * 0.98, 2)
-            if not data.get("upper_strike"):
-                data["upper_strike"] = data.get("strike_price") or round(spot * 1.02, 2)
-            if data.get("lower_strike") == data.get("upper_strike"):
-                data["lower_strike"] = round(spot * 0.98, 2)
-                data["upper_strike"] = round(spot * 1.02, 2)
+            if "strike_price" in data and not data.get("lower_strike") and not data.get("upper_strike"):
+                data["lower_strike"] = data["strike_price"]
+                data["upper_strike"] = data["strike_price"]
         return data
 
 

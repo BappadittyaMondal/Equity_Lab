@@ -20,17 +20,34 @@ def calculate_a2_payoff(req: OptionsA2Request) -> OptionsA2Response:
         try:
             quote = get_quote(symbol)
             if isinstance(quote, dict):
-                spot = float(quote.get("price") or 22000.0)
+                spot = float(quote.get("price") or 0.0)
             else:
-                spot = float(getattr(quote, "price", 22000.0) or 22000.0)
-        except Exception as exc:
-            spot = 22000.0
+                spot = float(getattr(quote, "price", 0.0) or 0.0)
+        except Exception:
+            spot = 0.0
+
+    if spot <= 0:
+        raise HTTPException(
+            status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+            detail=f"INSUFFICIENT_DATA: Live market spot price unavailable for symbol '{symbol}'. Options calculation aborted."
+        )
 
     lower_strike = req.lower_strike
     upper_strike = req.upper_strike
     call_prem = req.call_premium
     put_prem = req.put_premium
     lot_size = req.lot_size or 25
+
+    if lower_strike is None or upper_strike is None:
+        # Default strikes to 2% OTM from observed spot if not specified
+        lower_strike = round(spot * 0.98, 2) if lower_strike is None else lower_strike
+        upper_strike = round(spot * 1.02, 2) if upper_strike is None else upper_strike
+
+    if call_prem is None or put_prem is None:
+        raise HTTPException(
+            status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+            detail=f"INSUFFICIENT_DATA: Option premiums (call_premium, put_premium) must be provided for symbol '{symbol}'. Synthetic defaults are disabled."
+        )
     
     if lower_strike >= upper_strike:
         raise HTTPException(
