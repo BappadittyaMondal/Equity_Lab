@@ -70,6 +70,33 @@ def get_source_tier(source_name: str, confidence: float) -> str:
     return "Tier D"
 
 
+class SQLiteConnectionWrapper:
+    def __init__(self, conn):
+        self._conn = conn
+
+    def __enter__(self):
+        return self._conn
+
+    def __exit__(self, exc_type, exc_val, exc_tb):
+        if exc_type is None:
+            try:
+                self._conn.commit()
+            except Exception:
+                pass
+        else:
+            try:
+                self._conn.rollback()
+            except Exception:
+                pass
+        try:
+            self._conn.close()
+        except Exception:
+            pass
+
+    def __getattr__(self, attr):
+        return getattr(self._conn, attr)
+
+
 class ResearchDataStore:
     def __init__(self, database_path: Optional[str] = None):
         self.database_path = Path(database_path or settings.DATA_STORE_PATH)
@@ -88,7 +115,7 @@ class ResearchDataStore:
             connection.execute("PRAGMA journal_mode = WAL")
         except Exception:
             pass
-        return connection
+        return SQLiteConnectionWrapper(connection)
 
 
     def _initialize(self) -> None:

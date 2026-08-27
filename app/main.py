@@ -134,6 +134,10 @@ app.add_middleware(
 # Health check endpoints stay unauthenticated for infrastructure monitoring / readiness probes
 app.include_router(health.router)
 
+@app.get("/api/health", include_in_schema=False)
+def get_root_health_status():
+    return health.get_health_status()
+
 # All product API routers require API key authentication
 auth_deps = [Depends(verify_api_key)]
 app.include_router(market.router, dependencies=auth_deps)

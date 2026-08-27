@@ -9,11 +9,12 @@ client = TestClient(app)
 
 
 def test_health_endpoint():
-    res = client.get("/api/v1/health")
-    assert res.status_code == 200
-    data = res.json()
-    assert data["status"] == "ONLINE"
-    assert "providers_status" in data
+    for path in ["/api/v1/health", "/api/health"]:
+        res = client.get(path)
+        assert res.status_code == 200
+        data = res.json()
+        assert data["status"] == "ONLINE"
+        assert "providers_status" in data
 
 
 def test_security_headers():

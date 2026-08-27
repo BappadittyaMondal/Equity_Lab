@@ -1,17 +1,17 @@
 # Overall Empirical Validation Report
 
-- **Version**: `0.0.0`
-- **Generated At**: `2026-08-22 21:02:04 UTC`
-- **Sample Universe Count**: `630`
+- **Version**: `1.0.0`
+- **Generated At**: `2026-08-27 03:05:27 UTC`
+- **Sample Universe Count**: `0`
 - **Point-in-Time Integrity**: `VERIFIED (available_at <= analysis_date)`
 - **Look-Ahead Leakage**: `0.0%`
 - **Score Monotonicity Verified**: `True`
 
 ## Walk-Forward Summary (12-Month Horizon)
-- **Mean Stock Return**: `18.89%`
-- **Mean Benchmark Return**: `12.0%`
-- **Mean Alpha**: `6.89%`
-- **Win Rate vs Benchmark**: `100.0%`
-- **Sharpe Ratio**: `4.44`
+- **Mean Stock Return**: `0.0%`
+- **Mean Benchmark Return**: `0.0%`
+- **Mean Alpha**: `0.0%`
+- **Win Rate vs Benchmark**: `0.0%`
+- **Sharpe Ratio**: `0.0`
 - **Sortino Ratio**: `0.0`
-- **Max Drawdown**: `18.18%`
+- **Max Drawdown**: `0.0%`
