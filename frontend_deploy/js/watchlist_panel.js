@@ -136,7 +136,6 @@ export async function addSymbolToWatchlist(symbol, category = "Multibagger") {
         realScore = sData.scores.overall_score;
       }
     }
-  } catch (_) {} }
   } catch (_) {}
 
   window.__IERL_WATCHLIST_DATA.unshift({
