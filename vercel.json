@@ -1,6 +1,8 @@
 {
   "version": 2,
+  "framework": null,
   "outputDirectory": "frontend_deploy",
+  "cleanUrls": true,
   "rewrites": [
     {
       "source": "/api/(.*)",

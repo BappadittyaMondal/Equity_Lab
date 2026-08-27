@@ -30,4 +30,5 @@ docs/
 .git/
 .github/
 api/
+api_legacy/
 app/
