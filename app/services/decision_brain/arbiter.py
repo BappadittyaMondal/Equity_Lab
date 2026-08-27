@@ -141,8 +141,6 @@ class Arbiter:
                 logger.warning("Engine %s failed for %s: %s", engine_id, symbol, e)
                 continue
 
-            verdict = "Buy" if resp.passed_gates else "Avoid"
-
             # Dynamic per-engine score extraction
             score_0_100 = None
             if hasattr(resp, "score_0_100") and resp.score_0_100 is not None:
@@ -150,13 +148,21 @@ class Arbiter:
             elif hasattr(resp, "score") and resp.score is not None:
                 score_0_100 = float(resp.score)
             elif isinstance(getattr(resp, "metrics", None), dict):
-                for key in ["score", "multibagger_score", "composite_score", "moat_score", "f_score_0_9", "z_score", "tss_score", "growth_inflection_score", "insider_conviction_score", "institutional_flow_score", "commentary_confidence_score", "catalyst_score"]:
+                score_keys = [
+                    "score", "mivs_score", "multibagger_score", "overall_score", "composite_score",
+                    "moat_score", "turnaround_score", "potential_rerating_score", "f_score_0_9",
+                    "z_score", "tss_score", "growth_inflection_score", "insider_conviction_score",
+                    "institutional_flow_score", "commentary_confidence_score", "catalyst_score",
+                    "alt_data_score", "unit_economics_score", "governance_score", "quality_growth_score"
+                ]
+                for key in score_keys:
                     if key in resp.metrics and isinstance(resp.metrics[key], (int, float)):
                         val = float(resp.metrics[key])
                         score_0_100 = (val / 9.0 * 100.0) if key == "f_score_0_9" else min(100.0, max(0.0, val))
                         break
             if score_0_100 is None and isinstance(getattr(resp, "results", None), dict):
-                for key in ["score", "multibagger_score", "composite_score", "moat_score", "governance_score"]:
+                score_keys = ["score", "mivs_score", "multibagger_score", "overall_score", "composite_score", "moat_score", "governance_score", "turnaround_score"]
+                for key in score_keys:
                     if key in resp.results and isinstance(resp.results[key], (int, float)):
                         val = float(resp.results[key])
                         score_0_100 = min(100.0, max(0.0, val))
@@ -164,6 +170,8 @@ class Arbiter:
 
             if score_0_100 is None:
                 score_0_100 = float(confidence) if resp.passed_gates else max(10.0, float(confidence) * 0.3)
+
+            verdict = "Buy" if (resp.passed_gates or (score_0_100 is not None and score_0_100 >= 55.0)) else "Avoid"
 
             outputs.append({
                 "engine_id":  engine_id,
