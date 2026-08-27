@@ -6,11 +6,14 @@
     "version": "1.0.0"
   },
   "paths": {
-    "/api/health": {
+    "/api/v1/health": {
       "get": {
-        "summary": "Api Root Health",
-        "description": "Root health endpoint alias for top-level health probe compatibility.",
-        "operationId": "api_root_health_api_health_get",
+        "tags": [
+          "Health & Diagnostics"
+        ],
+        "summary": "Get Health Status",
+        "description": "Runs actual connectivity verification across data feeds and LLM providers.",
+        "operationId": "get_health_status_api_v1_health_get",
         "responses": {
           "200": {
             "description": "Successful Response",
@@ -23,14 +26,14 @@
         }
       }
     },
-    "/api/v1/health": {
+    "/api/v1/api/health": {
       "get": {
         "tags": [
           "Health & Diagnostics"
         ],
         "summary": "Get Health Status",
         "description": "Runs actual connectivity verification across data feeds and LLM providers.",
-        "operationId": "get_health_status_api_v1_health_get",
+        "operationId": "get_health_status_api_v1_api_health_get",
         "responses": {
           "200": {
             "description": "Successful Response",
@@ -3311,6 +3314,60 @@
         }
       }
     },
+    "/api/v1/multibagger/multi-horizon-matrix": {
+      "post": {
+        "tags": [
+          "Institutional Multibagger Framework"
+        ],
+        "summary": "Generate Multi-Horizon CAGR & Conformal Return Probability Matrix",
+        "description": "Generates 6M to 5Y CAGRs, conformal return probabilities, confidence labels, M0-M4 stages, and strategy buckets.",
+        "operationId": "generate_multi_horizon_matrix_api_v1_multibagger_multi_horizon_matrix_post",
+        "parameters": [
+          {
+            "name": "x-api-key",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "default": "",
+              "title": "X-Api-Key"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/MultiHorizonMatrixRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MultiHorizonMatrixResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/v1/technical/report/{symbol}": {
       "get": {
         "tags": [
@@ -3689,6 +3746,563 @@
                   "type": "object",
                   "additionalProperties": true,
                   "title": "Response Get Surveillance Gate Api V1 Technical Surveillance  Symbol  Get"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/research/user-feedback": {
+      "post": {
+        "tags": [
+          "Phase 2 User Feedback"
+        ],
+        "summary": "Submit Counter Question",
+        "description": "Process user counter-questions and generate evidence-based analytical feedback.",
+        "operationId": "submit_counter_question_api_v1_research_user_feedback_post",
+        "parameters": [
+          {
+            "name": "x-api-key",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "default": "",
+              "title": "X-Api-Key"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CounterQuestionRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": true,
+                  "title": "Response Submit Counter Question Api V1 Research User Feedback Post"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/research/genai-redteam/geopolitical-overlay/{symbol}": {
+      "get": {
+        "tags": [
+          "Phase 3 GenAI & Red-Team"
+        ],
+        "summary": "Get Geopolitical Overlay",
+        "description": "Fetch Phase 3 MacroGeopoliticalOverlay (+15% Defense, +10% Renewables, -20% IT Exporters).",
+        "operationId": "get_geopolitical_overlay_api_v1_research_genai_redteam_geopolitical_overlay__symbol__get",
+        "parameters": [
+          {
+            "name": "symbol",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Symbol"
+            }
+          },
+          {
+            "name": "x-api-key",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "default": "",
+              "title": "X-Api-Key"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": true,
+                  "title": "Response Get Geopolitical Overlay Api V1 Research Genai Redteam Geopolitical Overlay  Symbol  Get"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/research/genai-redteam/concall-audit": {
+      "post": {
+        "tags": [
+          "Phase 3 GenAI & Red-Team"
+        ],
+        "summary": "Audit Concall Transcript",
+        "description": "Run Automated Earnings Call Analyst to extract qualitative concall risks.",
+        "operationId": "audit_concall_transcript_api_v1_research_genai_redteam_concall_audit_post",
+        "parameters": [
+          {
+            "name": "x-api-key",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "default": "",
+              "title": "X-Api-Key"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ConcallAuditRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": true,
+                  "title": "Response Audit Concall Transcript Api V1 Research Genai Redteam Concall Audit Post"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/research/genai-redteam/stress-test": {
+      "post": {
+        "tags": [
+          "Phase 3 GenAI & Red-Team"
+        ],
+        "summary": "Run Stress Test",
+        "description": "Run Automated Geopolitical Stress Tester.",
+        "operationId": "run_stress_test_api_v1_research_genai_redteam_stress_test_post",
+        "parameters": [
+          {
+            "name": "x-api-key",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "default": "",
+              "title": "X-Api-Key"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/StressTestRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": true,
+                  "title": "Response Run Stress Test Api V1 Research Genai Redteam Stress Test Post"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/research/genai-redteam/red-team-review": {
+      "post": {
+        "tags": [
+          "Phase 3 GenAI & Red-Team"
+        ],
+        "summary": "Generate Red Team Review",
+        "description": "Run Automated Counter-Thesis Bot / GenAI Red-Team Bear Case.",
+        "operationId": "generate_red_team_review_api_v1_research_genai_redteam_red_team_review_post",
+        "parameters": [
+          {
+            "name": "x-api-key",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "default": "",
+              "title": "X-Api-Key"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RedTeamRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": true,
+                  "title": "Response Generate Red Team Review Api V1 Research Genai Redteam Red Team Review Post"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/research/ai-committee/review": {
+      "post": {
+        "tags": [
+          "Next-Gen AI Committee & Intelligence"
+        ],
+        "summary": "Run Ic Boardroom Review",
+        "description": "Run Multi-Agent Virtual Investment Committee debate and generate executive IC Memo.",
+        "operationId": "run_ic_boardroom_review_api_v1_research_ai_committee_review_post",
+        "parameters": [
+          {
+            "name": "x-api-key",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "default": "",
+              "title": "X-Api-Key"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ICReviewRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": true,
+                  "title": "Response Run Ic Boardroom Review Api V1 Research Ai Committee Review Post"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/research/ai-committee/governance-audit/{symbol}": {
+      "get": {
+        "tags": [
+          "Next-Gen AI Committee & Intelligence"
+        ],
+        "summary": "Audit Governance",
+        "description": "Audit Form AOC-2 RPTs, promoter pledging, and auditor report notes.",
+        "operationId": "audit_governance_api_v1_research_ai_committee_governance_audit__symbol__get",
+        "parameters": [
+          {
+            "name": "symbol",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Symbol"
+            }
+          },
+          {
+            "name": "x-api-key",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "default": "",
+              "title": "X-Api-Key"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": true,
+                  "title": "Response Audit Governance Api V1 Research Ai Committee Governance Audit  Symbol  Get"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/research/ai-committee/supply-chain/{symbol}": {
+      "get": {
+        "tags": [
+          "Next-Gen AI Committee & Intelligence"
+        ],
+        "summary": "Get Supply Chain Graph",
+        "description": "Fetch customer-supplier graph and second-order catalyst chain.",
+        "operationId": "get_supply_chain_graph_api_v1_research_ai_committee_supply_chain__symbol__get",
+        "parameters": [
+          {
+            "name": "symbol",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Symbol"
+            }
+          },
+          {
+            "name": "x-api-key",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "default": "",
+              "title": "X-Api-Key"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": true,
+                  "title": "Response Get Supply Chain Graph Api V1 Research Ai Committee Supply Chain  Symbol  Get"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/research/ai-committee/nl-query": {
+      "post": {
+        "tags": [
+          "Next-Gen AI Committee & Intelligence"
+        ],
+        "summary": "Compile Nl Query",
+        "description": "Compile plain English search query into quantitative engine constraints.",
+        "operationId": "compile_nl_query_api_v1_research_ai_committee_nl_query_post",
+        "parameters": [
+          {
+            "name": "x-api-key",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "default": "",
+              "title": "X-Api-Key"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/NLQueryRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": true,
+                  "title": "Response Compile Nl Query Api V1 Research Ai Committee Nl Query Post"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/research/ai-committee/post-mortem": {
+      "post": {
+        "tags": [
+          "Next-Gen AI Committee & Intelligence"
+        ],
+        "summary": "Audit Post Mortem",
+        "description": "Run continuous failure post-mortem audit on underperforming stocks.",
+        "operationId": "audit_post_mortem_api_v1_research_ai_committee_post_mortem_post",
+        "parameters": [
+          {
+            "name": "x-api-key",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "default": "",
+              "title": "X-Api-Key"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PostMortemAuditRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": true,
+                  "title": "Response Audit Post Mortem Api V1 Research Ai Committee Post Mortem Post"
                 }
               }
             }
@@ -4387,6 +5001,31 @@
         ],
         "title": "ComparisonResponse"
       },
+      "ConcallAuditRequest": {
+        "properties": {
+          "symbol": {
+            "type": "string",
+            "title": "Symbol",
+            "example": "COFORGE"
+          },
+          "transcript_text": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Transcript Text"
+          }
+        },
+        "type": "object",
+        "required": [
+          "symbol"
+        ],
+        "title": "ConcallAuditRequest"
+      },
       "ConvictionCall": {
         "properties": {
           "symbol": {
@@ -4787,6 +5426,35 @@
           "ingested_at"
         ],
         "title": "CorporateActionResponse"
+      },
+      "CounterQuestionRequest": {
+        "properties": {
+          "user_query": {
+            "type": "string",
+            "title": "User Query",
+            "example": "Why is Shilchar ranked differently from Waaree on Free Cash Flow?"
+          },
+          "stock_context": {
+            "anyOf": [
+              {
+                "items": {
+                  "additionalProperties": true,
+                  "type": "object"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Stock Context"
+          }
+        },
+        "type": "object",
+        "required": [
+          "user_query"
+        ],
+        "title": "CounterQuestionRequest"
       },
       "DocumentMetadataIn": {
         "properties": {
@@ -5822,6 +6490,32 @@
         "type": "object",
         "title": "HTTPValidationError"
       },
+      "ICReviewRequest": {
+        "properties": {
+          "symbol": {
+            "type": "string",
+            "title": "Symbol",
+            "example": "SHILCHAR"
+          },
+          "stock_data": {
+            "anyOf": [
+              {
+                "additionalProperties": true,
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Stock Data"
+          }
+        },
+        "type": "object",
+        "required": [
+          "symbol"
+        ],
+        "title": "ICReviewRequest"
+      },
       "InsiderConvictionSignal": {
         "properties": {
           "promoter_net_transaction_30d": {
@@ -6449,6 +7143,229 @@
         ],
         "title": "MetaHeader"
       },
+      "MultiHorizonMatrixItem": {
+        "properties": {
+          "symbol": {
+            "type": "string",
+            "title": "Symbol"
+          },
+          "company_name": {
+            "type": "string",
+            "title": "Company Name"
+          },
+          "sector": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Sector",
+            "default": "Equity"
+          },
+          "market_cap_cr": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Market Cap Cr"
+          },
+          "current_price": {
+            "type": "number",
+            "title": "Current Price"
+          },
+          "m_stage": {
+            "type": "string",
+            "title": "M Stage",
+            "description": "Multibagger maturity stage M0 to M4"
+          },
+          "strategy_bucket": {
+            "type": "string",
+            "title": "Strategy Bucket",
+            "description": "Strategy bucket A, B, C, or D"
+          },
+          "conformal_confidence_score": {
+            "type": "number",
+            "maximum": 100.0,
+            "minimum": 0.0,
+            "title": "Conformal Confidence Score"
+          },
+          "conformal_confidence_label": {
+            "type": "string",
+            "title": "Conformal Confidence Label",
+            "description": "HIGH, MEDIUM-HIGH, MEDIUM, or SPECULATIVE"
+          },
+          "cagr_6m_pct": {
+            "type": "number",
+            "title": "Cagr 6M Pct"
+          },
+          "cagr_1y_pct": {
+            "type": "number",
+            "title": "Cagr 1Y Pct"
+          },
+          "cagr_2y_pct": {
+            "type": "number",
+            "title": "Cagr 2Y Pct"
+          },
+          "cagr_3y_pct": {
+            "type": "number",
+            "title": "Cagr 3Y Pct"
+          },
+          "cagr_5y_pct": {
+            "type": "number",
+            "title": "Cagr 5Y Pct"
+          },
+          "target_price_6m": {
+            "type": "number",
+            "title": "Target Price 6M"
+          },
+          "target_price_1y": {
+            "type": "number",
+            "title": "Target Price 1Y"
+          },
+          "target_price_2y": {
+            "type": "number",
+            "title": "Target Price 2Y"
+          },
+          "target_price_3y": {
+            "type": "number",
+            "title": "Target Price 3Y"
+          },
+          "target_price_5y": {
+            "type": "number",
+            "title": "Target Price 5Y"
+          },
+          "prob_6m_positive_pct": {
+            "type": "number",
+            "title": "Prob 6M Positive Pct"
+          },
+          "prob_1y_positive_pct": {
+            "type": "number",
+            "title": "Prob 1Y Positive Pct"
+          },
+          "prob_2y_positive_pct": {
+            "type": "number",
+            "title": "Prob 2Y Positive Pct"
+          },
+          "prob_3y_2x_pct": {
+            "type": "number",
+            "title": "Prob 3Y 2X Pct"
+          },
+          "prob_3y_3x_pct": {
+            "type": "number",
+            "title": "Prob 3Y 3X Pct"
+          },
+          "prob_5y_3x_pct": {
+            "type": "number",
+            "title": "Prob 5Y 3X Pct"
+          },
+          "prob_5y_5x_pct": {
+            "type": "number",
+            "title": "Prob 5Y 5X Pct"
+          },
+          "primary_catalyst_thesis": {
+            "type": "string",
+            "title": "Primary Catalyst Thesis"
+          },
+          "forensic_invalidation_rules": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Forensic Invalidation Rules"
+          }
+        },
+        "type": "object",
+        "required": [
+          "symbol",
+          "company_name",
+          "current_price",
+          "m_stage",
+          "strategy_bucket",
+          "conformal_confidence_score",
+          "conformal_confidence_label",
+          "cagr_6m_pct",
+          "cagr_1y_pct",
+          "cagr_2y_pct",
+          "cagr_3y_pct",
+          "cagr_5y_pct",
+          "target_price_6m",
+          "target_price_1y",
+          "target_price_2y",
+          "target_price_3y",
+          "target_price_5y",
+          "prob_6m_positive_pct",
+          "prob_1y_positive_pct",
+          "prob_2y_positive_pct",
+          "prob_3y_2x_pct",
+          "prob_3y_3x_pct",
+          "prob_5y_3x_pct",
+          "prob_5y_5x_pct",
+          "primary_catalyst_thesis"
+        ],
+        "title": "MultiHorizonMatrixItem"
+      },
+      "MultiHorizonMatrixRequest": {
+        "properties": {
+          "symbols": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "maxItems": 50,
+            "minItems": 1,
+            "title": "Symbols",
+            "description": "List of stock symbols to evaluate"
+          },
+          "use_live_data": {
+            "type": "boolean",
+            "title": "Use Live Data",
+            "description": "Whether to fetch live quote & fundamentals",
+            "default": true
+          }
+        },
+        "type": "object",
+        "required": [
+          "symbols"
+        ],
+        "title": "MultiHorizonMatrixRequest"
+      },
+      "MultiHorizonMatrixResponse": {
+        "properties": {
+          "symbols_evaluated": {
+            "type": "integer",
+            "title": "Symbols Evaluated"
+          },
+          "as_of": {
+            "type": "string",
+            "title": "As Of"
+          },
+          "matrix": {
+            "items": {
+              "$ref": "#/components/schemas/MultiHorizonMatrixItem"
+            },
+            "type": "array",
+            "title": "Matrix"
+          },
+          "meta": {
+            "$ref": "#/components/schemas/MetaHeader"
+          }
+        },
+        "type": "object",
+        "required": [
+          "symbols_evaluated",
+          "as_of",
+          "matrix",
+          "meta"
+        ],
+        "title": "MultiHorizonMatrixResponse"
+      },
       "MultibaggerScreenerResponse": {
         "properties": {
           "symbol": {
@@ -6521,12 +7438,26 @@
         ],
         "title": "MultibaggerScreenerResponse"
       },
+      "NLQueryRequest": {
+        "properties": {
+          "user_query": {
+            "type": "string",
+            "title": "User Query",
+            "example": "Find capital goods stocks under 2000Cr market cap with debt-free balance sheet and positive FCF"
+          }
+        },
+        "type": "object",
+        "required": [
+          "user_query"
+        ],
+        "title": "NLQueryRequest"
+      },
       "OptionsA2Request": {
         "properties": {
           "underlying": {
             "type": "string",
             "title": "Underlying",
-            "description": "Index or ticker symbol (default ^NSEI)",
+            "description": "Index or ticker symbol (e.g. ^NSEI, RELIANCE)",
             "default": "^NSEI"
           },
           "expiry": {
@@ -6549,26 +7480,54 @@
             "description": "Current spot price. If None, fetched live."
           },
           "lower_strike": {
-            "type": "number",
-            "exclusiveMinimum": 0.0,
+            "anyOf": [
+              {
+                "type": "number",
+                "exclusiveMinimum": 0.0
+              },
+              {
+                "type": "null"
+              }
+            ],
             "title": "Lower Strike",
-            "description": "Short Put strike price"
+            "description": "Short Put strike price."
           },
           "upper_strike": {
-            "type": "number",
-            "exclusiveMinimum": 0.0,
+            "anyOf": [
+              {
+                "type": "number",
+                "exclusiveMinimum": 0.0
+              },
+              {
+                "type": "null"
+              }
+            ],
             "title": "Upper Strike",
-            "description": "Short Call strike price"
+            "description": "Short Call strike price."
           },
           "call_premium": {
-            "type": "number",
-            "minimum": 0.0,
+            "anyOf": [
+              {
+                "type": "number",
+                "minimum": 0.0
+              },
+              {
+                "type": "null"
+              }
+            ],
             "title": "Call Premium",
             "description": "Call option premium collected"
           },
           "put_premium": {
-            "type": "number",
-            "minimum": 0.0,
+            "anyOf": [
+              {
+                "type": "number",
+                "minimum": 0.0
+              },
+              {
+                "type": "null"
+              }
+            ],
             "title": "Put Premium",
             "description": "Put option premium collected"
           },
@@ -6594,12 +7553,6 @@
           }
         },
         "type": "object",
-        "required": [
-          "lower_strike",
-          "upper_strike",
-          "call_premium",
-          "put_premium"
-        ],
         "title": "OptionsA2Request"
       },
       "OptionsA2Response": {
@@ -7142,6 +8095,38 @@
         "title": "PortfolioSnapshot",
         "description": "Aggregated view of all watch\u2011list symbols."
       },
+      "PostMortemAuditRequest": {
+        "properties": {
+          "symbol": {
+            "type": "string",
+            "title": "Symbol",
+            "example": "COFORGE"
+          },
+          "initial_score": {
+            "type": "number",
+            "title": "Initial Score",
+            "default": 88.5,
+            "example": 88.5
+          },
+          "forward_return_pct": {
+            "type": "number",
+            "title": "Forward Return Pct",
+            "default": -18.0,
+            "example": -18.0
+          },
+          "actual_drawdown_pct": {
+            "type": "number",
+            "title": "Actual Drawdown Pct",
+            "default": 22.5,
+            "example": 22.5
+          }
+        },
+        "type": "object",
+        "required": [
+          "symbol"
+        ],
+        "title": "PostMortemAuditRequest"
+      },
       "PredictionRecord": {
         "properties": {
           "id": {
@@ -7341,6 +8326,26 @@
           "actual_return_pct"
         ],
         "title": "RecordOutcomeRequest"
+      },
+      "RedTeamRequest": {
+        "properties": {
+          "symbol": {
+            "type": "string",
+            "title": "Symbol",
+            "example": "SHILCHAR"
+          },
+          "primary_bull_thesis": {
+            "type": "string",
+            "title": "Primary Bull Thesis",
+            "default": "High-growth grid transformer compounder",
+            "example": "High-growth grid transformer compounder"
+          }
+        },
+        "type": "object",
+        "required": [
+          "symbol"
+        ],
+        "title": "RedTeamRequest"
       },
       "RedTeamReviewRecord": {
         "properties": {
@@ -7780,6 +8785,26 @@
           "meta"
         ],
         "title": "StrategyRunResponse"
+      },
+      "StressTestRequest": {
+        "properties": {
+          "symbol": {
+            "type": "string",
+            "title": "Symbol",
+            "example": "COFORGE"
+          },
+          "scenario": {
+            "type": "string",
+            "title": "Scenario",
+            "default": "US_IT_BUDGET_CUT_15PCT",
+            "example": "US_IT_BUDGET_CUT_15PCT"
+          }
+        },
+        "type": "object",
+        "required": [
+          "symbol"
+        ],
+        "title": "StressTestRequest"
       },
       "TickerQuoteResponse": {
         "properties": {

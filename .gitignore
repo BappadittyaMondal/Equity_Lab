@@ -33,8 +33,10 @@ dist/
 build/
 
 # Local research database
+*.sqlite
 *.sqlite3
 *.sqlite3-*
+
 
 # Testing & Temp Files
 .pytest_cache/

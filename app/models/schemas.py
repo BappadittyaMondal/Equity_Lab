@@ -1153,5 +1153,60 @@ class MachineReadableTechnicalReport(BaseModel):
     evidence_log: List[str] = Field(default_factory=list)
 
 
+# ─────────────────────────────────────────────────────────────────────────────
+# Multi-Horizon Matrix Research Schemas
+# ─────────────────────────────────────────────────────────────────────────────
+
+class MultiHorizonMatrixRequest(BaseModel):
+    symbols: List[str] = Field(..., min_length=1, max_length=50, description="List of stock symbols to evaluate")
+    use_live_data: bool = Field(default=True, description="Whether to fetch live quote & fundamentals")
+
+
+class MultiHorizonMatrixItem(BaseModel):
+    symbol: str
+    company_name: str
+    sector: Optional[str] = "Equity"
+    market_cap_cr: Optional[float] = None
+    current_price: float
+    m_stage: str = Field(..., description="Multibagger maturity stage M0 to M4")
+    strategy_bucket: str = Field(..., description="Strategy bucket A, B, C, or D")
+    conformal_confidence_score: float = Field(..., ge=0.0, le=100.0)
+    conformal_confidence_label: str = Field(..., description="HIGH, MEDIUM-HIGH, MEDIUM, or SPECULATIVE")
+    
+    # CAGRs (%)
+    cagr_6m_pct: float
+    cagr_1y_pct: float
+    cagr_2y_pct: float
+    cagr_3y_pct: float
+    cagr_5y_pct: float
+    
+    # Target Prices (INR)
+    target_price_6m: float
+    target_price_1y: float
+    target_price_2y: float
+    target_price_3y: float
+    target_price_5y: float
+    
+    # Probabilities (%)
+    prob_6m_positive_pct: float
+    prob_1y_positive_pct: float
+    prob_2y_positive_pct: float
+    prob_3y_2x_pct: float
+    prob_3y_3x_pct: float
+    prob_5y_3x_pct: float
+    prob_5y_5x_pct: float
+    
+    primary_catalyst_thesis: str
+    forensic_invalidation_rules: List[str] = Field(default_factory=list)
+
+
+class MultiHorizonMatrixResponse(BaseModel):
+    symbols_evaluated: int
+    as_of: str
+    matrix: List[MultiHorizonMatrixItem]
+    meta: MetaHeader
+
+
+
 
 

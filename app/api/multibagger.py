@@ -5,7 +5,11 @@ Exposes machine-readable stock report, 100-point MIVS distribution, and individu
 
 from typing import Dict, Any, Optional
 from fastapi import APIRouter, Depends, Query, HTTPException, status
-from app.models.schemas import MachineReadableStockReport
+from app.models.schemas import (
+    MachineReadableStockReport,
+    MultiHorizonMatrixRequest,
+    MultiHorizonMatrixResponse,
+)
 from app.services.decision_brain.arbiter import Arbiter
 from app.services.decision_brain.mivs_engine import MIVSEngine
 from app.services.strategies.promoter_behaviour import evaluate_promoter_behaviour
@@ -106,4 +110,15 @@ def get_single_stock_institutional_score(symbol: str):
         raise
     except Exception as e:
         raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=f"Scoring failed for {symbol}: {str(e)}")
+
+
+@router.post("/multi-horizon-matrix", response_model=MultiHorizonMatrixResponse, summary="Generate Multi-Horizon CAGR & Conformal Return Probability Matrix")
+def generate_multi_horizon_matrix(request: MultiHorizonMatrixRequest):
+    """Generates 6M to 5Y CAGRs, conformal return probabilities, confidence labels, M0-M4 stages, and strategy buckets."""
+    try:
+        from app.services.research.multi_horizon_matrix_engine import MultiHorizonMatrixEngine
+        return MultiHorizonMatrixEngine.analyze_universe_matrix(request.symbols)
+    except Exception as e:
+        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=f"Multi-horizon matrix analysis failed: {str(e)}")
+
 

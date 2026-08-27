@@ -55,6 +55,10 @@ class InstitutionalMultibaggerEngine:
         cwip = item.get("cwip", 0.0)
         cwip_prec = item.get("cwip_preceding_year", 0.0)
 
+        capex_last_year = item.get("capex_last_year", max(0.0, net_block - net_block_prec + cwip))
+        # Free Cash Flow (FCF = CFO - Capex)
+        fcf_last_year = item.get("fcf_last_year", cfo_last_year - capex_last_year)
+
         piotroski_score = item.get("piotroski_score", 0.0)
         promoter_holding = item.get("promoter_holding", 0.0)
         pledged_pct = item.get("pledged_pct", 0.0)
@@ -155,7 +159,7 @@ class InstitutionalMultibaggerEngine:
             capex_score + ownership_score + valuation_score + technical_score
         )
 
-        # Risk Penalty Engine
+        # Risk Penalty Engine (Phase 2 Enhanced: FCF vs Capex Trap Differentiation)
         risk_penalties = 0.0
         risk_flags = []
         if pledged_pct > 10.0:
@@ -170,6 +174,11 @@ class InstitutionalMultibaggerEngine:
         if interest_coverage < 2.0 and interest_coverage > 0:
             risk_penalties -= 10.0
             risk_flags.append("Weak Interest Coverage (< 2x)")
+        
+        # Gap B: Heavy FCF Burn / Capex Trap Penalty
+        if fcf_last_year < -500.0 or (fcf_last_year < 0.0 and sales_growth_3yr > 25.0 and debt_to_equity > 0.8):
+            risk_penalties -= 15.0
+            risk_flags.append(f"Severe Free Cash Flow Burn / Capex Trap (FCF: ₹{fcf_last_year:.1f}Cr)")
 
         overall_score = max(0.0, min(100.0, raw_score + risk_penalties))
 

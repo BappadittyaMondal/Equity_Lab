@@ -996,6 +996,20 @@ def run_strategy_module(strategy_id: str, symbol: str = "RELIANCE", as_of: Optio
         )
     elif module.id == "D16":
         res_d16 = evaluate_dual_momentum(symbol, as_of=as_of)
+        if res_d16.get("status") != "production":
+            return StrategyRunResponse(
+                strategy_id="D16",
+                strategy_name=module.name,
+                status="data_insufficient",
+                executed_at=res_d16.get("executed_at", get_ist_now_str()),
+                symbol=res_d16.get("symbol", normalize_symbol(symbol)),
+                passed_gates=False,
+                results=res_d16,
+                metrics={},
+                risk_warnings=module.risk_warnings,
+                disclaimer="Dual Momentum Trend Following Engine assessment.",
+                meta=res_d16.get("meta", create_meta_header(source="D16 Dual Momentum Engine"))
+            )
         return StrategyRunResponse(
             strategy_id="D16",
             strategy_name=module.name,

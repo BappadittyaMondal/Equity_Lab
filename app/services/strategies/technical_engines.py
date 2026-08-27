@@ -214,8 +214,11 @@ def run_rs_rating_b6(symbol: str, benchmark: str = "^NSEI") -> StrategyRunRespon
 
     # Map excess return to 0–99 rating
     # +30% excess → RS 99, -30% excess → RS 1
-    rs_raw = 50.0 + (excess_return / 30.0) * 49.0
-    rs_rating = max(1, min(99, int(rs_raw)))
+    if pd.isna(excess_return):
+        rs_rating = 50
+    else:
+        rs_raw = 50.0 + (excess_return / 30.0) * 49.0
+        rs_rating = max(1, min(99, int(rs_raw))) if not pd.isna(rs_raw) else 50
 
     latest_price = stock_hist["Close"].iloc[-1]
     sma_200 = float(stock_hist["Close"].tail(200).mean() if len(stock_hist) >= 200 else stock_hist["Close"].mean())

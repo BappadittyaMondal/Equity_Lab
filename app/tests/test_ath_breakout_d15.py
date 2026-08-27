@@ -3,6 +3,7 @@ from app.services.strategies.ath_breakout_d15 import run_ath_breakout_d15
 from app.models.schemas import StrategyRunResponse
 
 
+@pytest.mark.network
 def test_ath_breakout_pass(monkeypatch):
     """Test clear pass scenario for ATH breakout."""
     res = run_ath_breakout_d15("RELIANCE")
@@ -13,6 +14,7 @@ def test_ath_breakout_pass(monkeypatch):
     assert "distance_high_pct" in res.metrics
 
 
+@pytest.mark.network
 def test_ath_breakout_fail(monkeypatch):
     """Test clear fail scenario for ATH breakout with custom ticker."""
     res = run_ath_breakout_d15("TCS")
