@@ -53,6 +53,11 @@ class Settings:
                     os.environ["ALLOWED_ORIGIN"] = "http://localhost:3000,http://127.0.0.1:8000"
                 else:
                     # Provide a local development fallback default instead of crashing startup
+                    import logging
+                    logging.getLogger("app.core.config").warning(
+                        "SECURITY WARNING: Running with IERL_ENVIRONMENT=production but ALLOWED_ORIGIN is not set. "
+                        "Falling back to localhost origins (http://localhost:3000, http://127.0.0.1:8000)."
+                    )
                     os.environ["ALLOWED_ORIGIN"] = "http://localhost:3000,http://127.0.0.1:8000"
             elif "*" in [o.strip() for o in raw.split(",")]:
                 vercel_url = os.getenv("VERCEL_URL")
