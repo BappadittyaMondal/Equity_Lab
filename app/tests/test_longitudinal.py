@@ -11,17 +11,26 @@ from app.services.decision_brain.arbiter import Arbiter
 from app.core.config import settings
 
 
+import tempfile
+
 @pytest.fixture
-def temp_db_path(tmp_path):
-    db_file = tmp_path / "test_longitudinal.sqlite"
+def temp_db_path():
+    db_fd, db_path_str = tempfile.mkstemp(suffix="_longitudinal.sqlite")
+    import os
+    os.close(db_fd)
     original = settings.DATA_STORE_PATH
-    settings.DATA_STORE_PATH = str(db_file)
-    from app.services.db import _ensure_tables
+    settings.DATA_STORE_PATH = db_path_str
+    from app.services.db import _ensure_tables, close_all_connections
     _ensure_tables()
-    yield str(db_file)
+    yield db_path_str
     settings.DATA_STORE_PATH = original
+    close_all_connections()
     import gc
     gc.collect()
+    try:
+        os.remove(db_path_str)
+    except Exception:
+        pass
 
 
 def test_classify_metric_trend():

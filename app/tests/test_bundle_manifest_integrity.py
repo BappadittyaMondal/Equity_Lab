@@ -13,7 +13,7 @@ import pytest
 
 BASE_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", ".."))
 FIVE_DIR = os.path.join(BASE_DIR, "CONSOLIDATED_5_FILE_SYSTEM")
-MULTI_DIR = os.path.join(BASE_DIR, "CONSOLIDATED_9_FILE_SYSTEM")
+MULTI_DIR = os.path.join(BASE_DIR, "CONSOLIDATED_12_FILE_SYSTEM")
 
 
 def test_five_file_bundle_manifest_matches_disk():

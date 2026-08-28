@@ -511,6 +511,8 @@ def _ensure_tables() -> None:
 
     conn.commit()
     conn.close()
+    if conn in _OPEN_CONNECTIONS:
+        _OPEN_CONNECTIONS.remove(conn)
 
 # Ensure tables are present on import
 _ensure_tables()

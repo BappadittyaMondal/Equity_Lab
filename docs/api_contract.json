@@ -26,26 +26,6 @@
         }
       }
     },
-    "/api/v1/api/health": {
-      "get": {
-        "tags": [
-          "Health & Diagnostics"
-        ],
-        "summary": "Get Health Status",
-        "description": "Runs actual connectivity verification across data feeds and LLM providers.",
-        "operationId": "get_health_status_api_v1_api_health_get",
-        "responses": {
-          "200": {
-            "description": "Successful Response",
-            "content": {
-              "application/json": {
-                "schema": {}
-              }
-            }
-          }
-        }
-      }
-    },
     "/api/v1/readiness": {
       "get": {
         "tags": [

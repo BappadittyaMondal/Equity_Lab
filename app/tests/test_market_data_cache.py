@@ -7,17 +7,26 @@ from unittest import mock
 from app.services import market_data
 from app.core.config import settings
 
+import tempfile
+
 @pytest.fixture
-def temp_db_path(tmp_path, monkeypatch):
-    db_file = tmp_path / "test_market_cache.sqlite"
+def temp_db_path(monkeypatch):
+    db_fd, db_path_str = tempfile.mkstemp(suffix="_market_cache.sqlite")
+    os.close(db_fd)
     original_path = getattr(market_data, "_CACHE_DB", settings.DATA_STORE_PATH)
-    monkeypatch.setattr(market_data, "_CACHE_DB", str(db_file))
-    monkeypatch.setattr(settings, "DATA_STORE_PATH", str(db_file))
-    yield str(db_file)
+    monkeypatch.setattr(market_data, "_CACHE_DB", db_path_str)
+    monkeypatch.setattr(settings, "DATA_STORE_PATH", db_path_str)
+    yield db_path_str
     monkeypatch.setattr(market_data, "_CACHE_DB", original_path)
     monkeypatch.setattr(settings, "DATA_STORE_PATH", original_path)
+    from app.services.db import close_all_connections
+    close_all_connections()
     import gc
     gc.collect()
+    try:
+        os.remove(db_path_str)
+    except Exception:
+        pass
 
 def test_store_and_load_cache(temp_db_path):
     quote = {"symbol": "TEST", "price": 100.5, "currency": "INR"}

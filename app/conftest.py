@@ -29,6 +29,8 @@ def isolate_test_database():
     yield temp_db_path
 
     try:
+        from app.services.db import close_all_connections
+        close_all_connections()
         shutil.rmtree(temp_dir, ignore_errors=True)
     except Exception:
         pass
