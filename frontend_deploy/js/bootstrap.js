@@ -18,6 +18,8 @@ import { initApiHealth, loadTickerStrip } from "./api.js";
 
 import { renderMIVSScorecardPanel } from "./mivs_scorecard_panel.js";
 import { renderGrowthMarketGapPanel } from "./growth_market_gap_panel.js";
+import { renderAICommitteePanel } from "./ai_committee_panel.js";
+import { renderGenAIRedTeamPanel } from "./genai_redteam_panel.js";
 import { initFooter } from "./footer.js";
 
 async function initApp() {
@@ -47,6 +49,8 @@ async function initApp() {
   renderScorecardPanel("RELIANCE");
   renderGrowthMarketGapPanel("RELIANCE");
   renderMIVSScorecardPanel("mivs-scorecard-panel", "RELIANCE");
+  renderAICommitteePanel("RELIANCE");
+  renderGenAIRedTeamPanel("RELIANCE");
 
   // Live Ticker Tape & Health
   initApiHealth();
@@ -63,6 +67,8 @@ async function initApp() {
     renderScorecardPanel(sym);
     renderGrowthMarketGapPanel(sym);
     renderMIVSScorecardPanel("mivs-scorecard-panel", sym);
+    renderAICommitteePanel(sym);
+    renderGenAIRedTeamPanel(sym);
   };
 }
 

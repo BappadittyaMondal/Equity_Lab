@@ -1,12 +1,12 @@
-"""Multi-Agent Virtual Investment Committee (IC Boardroom Protocol).
+"""Deterministic Multi-Factor Investment Vector Rules Engine — IC Protocol.
 
-Simulates a structured institutional Investment Committee debate between 4 specialized AI agents:
-1. Forensic Auditor Agent (Accounting integrity & fraud signals)
-2. Valuation Skeptic Agent (Margin of safety & PEG/DCF validation)
-3. Growth Optimist Agent (CAGR, CWIP expansion & TAM momentum)
-4. Geopolitical & Macro Officer Agent (Sector overlays & macro stress tests)
+Simulates a structured institutional Investment Committee evaluation across 4 specialized rule-based analytical vectors:
+1. Forensic Auditor Vector (Accounting integrity & fraud signals)
+2. Valuation Skeptic Vector (Margin of safety & PEG/DCF validation)
+3. Growth Optimist Vector (CAGR, CWIP expansion & TAM momentum)
+4. Geopolitical & Macro Officer Vector (Sector overlays & macro stress tests)
 
-Resolves multi-agent debate into a consensus conviction score and IC Memo.
+Calculates reproducible, rule-based consensus conviction scores and formal IC Memos.
 """
 
 import logging
@@ -33,7 +33,7 @@ class AgentOpinion:
 
 
 class VirtualInvestmentCommittee:
-    """Multi-Agent Boardroom Consensus Orchestrator."""
+    """Deterministic Rule-Based Boardroom Consensus Orchestrator."""
 
     @classmethod
     def forensic_auditor_agent(cls, symbol: str, stock_data: Dict[str, Any]) -> AgentOpinion:
@@ -255,5 +255,5 @@ class VirtualInvestmentCommittee:
             ],
             "ic_memo": ic_memo_text,
             "executed_at": get_ist_now_str(),
-            "meta": create_meta_header(source=f"Multi-Agent Virtual IC Boardroom ({clean_sym})")
+            "meta": create_meta_header(source=f"Deterministic IC Rules Engine ({clean_sym})")
         }

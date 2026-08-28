@@ -41,14 +41,17 @@ class GenAIRedTeamService:
         clean_sym = norm_sym.replace(".NS", "").replace(".BO", "").upper()
         text = (transcript_text or "").lower()
         
-        # Default mock transcript if none provided for testing
         if not text:
-            if clean_sym in ("COFORGE", "PERSISTENT", "ECLERX"):
-                text = "management noted slowing us enterprise demand and pricing pressure on legacy contracts due to genai billing shift."
-            elif clean_sym in ("SHILCHAR", "ORIANA", "KPEL"):
-                text = "strong order book execution with robust domestic power grid demand and zero raw material tariff bottlenecks."
-            else:
-                text = "stable quarter with steady revenue trajectory and normal supply chain conditions."
+            return {
+                "symbol": clean_sym,
+                "data_mode": "INSUFFICIENT_DATA",
+                "sentiment_score": None,
+                "sentiment_label": "NEUTRAL",
+                "flagged_concall_risks": [],
+                "concall_summary": f"No earnings call transcript supplied for {clean_sym}. Qualitative audit skipped.",
+                "executed_at": get_ist_now_str(),
+                "meta": create_meta_header(source=f"Automated Earnings Call Analyst ({clean_sym})")
+            }
 
         flagged_risks = []
         sentiment_score = 75.0  # Baseline neutral-positive
@@ -71,6 +74,7 @@ class GenAIRedTeamService:
 
         return {
             "symbol": clean_sym,
+            "data_mode": "OBSERVED",
             "sentiment_score": round(max(0.0, min(100.0, sentiment_score)), 1),
             "sentiment_label": sentiment_label,
             "flagged_concall_risks": flagged_risks,

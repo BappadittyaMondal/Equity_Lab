@@ -16,6 +16,8 @@ class ForensicAuditResult:
     auditor_qualification_flag: bool
     related_party_revenue_pct: float
     cash_accrual_divergence_flag: bool
+    m_score: Optional[float] = None
+    z_score: Optional[float] = None
     red_flags: List[str] = field(default_factory=list)
     data_mode: str = "OBSERVED"  # "OBSERVED" | "PARTIAL_DATA" | "INSUFFICIENT_DATA" | "MOCK"
     confidence_score: float = 1.0
@@ -53,6 +55,17 @@ class ForensicAuditor:
             except Exception:
                 pass
 
+        # Compute Beneish M-Score & Altman Z-Score from forensic_engine if available
+        m_score = None
+        z_score = None
+        try:
+            from app.services.strategies.forensic_engine import run_forensic_engine
+            forensic_res = run_forensic_engine(symbol)
+            m_score = forensic_res.metrics.get("m_score")
+            z_score = forensic_res.metrics.get("z_score")
+        except Exception:
+            pass
+
         missing_metrics = []
         if related_party_pct is None:
             missing_metrics.append("related_party_pct")
@@ -65,7 +78,7 @@ class ForensicAuditor:
 
         if is_mock:
             data_mode = "MOCK"
-        elif len(missing_metrics) == 4:
+        elif len(missing_metrics) == 4 and m_score is None and z_score is None:
             data_mode = "INSUFFICIENT_DATA"
         elif len(missing_metrics) > 0:
             data_mode = "PARTIAL_DATA"
@@ -99,8 +112,18 @@ class ForensicAuditor:
                     score -= 35.0
                     red_flags.append("Severe Cash-Accrual Divergence: Net profit expanding while OCF is negative.")
 
+            # 4. Beneish M-Score Manipulation Veto (> -1.78)
+            if m_score is not None and m_score > -1.78:
+                score -= 30.0
+                red_flags.append(f"Beneish M-Score ({m_score:.2f}) > -1.78 threshold: Earnings manipulation risk detected.")
+
+            # 5. Altman Z-Score Distress Warning (< 1.81)
+            if z_score is not None and z_score < 1.81:
+                score -= 30.0
+                red_flags.append(f"Altman Z-Score ({z_score:.2f}) < 1.81 threshold: Corporate financial distress risk detected.")
+
             score = max(0.0, score)
-            governance_veto = score < 60.0 or bool(auditor_resigned_recently)
+            governance_veto = score < 60.0 or bool(auditor_resigned_recently) or (m_score is not None and m_score > -1.78) or (z_score is not None and z_score < 1.81)
 
         divergence = bool(
             net_income_3y_cagr is not None and ocf_3y_cagr is not None and
@@ -114,6 +137,8 @@ class ForensicAuditor:
             auditor_qualification_flag=bool(auditor_resigned_recently),
             related_party_revenue_pct=float(related_party_pct or 0.0),
             cash_accrual_divergence_flag=divergence,
+            m_score=m_score,
+            z_score=z_score,
             red_flags=red_flags,
             data_mode=data_mode,
             confidence_score=confidence_score,

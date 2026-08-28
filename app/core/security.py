@@ -92,14 +92,21 @@ class ApiSecurityMiddleware(BaseHTTPMiddleware):
 
 
 class RateLimiter:
-    """In-memory sliding window rate limiter per client IP address."""
+    """In-memory sliding window rate limiter per client IP address with memory eviction."""
     
     def __init__(self):
         # Maps IP -> list of timestamps
         self.requests: Dict[str, list] = {}
+        self._last_cleanup = time.time()
         
     def check_rate_limit(self, client_ip: str, max_requests: int, window_seconds: int = 60):
         now = time.time()
+        
+        # Periodic cleanup of stale IPs every 5 minutes or if dictionary gets large
+        if now - self._last_cleanup > 300 or len(self.requests) > 500:
+            self._prune_stale_ips(now, window_seconds)
+            self._last_cleanup = now
+
         timestamps = self.requests.get(client_ip, [])
         # Keep only timestamps within window
         valid_timestamps = [ts for ts in timestamps if now - ts < window_seconds]
@@ -112,6 +119,15 @@ class RateLimiter:
             
         valid_timestamps.append(now)
         self.requests[client_ip] = valid_timestamps
+
+    def _prune_stale_ips(self, now: float, window_seconds: int):
+        """Removes IP entries that have no active requests in the current window."""
+        stale_keys = [
+            ip for ip, timestamps in self.requests.items()
+            if not any(now - ts < window_seconds for ts in timestamps)
+        ]
+        for ip in stale_keys:
+            self.requests.pop(ip, None)
 
 
 rate_limiter = RateLimiter()

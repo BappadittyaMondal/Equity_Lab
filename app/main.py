@@ -102,11 +102,19 @@ async def lifespan(app: FastAPI):
         if isinstance(e, RuntimeError):
             raise e
         logger.warning(f"Database health startup check warning: {e}")
-    refresh_task = asyncio.create_task(_background_market_data_refresh_loop())
-    retrain_task = asyncio.create_task(_background_model_retrain_loop())
+    is_serverless = bool(os.getenv("VERCEL") == "1" or os.getenv("AWS_LAMBDA_FUNCTION_NAME"))
+    refresh_task = None
+    retrain_task = None
+    if not is_serverless:
+        refresh_task = asyncio.create_task(_background_market_data_refresh_loop())
+        retrain_task = asyncio.create_task(_background_model_retrain_loop())
+    else:
+        logger.info("Serverless environment detected — skipping long-running background tasks.")
     yield
-    refresh_task.cancel()
-    retrain_task.cancel()
+    if refresh_task:
+        refresh_task.cancel()
+    if retrain_task:
+        retrain_task.cancel()
 
 app = FastAPI(
     title=settings.PROJECT_NAME,
@@ -157,7 +165,7 @@ app.include_router(technical.router, dependencies=auth_deps)
 app.include_router(user_feedback.router, dependencies=auth_deps)
 app.include_router(genai_redteam.router, dependencies=auth_deps)
 app.include_router(ai_committee_api.router, dependencies=auth_deps)
-app.include_router(admin.router)
+app.include_router(admin.router, dependencies=auth_deps)
 
 # Mount Frontend Assets
 frontend_dir = os.path.join(os.path.dirname(__file__), "../frontend_deploy")

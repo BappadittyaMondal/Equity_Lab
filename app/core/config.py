@@ -96,12 +96,12 @@ class Settings:
         env_ver = os.getenv("SKILL_LIBRARY_VERSION")
         if env_ver:
             return env_ver
-        # Compute SHA-256 content hash of Canonical_Source_84 master corpus
-        canonical_dir = root_dir / "Not_Required_Upload" / "Canonical_Source_84"
-        if not canonical_dir.exists():
+        # Compute SHA-256 content hash of docs master corpus if present
+        docs_dir = root_dir / "docs"
+        if not docs_dir.exists():
             return "v1.2-sha256-default"
         hasher = hashlib.sha256()
-        for filepath in sorted(canonical_dir.rglob("*.md")):
+        for filepath in sorted(docs_dir.rglob("*.md")):
             try:
                 hasher.update(filepath.read_bytes())
             except Exception:

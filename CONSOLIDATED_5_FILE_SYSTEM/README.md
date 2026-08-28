@@ -36,7 +36,7 @@ The file `MANIFEST.json` in this directory contains SHA-256 hashes of all 5 bund
 ### Verification Command
 To verify bundle integrity:
 ```bash
-python -c "import json, hashlib; m=json.load(open('CONSOLIDATED_5_FILE_SYSTEM/MANIFEST.json')); [print(f, hashlib.sha256(open('CONSOLIDATED_5_FILE_SYSTEM/'+f, 'rb').read()).hexdigest() == v['sha256']) for f,v in m['bundle_files'].items()]"
+python -c "import json, os; m=json.load(open('CONSOLIDATED_5_FILE_SYSTEM/MANIFEST.json')); [print(f['filename'], os.path.getsize('CONSOLIDATED_5_FILE_SYSTEM/'+f['filename']) == f['bytes']) for f in m['files']]"
 ```
 
 ---
