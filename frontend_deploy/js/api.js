@@ -899,3 +899,30 @@ export async function runStrategyById(id = "A1", payload = { symbol: "RELIANCE" 
   }
 }
 
+export async function loadCausalInference(symbol = "RELIANCE") {
+  try {
+    const resp = await apiFetch(`/api/v1/data/causal-inference`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ symbol })
+    });
+    if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
+    return await resp.json();
+  } catch (err) {
+    console.warn("Causal inference load failed:", err.message);
+    return null;
+  }
+}
+
+export async function loadThesisTracker(symbol = "RELIANCE") {
+  try {
+    const sym = encodeURIComponent(symbol);
+    const resp = await apiFetch(`/api/v1/data/thesis-tracker/${sym}`);
+    if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
+    return await resp.json();
+  } catch (err) {
+    console.warn("Thesis tracker load failed:", err.message);
+    return null;
+  }
+}
+

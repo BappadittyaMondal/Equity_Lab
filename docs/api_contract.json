@@ -3,7 +3,7 @@
   "info": {
     "title": "Equity Lab",
     "description": "Institutional Indian Equity Research, Options Arbitrage, and Return Probability Engine",
-    "version": "1.0.0"
+    "version": "0.0.5"
   },
   "paths": {
     "/api/v1/health": {
@@ -2124,6 +2124,109 @@
             }
           }
         },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/data/causal-inference": {
+      "post": {
+        "tags": [
+          "Point-in-Time Research Data"
+        ],
+        "summary": "Run Causal Inference",
+        "operationId": "run_causal_inference_api_v1_data_causal_inference_post",
+        "parameters": [
+          {
+            "name": "x-api-key",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "default": "",
+              "title": "X-Api-Key"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "additionalProperties": true,
+                "title": "Payload"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/data/thesis-tracker/{symbol}": {
+      "get": {
+        "tags": [
+          "Point-in-Time Research Data"
+        ],
+        "summary": "Get Thesis Tracker",
+        "operationId": "get_thesis_tracker_api_v1_data_thesis_tracker__symbol__get",
+        "parameters": [
+          {
+            "name": "symbol",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Symbol"
+            }
+          },
+          {
+            "name": "x-api-key",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "default": "",
+              "title": "X-Api-Key"
+            }
+          }
+        ],
         "responses": {
           "200": {
             "description": "Successful Response",

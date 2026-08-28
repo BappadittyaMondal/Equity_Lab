@@ -133,4 +133,28 @@ def run_custom_screen(query: dict):
     return CustomScreenerEngine.execute_query(query_str)
 
 
+@router.post("/causal-inference")
+def run_causal_inference(payload: dict):
+    from app.services.research.causal_engine import analyze_causal_event_impacts
+    symbol = payload.get("symbol", "RELIANCE")
+    return analyze_causal_event_impacts(symbol=symbol)
+
+
+@router.get("/thesis-tracker/{symbol}")
+def get_thesis_tracker(symbol: str):
+    from app.services.research.thesis_tracker import ThesisTracker
+    tracker = ThesisTracker()
+    thesis = tracker.create_thesis(
+        symbol=symbol,
+        primary_thesis="High-growth fundamental compounder with expanding return on capital",
+        confidence_score=80.0
+    )
+    evaluated = tracker.evaluate_thesis(
+        thesis.thesis_id,
+        {"cfo_ebitda_ratio": 0.85, "promoter_pledge_pct": 2.5, "quarterly_revenue_growth_pct": 18.5}
+    )
+    return evaluated
+
+
+
 

@@ -16,3 +16,24 @@ def test_causal_engine_existing_ticker():
     assert "status" in res
     assert "net_causal_conviction_delta" in res
     assert "meta" in res
+
+
+def test_causal_and_thesis_rest_api_endpoints():
+    from fastapi.testclient import TestClient
+    from app.main import app
+    client = TestClient(app)
+    
+    # Causal inference route test
+    resp1 = client.post("/api/v1/data/causal-inference", json={"symbol": "RELIANCE"}, headers={"X-API-Key": "test-key"})
+    assert resp1.status_code == 200
+    res1 = resp1.json()
+    assert "status" in res1
+    assert "net_causal_conviction_delta" in res1
+
+    # Thesis tracker route test
+    resp2 = client.get("/api/v1/data/thesis-tracker/RELIANCE", headers={"X-API-Key": "test-key"})
+    assert resp2.status_code == 200
+    res2 = resp2.json()
+    assert "status" in res2
+    assert res2["symbol"] == "RELIANCE"
+

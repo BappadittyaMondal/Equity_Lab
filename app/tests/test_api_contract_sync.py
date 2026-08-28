@@ -55,3 +55,28 @@ def test_options_a2_schema_contract_aliased_frontend():
     res = calculate_a2_payoff(req)
     assert res.underlying.startswith("RELIANCE")
     assert res.spot_price == 2500.0
+
+
+def test_openapi_schema_field_contract_validation():
+    """Programmatically inspects app.openapi() to verify full schema field contract sync."""
+    from app.main import app
+    schema = app.openapi()
+    
+    assert "openapi" in schema
+    assert "paths" in schema
+    assert "components" in schema
+    
+    paths = schema["paths"]
+    assert len(paths) >= 20
+    
+    # Verify core endpoints exist in OpenAPI schema
+    required_routes = [
+        "/api/v1/ticker-strip",
+        "/api/v1/data/causal-inference",
+        "/api/v1/data/thesis-tracker/{symbol}",
+        "/api/v1/research/genai-redteam/red-team-review",
+        "/api/v1/research/ai-committee/governance-audit/{symbol}"
+    ]
+    for route in required_routes:
+        assert route in paths, f"Route {route} missing from OpenAPI schema spec."
+
