@@ -59,9 +59,10 @@ def calculate_return_probability(req: ReturnProbabilityRequest) -> ReturnProbabi
     threshold = req.return_threshold_pct
     method = req.method or "historical_empirical"
 
-    # Fetch 3 years of daily data for statistical sampling
+    # Fetch historical daily data for statistical sampling (max/5y for multi-year horizons)
+    period = "max" if horizon > 756 else ("5y" if horizon > 252 else "3y")
     try:
-        hist = get_history(symbol, period="3y", interval="1d")
+        hist = get_history(symbol, period=period, interval="1d")
         if len(hist) < horizon + 10:
             raise ValueError(f"Insufficient historical data ({len(hist)} rows) for horizon {horizon} days.")
     except Exception as e:

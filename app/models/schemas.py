@@ -66,7 +66,7 @@ class ComparisonResponse(BaseModel):
 
 class ReturnProbabilityRequest(BaseModel):
     symbol: str = Field(..., description="Stock symbol (e.g. RELIANCE, TCS)")
-    horizon_days: int = Field(default=30, ge=1, le=365, description="Holding period in trading days")
+    horizon_days: int = Field(default=30, ge=1, le=1825, description="Holding period in trading days (up to 5 years)")
     return_threshold_pct: float = Field(default=5.0, description="Target return threshold percentage (e.g. 5.0 for 5%)")
     method: Literal["historical_empirical", "bootstrap"] = Field(default="historical_empirical")
 
