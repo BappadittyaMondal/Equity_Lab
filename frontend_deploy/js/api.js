@@ -628,3 +628,274 @@ export async function loadMIVSScore(symbol = "RELIANCE") {
   }
 }
 
+// ---------------------------------------------------------------------------
+// Phase 2 Comprehensive UI API Callers (~20 Previously Unwired Endpoints)
+// ---------------------------------------------------------------------------
+
+export async function loadInstitutionalRank() {
+  try {
+    const resp = await apiFetch(`/api/v1/multibagger/institutional-rank`);
+    if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
+    return await resp.json();
+  } catch (err) {
+    console.warn("Institutional rank load failed:", err.message);
+    return null;
+  }
+}
+
+export async function loadInstitutionalScore(symbol = "SHILCHAR") {
+  try {
+    const sym = encodeURIComponent(symbol);
+    const resp = await apiFetch(`/api/v1/multibagger/institutional-score/${sym}`);
+    if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
+    return await resp.json();
+  } catch (err) {
+    console.warn("Institutional score load failed:", err.message);
+    return null;
+  }
+}
+
+export async function loadMultibaggerAltData(symbol = "COFORGE") {
+  try {
+    const sym = encodeURIComponent(symbol);
+    const resp = await apiFetch(`/api/v1/multibagger/altdata/${sym}`);
+    if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
+    return await resp.json();
+  } catch (err) {
+    console.warn("Alt-Data load failed:", err.message);
+    return null;
+  }
+}
+
+export async function loadMultibaggerCatalysts(symbol = "SHILCHAR") {
+  try {
+    const sym = encodeURIComponent(symbol);
+    const resp = await apiFetch(`/api/v1/multibagger/catalysts/${sym}`);
+    if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
+    return await resp.json();
+  } catch (err) {
+    console.warn("Catalysts load failed:", err.message);
+    return null;
+  }
+}
+
+export async function loadMultibaggerConcall(symbol = "COFORGE") {
+  try {
+    const sym = encodeURIComponent(symbol);
+    const resp = await apiFetch(`/api/v1/multibagger/concall/${sym}`);
+    if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
+    return await resp.json();
+  } catch (err) {
+    console.warn("Concall load failed:", err.message);
+    return null;
+  }
+}
+
+export async function loadMultiHorizonMatrix(symbol = "RELIANCE") {
+  try {
+    const sym = encodeURIComponent(symbol);
+    const resp = await apiFetch(`/api/v1/multibagger/multi-horizon-matrix/${sym}`);
+    if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
+    return await resp.json();
+  } catch (err) {
+    console.warn("Multi-horizon matrix load failed:", err.message);
+    return null;
+  }
+}
+
+export async function loadMultibaggerPortfolio() {
+  try {
+    const resp = await apiFetch(`/api/v1/multibagger/portfolio`);
+    if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
+    return await resp.json();
+  } catch (err) {
+    console.warn("Multibagger portfolio load failed:", err.message);
+    return null;
+  }
+}
+
+export async function loadPromoterIntelligence(symbol = "RELIANCE") {
+  try {
+    const sym = encodeURIComponent(symbol);
+    const resp = await apiFetch(`/api/v1/multibagger/promoter/${sym}`);
+    if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
+    return await resp.json();
+  } catch (err) {
+    console.warn("Promoter intelligence load failed:", err.message);
+    return null;
+  }
+}
+
+export async function loadShareholdingPattern(symbol = "RELIANCE") {
+  try {
+    const sym = encodeURIComponent(symbol);
+    const resp = await apiFetch(`/api/v1/multibagger/shareholding/${sym}`);
+    if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
+    return await resp.json();
+  } catch (err) {
+    console.warn("Shareholding pattern load failed:", err.message);
+    return null;
+  }
+}
+
+export async function loadGovernanceAudit(symbol = "SHILCHAR") {
+  try {
+    const resp = await apiFetch(`/api/v1/ai-committee/governance-audit`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ symbol })
+    });
+    if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
+    return await resp.json();
+  } catch (err) {
+    console.warn("Governance audit load failed:", err.message);
+    return null;
+  }
+}
+
+export async function executeNLQuery(query_text = "Show high growth stocks with low debt") {
+  try {
+    const resp = await apiFetch(`/api/v1/ai-committee/nl-query`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ query_text })
+    });
+    if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
+    return await resp.json();
+  } catch (err) {
+    console.warn("NL Query execution failed:", err.message);
+    return null;
+  }
+}
+
+export async function loadPostMortem(symbol = "SHILCHAR") {
+  try {
+    const resp = await apiFetch(`/api/v1/ai-committee/post-mortem`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ symbol })
+    });
+    if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
+    return await resp.json();
+  } catch (err) {
+    console.warn("Post-mortem load failed:", err.message);
+    return null;
+  }
+}
+
+export async function loadSupplyChainGraph(symbol = "SHILCHAR") {
+  try {
+    const resp = await apiFetch(`/api/v1/ai-committee/supply-chain`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ symbol })
+    });
+    if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
+    return await resp.json();
+  } catch (err) {
+    console.warn("Supply chain graph load failed:", err.message);
+    return null;
+  }
+}
+
+export async function runRedTeamReview(symbol = "SHILCHAR", primary_bull_thesis = "High-growth grid compounder") {
+  try {
+    const resp = await apiFetch(`/api/v1/research/genai-redteam/red-team-review`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ symbol, primary_bull_thesis })
+    });
+    if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
+    return await resp.json();
+  } catch (err) {
+    console.warn("Red-team review execution failed:", err.message);
+    return null;
+  }
+}
+
+export async function runGeopoliticalStressTest(symbol = "COFORGE", scenario = "US_IT_BUDGET_CUT_15PCT") {
+  try {
+    const resp = await apiFetch(`/api/v1/research/genai-redteam/stress-test`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ symbol, scenario })
+    });
+    if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
+    return await resp.json();
+  } catch (err) {
+    console.warn("Geopolitical stress test failed:", err.message);
+    return null;
+  }
+}
+
+export async function loadMultibaggerScreener(universe = ["SHILCHAR", "COFORGE", "RELIANCE"]) {
+  try {
+    const resp = await apiFetch(`/api/v1/research/multibagger-screener`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ universe })
+    });
+    if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
+    return await resp.json();
+  } catch (err) {
+    console.warn("Multibagger screener failed:", err.message);
+    return null;
+  }
+}
+
+export async function loadScorecardMatrix(symbols = ["RELIANCE", "TCS", "INFY"]) {
+  try {
+    const resp = await apiFetch(`/api/v1/research/scorecard-matrix`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ symbols })
+    });
+    if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
+    return await resp.json();
+  } catch (err) {
+    console.warn("Scorecard matrix load failed:", err.message);
+    return null;
+  }
+}
+
+export async function submitUserFeedback(user_query = "What is the Capex trap status?", user_correction = "Differentiate growth capex from maintenance capex") {
+  try {
+    const resp = await apiFetch(`/api/v1/research/user-feedback`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ user_query, user_correction })
+    });
+    if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
+    return await resp.json();
+  } catch (err) {
+    console.warn("User feedback submission failed:", err.message);
+    return null;
+  }
+}
+
+export async function loadStrategyById(id = "A1") {
+  try {
+    const resp = await apiFetch(`/api/v1/strategies/${encodeURIComponent(id)}`);
+    if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
+    return await resp.json();
+  } catch (err) {
+    console.warn(`Strategy ${id} load failed:`, err.message);
+    return null;
+  }
+}
+
+export async function runStrategyById(id = "A1", payload = { symbol: "RELIANCE" }) {
+  try {
+    const resp = await apiFetch(`/api/v1/strategies/${encodeURIComponent(id)}/run`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(payload)
+    });
+    if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
+    return await resp.json();
+  } catch (err) {
+    console.warn(`Strategy ${id} run failed:`, err.message);
+    return null;
+  }
+}
+

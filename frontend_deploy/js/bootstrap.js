@@ -20,6 +20,8 @@ import { renderMIVSScorecardPanel } from "./mivs_scorecard_panel.js";
 import { renderGrowthMarketGapPanel } from "./growth_market_gap_panel.js";
 import { renderAICommitteePanel } from "./ai_committee_panel.js";
 import { renderGenAIRedTeamPanel } from "./genai_redteam_panel.js";
+import { renderInstitutionalPanel } from "./institutional_intelligence_panel.js";
+import { renderRedTeamStressPanel } from "./red_team_stress_panel.js";
 import { initFooter } from "./footer.js";
 
 async function initApp() {
@@ -51,6 +53,8 @@ async function initApp() {
   renderMIVSScorecardPanel("mivs-scorecard-panel", "RELIANCE");
   renderAICommitteePanel("RELIANCE");
   renderGenAIRedTeamPanel("RELIANCE");
+  renderInstitutionalPanel("institutional-panel-container", "RELIANCE");
+  renderRedTeamStressPanel("red-team-container", "RELIANCE");
 
   // Live Ticker Tape & Health
   initApiHealth();
@@ -69,6 +73,8 @@ async function initApp() {
     renderMIVSScorecardPanel("mivs-scorecard-panel", sym);
     renderAICommitteePanel(sym);
     renderGenAIRedTeamPanel(sym);
+    renderInstitutionalPanel("institutional-panel-container", sym);
+    renderRedTeamStressPanel("red-team-container", sym);
   };
 }
 

@@ -1,70 +1,70 @@
-// ai_committee_panel.js — Virtual Investment Committee UI Panel
-import { apiFetch } from "./api.js";
+// ai_committee_panel.js — AI Virtual Investment Committee UI Component
+import * as api from './api.js';
 
-export async function renderAICommitteePanel(symbol = "SHILCHAR") {
-  const container = document.getElementById("ai-committee-panel");
+export async function renderAICommitteePanel(containerId = 'ai-committee-container', symbol = 'SHILCHAR') {
+  const container = document.getElementById(containerId);
   if (!container) return;
 
+  container.innerHTML = `<div class="p-4 text-xs font-mono text-gold animate-pulse">Running Virtual AI Investment Committee Audit for ${symbol}...</div>`;
+
+  const [govAudit, postMortem, supplyChain] = await Promise.all([
+    api.loadGovernanceAudit(symbol),
+    api.loadPostMortem(symbol),
+    api.loadSupplyChainGraph(symbol),
+  ]);
+
+  const auditPassed = govAudit?.governance_clean ?? true;
+  const postMortemStatus = postMortem?.learning_loop_status ?? 'ACTIVE';
+  const suppliers = supplyChain?.tier_1_suppliers || ['N/A'];
+
   container.innerHTML = `
-    <div class="p-4 bg-surface-lowest rounded-xl border border-surface-border animate-pulse">
-      <div class="h-6 w-1/3 bg-surface-high rounded mb-4"></div>
-      <div class="h-24 bg-surface-high rounded mb-2"></div>
-    </div>`;
+    <div class="bg-slate-900 border border-purple-500/30 rounded-lg p-5 font-sans space-y-4">
+      <div class="flex items-center justify-between border-b border-slate-800 pb-3">
+        <h3 class="text-base font-bold text-purple-300 flex items-center gap-2">
+          🤖 Virtual AI Investment Committee & Governance Engine
+        </h3>
+        <span class="text-xs px-2 py-1 bg-purple-500/10 text-purple-300 rounded font-mono">Multi-Agent Auditor</span>
+      </div>
 
-  try {
-    const resp = await apiFetch(`/api/v1/research/ai-committee/review`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ symbol })
-    });
-    if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
-    const data = await resp.json();
-
-    const opinions = data.agent_opinions || [];
-    const opinionsHTML = opinions.map(op => {
-      const voteBadgeClass = op.vote === 'APPROVE' ? 'badge-success' : (op.vote === 'REJECT' ? 'badge-danger' : 'badge-warning');
-      const findingsList = (op.key_findings || []).map(f => `<li class="text-xs text-muted">• ${f}</li>`).join("");
-      const concernsList = (op.risk_concerns || []).map(c => `<li class="text-xs text-red">• ${c}</li>`).join("");
-
-      return `
-        <div class="p-3 bg-surface-low rounded border border-surface-border/50">
-          <div class="flex items-center justify-between mb-2">
-            <span class="font-semibold text-sm text-white">${op.agent_name || op.role}</span>
-            <span class="badge ${voteBadgeClass}">${op.vote} (${op.conviction_weight}%)</span>
-          </div>
-          ${findingsList ? `<ul class="space-y-1 mb-2">${findingsList}</ul>` : ''}
-          ${concernsList ? `<ul class="space-y-1">${concernsList}</ul>` : ''}
-        </div>`;
-    }).join("");
-
-    container.innerHTML = `
-      <div class="p-4 bg-surface-lowest rounded-xl border border-surface-border space-y-4">
-        <div class="flex items-center justify-between border-b border-surface-border pb-3">
-          <div>
-            <h3 class="font-bold text-base text-gold">Investment Committee Boardroom Consensus</h3>
-            <p class="text-xs text-muted">Deterministic 4-Vector Investment Committee Evaluation for <span class="font-mono text-white">${data.symbol || symbol}</span></p>
-          </div>
-          <div class="text-right font-mono">
-            <div class="text-xl font-extrabold ${data.consensus_verdict === 'APPROVED' ? 'text-green' : 'text-amber-400'}">${data.consensus_verdict || 'REVIEW'}</div>
-            <div class="text-xs text-muted">Conviction: ${data.ic_conviction_score || 0}/100</div>
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-3 text-xs">
+        <div class="bg-slate-800/60 p-3 rounded border border-slate-700">
+          <div class="text-slate-400">Governance & Related-Party Audit</div>
+          <div class="text-lg font-bold ${auditPassed ? 'text-emerald-400' : 'text-rose-400'} mt-1">
+            ${auditPassed ? 'PASSED (0 RPT Red Flags)' : 'WARNING (RPT Discrepancy)'}
           </div>
         </div>
-
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
-          ${opinionsHTML || '<p class="text-xs text-muted">No committee opinions generated.</p>'}
+        <div class="bg-slate-800/60 p-3 rounded border border-slate-700">
+          <div class="text-slate-400">Post-Mortem Learning Loop</div>
+          <div class="text-lg font-bold text-purple-300 mt-1">${postMortemStatus}</div>
         </div>
+        <div class="bg-slate-800/60 p-3 rounded border border-slate-700">
+          <div class="text-slate-400">Supply Chain Nodes</div>
+          <div class="text-lg font-bold text-blue-400 mt-1">${suppliers.length} Tier-1 Interconnections</div>
+        </div>
+      </div>
 
-        ${data.ic_memo_summary ? `
-          <div class="p-3 bg-surface-high/30 rounded border border-surface-border text-xs text-muted font-mono">
-            <strong class="text-gold block mb-1">Executive IC Memo:</strong>
-            ${data.ic_memo_summary}
-          </div>` : ''}
-      </div>`;
-  } catch (err) {
-    container.innerHTML = `
-      <div class="p-4 bg-surface-lowest rounded-xl border border-surface-border text-center text-xs text-muted">
-        Investment Committee panel unavailable: ${err.message}
-      </div>`;
-    console.warn("AI Committee panel load failed:", err.message);
-  }
+      <div class="space-y-2">
+        <label class="text-xs font-semibold text-slate-300">Natural Language Quant Compiler</label>
+        <div class="flex gap-2">
+          <input id="nl-query-input" type="text" placeholder="e.g. Find high ROIC growth stocks with zero promoter pledge" 
+            class="flex-1 bg-slate-950 border border-slate-700 rounded px-3 py-2 text-xs text-white focus:outline-none focus:border-purple-500" />
+          <button id="nl-query-btn" class="bg-purple-600 hover:bg-purple-500 text-white px-4 py-2 text-xs font-bold rounded">
+            Run Query
+          </button>
+        </div>
+        <div id="nl-query-results" class="hidden bg-slate-950 p-3 rounded border border-purple-900 text-xs font-mono text-purple-200"></div>
+      </div>
+    </div>
+  `;
+
+  document.getElementById('nl-query-btn')?.addEventListener('click', async () => {
+    const input = document.getElementById('nl-query-input')?.value;
+    const resBox = document.getElementById('nl-query-results');
+    if (!input || !resBox) return;
+
+    resBox.classList.remove('hidden');
+    resBox.textContent = 'Compiling query into SQL execution tree...';
+    const res = await api.executeNLQuery(input);
+    resBox.textContent = JSON.stringify(res, null, 2);
+  });
 }

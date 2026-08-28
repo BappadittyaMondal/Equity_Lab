@@ -12,6 +12,7 @@ from datetime import datetime
 from app.services.market_data import normalize_symbol, create_meta_header, get_ist_now_str
 from app.services.research.geopolitical_engine import evaluate_geopolitical_risk
 from app.services.decision_brain.red_team_engine import evaluate_red_team_review
+from app.services.security.prompt_sanitizer import sanitize_prompt
 
 logger = logging.getLogger(__name__)
 
@@ -39,7 +40,10 @@ class GenAIRedTeamService:
         """Scans earnings call transcripts to extract qualitative risk factors & management sentiment."""
         norm_sym = normalize_symbol(symbol)
         clean_sym = norm_sym.replace(".NS", "").replace(".BO", "").upper()
-        text = (transcript_text or "").lower()
+        
+        sanitization_res = sanitize_prompt(transcript_text or "")
+        clean_transcript = sanitization_res["sanitized_text"]
+        text = clean_transcript.lower()
         
         if not text:
             return {
@@ -137,18 +141,22 @@ class GenAIRedTeamService:
         """Generates an adversarial GenAI Red-Team pre-mortem bear case challenging top stock picks."""
         norm_sym = normalize_symbol(symbol)
         clean_sym = norm_sym.replace(".NS", "").replace(".BO", "").upper()
-        red_team_res = evaluate_red_team_review(clean_sym, thesis_statement=primary_bull_thesis)
+        
+        sanitization_res = sanitize_prompt(primary_bull_thesis)
+        clean_thesis = sanitization_res["sanitized_text"]
+        
+        red_team_res = evaluate_red_team_review(clean_sym, thesis_statement=clean_thesis)
         concall_res = cls.audit_earnings_call_transcript(clean_sym)
 
         bear_case_summary = (
-            f"RED-TEAM BEAR CASE FOR {clean_sym}: Primary bull thesis '{primary_bull_thesis}' is challenged. "
+            f"RED-TEAM BEAR CASE FOR {clean_sym}: Primary bull thesis '{clean_thesis}' is challenged. "
             f"Concall Sentiment: {concall_res['sentiment_label']} ({concall_res['sentiment_score']}/100). "
             f"Failure vectors: {', '.join(red_team_res['red_team_record']['pre_mortem_failure_causes'])}."
         )
 
         return {
             "symbol": clean_sym,
-            "primary_bull_thesis": primary_bull_thesis,
+            "primary_bull_thesis": clean_thesis,
             "red_team_passed": red_team_res["gate_7_passed"],
             "bear_case_summary": bear_case_summary,
             "failure_causes": red_team_res["red_team_record"]["pre_mortem_failure_causes"],

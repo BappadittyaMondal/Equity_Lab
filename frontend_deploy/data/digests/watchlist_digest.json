@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-08-28T10:23:55.032208+00:00",
+  "generated_at": "2026-08-28T14:42:49.239699+00:00",
   "auto_refresh_summary": {
     "scanned_count": 14,
     "stale_count": 14,
@@ -21,31 +21,34 @@
       "ASTRAMICRO.NS"
     ],
     "failed_symbols": [],
-    "timestamp": "2026-08-28T15:53:55.000824+05:30",
+    "timestamp": "2026-08-28T20:12:49.223609+05:30",
     "max_age_hours_threshold": 72
   },
   "data": {
     "TITAN.NS": {
       "symbol": "TITAN.NS",
-      "verdict": "Watch",
-      "conviction_score": 45,
-      "primary_thesis": "TITAN.NS \u2014 Watch (Regime: VOLATILE).   \u2705 C9: C9 passed screening.   \u2705 C11: Beneish M-Score requires multi-period data.   \u26a0\ufe0f Risks from: B4, B5.   Data confidence: 80%.",
+      "verdict": "Avoid",
+      "conviction_score": 37,
+      "primary_thesis": "TITAN.NS \u2014 Avoid (Regime: CALM).   \u2705 B5: B5 passed screening.   \u2705 C9: C9 passed screening.   \u26a0\ufe0f Risks from: B8, D15.   Data confidence: 80%.",
       "contributing_engines": [
+        "B5",
         "C9",
         "C11",
         "C12",
         "C13",
         "C14",
-        "D17",
-        "D18"
+        "D18",
+        "E2",
+        "E3",
+        "E7"
       ],
       "contradicting_engines": [
-        "B4",
-        "B5",
-        "B6",
-        "B7",
         "B8",
-        "D15"
+        "D15",
+        "E1",
+        "E4",
+        "E5",
+        "E6"
       ],
       "confidence_tier": "Contested",
       "consensus_view": null,
@@ -53,7 +56,7 @@
       "supporting_evidence": null,
       "invalidation_condition": null,
       "catalyst_timing": null,
-      "timestamp": "2026-08-28T10:23:55.027356+00:00",
+      "timestamp": "2026-08-28T14:42:49.232137+00:00",
       "data_backed": true,
       "ml_outperformance_probability": null
     },
@@ -85,7 +88,7 @@
       "supporting_evidence": null,
       "invalidation_condition": null,
       "catalyst_timing": null,
-      "timestamp": "2026-08-28T10:23:55.028146+00:00",
+      "timestamp": "2026-08-28T14:42:49.233071+00:00",
       "data_backed": true,
       "ml_outperformance_probability": null
     },
@@ -117,7 +120,7 @@
       "supporting_evidence": null,
       "invalidation_condition": null,
       "catalyst_timing": null,
-      "timestamp": "2026-08-28T10:23:55.028448+00:00",
+      "timestamp": "2026-08-28T14:42:49.233406+00:00",
       "data_backed": true,
       "ml_outperformance_probability": null
     },
@@ -149,7 +152,7 @@
       "supporting_evidence": null,
       "invalidation_condition": null,
       "catalyst_timing": null,
-      "timestamp": "2026-08-28T10:23:55.028593+00:00",
+      "timestamp": "2026-08-28T14:42:49.233974+00:00",
       "data_backed": true,
       "ml_outperformance_probability": null
     },
@@ -181,7 +184,7 @@
       "supporting_evidence": null,
       "invalidation_condition": null,
       "catalyst_timing": null,
-      "timestamp": "2026-08-28T10:23:55.028720+00:00",
+      "timestamp": "2026-08-28T14:42:49.234404+00:00",
       "data_backed": true,
       "ml_outperformance_probability": null
     },
@@ -213,7 +216,7 @@
       "supporting_evidence": null,
       "invalidation_condition": null,
       "catalyst_timing": null,
-      "timestamp": "2026-08-28T10:23:55.028843+00:00",
+      "timestamp": "2026-08-28T14:42:49.234670+00:00",
       "data_backed": true,
       "ml_outperformance_probability": null
     },
@@ -245,7 +248,7 @@
       "supporting_evidence": null,
       "invalidation_condition": null,
       "catalyst_timing": null,
-      "timestamp": "2026-08-28T10:23:55.028962+00:00",
+      "timestamp": "2026-08-28T14:42:49.234926+00:00",
       "data_backed": true,
       "ml_outperformance_probability": null
     },
@@ -277,7 +280,7 @@
       "supporting_evidence": null,
       "invalidation_condition": null,
       "catalyst_timing": null,
-      "timestamp": "2026-08-28T10:23:55.029080+00:00",
+      "timestamp": "2026-08-28T14:42:49.235097+00:00",
       "data_backed": true,
       "ml_outperformance_probability": null
     },
@@ -309,7 +312,7 @@
       "supporting_evidence": null,
       "invalidation_condition": null,
       "catalyst_timing": null,
-      "timestamp": "2026-08-28T10:23:55.029196+00:00",
+      "timestamp": "2026-08-28T14:42:49.235270+00:00",
       "data_backed": true,
       "ml_outperformance_probability": null
     },
@@ -341,7 +344,7 @@
       "supporting_evidence": null,
       "invalidation_condition": null,
       "catalyst_timing": null,
-      "timestamp": "2026-08-28T10:23:55.029309+00:00",
+      "timestamp": "2026-08-28T14:42:49.235437+00:00",
       "data_backed": true,
       "ml_outperformance_probability": null
     },
@@ -373,7 +376,7 @@
       "supporting_evidence": null,
       "invalidation_condition": null,
       "catalyst_timing": null,
-      "timestamp": "2026-08-28T10:23:55.029422+00:00",
+      "timestamp": "2026-08-28T14:42:49.235649+00:00",
       "data_backed": true,
       "ml_outperformance_probability": null
     },
@@ -405,7 +408,7 @@
       "supporting_evidence": null,
       "invalidation_condition": null,
       "catalyst_timing": null,
-      "timestamp": "2026-08-28T10:23:55.029534+00:00",
+      "timestamp": "2026-08-28T14:42:49.235878+00:00",
       "data_backed": true,
       "ml_outperformance_probability": null
     },
@@ -437,7 +440,7 @@
       "supporting_evidence": null,
       "invalidation_condition": null,
       "catalyst_timing": null,
-      "timestamp": "2026-08-28T10:23:55.029652+00:00",
+      "timestamp": "2026-08-28T14:42:49.236047+00:00",
       "data_backed": true,
       "ml_outperformance_probability": null
     },
@@ -469,7 +472,7 @@
       "supporting_evidence": null,
       "invalidation_condition": null,
       "catalyst_timing": null,
-      "timestamp": "2026-08-28T10:23:55.029765+00:00",
+      "timestamp": "2026-08-28T14:42:49.236215+00:00",
       "data_backed": true,
       "ml_outperformance_probability": null
     },
@@ -501,7 +504,7 @@
       "supporting_evidence": null,
       "invalidation_condition": null,
       "catalyst_timing": null,
-      "timestamp": "2026-08-28T10:23:55.029877+00:00",
+      "timestamp": "2026-08-28T14:42:49.236382+00:00",
       "data_backed": true,
       "ml_outperformance_probability": null
     },
@@ -533,7 +536,7 @@
       "supporting_evidence": null,
       "invalidation_condition": null,
       "catalyst_timing": null,
-      "timestamp": "2026-08-28T10:23:55.029987+00:00",
+      "timestamp": "2026-08-28T14:42:49.236547+00:00",
       "data_backed": true,
       "ml_outperformance_probability": null
     },
@@ -565,7 +568,7 @@
       "supporting_evidence": null,
       "invalidation_condition": null,
       "catalyst_timing": null,
-      "timestamp": "2026-08-28T10:23:55.030096+00:00",
+      "timestamp": "2026-08-28T14:42:49.236711+00:00",
       "data_backed": true,
       "ml_outperformance_probability": null
     },
@@ -597,7 +600,7 @@
       "supporting_evidence": null,
       "invalidation_condition": null,
       "catalyst_timing": null,
-      "timestamp": "2026-08-28T10:23:55.030209+00:00",
+      "timestamp": "2026-08-28T14:42:49.236899+00:00",
       "data_backed": true,
       "ml_outperformance_probability": null
     },
@@ -629,7 +632,7 @@
       "supporting_evidence": null,
       "invalidation_condition": null,
       "catalyst_timing": null,
-      "timestamp": "2026-08-28T10:23:55.030319+00:00",
+      "timestamp": "2026-08-28T14:42:49.237064+00:00",
       "data_backed": true,
       "ml_outperformance_probability": null
     },
@@ -661,7 +664,7 @@
       "supporting_evidence": null,
       "invalidation_condition": null,
       "catalyst_timing": null,
-      "timestamp": "2026-08-28T10:23:55.030432+00:00",
+      "timestamp": "2026-08-28T14:42:49.237230+00:00",
       "data_backed": true,
       "ml_outperformance_probability": null
     },
@@ -693,7 +696,7 @@
       "supporting_evidence": null,
       "invalidation_condition": null,
       "catalyst_timing": null,
-      "timestamp": "2026-08-28T10:23:55.030545+00:00",
+      "timestamp": "2026-08-28T14:42:49.237398+00:00",
       "data_backed": true,
       "ml_outperformance_probability": null
     },
@@ -725,7 +728,7 @@
       "supporting_evidence": null,
       "invalidation_condition": null,
       "catalyst_timing": null,
-      "timestamp": "2026-08-28T10:23:55.030655+00:00",
+      "timestamp": "2026-08-28T14:42:49.237564+00:00",
       "data_backed": true,
       "ml_outperformance_probability": null
     },
@@ -757,7 +760,7 @@
       "supporting_evidence": null,
       "invalidation_condition": null,
       "catalyst_timing": null,
-      "timestamp": "2026-08-28T10:23:55.030770+00:00",
+      "timestamp": "2026-08-28T14:42:49.237731+00:00",
       "data_backed": true,
       "ml_outperformance_probability": null
     },
@@ -789,7 +792,7 @@
       "supporting_evidence": null,
       "invalidation_condition": null,
       "catalyst_timing": null,
-      "timestamp": "2026-08-28T10:23:55.030883+00:00",
+      "timestamp": "2026-08-28T14:42:49.237898+00:00",
       "data_backed": true,
       "ml_outperformance_probability": null
     },
@@ -821,7 +824,7 @@
       "supporting_evidence": null,
       "invalidation_condition": null,
       "catalyst_timing": null,
-      "timestamp": "2026-08-28T10:23:55.030992+00:00",
+      "timestamp": "2026-08-28T14:42:49.238062+00:00",
       "data_backed": true,
       "ml_outperformance_probability": null
     },
@@ -853,7 +856,7 @@
       "supporting_evidence": null,
       "invalidation_condition": null,
       "catalyst_timing": null,
-      "timestamp": "2026-08-28T10:23:55.031103+00:00",
+      "timestamp": "2026-08-28T14:42:49.238225+00:00",
       "data_backed": true,
       "ml_outperformance_probability": null
     },
@@ -885,15 +888,68 @@
       "supporting_evidence": null,
       "invalidation_condition": null,
       "catalyst_timing": null,
-      "timestamp": "2026-08-28T10:23:55.031216+00:00",
+      "timestamp": "2026-08-28T14:42:49.238478+00:00",
       "data_backed": true,
       "ml_outperformance_probability": null
     },
     "RELIANCE.NS": {
       "symbol": "RELIANCE.NS",
+      "verdict": "ABSTAIN",
+      "conviction_score": 15,
+      "primary_thesis": "ABSTAIN: Prediction state gated due to high engine score variance (std=30.8, buy=18, avoid=16). Refusing forced prediction.",
+      "contributing_engines": [
+        "A1",
+        "A3",
+        "C9",
+        "C11",
+        "C12",
+        "C13",
+        "C14",
+        "D18",
+        "E2",
+        "E3",
+        "E7",
+        "E8",
+        "E9",
+        "E10",
+        "E11",
+        "E12",
+        "E14",
+        "E16"
+      ],
+      "contradicting_engines": [
+        "B4",
+        "B5",
+        "B6",
+        "B7",
+        "B8",
+        "C10",
+        "D15",
+        "D16",
+        "D17",
+        "E1",
+        "E4",
+        "E5",
+        "E6",
+        "E13",
+        "E15",
+        "E17"
+      ],
+      "confidence_tier": "Contested",
+      "consensus_view": null,
+      "variant_view": null,
+      "supporting_evidence": null,
+      "invalidation_condition": null,
+      "catalyst_timing": null,
+      "timestamp": "2026-08-28T14:42:49.238662+00:00",
+      "data_backed": true,
+      "ml_outperformance_probability": null
+    },
+    "TCS": {
+      "symbol": "TCS",
       "verdict": "Avoid",
-      "conviction_score": 33,
-      "primary_thesis": "RELIANCE.NS \u2014 Avoid (Regime: VOLATILE).   \u2705 C9: C9 passed screening.   \u2705 C11: Beneish M-Score requires multi-period data.   \u26a0\ufe0f Risks from: B5, B8.   Data confidence: 80%.",
+      "conviction_score": 20,
+      "primary_thesis": "TCS \u2014 Avoid (Regime: ELEVATED).   \u2705 C9: C9 passed screening.   \u2705 C11: Beneish M-Score requires multi-period data.   \u26a0\ufe0f Risks from: B5, B8.   Data confidence: 50%.",
       "contributing_engines": [
         "C9",
         "C11",
@@ -903,7 +959,8 @@
         "D18",
         "E2",
         "E3",
-        "E7"
+        "E7",
+        "E8"
       ],
       "contradicting_engines": [
         "B5",
@@ -920,60 +977,8 @@
       "supporting_evidence": null,
       "invalidation_condition": null,
       "catalyst_timing": null,
-      "timestamp": "2026-08-28T10:23:55.031292+00:00",
+      "timestamp": "2026-08-28T14:42:49.238829+00:00",
       "data_backed": true,
-      "ml_outperformance_probability": null
-    },
-    "TCS": {
-      "symbol": "TCS",
-      "verdict": "Avoid",
-      "conviction_score": 0,
-      "primary_thesis": "Arbitrated decision for TCS: Avoid",
-      "contributing_engines": [
-        "A1",
-        "A2",
-        "A3",
-        "B4",
-        "B5",
-        "B6",
-        "B7",
-        "B8",
-        "C9",
-        "C10",
-        "C11",
-        "C12",
-        "C13",
-        "C14",
-        "D15",
-        "D16",
-        "D17",
-        "D18"
-      ],
-      "contradicting_engines": [
-        "A1",
-        "A2",
-        "A3",
-        "B4",
-        "B5",
-        "B6",
-        "B7",
-        "B8",
-        "C9",
-        "C10",
-        "C11",
-        "C12",
-        "D16",
-        "D17",
-        "D18"
-      ],
-      "confidence_tier": "Contested",
-      "consensus_view": null,
-      "variant_view": null,
-      "supporting_evidence": null,
-      "invalidation_condition": null,
-      "catalyst_timing": null,
-      "timestamp": "2026-08-28T10:23:55.031467+00:00",
-      "data_backed": false,
       "ml_outperformance_probability": null
     },
     "INFY.NS": {
@@ -1015,7 +1020,7 @@
       "supporting_evidence": null,
       "invalidation_condition": null,
       "catalyst_timing": null,
-      "timestamp": "2026-08-28T10:23:55.031813+00:00",
+      "timestamp": "2026-08-28T14:42:49.239282+00:00",
       "data_backed": false,
       "ml_outperformance_probability": null
     }
