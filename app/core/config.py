@@ -6,7 +6,7 @@ Loads environment settings safely from environment variables and dotenv files.
 import os
 import hashlib
 from pathlib import Path
-from typing import List
+from typing import List, Optional
 from dotenv import load_dotenv
 
 # Local dotenv files are a developer convenience only. Production deployments must
@@ -22,8 +22,12 @@ if os.getenv("IERL_ENVIRONMENT", "development").lower() == "development":
 
 class Settings:
     PROJECT_NAME: str = "Equity Lab"
-    VERSION: str = "0.0.5"
+    VERSION: str = "0.0.9"
     DESCRIPTION: str = "Institutional Indian Equity Research, Options Arbitrage, and Return Probability Engine"
+
+    # Infrastructure & Distributed Cache/Limiter Settings
+    REDIS_URL: Optional[str] = os.getenv("REDIS_URL", None)
+    LOG_FORMAT: str = os.getenv("LOG_FORMAT", "text").lower()
 
     # Active LLM Provider
     ACTIVE_LLM_PROVIDER: str = os.getenv("ACTIVE_LLM_PROVIDER", "gemini").lower()

@@ -114,7 +114,13 @@ def get_connection():
         try:
             import psycopg2
             import psycopg2.extras
-            conn = psycopg2.connect(db_url, cursor_factory=psycopg2.extras.RealDictCursor)
+            # Support optional pooling options from settings / env
+            connect_timeout = int(os.getenv("DATABASE_POOL_TIMEOUT", "30"))
+            conn = psycopg2.connect(
+                db_url,
+                cursor_factory=psycopg2.extras.RealDictCursor,
+                connect_timeout=connect_timeout
+            )
             return PostgresConnectionWrapper(conn)
         except Exception as exc:
             import logging

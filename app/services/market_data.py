@@ -401,6 +401,10 @@ def normalize_symbol(symbol: str) -> str:
         return clean
     return f"{clean}.NS"
 
+from app.services.utils.resilience import CircuitBreaker
+
+_market_circuit_breaker = CircuitBreaker(name="MarketDataUpstream", failure_threshold=5, recovery_timeout_sec=30.0)
+
 async def _async_get_market_quote(symbol: str) -> Quote:
     if os.getenv("OFFLINE_TEST_MODE", "false").lower() == "true":
         return _get_mock_fallback_quote(symbol)
@@ -411,6 +415,11 @@ async def _async_get_market_quote(symbol: str) -> Quote:
 
     providers = _ensure_providers()
     last_exc: Optional[Exception] = None
+
+    if _market_circuit_breaker.state == _market_circuit_breaker.state.OPEN:
+        logger.warning("MarketDataUpstream circuit breaker OPEN for %s. Serving fallback.", symbol)
+        return _get_mock_fallback_quote(symbol)
+
     for provider in providers:
         provider_name = provider.__class__.__name__
         try:

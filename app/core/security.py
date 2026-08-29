@@ -93,13 +93,27 @@ class ApiSecurityMiddleware(BaseHTTPMiddleware):
 
 
 class RateLimiter:
-    """In-memory sliding window rate limiter per client IP address with memory eviction."""
-    
+    """Hybrid distributed/in-memory sliding window rate limiter per client IP address."""
+
     def __init__(self):
-        # Maps IP -> list of timestamps
+        # In-memory store: Maps IP -> list of timestamps
         self.requests: Dict[str, list] = {}
         self._last_cleanup = time.time()
-        
+        self._redis_client = None
+        self._redis_initialized = False
+
+    def _get_redis_client(self):
+        if not self._redis_initialized:
+            self._redis_initialized = True
+            redis_url = getattr(settings, "REDIS_URL", None)
+            if redis_url:
+                try:
+                    import redis
+                    self._redis_client = redis.from_url(redis_url, socket_timeout=1.0)
+                except Exception:
+                    self._redis_client = None
+        return self._redis_client
+
     def reset(self):
         """Clears all stored rate limiter request state (for testing isolation)."""
         self.requests.clear()
@@ -111,22 +125,45 @@ class RateLimiter:
             return
 
         now = time.time()
-        
-        # Periodic cleanup of stale IPs every 5 minutes or if dictionary gets large
+
+        # Try distributed Redis sliding window if configured
+        r = self._get_redis_client()
+        if r is not None:
+            try:
+                key = f"ratelimit:{client_ip}"
+                pipe = r.pipeline()
+                pipe.zremrangebyscore(key, 0, now - window_seconds)
+                pipe.zcard(key)
+                pipe.zadd(key, {str(now): now})
+                pipe.expire(key, window_seconds + 5)
+                res = pipe.execute()
+                current_count = res[1]
+                if current_count >= max_requests:
+                    raise HTTPException(
+                        status_code=status.HTTP_429_TOO_MANY_REQUESTS,
+                        detail=f"Rate limit exceeded ({max_requests} req/{window_seconds}s). Please try again shortly."
+                    )
+                return
+            except HTTPException:
+                raise
+            except Exception:
+                # Degrading cleanly to in-memory sliding window on Redis connection failure
+                pass
+
+        # In-memory sliding window fallback
         if now - self._last_cleanup > 300 or len(self.requests) > 500:
             self._prune_stale_ips(now, window_seconds)
             self._last_cleanup = now
 
         timestamps = self.requests.get(client_ip, [])
-        # Keep only timestamps within window
         valid_timestamps = [ts for ts in timestamps if now - ts < window_seconds]
-        
+
         if len(valid_timestamps) >= max_requests:
             raise HTTPException(
                 status_code=status.HTTP_429_TOO_MANY_REQUESTS,
                 detail=f"Rate limit exceeded ({max_requests} req/{window_seconds}s). Please try again shortly."
             )
-            
+
         valid_timestamps.append(now)
         self.requests[client_ip] = valid_timestamps
 

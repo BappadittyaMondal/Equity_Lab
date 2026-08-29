@@ -21,7 +21,7 @@ def temp_db_path(tmp_path):
 
 
 def test_version_is_canonical():
-    assert settings.VERSION in ["0.0.5", "1.0.0"]
+    assert settings.VERSION in ["0.0.5", "0.0.9", "1.0.0"]
 
 
 def test_look_ahead_protection(temp_db_path):
