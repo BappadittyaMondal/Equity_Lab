@@ -1,6 +1,6 @@
 # Equity Lab — API Surface Specification
 
-> Total Endpoints: 65
+> Total Endpoints: 79
 
 | Endpoint Path | Method | Summary |
 |---|---|---|
@@ -11,6 +11,7 @@
 | `/api/v1/compare` | **POST** | Execute Stock Comparison |
 | `/api/v1/data/alerts` | **GET** | Get Alerts |
 | `/api/v1/data/business-events` | **POST** | Add Business Event |
+| `/api/v1/data/causal-inference` | **POST** | Run Causal Inference |
 | `/api/v1/data/companies` | **POST** | Upsert Company |
 | `/api/v1/data/companies/{symbol}/timeline` | **GET** | Get Company Timeline |
 | `/api/v1/data/corporate-actions` | **POST** | Add Corporate Action |
@@ -20,6 +21,7 @@
 | `/api/v1/data/lifecycle/{symbol}` | **GET** | Get Lifecycle State |
 | `/api/v1/data/market-snapshots` | **POST** | Add Market Daily Snapshot |
 | `/api/v1/data/ownership-snapshots` | **POST** | Add Ownership Snapshot |
+| `/api/v1/data/thesis-tracker/{symbol}` | **GET** | Get Thesis Tracker |
 | `/api/v1/data/thesis/{symbol}` | **GET** | Get Thesis State |
 | `/api/v1/decision/{symbol}` | **GET** | Get Decision |
 | `/api/v1/digest/watchlist` | **GET** | Get Watchlist Digest |
@@ -35,6 +37,7 @@
 | `/api/v1/multibagger/institutional-rank` | **POST** | Rank Universe via 27-Engine Multibagger Framework |
 | `/api/v1/multibagger/institutional-score/{symbol}` | **GET** | Get Single Stock 27-Engine Scorecard & Archetype |
 | `/api/v1/multibagger/mivs/{symbol}` | **GET** | Get MIVS 100-Point Score & 7 Hard Gates (§51, §52) |
+| `/api/v1/multibagger/multi-horizon-matrix` | **POST** | Generate Multi-Horizon CAGR & Conformal Return Probability Matrix |
 | `/api/v1/multibagger/portfolio/{symbol}` | **GET** | Get Position Sizing & Drawdown Discipline Signal (§35, §36, §37) |
 | `/api/v1/multibagger/promoter/{symbol}` | **GET** | Get Promoter & Insider Behaviour Signal (§29) |
 | `/api/v1/multibagger/report/{symbol}` | **GET** | Get Machine-Readable Stock Report (§58) |
@@ -45,7 +48,16 @@
 | `/api/v1/query` | **POST** | Handle Ai Query |
 | `/api/v1/readiness` | **GET** | Get Readiness Status |
 | `/api/v1/regime` | **GET** | Fetch Market Regime |
+| `/api/v1/research/ai-committee/governance-audit/{symbol}` | **GET** | Audit Governance |
+| `/api/v1/research/ai-committee/nl-query` | **POST** | Compile Nl Query |
+| `/api/v1/research/ai-committee/post-mortem` | **POST** | Audit Post Mortem |
+| `/api/v1/research/ai-committee/review` | **POST** | Run Ic Boardroom Review |
+| `/api/v1/research/ai-committee/supply-chain/{symbol}` | **GET** | Get Supply Chain Graph |
 | `/api/v1/research/cagr-matrix` | **GET** | Fetch Cagr Sensitivity Matrix |
+| `/api/v1/research/genai-redteam/concall-audit` | **POST** | Audit Concall Transcript |
+| `/api/v1/research/genai-redteam/geopolitical-overlay/{symbol}` | **GET** | Get Geopolitical Overlay |
+| `/api/v1/research/genai-redteam/red-team-review` | **POST** | Generate Red Team Review |
+| `/api/v1/research/genai-redteam/stress-test` | **POST** | Run Stress Test |
 | `/api/v1/research/governance-quality` | **GET** | Run Governance Quality |
 | `/api/v1/research/growth-arbitrage` | **GET** | Run Growth Arbitrage |
 | `/api/v1/research/growth-inflection` | **GET** | Run Growth Inflection |
@@ -54,6 +66,8 @@
 | `/api/v1/research/scorecard` | **GET** | Fetch Symbol Scorecard |
 | `/api/v1/research/scorecard-matrix` | **POST** | Fetch Scorecard Matrix |
 | `/api/v1/research/turnaround-stage` | **GET** | Run Turnaround Stage |
+| `/api/v1/research/user-feedback` | **POST** | Submit Counter Question |
+| `/api/v1/research/walk-forward` | **GET** | Run Walk Forward Backtest |
 | `/api/v1/return-probability` | **POST** | Execute Return Probability |
 | `/api/v1/strategies` | **GET** | Fetch All Strategies |
 | `/api/v1/strategies/swing-alerts` | **GET** | Fetch Swing Trade Alerts |

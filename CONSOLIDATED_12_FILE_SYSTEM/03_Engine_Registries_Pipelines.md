@@ -1,7 +1,62 @@
 # 03_Engine_Registries_Pipelines
 
-<!-- BEGIN SYSTEM FILE 10: AI_Module_Registry_v_0_0.md | SHA256: d021aa44bb210aecb887268a8a82aff807ffe3435a39b7adaee75d838d3a80e9 -->
-## Embedded source 10: AI Module Registry
+> **IERL AI Equity OS — curated upload artifact**  
+> Project Version: `0.0.0` · Bundle Version: `2.0` · Source Commit: `96f6409`  
+> Generated At: `2026-08-29T05:39:25.856190+00:00` · Source Hash: `fec6fbf48aa97602` · Compiler: `consolidate_project.py` v2.0
+
+## Operating contract
+
+This is a generated, read-only working volume. The separately maintained source documents are authoritative; regenerate this file after changing a source. The wrapper provides navigation and execution discipline, but does not replace a source rule. Embedded source payloads are preserved verbatim between the `BEGIN` and `END` markers.
+
+1. Route the request to the narrowest relevant upload file, then use the named embedded document(s); do not treat an unrelated volume as evidence.
+2. Execute applicable skill steps in order. If a required input, timeframe, benchmark, or source is absent, state the gap and the effect on confidence; never silently invent it.
+3. Separate **reported facts**, **calculations**, **assumptions**, and **inference**. Date all market-sensitive claims and identify the data source or user-provided input.
+4. Surface disconfirming evidence, governance/forensic risk, liquidity risk, valuation risk, and material uncertainty before a conclusion. A positive screen is not investment advice or a guarantee.
+5. When source documents conflict, prefer the more specific, later-versioned requirement; if unresolved, disclose the conflict and use the more conservative interpretation. Never override platform safety requirements.
+
+## Fast task routing
+
+| Upload file | Primary use | Sources |
+|---|---|---:|
+| `01_System_Core_Instructions_Architecture.md` | 01 System Core Instructions Architecture | 8 |
+| `02_Engine_Contracts_Schemas.md` | 02 Engine Contracts Schemas | 9 |
+| `03_Engine_Registries_Pipelines.md` | 03 Engine Registries Pipelines | 9 |
+| `04_Workflow_Skills_01_to_09.md` | 04 Workflow Skills 01 to 09 | 2 |
+| `05_Workflow_Skills_10_to_25.md` | 05 Workflow Skills 10 to 25 | 4 |
+| `06_Analytical_Lens_Skills_26_to_34.md` | 06 Analytical Lens Skills 26 to 34 | 7 |
+| `07_Analytical_Lens_Skills_35_to_41.md` | 07 Analytical Lens Skills 35 to 41 | 8 |
+| `08_Knowledge_Base_Vol_1_Economics_Financials.md` | 08 Knowledge Base Vol 1 Economics Financials | 12 |
+| `09_Knowledge_Base_Vol_2_Markets_Governance_Macro.md` | 09 Knowledge Base Vol 2 Markets Governance Macro | 12 |
+| `10_Knowledge_Base_Vol_3_Forensics_Moats_Banking.md` | 10 Knowledge Base Vol 3 Forensics Moats Banking | 8 |
+| `11_Knowledge_Base_Vol_4_Sector_Deep_Dives.md` | 11 Knowledge Base Vol 4 Sector Deep Dives | 9 |
+| `12_Knowledge_Base_Vol_5_Screening_Portfolio_Glossaries.md` | 12 Knowledge Base Vol 5 Screening Portfolio Glossaries | 10 |
+
+**Default research sequence:** define decision and horizon → gather dated evidence → run the relevant workflow/analytical skill → apply risk and forensic checks → calculate/compare → present conclusion, counter-case, and confidence. For a company decision, consult core instructions, the applicable skill, fundamentals/valuation, sector context, and risk/forensics rather than relying on one metric.
+
+## Scope and privacy boundary
+
+This bundle contains static methodology and knowledge only. It contains no credentials and cannot by itself read local files, call APIs, fetch live market data, trade, or access private accounts. The following local integration/private files are intentionally excluded: `.env.example`, `API_KEYS_CONFIG.env`, `API_PROVIDERS_AND_FREE_TIERS_GUIDE.md`, `test_apis.py`.
+
+## Embedded source manifest
+
+The SHA-256 values cover the exact UTF-8 source payload, not this wrapper. Use the manifest to audit a rebuild.
+
+| # | Source document | UTF-8 bytes | SHA-256 |
+|---:|---|---:|---|
+| 1 | `AI_Module_Registry_v_0_0.md` | 18,207 | `d021aa44bb210aecb887268a8a82aff807ffe3435a39b7adaee75d838d3a80e9` |
+| 2 | `AI_Framework_Registry_v_0_0.md` | 9,689 | `f4e6af682e8e43484b09b8e6292c4cb619f77afa5852bb73ffa1fd632b627dd2` |
+| 3 | `AI_Conformance_Matrix_v_0_0.md` | 6,482 | `53aeb4b117858cebd43bfb84429ae25f1c217002afcd63589f0760389ec05519` |
+| 4 | `AI_E6_Quality_Growth_Screener_v_0_0.md` | 2,114 | `e951bc9256aaadd04b1cc04940577228e0397f3693291c0ecaba7e145789706e` |
+| 5 | `AI_Causal_Analysis_Engine_v_0_0.md` | 1,969 | `93714b75cdc21b1beef7e71bf381385301251b23c0a1e68dce696f3c55a4f9a8` |
+| 6 | `AI_Geopolitical_Risk_Engine_v_0_0.md` | 1,776 | `04d04e76beaf2f0edd7d95a4314bf83b318197173be9f6325608c4550f7c2272` |
+| 7 | `AI_Expectation_Gap_Engine_v_0_0.md` | 3,075 | `bc25de721f29f328791a5dbc46cd2a5144838e193a5a3975c10cef72ba2371d9` |
+| 8 | `AI_Custom_Screener_Engine_v_0_1.md` | 6,434 | `73eaf37e9954dad165ccdb64749a3a1a58c9bbf5d7d788d175e83b7675589cf9` |
+| 9 | `AI_Institutional_Multibagger_Engine_v_0_1.md` | 6,974 | `75f829094344ff324c8af992fb1fa25cd7d843cfb6b80726462f06d8e2d43bc8` |
+
+---
+
+<!-- BEGIN SYSTEM FILE 1: AI_Module_Registry_v_0_0.md | SHA256: d021aa44bb210aecb887268a8a82aff807ffe3435a39b7adaee75d838d3a80e9 -->
+## Embedded source 1: AI Module Registry
 
 <!-- IERL-CANONICAL-METADATA v1.2 -->
 > **Canonical retrieval label:** AI Module Registry  
@@ -1301,12 +1356,12 @@ This design provides a scalable, extensible, and maintainable execution ecosyste
 ---
 
 # END OF DOCUMENT
-<!-- END SYSTEM FILE 10: AI_Module_Registry_v_0_0.md -->
+<!-- END SYSTEM FILE 1: AI_Module_Registry_v_0_0.md -->
 
 ---
 
-<!-- BEGIN SYSTEM FILE 11: AI_Framework_Registry_v_0_0.md | SHA256: f4e6af682e8e43484b09b8e6292c4cb619f77afa5852bb73ffa1fd632b627dd2 -->
-## Embedded source 11: AI Framework Registry
+<!-- BEGIN SYSTEM FILE 2: AI_Framework_Registry_v_0_0.md | SHA256: f4e6af682e8e43484b09b8e6292c4cb619f77afa5852bb73ffa1fd632b627dd2 -->
+## Embedded source 2: AI Framework Registry
 
 <!-- IERL-CANONICAL-METADATA v1.2 -->
 > **Canonical retrieval label:** AI Framework Registry  
@@ -1733,12 +1788,12 @@ Its sole purpose is to provide a stable, scalable, and maintainable repository o
 ---
 
 # END OF DOCUMENT  
-<!-- END SYSTEM FILE 11: AI_Framework_Registry_v_0_0.md -->
+<!-- END SYSTEM FILE 2: AI_Framework_Registry_v_0_0.md -->
 
 ---
 
-<!-- BEGIN SYSTEM FILE 12: AI_Conformance_Matrix_v_0_0.md | SHA256: 53aeb4b117858cebd43bfb84429ae25f1c217002afcd63589f0760389ec05519 -->
-## Embedded source 12: AI Conformance Matrix
+<!-- BEGIN SYSTEM FILE 3: AI_Conformance_Matrix_v_0_0.md | SHA256: 53aeb4b117858cebd43bfb84429ae25f1c217002afcd63589f0760389ec05519 -->
+## Embedded source 3: AI Conformance Matrix
 
 <!-- IERL-CANONICAL-METADATA v1.2 -->
 > **Canonical retrieval label:** AI Conformance Matrix  
@@ -1867,12 +1922,12 @@ Below is the authoritative conformance matrix mapping inputs, outputs, access ru
 **Status:** Production Ready  
 **Dependencies:** AI_Object_Schemas_v_0.0.md, AI_Pipeline_Specification_v_0.0.md  
 **Consumed By:** IRA_Project_Validator_v1.0.py  
-<!-- END SYSTEM FILE 12: AI_Conformance_Matrix_v_0_0.md -->
+<!-- END SYSTEM FILE 3: AI_Conformance_Matrix_v_0_0.md -->
 
 ---
 
-<!-- BEGIN SYSTEM FILE 13: AI_E6_Quality_Growth_Screener_v_0_0.md | SHA256: e951bc9256aaadd04b1cc04940577228e0397f3693291c0ecaba7e145789706e -->
-## Embedded source 13: AI E6 Quality Growth Screener
+<!-- BEGIN SYSTEM FILE 4: AI_E6_Quality_Growth_Screener_v_0_0.md | SHA256: e951bc9256aaadd04b1cc04940577228e0397f3693291c0ecaba7e145789706e -->
+## Embedded source 4: AI E6 Quality Growth Screener
 
 <!-- IERL-CANONICAL-METADATA v1.2 -->
 > **Canonical retrieval label:** E6 Quality-Growth Candidate Screener
@@ -1913,12 +1968,12 @@ A high pass count indicates alignment with the configured screen only. It does n
 ## 5. Failure Handling
 
 If the required observation set is incomplete, return condition-level unavailable states and explain how missing data affects confidence. Do not invent values or use synthetic fallback observations.
-<!-- END SYSTEM FILE 13: AI_E6_Quality_Growth_Screener_v_0_0.md -->
+<!-- END SYSTEM FILE 4: AI_E6_Quality_Growth_Screener_v_0_0.md -->
 
 ---
 
-<!-- BEGIN SYSTEM FILE 14: AI_Causal_Analysis_Engine_v_0_0.md | SHA256: 93714b75cdc21b1beef7e71bf381385301251b23c0a1e68dce696f3c55a4f9a8 -->
-## Embedded source 14: AI Causal Analysis Engine
+<!-- BEGIN SYSTEM FILE 5: AI_Causal_Analysis_Engine_v_0_0.md | SHA256: 93714b75cdc21b1beef7e71bf381385301251b23c0a1e68dce696f3c55a4f9a8 -->
+## Embedded source 5: AI Causal Analysis Engine
 
 <!-- IERL-CANONICAL-METADATA v1.2 -->
 > **Canonical retrieval label:** Causal Analysis Engine
@@ -1956,12 +2011,12 @@ The Causal Analysis Engine measures historical lead-lag relationships between co
 ## 4. Data Availability And Limits
 
 Return `DATA_UNAVAILABLE` when events, price history, close prices, 30 trading days, or alignable event windows are missing. Zero is an explicit unavailable-data delta, not evidence of neutrality. Historical event-return relationships can be confounded and must be combined with fundamental, valuation, technical, and macro evidence.
-<!-- END SYSTEM FILE 14: AI_Causal_Analysis_Engine_v_0_0.md -->
+<!-- END SYSTEM FILE 5: AI_Causal_Analysis_Engine_v_0_0.md -->
 
 ---
 
-<!-- BEGIN SYSTEM FILE 15: AI_Geopolitical_Risk_Engine_v_0_0.md | SHA256: 04d04e76beaf2f0edd7d95a4314bf83b318197173be9f6325608c4550f7c2272 -->
-## Embedded source 15: AI Geopolitical Risk Engine
+<!-- BEGIN SYSTEM FILE 6: AI_Geopolitical_Risk_Engine_v_0_0.md | SHA256: 04d04e76beaf2f0edd7d95a4314bf83b318197173be9f6325608c4550f7c2272 -->
+## Embedded source 6: AI Geopolitical Risk Engine
 
 <!-- IERL-CANONICAL-METADATA v1.2 -->
 > **Canonical retrieval label:** Geopolitical And Macro Risk Engine
@@ -1996,12 +2051,12 @@ The engine evaluates macro-economic policy shocks, crude-oil volatility, tariff 
 ## 4. Data Availability And Limits
 
 Return `DATA_UNAVAILABLE` when no qualifying trigger is observed. The absence of a stored trigger is not proof that geopolitical risk is absent. Sector profiles are directional sensitivities, not forecasts; the result must be reviewed with current dated evidence, company-specific exposure, and scenario analysis.
-<!-- END SYSTEM FILE 15: AI_Geopolitical_Risk_Engine_v_0_0.md -->
+<!-- END SYSTEM FILE 6: AI_Geopolitical_Risk_Engine_v_0_0.md -->
 
 ---
 
-<!-- BEGIN SYSTEM FILE 16: AI_Expectation_Gap_Engine_v_0_0.md | SHA256: bc25de721f29f328791a5dbc46cd2a5144838e193a5a3975c10cef72ba2371d9 -->
-## Embedded source 16: AI Expectation Gap Engine
+<!-- BEGIN SYSTEM FILE 7: AI_Expectation_Gap_Engine_v_0_0.md | SHA256: bc25de721f29f328791a5dbc46cd2a5144838e193a5a3975c10cef72ba2371d9 -->
+## Embedded source 7: AI Expectation Gap Engine
 
 <!-- IERL-CANONICAL-METADATA v1.2 -->
 > **Canonical retrieval label:** Expectation Gap Engine (E7)
@@ -2049,12 +2104,12 @@ A positive expectation gap is a valuation catalyst signal, not a guaranteed retu
 ## 5. Failure Handling
 
 If quote or fundamental history is unavailable, flag `data_insufficient = True` and set `confidence_score = 0.0`. Never fabricate baseline growth figures without explicit data lineage warnings.
-<!-- END SYSTEM FILE 16: AI_Expectation_Gap_Engine_v_0_0.md -->
+<!-- END SYSTEM FILE 7: AI_Expectation_Gap_Engine_v_0_0.md -->
 
 ---
 
-<!-- BEGIN SYSTEM FILE 17: AI_Custom_Screener_Engine_v_0_1.md | SHA256: 73eaf37e9954dad165ccdb64749a3a1a58c9bbf5d7d788d175e83b7675589cf9 -->
-## Embedded source 17: AI Custom Screener Engine v 0 1
+<!-- BEGIN SYSTEM FILE 8: AI_Custom_Screener_Engine_v_0_1.md | SHA256: 73eaf37e9954dad165ccdb64749a3a1a58c9bbf5d7d788d175e83b7675589cf9 -->
+## Embedded source 8: AI Custom Screener Engine v 0 1
 
 <!-- IERL-CANONICAL-METADATA v1.2 -->
 > **Canonical retrieval label:** AI Custom Screener Engine (Dynamic Universal AST Engine)
@@ -2187,12 +2242,12 @@ EPS growth 3Years >= Sales growth 3Years * 1.2 AND Cash from operations last yea
   ]
 }
 ```
-<!-- END SYSTEM FILE 17: AI_Custom_Screener_Engine_v_0_1.md -->
+<!-- END SYSTEM FILE 8: AI_Custom_Screener_Engine_v_0_1.md -->
 
 ---
 
-<!-- BEGIN SYSTEM FILE 18: AI_Institutional_Multibagger_Engine_v_0_1.md | SHA256: 75f829094344ff324c8af992fb1fa25cd7d843cfb6b80726462f06d8e2d43bc8 -->
-## Embedded source 18: AI Institutional Multibagger Engine v 0 1
+<!-- BEGIN SYSTEM FILE 9: AI_Institutional_Multibagger_Engine_v_0_1.md | SHA256: 75f829094344ff324c8af992fb1fa25cd7d843cfb6b80726462f06d8e2d43bc8 -->
+## Embedded source 9: AI Institutional Multibagger Engine v 0 1
 
 <!-- IERL-CANONICAL-METADATA v1.2 -->
 > **Canonical retrieval label:** AI Institutional Multibagger Engine (27-Engine Synthesis)
@@ -2367,6 +2422,7 @@ The engine applies strict mandatory risk penalties before issuing final rankings
   "passed_hard_gates": true
 }
 ```
-<!-- END SYSTEM FILE 18: AI_Institutional_Multibagger_Engine_v_0_1.md -->
+<!-- END SYSTEM FILE 9: AI_Institutional_Multibagger_Engine_v_0_1.md -->
 
 ---
+

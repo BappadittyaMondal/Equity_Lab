@@ -6,6 +6,7 @@ technical analysis engines.
 """
 
 import logging
+import pandas as pd
 from datetime import datetime, timezone
 from typing import Any, Dict, List, Optional
 
@@ -64,15 +65,28 @@ class DailyPriceIngester:
 
         for idx, row in hist.iterrows():
             try:
+                open_val = row.get("Open")
+                high_val = row.get("High")
+                low_val = row.get("Low")
+                close_val = row.get("Close")
+
+                # Guard against NaN / None / corrupted zero price entries
+                if any(v is None or pd.isna(v) or float(v) <= 0.0 for v in [open_val, high_val, low_val, close_val]):
+                    logger.warning("Null or invalid OHLC for %s on %s — skipping row", norm, idx)
+                    continue
+
                 trading_date = idx.strftime("%Y-%m-%d") if hasattr(idx, "strftime") else str(idx)[:10]
+                vol_val = row.get("Volume", 0)
+                vol_int = int(vol_val) if (vol_val is not None and not pd.isna(vol_val)) else 0
+
                 self.store.add_market_daily_snapshot({
                     "symbol": ticker_str,
                     "trading_date": trading_date,
-                    "open_price": float(row.get("Open", 0)),
-                    "high_price": float(row.get("High", 0)),
-                    "low_price": float(row.get("Low", 0)),
-                    "close_price": float(row.get("Close", 0)),
-                    "volume": int(row.get("Volume", 0)),
+                    "open_price": float(open_val),
+                    "high_price": float(high_val),
+                    "low_price": float(low_val),
+                    "close_price": float(close_val),
+                    "volume": vol_int,
                     "delivery_volume": None,
                     "delivery_pct": None,
                     "market_cap": None,

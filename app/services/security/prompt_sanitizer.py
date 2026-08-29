@@ -9,6 +9,7 @@ Protects Generative AI services (Red-Team Bot, Concall NLP, AI Committee) from:
 
 import re
 import logging
+import unicodedata
 from typing import Dict, Any, List, Tuple
 
 logger = logging.getLogger(__name__)
@@ -18,6 +19,7 @@ logger = logging.getLogger(__name__)
 INJECTION_SIGNATURES: List[Tuple[str, str]] = [
     (r"(?i)ignore\s+(all\s+)?(previous|above|prior|system|future)?\s*instructions?", "INSTRUCTION_OVERRIDE"),
     (r"(?i)disregard\s+(all\s+)?(previous|prior|system|future)?\s*(prompts?|rules?|directives?|instructions?)", "DISREGARD_DIRECTIVE"),
+    (r"(?i)(set\s+aside|forget)\s+(all\s+)?(previous|prior|system|given)?\s*(guidance|rules?|instructions?|prompts?)", "INSTRUCTION_OVERRIDE"),
     (r"(?i)system\s*:\s*you\s+are", "ROLE_IMPERSONATION"),
     (r"(?i)act\s+as\s+a\s+(dan|jailbroken|unrestricted)\s+ai", "JAILBREAK_ATTEMPT"),
     (r"(?i)forget\s+everything\s+you\s+were\s+told", "CONTEXT_WIPE"),
@@ -51,12 +53,15 @@ def sanitize_prompt(text: str, max_length: int = 4096) -> Dict[str, Any]:
             "original_length": 0
         }
 
+    # Normalize Unicode homoglyphs and strip zero-width/control characters
     raw_input = str(text).strip()
+    normalized_input = unicodedata.normalize("NFKD", raw_input)
+    normalized_input = "".join(c for c in normalized_input if not unicodedata.category(c).startswith("C"))
     detected_threats = []
 
     # Check for known attack signatures
     for pattern, threat_tag in INJECTION_SIGNATURES:
-        if re.search(pattern, raw_input):
+        if re.search(pattern, normalized_input):
             detected_threats.append(threat_tag)
 
     # Neutralize threat patterns by replacing suspicious instruction phrases

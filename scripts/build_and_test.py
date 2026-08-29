@@ -30,7 +30,17 @@ def main():
         "Preflight Integrity Checks"
     )
 
-    # 2. Pytest Test Suite
+    # 2. Bundle Consolidation & Parity Check
+    run_step(
+        [python_bin, str(PROJECT_ROOT / "scripts" / "consolidate_project.py")],
+        "Bundle Consolidation"
+    )
+    run_step(
+        [python_bin, str(PROJECT_ROOT / "scripts" / "build_bundles.py")],
+        "Cryptographic Bundle Parity Check"
+    )
+
+    # 3. Pytest Test Suite
     run_step(
         [python_bin, "-m", "pytest", "app/tests/", "-v", "--basetemp=temp_pytest"],
         "Pytest Full Validation Suite"

@@ -62,30 +62,30 @@ def sync_bundle_headers(bundle_dir: str, commit_hash: str) -> int:
 
 def verify_bundle_parity() -> bool:
     m5_path = "CONSOLIDATED_5_FILE_SYSTEM/MANIFEST.json"
-    m9_path = "CONSOLIDATED_9_FILE_SYSTEM/MANIFEST.json"
+    m12_path = "CONSOLIDATED_12_FILE_SYSTEM/MANIFEST.json"
 
-    if not (os.path.exists(m5_path) and os.path.exists(m9_path)):
+    if not (os.path.exists(m5_path) and os.path.exists(m12_path)):
         print("Manifest files missing; skipping parity check.")
         return False
 
     with open(m5_path, "r", encoding="utf-8") as f:
         m5 = json.load(f)
-    with open(m9_path, "r", encoding="utf-8") as f:
-        m9 = json.load(f)
+    with open(m12_path, "r", encoding="utf-8") as f:
+        m12 = json.load(f)
 
     meta5 = m5.get("manifest_metadata", m5)
-    meta9 = m9.get("manifest_metadata", m9)
+    meta12 = m12.get("manifest_metadata", m12)
 
     hash5 = meta5.get("SOURCE_HASH", "N/A")
-    hash9 = meta9.get("SOURCE_HASH", "N/A")
-    files5 = len(m5.get("bundle_files", {}))
-    files9 = len(m9.get("bundle_files", {}))
+    hash12 = meta12.get("SOURCE_HASH", "N/A")
+    files5 = len(m5.get("bundle_files", m5.get("files", {})))
+    files12 = len(m12.get("bundle_files", m12.get("files", {})))
 
     print(f"5-File Bundle Document Count: {files5}, Source Hash: {hash5[:12]}...")
-    print(f"9-File Bundle Document Count: {files9}, Source Hash: {hash9[:12]}...")
+    print(f"12-File Bundle Document Count: {files12}, Source Hash: {hash12[:12]}...")
 
-    if hash5 == hash9 and hash5 != "N/A":
-        print("[PASS] 100% Cryptographic Source Hash Parity Verified between 5-File and 9-File AI Bundles!")
+    if hash5 == hash12 and hash5 != "N/A":
+        print("[PASS] 100% Cryptographic Source Hash Parity Verified between 5-File and 12-File AI Bundles!")
         return True
     else:
         print("[FAIL] Parity Warning: Source hashes differ or missing!")
@@ -100,11 +100,11 @@ def main():
     print(f"Current Git HEAD commit: {commit}")
 
     update_manifest("CONSOLIDATED_5_FILE_SYSTEM/MANIFEST.json", commit)
-    update_manifest("CONSOLIDATED_9_FILE_SYSTEM/MANIFEST.json", commit)
+    update_manifest("CONSOLIDATED_12_FILE_SYSTEM/MANIFEST.json", commit)
 
     c5 = sync_bundle_headers("CONSOLIDATED_5_FILE_SYSTEM", commit)
-    c9 = sync_bundle_headers("CONSOLIDATED_9_FILE_SYSTEM", commit)
-    print(f"Updated Markdown headers in {c5} files (5-file system) and {c9} files (9-file system).")
+    c12 = sync_bundle_headers("CONSOLIDATED_12_FILE_SYSTEM", commit)
+    print(f"Updated Markdown headers in {c5} files (5-file system) and {c12} files (12-file system).")
 
     success = verify_bundle_parity()
     sys.exit(0 if success else 1)

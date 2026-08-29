@@ -74,12 +74,27 @@ def test_walk_forward_backtester():
         {"stock_return": 30.0},
     ]
     bm = [8.0, 8.0, 8.0, 8.0]
-    summary = tester.evaluate_horizon("INFY", 12, samples, bm)
+    summary = tester.evaluate_horizon("INFY", 12, samples, bm, slippage_pct=0.0, stt_brokerage_pct=0.0)
     assert summary.symbol == "INFY.NS"
     assert summary.total_samples == 4
     assert summary.win_rate_pct == 75.0
     assert summary.mean_stock_return == 16.25
     assert summary.mean_alpha == 8.25
+
+
+def test_walk_forward_backtester_with_transaction_costs():
+    tester = WalkForwardBacktester()
+    samples = [
+        {"stock_return": 25.0},
+        {"stock_return": 15.0},
+        {"stock_return": -5.0},
+        {"stock_return": 30.0},
+    ]
+    bm = [8.0, 8.0, 8.0, 8.0]
+    summary = tester.evaluate_horizon("INFY", 12, samples, bm, slippage_pct=0.05, stt_brokerage_pct=0.10)
+    assert summary.symbol == "INFY.NS"
+    assert summary.mean_stock_return == 16.10  # 16.25 - 0.15
+    assert summary.mean_alpha == 8.10
 
 
 def test_score_calibration():

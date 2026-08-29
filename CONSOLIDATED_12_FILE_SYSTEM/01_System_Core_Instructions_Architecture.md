@@ -1,8 +1,8 @@
 # 01_System_Core_Instructions_Architecture
 
 > **IERL AI Equity OS — curated upload artifact**  
-> Project Version: `0.0.0` · Bundle Version: `2.0` · Source Commit: `319eb46`  
-> Generated At: `2026-08-27T09:30:16.938131+00:00` · Source Hash: `7a9d5aa6764e430d` · Compiler: `consolidate_project.py` v2.0
+> Project Version: `0.0.0` · Bundle Version: `2.0` · Source Commit: `96f6409`  
+> Generated At: `2026-08-29T05:39:25.856190+00:00` · Source Hash: `fec6fbf48aa97602` · Compiler: `consolidate_project.py` v2.0
 
 ## Operating contract
 
@@ -19,14 +19,17 @@ This is a generated, read-only working volume. The separately maintained source 
 | Upload file | Primary use | Sources |
 |---|---|---:|
 | `01_System_Core_Instructions_Architecture.md` | 01 System Core Instructions Architecture | 8 |
-| `02_Engine_Contracts_Schemas_Registries.md` | 02 Engine Contracts Schemas Registries | 18 |
-| `03_Workflow_Skills_01_to_25.md` | 03 Workflow Skills 01 to 25 | 2 |
-| `04_Analytical_Lens_Skills_26_to_41.md` | 04 Analytical Lens Skills 26 to 41 | 18 |
-| `05_Knowledge_Base_Vol_1_Economics_Financials.md` | 05 Knowledge Base Vol 1 Economics Financials | 12 |
-| `06_Knowledge_Base_Vol_2_Markets_Governance_Macro.md` | 06 Knowledge Base Vol 2 Markets Governance Macro | 12 |
-| `07_Knowledge_Base_Vol_3_Forensics_Moats_Banking.md` | 07 Knowledge Base Vol 3 Forensics Moats Banking | 8 |
-| `08_Knowledge_Base_Vol_4_Sector_Deep_Dives.md` | 08 Knowledge Base Vol 4 Sector Deep Dives | 9 |
-| `09_Knowledge_Base_Vol_5_Screening_Portfolio_Glossaries.md` | 09 Knowledge Base Vol 5 Screening Portfolio Glossaries | 10 |
+| `02_Engine_Contracts_Schemas.md` | 02 Engine Contracts Schemas | 9 |
+| `03_Engine_Registries_Pipelines.md` | 03 Engine Registries Pipelines | 9 |
+| `04_Workflow_Skills_01_to_09.md` | 04 Workflow Skills 01 to 09 | 2 |
+| `05_Workflow_Skills_10_to_25.md` | 05 Workflow Skills 10 to 25 | 4 |
+| `06_Analytical_Lens_Skills_26_to_34.md` | 06 Analytical Lens Skills 26 to 34 | 7 |
+| `07_Analytical_Lens_Skills_35_to_41.md` | 07 Analytical Lens Skills 35 to 41 | 8 |
+| `08_Knowledge_Base_Vol_1_Economics_Financials.md` | 08 Knowledge Base Vol 1 Economics Financials | 12 |
+| `09_Knowledge_Base_Vol_2_Markets_Governance_Macro.md` | 09 Knowledge Base Vol 2 Markets Governance Macro | 12 |
+| `10_Knowledge_Base_Vol_3_Forensics_Moats_Banking.md` | 10 Knowledge Base Vol 3 Forensics Moats Banking | 8 |
+| `11_Knowledge_Base_Vol_4_Sector_Deep_Dives.md` | 11 Knowledge Base Vol 4 Sector Deep Dives | 9 |
+| `12_Knowledge_Base_Vol_5_Screening_Portfolio_Glossaries.md` | 12 Knowledge Base Vol 5 Screening Portfolio Glossaries | 10 |
 
 **Default research sequence:** define decision and horizon → gather dated evidence → run the relevant workflow/analytical skill → apply risk and forensic checks → calculate/compare → present conclusion, counter-case, and confidence. For a company decision, consult core instructions, the applicable skill, fundamentals/valuation, sector context, and risk/forensics rather than relying on one metric.
 

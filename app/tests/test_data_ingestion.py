@@ -123,3 +123,22 @@ def test_ownership_ingester_execution():
     assert res["symbol"] == "RELIANCE"
     assert "snapshots_ingested" in res
 
+
+def test_ownership_ingester_with_data(monkeypatch):
+    from app.services.ingestion.ownership_ingester import OwnershipIngester
+    ingester = OwnershipIngester()
+    
+    mock_payload = {
+        "period_end": "2026-03-31",
+        "promoter_pct": 50.5,
+        "fii_pct": 20.0,
+        "dii_pct": 15.0,
+        "public_pct": 14.5,
+    }
+    monkeypatch.setattr(ingester, "fetch_ownership_data", lambda sym: mock_payload)
+    res = ingester.ingest_symbol("TCS")
+    assert res["symbol"] == "TCS"
+    assert res["snapshots_ingested"] == 1
+    assert len(res["errors"]) == 0
+
+

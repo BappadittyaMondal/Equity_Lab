@@ -249,12 +249,43 @@ class InstitutionalMultibaggerEngine:
             "Price drops > 25% from 52-Week High on high volume"
         ]
 
+        # Phase 1 & 4 Enhancements: Hard Risk Gate, Early-Stage Inflection, Discovery Status, Thesis Maturity
+        hard_gate_res = cls.evaluate_hard_risk_gate(item)
+        inflection_res = cls.evaluate_early_stage_inflection(item)
+        discovery_res = cls.get_discovery_status(item)
+
+        if not hard_gate_res["passed"]:
+            overall_score = 0.0
+            archetype = "Disqualified (Hard Risk Gate)"
+            risk_flags.extend(hard_gate_res["disqualifications"])
+
+        evidence_quality = item.get("evidence_quality", {
+            "inflection": "MEDIUM",
+            "runway": "MEDIUM",
+            "management": "MEDIUM",
+            "scalability": "MEDIUM",
+            "cash_quality": "HIGH" if cash_score >= 10.0 else "MEDIUM",
+            "valuation": "HIGH" if peg_ratio > 0 else "MEDIUM",
+            "market": "MEDIUM"
+        })
+
+        thesis_maturity = item.get("thesis_maturity", {
+            "status": "Hypothesis",
+            "confirmed_quarters": item.get("confirmed_quarters", 0),
+            "thesis_age_days": item.get("thesis_age_days", 0)
+        })
+
         return {
             "symbol": symbol,
             "company_name": name,
             "overall_score": round(overall_score, 1),
             "confidence_score": confidence_score,
             "archetype": archetype,
+            "hard_risk_gate": hard_gate_res,
+            "early_stage_inflection": inflection_res,
+            "discovery_status": discovery_res,
+            "evidence_quality": evidence_quality,
+            "thesis_maturity": thesis_maturity,
             "engine_breakdown": {
                 "growth_quality": round(growth_score, 1),
                 "growth_acceleration": round(acceleration_score, 1),
@@ -275,10 +306,112 @@ class InstitutionalMultibaggerEngine:
         }
 
     @classmethod
+    def evaluate_hard_risk_gate(cls, item: Dict[str, Any]) -> Dict[str, Any]:
+        """Hard Risk Gate: disqualifies high-risk candidates before scoring."""
+        pledged_pct = item.get("pledged_pct", 0.0)
+        auditor_resigned = item.get("auditor_resignation", False)
+        related_party_red_flag = item.get("related_party_flag", False)
+        debt_to_equity = item.get("debt_to_equity", 0.0)
+
+        disqualifications = []
+        if pledged_pct > 35.0:
+            disqualifications.append(f"Excessive Promoter Pledge ({pledged_pct:.1f}% > 35%)")
+        if auditor_resigned:
+            disqualifications.append("Auditor Resignation Flagged")
+        if related_party_red_flag:
+            disqualifications.append("Severe Related-Party Transaction Red Flag")
+        if debt_to_equity > 3.0:
+            disqualifications.append(f"Extreme Debt-to-Equity ({debt_to_equity:.2f} > 3.0x)")
+
+        return {
+            "passed": len(disqualifications) == 0,
+            "disqualifications": disqualifications
+        }
+
+    @classmethod
+    def evaluate_early_stage_inflection(cls, item: Dict[str, Any]) -> Dict[str, Any]:
+        """Early-Stage Detector: Classifies company inflection state."""
+        categories_triggered = []
+        
+        if item.get("op_growth", 0.0) >= 20.0 or item.get("sales_growth_latest", 0.0) >= 20.0:
+            categories_triggered.append("Business Inflection")
+            
+        net_block = item.get("net_block", 0.0)
+        net_block_prec = item.get("net_block_preceding_year", 0.0)
+        cwip = item.get("cwip", 0.0)
+        if cwip > 0 or (net_block_prec > 0 and net_block >= 1.2 * net_block_prec):
+            categories_triggered.append("Capacity Inflection")
+
+        if item.get("opm_latest", 0.0) > item.get("opm_5yr", 0.0) or item.get("pat_growth_latest", 0.0) >= 25.0:
+            categories_triggered.append("Financial Inflection")
+
+        if item.get("export_transition", False) or item.get("pli_beneficiary", False):
+            categories_triggered.append("Strategic Inflection")
+
+        vol_1w = item.get("vol_1w_avg", 0.0)
+        vol_1y = item.get("vol_1y_avg", 1.0)
+        if vol_1y > 0 and vol_1w >= 1.5 * vol_1y:
+            categories_triggered.append("Market Inflection")
+
+        count = len(categories_triggered)
+        if count >= 4:
+            status = "CONFIRMED INFLECTION"
+        elif count >= 2:
+            status = "EARLY INFLECTION"
+        elif count == 1:
+            status = "WATCHING"
+        else:
+            status = "NO INFLECTION"
+
+        return {
+            "status": status,
+            "inflection_categories": categories_triggered
+        }
+
+    @classmethod
+    def get_discovery_status(cls, item: Dict[str, Any]) -> Dict[str, Any]:
+        """Discovery Status: Institutional attention level (0=Heavy, 1=Moderate, 2=Light, 3=Undiscovered)."""
+        inst_holding = item.get("fii_dii_holding", item.get("institutional_holding", 15.0))
+        analyst_coverage = item.get("analyst_coverage_count", 5)
+
+        if inst_holding < 2.0 and analyst_coverage <= 1:
+            level = 3
+            label = "Undiscovered"
+        elif inst_holding < 10.0 and analyst_coverage <= 3:
+            level = 2
+            label = "Lightly Covered"
+        elif inst_holding < 25.0:
+            level = 1
+            label = "Moderately Covered"
+        else:
+            level = 0
+            label = "Heavily Covered"
+
+        return {
+            "discovery_level": level,
+            "discovery_label": label,
+            "context_note": f"{label} (FII/DII: {inst_holding:.1f}%, Analysts: {analyst_coverage})"
+        }
+
+    @classmethod
     def rank_universe(cls, min_score: float = 50.0) -> List[Dict[str, Any]]:
-        """Fetch all fundamentals and rank universe by institutional score."""
+        """Fetch all fundamentals, filter via DynamicCandidateGate (MAD Outlier/Trust), and rank by score."""
+        from app.services.intelligence.candidate_gate import DynamicCandidateGate
         universe = ScreenerCloudConnector.get_all_fundamentals()
         evaluated = [cls.evaluate_company(comp) for comp in universe]
-        filtered = [e for e in evaluated if e["overall_score"] >= min_score]
+
+        gate = DynamicCandidateGate()
+        candidate_pool = [
+            {
+                "symbol": e["symbol"],
+                "inflection_score": e["overall_score"],
+                "quotes": [{"price": e.get("current_price", 100.0)}]
+            }
+            for e in evaluated
+        ]
+        accepted_candidates, _ = gate.evaluate_candidates(candidate_pool, min_inflection_score=min_score)
+        accepted_symbols = {c["symbol"] for c in accepted_candidates}
+
+        filtered = [e for e in evaluated if e["symbol"] in accepted_symbols]
         filtered.sort(key=lambda x: x["overall_score"], reverse=True)
         return filtered

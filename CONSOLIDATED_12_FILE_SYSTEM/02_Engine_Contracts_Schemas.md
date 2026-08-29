@@ -1,8 +1,8 @@
-# 02_Engine_Contracts_Schemas_Registries
+# 02_Engine_Contracts_Schemas
 
 > **IERL AI Equity OS — curated upload artifact**  
-> Project Version: `0.0.0` · Bundle Version: `2.0` · Source Commit: `319eb46`  
-> Generated At: `2026-08-27T09:30:16.938131+00:00` · Source Hash: `7a9d5aa6764e430d` · Compiler: `consolidate_project.py` v2.0
+> Project Version: `0.0.0` · Bundle Version: `2.0` · Source Commit: `96f6409`  
+> Generated At: `2026-08-29T05:39:25.856190+00:00` · Source Hash: `fec6fbf48aa97602` · Compiler: `consolidate_project.py` v2.0
 
 ## Operating contract
 
@@ -19,14 +19,17 @@ This is a generated, read-only working volume. The separately maintained source 
 | Upload file | Primary use | Sources |
 |---|---|---:|
 | `01_System_Core_Instructions_Architecture.md` | 01 System Core Instructions Architecture | 8 |
-| `02_Engine_Contracts_Schemas_Registries.md` | 02 Engine Contracts Schemas Registries | 18 |
-| `03_Workflow_Skills_01_to_25.md` | 03 Workflow Skills 01 to 25 | 2 |
-| `04_Analytical_Lens_Skills_26_to_41.md` | 04 Analytical Lens Skills 26 to 41 | 18 |
-| `05_Knowledge_Base_Vol_1_Economics_Financials.md` | 05 Knowledge Base Vol 1 Economics Financials | 12 |
-| `06_Knowledge_Base_Vol_2_Markets_Governance_Macro.md` | 06 Knowledge Base Vol 2 Markets Governance Macro | 12 |
-| `07_Knowledge_Base_Vol_3_Forensics_Moats_Banking.md` | 07 Knowledge Base Vol 3 Forensics Moats Banking | 8 |
-| `08_Knowledge_Base_Vol_4_Sector_Deep_Dives.md` | 08 Knowledge Base Vol 4 Sector Deep Dives | 9 |
-| `09_Knowledge_Base_Vol_5_Screening_Portfolio_Glossaries.md` | 09 Knowledge Base Vol 5 Screening Portfolio Glossaries | 10 |
+| `02_Engine_Contracts_Schemas.md` | 02 Engine Contracts Schemas | 9 |
+| `03_Engine_Registries_Pipelines.md` | 03 Engine Registries Pipelines | 9 |
+| `04_Workflow_Skills_01_to_09.md` | 04 Workflow Skills 01 to 09 | 2 |
+| `05_Workflow_Skills_10_to_25.md` | 05 Workflow Skills 10 to 25 | 4 |
+| `06_Analytical_Lens_Skills_26_to_34.md` | 06 Analytical Lens Skills 26 to 34 | 7 |
+| `07_Analytical_Lens_Skills_35_to_41.md` | 07 Analytical Lens Skills 35 to 41 | 8 |
+| `08_Knowledge_Base_Vol_1_Economics_Financials.md` | 08 Knowledge Base Vol 1 Economics Financials | 12 |
+| `09_Knowledge_Base_Vol_2_Markets_Governance_Macro.md` | 09 Knowledge Base Vol 2 Markets Governance Macro | 12 |
+| `10_Knowledge_Base_Vol_3_Forensics_Moats_Banking.md` | 10 Knowledge Base Vol 3 Forensics Moats Banking | 8 |
+| `11_Knowledge_Base_Vol_4_Sector_Deep_Dives.md` | 11 Knowledge Base Vol 4 Sector Deep Dives | 9 |
+| `12_Knowledge_Base_Vol_5_Screening_Portfolio_Glossaries.md` | 12 Knowledge Base Vol 5 Screening Portfolio Glossaries | 10 |
 
 **Default research sequence:** define decision and horizon → gather dated evidence → run the relevant workflow/analytical skill → apply risk and forensic checks → calculate/compare → present conclusion, counter-case, and confidence. For a company decision, consult core instructions, the applicable skill, fundamentals/valuation, sector context, and risk/forensics rather than relying on one metric.
 
@@ -49,15 +52,6 @@ The SHA-256 values cover the exact UTF-8 source payload, not this wrapper. Use t
 | 7 | `AI_Object_Schemas_v_0_0.md` | 16,613 | `5bc5a1416017a5155fd4601041dcdd634da513f6c41d120c32ddcc47e9fa9e65` |
 | 8 | `AI_Dependency_Map_v_0_0.md` | 20,172 | `f8f34ad7b854b3e45396ca96976440e3a5f06fced916374c834521e7a9c4a6f3` |
 | 9 | `AI_Unified_Pattern_Taxonomy_v_0_0.md` | 8,039 | `186781e4e56abc0e73116bdbbc928e6370a809a2eea48d1a0bba2524b666195e` |
-| 10 | `AI_Module_Registry_v_0_0.md` | 18,207 | `d021aa44bb210aecb887268a8a82aff807ffe3435a39b7adaee75d838d3a80e9` |
-| 11 | `AI_Framework_Registry_v_0_0.md` | 9,689 | `f4e6af682e8e43484b09b8e6292c4cb619f77afa5852bb73ffa1fd632b627dd2` |
-| 12 | `AI_Conformance_Matrix_v_0_0.md` | 6,482 | `53aeb4b117858cebd43bfb84429ae25f1c217002afcd63589f0760389ec05519` |
-| 13 | `AI_E6_Quality_Growth_Screener_v_0_0.md` | 2,114 | `e951bc9256aaadd04b1cc04940577228e0397f3693291c0ecaba7e145789706e` |
-| 14 | `AI_Causal_Analysis_Engine_v_0_0.md` | 1,969 | `93714b75cdc21b1beef7e71bf381385301251b23c0a1e68dce696f3c55a4f9a8` |
-| 15 | `AI_Geopolitical_Risk_Engine_v_0_0.md` | 1,776 | `04d04e76beaf2f0edd7d95a4314bf83b318197173be9f6325608c4550f7c2272` |
-| 16 | `AI_Expectation_Gap_Engine_v_0_0.md` | 3,075 | `bc25de721f29f328791a5dbc46cd2a5144838e193a5a3975c10cef72ba2371d9` |
-| 17 | `AI_Custom_Screener_Engine_v_0_1.md` | 6,434 | `73eaf37e9954dad165ccdb64749a3a1a58c9bbf5d7d788d175e83b7675589cf9` |
-| 18 | `AI_Institutional_Multibagger_Engine_v_0_1.md` | 6,974 | `75f829094344ff324c8af992fb1fa25cd7d843cfb6b80726462f06d8e2d43bc8` |
 
 ---
 
@@ -7696,3 +7690,4 @@ This is a single-line addition per file — no restructuring of any existing dom
 <!-- END SYSTEM FILE 9: AI_Unified_Pattern_Taxonomy_v_0_0.md -->
 
 ---
+

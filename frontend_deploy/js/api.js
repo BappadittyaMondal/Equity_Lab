@@ -634,7 +634,9 @@ export async function loadMIVSScore(symbol = "RELIANCE") {
 
 export async function loadInstitutionalRank() {
   try {
-    const resp = await apiFetch(`/api/v1/multibagger/institutional-rank`);
+    const resp = await apiFetch(`/api/v1/multibagger/institutional-rank`, {
+      method: "POST"
+    });
     if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
     return await resp.json();
   } catch (err) {
@@ -693,8 +695,12 @@ export async function loadMultibaggerConcall(symbol = "COFORGE") {
 
 export async function loadMultiHorizonMatrix(symbol = "RELIANCE") {
   try {
-    const sym = encodeURIComponent(symbol);
-    const resp = await apiFetch(`/api/v1/multibagger/multi-horizon-matrix/${sym}`);
+    const symbols = Array.isArray(symbol) ? symbol : [symbol];
+    const resp = await apiFetch(`/api/v1/multibagger/multi-horizon-matrix`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ symbols })
+    });
     if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
     return await resp.json();
   } catch (err) {
@@ -703,9 +709,10 @@ export async function loadMultiHorizonMatrix(symbol = "RELIANCE") {
   }
 }
 
-export async function loadMultibaggerPortfolio() {
+export async function loadMultibaggerPortfolio(symbol = "RELIANCE") {
   try {
-    const resp = await apiFetch(`/api/v1/multibagger/portfolio`);
+    const sym = encodeURIComponent(symbol);
+    const resp = await apiFetch(`/api/v1/multibagger/portfolio/${sym}`);
     if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
     return await resp.json();
   } catch (err) {
@@ -740,11 +747,8 @@ export async function loadShareholdingPattern(symbol = "RELIANCE") {
 
 export async function loadGovernanceAudit(symbol = "SHILCHAR") {
   try {
-    const resp = await apiFetch(`/api/v1/ai-committee/governance-audit`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ symbol })
-    });
+    const sym = encodeURIComponent(symbol);
+    const resp = await apiFetch(`/api/v1/research/ai-committee/governance-audit/${sym}`);
     if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
     return await resp.json();
   } catch (err) {
@@ -755,10 +759,10 @@ export async function loadGovernanceAudit(symbol = "SHILCHAR") {
 
 export async function executeNLQuery(query_text = "Show high growth stocks with low debt") {
   try {
-    const resp = await apiFetch(`/api/v1/ai-committee/nl-query`, {
+    const resp = await apiFetch(`/api/v1/research/ai-committee/nl-query`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ query_text })
+      body: JSON.stringify({ user_query: query_text })
     });
     if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
     return await resp.json();
@@ -770,10 +774,10 @@ export async function executeNLQuery(query_text = "Show high growth stocks with 
 
 export async function loadPostMortem(symbol = "SHILCHAR") {
   try {
-    const resp = await apiFetch(`/api/v1/ai-committee/post-mortem`, {
+    const resp = await apiFetch(`/api/v1/research/ai-committee/post-mortem`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ symbol })
+      body: JSON.stringify({ symbol, initial_score: 88.5, forward_return_pct: -18.0, actual_drawdown_pct: 22.5 })
     });
     if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
     return await resp.json();
@@ -785,11 +789,8 @@ export async function loadPostMortem(symbol = "SHILCHAR") {
 
 export async function loadSupplyChainGraph(symbol = "SHILCHAR") {
   try {
-    const resp = await apiFetch(`/api/v1/ai-committee/supply-chain`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ symbol })
-    });
+    const sym = encodeURIComponent(symbol);
+    const resp = await apiFetch(`/api/v1/research/ai-committee/supply-chain/${sym}`);
     if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
     return await resp.json();
   } catch (err) {
@@ -824,21 +825,6 @@ export async function runGeopoliticalStressTest(symbol = "COFORGE", scenario = "
     return await resp.json();
   } catch (err) {
     console.warn("Geopolitical stress test failed:", err.message);
-    return null;
-  }
-}
-
-export async function loadMultibaggerScreener(universe = ["SHILCHAR", "COFORGE", "RELIANCE"]) {
-  try {
-    const resp = await apiFetch(`/api/v1/research/multibagger-screener`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ universe })
-    });
-    if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
-    return await resp.json();
-  } catch (err) {
-    console.warn("Multibagger screener failed:", err.message);
     return null;
   }
 }

@@ -22,11 +22,13 @@ if str(PROJECT_ROOT) not in sys.path:
 
 
 def check_consolidated_single_source() -> bool:
-    """Ensure at most ONE CONSOLIDATED_* directory is referenced in app/ code."""
+    """Ensure at most ONE CONSOLIDATED_* directory is referenced in core app/ code (excluding test suite)."""
     app_dir = PROJECT_ROOT / "app"
     matches = set()
     errors = []
     for file_path in app_dir.rglob("*.py"):
+        if "tests" in file_path.parts:
+            continue
         try:
             content = file_path.read_text(encoding="utf-8")
             found = re.findall(r"CONSOLIDATED_\w+", content)

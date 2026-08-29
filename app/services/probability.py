@@ -10,6 +10,7 @@ import numpy as np
 import pandas as pd
 from app.models.schemas import ReturnProbabilityRequest, ReturnProbabilityResponse
 from app.services.market_data import normalize_symbol, get_history, create_meta_header
+from app.services.intelligence.conformal_tiering import ConformalTieringEngine
 
 
 class IsotonicCalibrator:
@@ -100,7 +101,8 @@ def calculate_return_probability(req: ReturnProbabilityRequest) -> ReturnProbabi
             ret_pct = ((end_p - start_p) / start_p) * 100.0
             horizon_returns.append(ret_pct)
 
-    rets_arr = np.array(horizon_returns)
+    rets_arr = np.array(horizon_returns, dtype=np.float64)
+    rets_arr = rets_arr[~np.isnan(rets_arr)]
     sample_size = len(rets_arr)
 
     if sample_size == 0:
@@ -130,6 +132,15 @@ def calculate_return_probability(req: ReturnProbabilityRequest) -> ReturnProbabi
     q90_score = round(float(np.percentile(conformal_scores, 90)), 2)
     conf_lower = round(float(p50 - q90_score), 2)
     conf_upper = round(float(p50 + q90_score), 2)
+
+    current_price = float(closes[-1]) if len(closes) > 0 else 100.0
+    risk_tier = ConformalTieringEngine.assign_confidence_tier(
+        score=prob_above,
+        current_price=current_price,
+        lower_bound=conf_lower,
+        upper_bound=conf_upper,
+        data_trust_tier="HIGH",
+    )
 
     start_date = dates[0].strftime("%Y-%m-%d")
     end_date = dates[-1].strftime("%Y-%m-%d")
@@ -167,6 +178,7 @@ def calculate_return_probability(req: ReturnProbabilityRequest) -> ReturnProbabi
             "conformal_score_q90": q90_score
         },
         conformal_coverage_guarantee_pct=90.0,
+        conformal_risk_tier=risk_tier,
         sample_size=sample_size,
         observation_window={
             "start_date": start_date,

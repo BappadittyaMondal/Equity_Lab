@@ -1362,6 +1362,97 @@
         }
       }
     },
+    "/api/v1/research/walk-forward": {
+      "get": {
+        "tags": [
+          "Expert Strategy & Research Engines"
+        ],
+        "summary": "Run Walk Forward Backtest",
+        "description": "Executes friction-adjusted walk-forward backtesting evaluation.",
+        "operationId": "run_walk_forward_backtest_api_v1_research_walk_forward_get",
+        "parameters": [
+          {
+            "name": "symbol",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "description": "Stock symbol (e.g. RELIANCE)",
+              "title": "Symbol"
+            },
+            "description": "Stock symbol (e.g. RELIANCE)"
+          },
+          {
+            "name": "horizon_months",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "maximum": 36,
+              "minimum": 1,
+              "description": "Horizon in months",
+              "default": 12,
+              "title": "Horizon Months"
+            },
+            "description": "Horizon in months"
+          },
+          {
+            "name": "slippage_pct",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "number",
+              "description": "Slippage percentage per trade",
+              "default": 0.05,
+              "title": "Slippage Pct"
+            },
+            "description": "Slippage percentage per trade"
+          },
+          {
+            "name": "stt_brokerage_pct",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "number",
+              "description": "STT and brokerage percentage",
+              "default": 0.1,
+              "title": "Stt Brokerage Pct"
+            },
+            "description": "STT and brokerage percentage"
+          },
+          {
+            "name": "x-api-key",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "default": "",
+              "title": "X-Api-Key"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/v1/query": {
       "post": {
         "tags": [
@@ -8470,10 +8561,10 @@
           },
           "horizon_days": {
             "type": "integer",
-            "maximum": 365.0,
+            "maximum": 1825.0,
             "minimum": 1.0,
             "title": "Horizon Days",
-            "description": "Holding period in trading days",
+            "description": "Holding period in trading days (up to 5 years)",
             "default": 30
           },
           "return_threshold_pct": {
@@ -8555,6 +8646,19 @@
             "title": "Conformal Coverage Guarantee Pct",
             "description": "Target empirical coverage rate for distribution-free interval",
             "default": 90.0
+          },
+          "conformal_risk_tier": {
+            "anyOf": [
+              {
+                "additionalProperties": true,
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Conformal Risk Tier",
+            "description": "Certified confidence tier based on numeric conformal interval width"
           },
           "sample_size": {
             "type": "integer",

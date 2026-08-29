@@ -164,3 +164,42 @@ class GenAIRedTeamService:
             "executed_at": get_ist_now_str(),
             "meta": create_meta_header(source=f"Generative AI Red-Team Bear Bot ({clean_sym})")
         }
+
+    @classmethod
+    def synthesize_four_lens_evidence(
+        cls,
+        symbol: str,
+        item: Optional[Dict[str, Any]] = None
+    ) -> Dict[str, Any]:
+        """Synthesizes qualitative primary-source evidence under Skill 42 contract."""
+        norm_sym = normalize_symbol(symbol)
+        clean_sym = norm_sym.replace(".NS", "").replace(".BO", "").upper()
+        data = item or {}
+
+        kacholia_quality = "HIGH" if data.get("roce_latest", 0.0) >= 15.0 else "MEDIUM"
+        kedia_quality = "HIGH" if data.get("promoter_holding", 0.0) >= 50.0 else "MEDIUM"
+        agrawal_quality = "HIGH" if data.get("pat_growth_latest", 0.0) >= 20.0 else "MEDIUM"
+        parikh_quality = "HIGH" if data.get("cfo_last_year", 0.0) > data.get("net_profit_last_year", 0.0) else "MEDIUM"
+
+        return {
+            "skill_name": "Skill 42 — Four-Lens Evidence Weighting",
+            "symbol": clean_sym,
+            "kacholia_evidence": {
+                "finding": f"Incremental ROCE: {data.get('roce_latest', 0.0):.1f}%, Asset Turn: {data.get('asset_turnover', 1.2):.2f}x",
+                "evidence_quality": kacholia_quality
+            },
+            "kedia_evidence": {
+                "finding": f"Promoter Holding: {data.get('promoter_holding', 0.0):.1f}%, Pledge: {data.get('pledged_pct', 0.0):.1f}%",
+                "evidence_quality": kedia_quality
+            },
+            "agrawal_evidence": {
+                "finding": f"Latest PAT Growth: {data.get('pat_growth_latest', 0.0):.1f}% vs 3Y ({data.get('pat_growth_3yr', 0.0):.1f}%)",
+                "evidence_quality": agrawal_quality
+            },
+            "parikh_evidence": {
+                "finding": f"CFO: ₹{data.get('cfo_last_year', 0.0):.1f}Cr vs PAT: ₹{data.get('net_profit_last_year', 0.0):.1f}Cr",
+                "evidence_quality": parikh_quality
+            },
+            "contradictions": [],
+            "red_flags": []
+        }

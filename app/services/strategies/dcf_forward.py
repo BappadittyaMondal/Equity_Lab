@@ -235,8 +235,9 @@ def _compute_valuation_zone(
     pe: float,
     peg: Optional[float],
     mos_pct: Optional[float],
+    sector: Optional[str] = None,
 ) -> str:
-    """Map P/E, PEG, and margin of safety into a valuation zone."""
+    """Map P/E, PEG, sector medians, and margin of safety into a valuation zone."""
     signals = []
     if mos_pct is not None:
         if mos_pct > 30:
@@ -257,6 +258,12 @@ def _compute_valuation_zone(
         elif peg < 2.5:
             signals.append("FAIR")
         else:
+            signals.append("OVERVALUED")
+    if sector and sector in SECTOR_MEDIANS and pe > 0:
+        sec_pe = SECTOR_MEDIANS[sector].get("pe", 22.0)
+        if pe < sec_pe * 0.75:
+            signals.append("UNDERVALUED")
+        elif pe > sec_pe * 1.5:
             signals.append("OVERVALUED")
     if not signals:
         if pe > 0 and pe < 15:

@@ -25,6 +25,9 @@ def evaluate_in_position_management(
     setup_class: str = "SETUP_A_BREAKOUT"
 ) -> InPositionManagementState:
     """Evaluates active in-position management rules: breakeven, partial booking, trailing stop, time-stop."""
+    if not symbol or entry_price <= 0 or current_price <= 0 or highest_close_since_entry <= 0 or initial_stop_price <= 0 or atr14 <= 0:
+        raise ValueError("Invalid market data inputs for trade management evaluation: prices and ATR must be strictly positive floats.")
+
     r_unit = max(1.0, entry_price - initial_stop_price)  # 1R distance
 
     breakeven_trigger = entry_price + r_unit

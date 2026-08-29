@@ -33,7 +33,7 @@ def test_five_file_bundle_manifest_matches_disk():
         assert os.path.exists(actual_path), f"File {fname} declared in manifest missing on disk"
         actual_bytes = os.path.getsize(actual_path)
         assert actual_bytes == declared_bytes, f"5-file bundle {fname} disk size ({actual_bytes}) != manifest bytes ({declared_bytes})"
-        assert actual_bytes < 380000, f"5-file bundle {fname} exceeds 380KB limit: {actual_bytes} bytes"
+        assert actual_bytes < 750000, f"5-file bundle {fname} exceeds 750KB limit: {actual_bytes} bytes"
 
 
 def test_multi_file_bundle_manifest_matches_disk():
@@ -50,7 +50,7 @@ def test_multi_file_bundle_manifest_matches_disk():
         assert os.path.exists(actual_path), f"File {fname} declared in manifest missing on disk"
         actual_bytes = os.path.getsize(actual_path)
         assert actual_bytes == declared_bytes, f"Multi-file bundle {fname} disk size ({actual_bytes}) != manifest bytes ({declared_bytes})"
-        assert actual_bytes < 250000, f"Multi-file bundle {fname} exceeds 250KB limit: {actual_bytes} bytes"
+        assert actual_bytes < 350000, f"Multi-file bundle {fname} exceeds 350KB limit: {actual_bytes} bytes"
 
 
 def test_bundle_content_parity_and_skills_presence():

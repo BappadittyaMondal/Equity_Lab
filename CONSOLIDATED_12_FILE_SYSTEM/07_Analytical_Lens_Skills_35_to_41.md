@@ -1,678 +1,61 @@
-# 06_Analytical_Lens_Skills_35_to_41
+# 07_Analytical_Lens_Skills_35_to_41
 
-<!-- BEGIN SYSTEM FILE 10: AI_Options_Data_Skill.md | SHA256: 0cbf74e08253796a4cde2ad3f0c7237b3f6b14a10c43b573ee8b9346cc33a6e0 -->
-## Embedded source 10: AI Options Data Skill
+> **IERL AI Equity OS — curated upload artifact**  
+> Project Version: `0.0.0` · Bundle Version: `2.0` · Source Commit: `96f6409`  
+> Generated At: `2026-08-29T05:39:25.856190+00:00` · Source Hash: `fec6fbf48aa97602` · Compiler: `consolidate_project.py` v2.0
 
-<!-- IERL-CANONICAL-METADATA v1.2 -->
-> **Canonical retrieval label:** AI Options Data Skill  
-> **Role:** Executable workflow skill  
-> **Use when:** Use when the request matches this skill's method, then execute its stated gates and output format.  
-> **Cognitive mode:** Gate-based diagnostic execution: test the thesis, its counter-case, and its invalidation before a conclusion.  
-> **Evidence rule:** Date material facts, distinguish fact/calculation/assumption/inference, and disclose missing inputs.  
-> **Handoff: Project Instructions → Confidence Standard → Quality Audit → relevant knowledge domains.**
-> **Minimum skill output:** objective/horizon and as-of date · inputs and gaps · completed gates · conclusion and counter-case · material risks/invalidation · confidence and next verification step.  
+## Operating contract
 
+This is a generated, read-only working volume. The separately maintained source documents are authoritative; regenerate this file after changing a source. The wrapper provides navigation and execution discipline, but does not replace a source rule. Embedded source payloads are preserved verbatim between the `BEGIN` and `END` markers.
 
-# AI Options Data Skill
-**Version:** 1.0 | **Status:** Production Ready | **Last Updated:** July 2026
-**Category:** Core Toolkit — Open Interest, PCR, and Options-Derived Sentiment Analysis
+1. Route the request to the narrowest relevant upload file, then use the named embedded document(s); do not treat an unrelated volume as evidence.
+2. Execute applicable skill steps in order. If a required input, timeframe, benchmark, or source is absent, state the gap and the effect on confidence; never silently invent it.
+3. Separate **reported facts**, **calculations**, **assumptions**, and **inference**. Date all market-sensitive claims and identify the data source or user-provided input.
+4. Surface disconfirming evidence, governance/forensic risk, liquidity risk, valuation risk, and material uncertainty before a conclusion. A positive screen is not investment advice or a guarantee.
+5. When source documents conflict, prefer the more specific, later-versioned requirement; if unresolved, disclose the conflict and use the more conservative interpretation. Never override platform safety requirements.
 
----
+## Fast task routing
 
-## CRITICAL AI INSTRUCTION
+| Upload file | Primary use | Sources |
+|---|---|---:|
+| `01_System_Core_Instructions_Architecture.md` | 01 System Core Instructions Architecture | 8 |
+| `02_Engine_Contracts_Schemas.md` | 02 Engine Contracts Schemas | 9 |
+| `03_Engine_Registries_Pipelines.md` | 03 Engine Registries Pipelines | 9 |
+| `04_Workflow_Skills_01_to_09.md` | 04 Workflow Skills 01 to 09 | 2 |
+| `05_Workflow_Skills_10_to_25.md` | 05 Workflow Skills 10 to 25 | 4 |
+| `06_Analytical_Lens_Skills_26_to_34.md` | 06 Analytical Lens Skills 26 to 34 | 7 |
+| `07_Analytical_Lens_Skills_35_to_41.md` | 07 Analytical Lens Skills 35 to 41 | 8 |
+| `08_Knowledge_Base_Vol_1_Economics_Financials.md` | 08 Knowledge Base Vol 1 Economics Financials | 12 |
+| `09_Knowledge_Base_Vol_2_Markets_Governance_Macro.md` | 09 Knowledge Base Vol 2 Markets Governance Macro | 12 |
+| `10_Knowledge_Base_Vol_3_Forensics_Moats_Banking.md` | 10 Knowledge Base Vol 3 Forensics Moats Banking | 8 |
+| `11_Knowledge_Base_Vol_4_Sector_Deep_Dives.md` | 11 Knowledge Base Vol 4 Sector Deep Dives | 9 |
+| `12_Knowledge_Base_Vol_5_Screening_Portfolio_Glossaries.md` | 12 Knowledge Base Vol 5 Screening Portfolio Glossaries | 10 |
 
-Options data tells Claude about POSITIONING and SENTIMENT among derivatives participants — it does not tell Claude anything directly about a company's fundamental value, and it must never be used as a valuation input. Its correct use is as a sentiment/positioning overlay on top of technical and fundamental work, primarily useful for short-duration contexts (Swing Trading) and for identifying where large concentrations of market participants have a stake in a specific price outcome (which can itself influence near-term price behavior around those levels). Claude must never treat options data as available for or relevant to any small/micro-cap company without active, liquid F&O contracts — most of the IERL universe (per AI_Microcap_Research_Skill and much of Skill 04) has no F&O contract at all, and this skill simply does not apply there.
+**Default research sequence:** define decision and horizon → gather dated evidence → run the relevant workflow/analytical skill → apply risk and forensic checks → calculate/compare → present conclusion, counter-case, and confidence. For a company decision, consult core instructions, the applicable skill, fundamentals/valuation, sector context, and risk/forensics rather than relying on one metric.
 
----
+## Scope and privacy boundary
 
-## Purpose
+This bundle contains static methodology and knowledge only. It contains no credentials and cannot by itself read local files, call APIs, fetch live market data, trade, or access private accounts. The following local integration/private files are intentionally excluded: `.env.example`, `API_KEYS_CONFIG.env`, `API_PROVIDERS_AND_FREE_TIERS_GUIDE.md`, `test_apis.py`.
 
-Provide a dedicated toolkit for reading options market data — Open Interest (OI), Put-Call Ratio (PCR), OI concentration by strike, Implied Volatility (IV), and Max Pain — to extract sentiment and near-term positioning signals for F&O-enabled stocks and indices, strictly as a supplementary overlay to technical and fundamental analysis, never as a standalone basis for a trade or investment decision.
+## Embedded source manifest
 
----
+The SHA-256 values cover the exact UTF-8 source payload, not this wrapper. Use the manifest to audit a rebuild.
 
-## Pre-Flight Requirements
-
-```
-□ Confirm the stock/index has active, liquid F&O contracts — if not,
-  state explicitly that this skill does not apply and no options-based
-  commentary should be generated for the name
-□ Current expiry cycle context (weekly vs. monthly, and days remaining
-  to expiry) — options signals behave very differently in the final days
-  before expiry versus early in a fresh monthly cycle
-□ Open Interest data by strike, for both calls and puts, across at least
-  the near-the-money and adjacent strikes
-□ Implied Volatility data, ideally with a historical IV percentile/rank
-  for context (a given IV number is only meaningful relative to that
-  stock's own IV history)
-□ Confirm whether the analysis is intended to support a short-duration
-  (Swing Trading Skill) context or a broader market-regime sentiment read
-  (feeds into the regime filter shared by Swing/Uptrend skills)
-```
-
----
-
-## Analysis Module 1 — Open Interest (OI) and OI Change Analysis
-
-```
-CORE PRINCIPLE: OI alone (a static number) is far less informative than
-the CHANGE in OI combined with the price move on the same session —
-this pairing is mandatory for any OI-based read.
-
-PRICE-OI INTERPRETATION MATRIX (Mandatory Pairing):
-  Price UP + OI UP        → Long Buildup — fresh bullish positions being
-                              added, generally the highest-confidence
-                              bullish OI signal
-  Price UP + OI DOWN       → Short Covering — existing bearish positions
-                              being closed, a bullish move but driven by
-                              unwinding rather than fresh conviction —
-                              distinguish explicitly from Long Buildup, as
-                              short-covering rallies can reverse faster
-                              once the covering is complete
-  Price DOWN + OI UP        → Short Buildup — fresh bearish positions being
-                               added, highest-confidence bearish signal
-  Price DOWN + OI DOWN       → Long Unwinding — existing bullish positions
-                               being closed, a bearish move but driven by
-                               unwinding rather than fresh bearish conviction
-
-□ Apply this matrix at both the STOCK level (aggregate futures OI) and,
-  where relevant, at specific option STRIKES (Module 2) — the two can
-  sometimes diverge and both should be reported if so
-```
+| # | Source document | UTF-8 bytes | SHA-256 |
+|---:|---|---:|---|
+| 1 | `AI_Small_to_Mid_Cap_SIP_Stocks_Analysis_Skill.md` | 18,336 | `47d95e38d502403ad70582c96d8265db2e4cc23dd52d6bd808c80d90efdb8660` |
+| 2 | `AI_Swing_Trading_Skill.md` | 22,833 | `3719df5eb93f4dd027bbfb56825649a6db6a5462cae4af9096689d733da21172` |
+| 3 | `AI_Technical_Analysis_Master_Skill.md` | 27,297 | `39016471186c06d2ff7fb271aa44e19e8529b56a705aa4d9ba92b13674279ea5` |
+| 4 | `Technical_Analysis_Data_Input_Template_v_0.0.md` | 3,372 | `d3d197d73284c932385c45eff34fcf82c96bed6cda473782d2b486eced42f170` |
+| 5 | `AI_Turnaround_Analysis_Skill.md` | 14,942 | `acaa4c25f8f169e9eaa1a23f0cc74632aa836ea2293c31c3851828097e91b124` |
+| 6 | `AI_Uptrend_Momentum_Stock_Skill.md` | 17,985 | `22d53163913f3eb56761046a7dea391ab72457e8d2b153d08bfb94416e3c87c4` |
+| 7 | `AI_Volume_Delivery_Analysis_Skill.md` | 13,617 | `a5d06dfab9833ebb5788345cfb0359f7b977f38ea1198483f4789e5d8525a9bb` |
+| 8 | `AI_Four_Lens_Evidence_Weighting_Skill.md` | 4,952 | `8e6a7597cda1872350578d639b6cd86a46c8f6badce5e2d143cf173648c10dc5` |
 
 ---
 
-## Analysis Module 2 — OI Concentration by Strike (Support/Resistance Proxy)
-
-```
-□ Identify strikes with the HIGHEST call OI (often acts as a near-term
-  resistance zone — large call writers have a stake in price staying
-  below that strike through expiry) and the HIGHEST put OI (often acts
-  as a near-term support zone, by mirror logic)
-□ Track whether this OI concentration is SHIFTING toward higher/lower
-  strikes as sessions pass — a shifting resistance strike (call OI
-  migrating higher) can indicate building bullish conviction; a static or
-  declining resistance strike suggests capped near-term upside expectations
-□ CAUTION: these levels are a PROXY based on options writers' current
-  positioning, not a guarantee — they can and do break, especially on
-  strong fundamental news or outside the immediate pre-expiry window; state
-  this explicitly whenever citing an OI-based support/resistance level,
-  and note that this proxy is most reliable in the final 3-5 sessions
-  before expiry and least reliable early in a fresh monthly cycle
-```
-
----
-
-## Analysis Module 3 — Put-Call Ratio (PCR)
-
-```
-PCR (OI-based) = Total Put OI / Total Call OI
-
-INTERPRETATION (Contrarian-Leaning, Requires Context):
-  PCR > 1.3-1.5   → Historically associated with oversold/bearish-extreme
-                      sentiment — often read as a CONTRARIAN bullish signal
-                      (excessive put positioning can precede a bounce), but
-                      this is a probabilistic tendency, not a rule — must be
-                      cross-checked against the broader trend/technical
-                      context (AI_Technical_Analysis_Master_Skill) before
-                      being treated as a signal
-  PCR 0.7-1.0      → Broadly neutral positioning
-  PCR < 0.6-0.7      → Historically associated with overbought/bullish-
-                        extreme sentiment — often read as a CONTRARIAN
-                        bearish signal, same caveats as above
-
-□ Track PCR TREND over recent sessions, not just the current snapshot —
-  a PCR rising rapidly toward an extreme is more informative than a PCR
-  that has been stable at a moderate level for weeks
-□ Distinguish index-level PCR (a broad market-regime sentiment input,
-  can supplement the Swing Trading Skill's regime filter) from single-
-  stock PCR (a narrower, name-specific positioning read) — never blend
-  the two into one number or one conclusion
-```
-
----
-
-## Analysis Module 4 — Implied Volatility (IV) and IV Percentile
-
-```
-□ Report current IV alongside its percentile/rank versus the stock's own
-  trailing 6-12 month IV range — an IV of 35% is high for a historically
-  low-volatility stock and unremarkable for a historically high-volatility
-  one; never interpret a raw IV number without this context
-□ Rising IV ahead of a known event (results, corporate action) is normal
-  and expected — distinguish this from IV rising WITHOUT an identifiable
-  upcoming catalyst, which can itself be an early signal that informed
-  participants are positioning for unexpected news
-□ IV Crush: a sharp IV decline typically follows a known event's actual
-  occurrence (e.g., results are announced) — relevant context for any
-  options-strategy discussion, though this skill's core purpose is
-  sentiment reading rather than options-strategy construction
-```
-
----
-
-## Analysis Module 5 — Max Pain (Use With Explicit Caveats)
-
-```
-Max Pain Theory: the strike price at which option writers (as a group)
-would face the least aggregate payout at expiry — some market participants
-believe price tends to gravitate toward this level into expiry.
-
-□ Report Max Pain level if requested, but ALWAYS alongside an explicit
-  caveat: this is a theory with mixed, inconsistent empirical support, is
-  most (weakly) relevant only in the final 1-2 sessions before expiry, and
-  should never be presented with the same confidence as the Price-OI
-  matrix (Module 1) or PCR trend (Module 3), which have more consistent
-  interpretive value
-□ Never use Max Pain as a standalone basis for any trade recommendation
-```
-
----
-
-## Analysis Module 6 — F&O Ban Period Cross-Check (Upgrade — Previously Missing)
-
-```
-□ Before generating any options commentary, check whether the stock is
-  currently in an exchange-mandated F&O ban period (triggered when
-  aggregate market-wide position exceeds a regulatory threshold of open
-  interest) — new positions cannot be initiated during a ban, only
-  existing positions unwound
-□ If in ban: state this explicitly, note that fresh OI-based signals
-  (Module 1) are mechanically distorted (OI can only fall during a ban,
-  making any "Long/Short Buildup" read unreliable for that period), and
-  limit commentary to PCR/IV context only until the ban lifts
-```
-
-## Analysis Module 6 — Rollover Analysis at Monthly Expiry (v1.1 Addition)
-
-```
-Rollover data (the % of open positions carried forward from the expiring
-monthly contract to the next month, plus the roll cost/premium) is a
-distinct signal from the intra-cycle OI/PCR reads in Modules 1-3, and is
-only available/meaningful in the final 3-5 sessions before monthly expiry.
-
-ROLLOVER PERCENTAGE:
-  □ Compare current rollover % against the stock's own 3-month average
-    rollover % (never a fixed universal threshold, consistent with this
-    skill's approach elsewhere)
-  □ Rollover % meaningfully ABOVE average -> Participants are carrying
-    conviction into the next cycle rather than closing out - supports
-    continuation of the current positioning bias (bullish or bearish,
-    per Module 1's Price-OI read) into the new month
-  □ Rollover % meaningfully BELOW average -> Position unwinding into
-    expiry rather than continuation - treat any OI-based directional
-    read from Modules 1-2 with reduced confidence for the upcoming cycle,
-    since the participants holding those positions are choosing not to
-    carry them forward
-
-ROLL COST (COST-OF-CARRY PREMIUM):
-  □ A rollover executed at an unusually HIGH premium to fair value
-    (cost-of-carry) suggests aggressive demand to maintain long exposure
-    into the new cycle - a bullish positioning signal
-  □ A rollover executed at a LOW or negative premium (backwardation)
-    suggests the opposite - weak demand to carry the position forward
-
-MANDATORY CONTEXT: Rollover analysis is only informative in the expiry
-week itself - reporting a "rollover trend" outside this window is not
-meaningful, since the underlying data does not exist until participants
-begin actually rolling positions. State the days-to-expiry explicitly
-whenever rollover data is presented, consistent with the expiry-proximity
-caveats already required elsewhere in this skill (OI concentration, Max
-Pain).
-```
-
-
-## Red Flag Summary — Options Data Context
-
-### CRITICAL Flags
-```
-❗ Options-based commentary generated for a stock with no active, liquid
-  F&O contract
-❗ OI level (static) reported as a bullish/bearish signal without the
-  mandatory Price-OI Change pairing from Module 1
-❗ Options data (PCR, OI, Max Pain) being used as an input to a fundamental
-  valuation or a long-duration (Multibagger/Turnaround-style) conviction
-  rating — this skill's scope is short-duration sentiment/positioning only
-```
-
-### HIGH Flags
-```
-⚠️ PCR extreme reported as a signal without cross-checking the broader
-  technical trend context first
-⚠️ OI-based support/resistance level cited without noting it is a proxy
-  that can break, and without stating proximity to expiry
-⚠️ IV reported without its percentile/rank context against the stock's
-  own historical range
-⚠️ Max Pain presented with the same confidence level as Price-OI or PCR readings
-```
-
----
-
-## Output Format
-
-```
-OPTIONS DATA READ
-Underlying: [Name] | Expiry: [Date, X days remaining] | Date: [DD/MM/YYYY]
-═══════════════════════════════════════════════════════════════════
-
-F&O ELIGIBILITY CHECK: [Confirmed active, liquid contract / NOT APPLICABLE
-  — no active F&O contract, skill does not apply]
-
-PRICE-OI READ (Futures, Aggregate):
-  Price Move:          [+/-X]%  |  OI Change: [+/-X]%
-  Classification:       [Long Buildup / Short Covering / Short Buildup /
-                          Long Unwinding]
-
-OI CONCENTRATION BY STRIKE:
-  Highest Call OI Strike (Resistance Proxy): ₹[X] — [Static/Shifting higher/
-    Shifting lower over recent sessions]
-  Highest Put OI Strike (Support Proxy):      ₹[X] — [Same tracking]
-  Proximity to Expiry:                          [X days — Higher/Lower
-                                                  reliability of these levels]
-
-PUT-CALL RATIO:
-  Current PCR:          [X] | Recent Trend: [Rising/Falling/Stable]
-  Reading:               [Neutral / Contrarian-Bullish extreme / Contrarian-
-                          Bearish extreme]
-  Cross-Check vs Technical Trend: [Aligned/Contradicts — per AI_Technical_
-                                    Analysis_Master_Skill]
-
-IMPLIED VOLATILITY:
-  Current IV:            [X]% | Percentile vs own 6-12mo range: [X]th percentile
-  Context:                [Event-driven rise expected/observed / Rise without
-                            identifiable catalyst — flag]
-
-MAX PAIN (If Requested):
-  Level:                 ₹[X] — ⚠️ Low-reliability signal, most relevant only
-                          in final 1-2 sessions before expiry; not used as a
-                          standalone basis for any recommendation
-
-OVERALL SENTIMENT OVERLAY: [Bullish/Bearish/Neutral positioning bias] —
-  Supplementary to, never a substitute for, the technical (AI_Technical_
-  Analysis_Master_Skill) and fundamental work already done on this name.
-
-CRITICAL FLAGS: [List, or "None detected"]
-HIGH FLAGS:      [List, or "None detected"]
-```
-
----
-
-## Rules (Non-Negotiable)
-
-```
-1. This skill applies only to stocks/indices with active, liquid F&O
-   contracts — state explicitly and stop when this is not the case.
-2. OI is never interpreted without the Price-OI Change pairing (Module 1's matrix).
-3. Options data is never used as an input to fundamental valuation or a
-   long-duration conviction rating — sentiment/positioning overlay only,
-   and primarily relevant to short-duration (Swing Trading) contexts.
-4. OI-based support/resistance and Max Pain levels are always presented
-   with an explicit reliability caveat and proximity-to-expiry context.
-5. IV is never reported without its percentile/rank against the stock's
-   own historical range.
-```
-
----
-
-*Skill Version 1.0 | IERL Specialist Skill Library | Core Toolkit — Options Data Analysis*
-*Integrates with: AI_Swing_Trading_Skill, AI_Technical_Analysis_Master_Skill, AI_Volume_Delivery_Analysis_Skill*
-<!-- END SYSTEM FILE 10: AI_Options_Data_Skill.md -->
-
----
-
-<!-- BEGIN SYSTEM FILE 11: AI_Portfolio_Construction_Skill.md | SHA256: 956392fffa8ccf7af50df6737415ffdd09d8914ec370884d15f6204823ad8189 -->
-## Embedded source 11: AI Portfolio Construction Skill
-
-<!-- IERL-CANONICAL-METADATA v1.2 -->
-> **Canonical retrieval label:** AI Portfolio Construction Skill  
-> **Role:** Executable workflow skill  
-> **Use when:** Use when the request matches this skill's method, then execute its stated gates and output format.  
-> **Cognitive mode:** Gate-based diagnostic execution: test the thesis, its counter-case, and its invalidation before a conclusion.  
-> **Evidence rule:** Date material facts, distinguish fact/calculation/assumption/inference, and disclose missing inputs.  
-> **Handoff: Project Instructions → Confidence Standard → Quality Audit → relevant knowledge domains.**
-> **Minimum skill output:** objective/horizon and as-of date · inputs and gaps · completed gates · conclusion and counter-case · material risks/invalidation · confidence and next verification step.  
-
-
-# AI Portfolio Construction Skill
-**Version:** 1.0 | **Status:** Production Ready | **Last Updated:** July 2026
-**Category:** Style Specialist — Portfolio Design, Sizing, and Allocation Architecture
-
----
-
-## CRITICAL AI INSTRUCTION
-
-Portfolio construction is the discipline that determines whether good individual stock-picking actually compounds into good outcomes. A portfolio of 15 excellent individual research reports, sized and combined carelessly, can still produce a poor investor experience — through unintended concentration, correlated drawdowns, or a risk profile the investor cannot emotionally sustain through a bad year. This skill's job is not to pick stocks; it is to architect how conviction, risk, liquidity, time horizon, and the investor's own behavioral limits combine into a portfolio that a real person can actually hold through a full market cycle. A portfolio the investor abandons at the bottom has a expected return of zero, regardless of how correct the underlying research was.
-
----
-
-## Purpose
-
-Design and audit portfolio structure — position sizing methodology, diversification architecture, conviction-to-allocation mapping, rebalancing discipline, and behavioral-capacity matching — so that a collection of individually sound ideas becomes a portfolio the investor can hold through both bull and bear phases without abandoning the plan at the worst possible moment.
-
----
-
-## Pre-Flight Requirements
-
-```
-□ Total investable capital (or % breakdown if absolute figures withheld)
-□ Investment horizon: overall portfolio purpose (retirement, wealth
-  creation, specific goal with a date, trading capital)
-□ Risk tolerance: stated AND behaviorally inferred (has the investor
-  previously panic-sold in a downturn? this matters more than a stated
-  "aggressive" self-label)
-□ Existing holdings with allocation %, purchase price, purchase date
-□ Cash flow pattern: lump sum available now, or recurring monthly
-  additions (SIP-style)? This materially changes construction approach
-□ Liquidity needs: any known near-term (within 3 years) cash requirement
-  that should not be equity-exposed
-□ Tax status of existing holdings (LTCG/STCG boundary awareness)
-```
-
----
-
-## Analysis Module 1 — Conviction-to-Allocation Mapping
-
-```
-Every position in the portfolio must trace to an explicit conviction tier,
-and allocation must follow the tier — not the other way around (i.e., never
-justify a large position after the fact by inflating conviction language).
-
-TIER 1 — CORE HOLDING (High conviction, quality business, reasonable valuation):
-  → Individual position: 5–8% of portfolio
-  → Characteristics: Business Quality Score ≥7/10, Governance Score ≥7/10,
-    multi-year thesis, low turnover expected
-  → Maximum combined Tier 1 allocation: 40–55% of portfolio
-
-TIER 2 — SATELLITE HOLDING (Good business, moderate conviction or earlier stage):
-  → Individual position: 3–5%
-  → Characteristics: solid fundamentals but shorter track record, or a
-    Stage 2–3 multibagger candidate, or a positional/catalyst-driven idea
-  → Maximum combined Tier 2 allocation: 25–35% of portfolio
-
-TIER 3 — SPECULATIVE / EXPLORATORY (Early-stage, turnaround, high-uncertainty):
-  → Individual position: 1–3% (per the relevant specialist skill's stage
-    ceiling — Multibagger Discovery Stage 1, Turnaround T0–T1, etc.)
-  → Maximum combined Tier 3 allocation: 10–15% of portfolio
-  → This bucket exists explicitly to contain speculation so it cannot
-    silently expand to dominate the portfolio
-
-TIER 4 — TACTICAL / SWING (Short-duration technical trades):
-  → Sized per the Swing Trading Skill's own risk-based formula
-  → Maximum combined Tier 4 allocation at any time: 15–25% of portfolio,
-    separate from and not competing with Tier 1–3 capital
-  → Kept structurally distinct because the exit discipline (stop-loss,
-    time-stop) differs fundamentally from long-duration holdings
-
-CASH / LIQUID RESERVE:
-  → Minimum 5–10% of portfolio, higher in Caution/Not-Favorable market
-    regimes (per the Swing Trading Skill's regime filter, applied here
-    at the whole-portfolio level too)
-  → Cash is a position, not an absence of one — it should be sized
-    deliberately, not left as an accidental residual
-```
-
----
-
-## Analysis Module 2 — Diversification Architecture
-
-```
-Step 2.1 — Direct Diversification Limits
-  □ Single stock: never exceed the Tier ceiling above, hard cap 10% even
-    for the highest-conviction Tier 1 name (concentration beyond this
-    turns portfolio outcome into single-company outcome)
-  □ Single sector: cap at 25–30% (hard flag above this, requires explicit
-    documented justification, e.g., a deliberate high-conviction thematic bet)
-  □ Market cap mix: define and track Large/Mid/Small% split against a
-    stated target band appropriate to the investor's risk tolerance and
-    horizon — do not let this drift silently
-
-Step 2.2 — Hidden Concentration (Overlap) Analysis
-  □ Supply chain overlap: are multiple holdings dependent on the same
-    upstream input or downstream customer base?
-  □ Macro-factor overlap: do multiple holdings share the same primary
-    macro sensitivity (e.g., 3 holdings all highly INR/USD sensitive,
-    or all highly dependent on a single commodity price)?
-  □ Thematic overlap: are multiple "different sector" holdings actually
-    the same underlying bet (e.g., a capex-cycle theme expressed through
-    3 different sector labels)?
-  → Report an "effective concentration" view alongside the nominal
-    sector/stock split — nominal diversification can mask real concentration
-
-Step 2.3 — Correlation-Aware Position Sizing
-  When two or more holdings are identified as correlated (Step 2.2), treat
-  their COMBINED allocation against the single-position/sector ceilings in
-  Step 2.1, not each position independently.
-```
-
----
-
-## Analysis Module 3 — Rebalancing Discipline
-
-```
-Step 3.1 — Trigger-Based Rebalancing (Preferred Over Calendar-Only)
-  □ Position drift trigger: rebalance a holding if it drifts more than
-    ~50% relative to its target weight (e.g., a 5% target position that
-    has grown to 8%+ through price appreciation warrants a trim decision,
-    even absent a fundamental change)
-  □ Thesis-status trigger: any holding moved to "Weakened" or "Invalidated"
-    status (per the relevant research skill) triggers an immediate review,
-    not a wait-for-the-next-calendar-date review
-  □ Regime trigger: a shift from Favorable to Not-Favorable market regime
-    (per the Swing Trading Skill's regime filter) is a portfolio-level
-    signal to raise the cash reserve tier, not just a swing-book signal
-
-Step 3.2 — Calendar-Based Review (Minimum Cadence)
-  □ Full portfolio review: at minimum, quarterly (aligned with results season)
-  □ Tier 3 (speculative) holdings: monthly check-in given faster-moving
-    thesis-validity windows
-  □ Tax-aware rebalancing: check LTCG-threshold-crossing dates before
-    executing a trim that could otherwise be timed better for tax efficiency
-
-Step 3.3 — Adding to Positions (Scaling In)
-  □ Tier 1: can be built via 2–3 tranches as thesis confirms
-  □ Tier 3: must follow the specific specialist skill's stage-based
-    build-up trigger (e.g., Multibagger Discovery Module 1, Turnaround
-    Module 2) — never accelerate the build-up ahead of stage-confirming evidence
-  □ Never average down into a Tier 3 position below its original thesis-
-    invalidation level — averaging down on a broken thesis is a sizing
-    error dressed up as conviction
-```
-
----
-
-## Analysis Module 4 — Behavioral Capacity Matching
-
-```
-This module exists because the "optimal" portfolio on paper is worthless if
-the investor cannot hold it through a real drawdown.
-
-□ Stress-test the proposed allocation against a -20% to -30% broad market
-  scenario and a -40%+ scenario concentrated in the portfolio's largest
-  sector exposure — translate this into an approximate ₹ or % portfolio
-  decline the investor should be prepared to see without panic-selling
-□ Ask (or infer from stated history): has this investor previously exited
-  positions during a drawdown at or near the bottom? If yes, the actual
-  safe Tier 3/Tactical allocation ceiling should be set lower than the
-  theoretical maximum in Module 1 — behavioral capacity overrides the
-  textbook ceiling
-□ Match SIP/recurring-investment portfolios to the AI_Small_to_Mid_Cap_SIP_
-  Stocks_Analysis_Skill's durability screen — a portfolio built for monthly
-  recurring investment should weight survivability and consistency more
-  heavily than a lump-sum portfolio, since SIP investors are buying through
-  every phase of the cycle including the worst of it
-□ If the investor's stated risk tolerance and their behaviorally inferred
-  tolerance conflict, flag this explicitly rather than silently defaulting
-  to either — this is a decision the investor should make consciously
-```
-
----
-
-## Analysis Module 5 — Pre-Equity Liquidity Carve-Out (Upgrade — Previously Missing)
-
-```
-This skill previously started allocation logic assuming all capital was
-investable. Sequence a liquidity layer first:
-
-□ Emergency Fund: confirm 6–12 months of essential expenses is held
-  outside this equity portfolio (liquid fund/FD/savings) BEFORE any
-  Tier 1–4 allocation is finalized — if not yet in place, recommend
-  carving this out first rather than treating 100% of stated capital as investable
-□ Goal-Proximity Check: any known cash need within 3 years (per Pre-
-  Flight) must be excluded from equity allocation entirely, not merely
-  weighted toward Tier 1 "safer" stocks — near-term goals do not belong
-  in single-stock equity regardless of conviction tier
-□ This carve-out is computed BEFORE the Tier 1–4 percentages in Module 1,
-  which apply only to the remaining genuinely long-horizon investable capital
-```
-
-## Analysis Module 5 — New Capital Deployment Sequencing (v1.1 Addition)
-
-```
-This module addresses a gap in the original skill: it defined target
-allocation but not HOW to get there when new capital arrives (a lump sum,
-or a fresh SIP-eligible surplus).
-
-LUMP SUM DEPLOYMENT (New Money Arriving at Once):
-  □ Check current market regime (per AI_Swing_Trading_Skill's Module 1
-    scorecard, applied here at the whole-portfolio level) before deploying
-  □ Favorable regime: deploy in 2-3 tranches over 4-8 weeks rather than
-    100% in a single session, even in a favorable regime - this reduces
-    single-point-in-time timing risk without meaningfully sacrificing
-    the benefit of being invested
-  □ Caution/Not-Favorable regime: extend deployment to 3-6 tranches over
-    8-16 weeks, and raise the interim cash reserve above the standard 5-10%
-    band while deployment is in progress
-  □ Deploy into Tier 1 (Core) allocations first, Tier 2/3 allocations only
-    after Tier 1 targets are substantially filled - this ensures the
-    portfolio's foundation is established before speculative allocations
-    are built out, regardless of which individual ideas look most exciting
-    at the moment of capital arrival
-
-RECURRING SURPLUS DEPLOYMENT (Regular New Savings):
-  □ Route recurring surplus first to underweight Tier 1 positions (below
-    their target allocation due to prior non-participation or having been
-    added later than other Core holdings), then to Tier 2, maintaining the
-    overall tier-ratio discipline from Module 1 rather than letting
-    whichever idea is most recently discussed absorb all new capital
-  □ For SIP-style direct-stock recurring investment specifically, hand off
-    to AI_Small_to_Mid_Cap_SIP_Stocks_Analysis_Skill's durability screen
-    and modulation protocol - this skill governs which TIER and how much
-    of the portfolio a name should occupy, that skill governs the specific
-    monthly-investment mechanics for direct-stock SIP candidates
-
-REBALANCING VS. FRESH DEPLOYMENT PRIORITY:
-  □ When both a rebalancing trim (Module 3) is due AND fresh capital has
-    arrived, prioritize using the fresh capital to correct underweight
-    positions FIRST, rather than immediately selling the overweight
-    position - this reduces unnecessary transaction costs and, where
-    relevant, avoids realizing a taxable gain that a fresh-capital
-    correction could have addressed without a sale
-```
-
-
-## Red Flag Summary — Portfolio Construction Context
-
-### CRITICAL Flags
-```
-❗ Any single stock exceeding 15% of portfolio (regardless of conviction)
-❗ Tier 3 (speculative) allocation exceeding 20% of total portfolio
-❗ Zero cash/liquid reserve heading into a Not-Favorable market regime
-❗ Effective concentration (post-overlap-analysis) exceeding stated
-  diversification targets while nominal sector split looks diversified
-```
-
-### HIGH Flags
-```
-⚠️ Single sector exceeding 30% without documented deliberate justification
-⚠️ 3+ holdings sharing the same primary macro sensitivity, uncounted as
-  combined exposure
-⚠️ No rebalancing activity in 6+ months despite significant position drift
-⚠️ Tactical/swing capital and long-term Tier 1–3 capital commingled without
-  clear separation (making true portfolio risk hard to assess)
-⚠️ Stated risk tolerance materially inconsistent with behaviorally inferred
-  tolerance, unflagged
-```
-
----
-
-## Output Format
-
-```
-PORTFOLIO CONSTRUCTION REPORT
-Date: [DD/MM/YYYY] | Total Portfolio: ₹[X] Cr (if provided) | Holdings: [N]
-═══════════════════════════════════════════════════════════════════════
-
-CONVICTION-TIER ALLOCATION:
-  Tier 1 (Core):          [X]% — Target band: 40–55%
-  Tier 2 (Satellite):     [X]% — Target band: 25–35%
-  Tier 3 (Speculative):   [X]% — Target band: 10–15%
-  Tier 4 (Tactical/Swing):[X]% — Target band: 15–25% (separate capital pool)
-  Cash Reserve:           [X]% — Target band: 5–10% (higher if regime Caution/Not Favorable)
-
-TIER-BY-TIER HOLDINGS TABLE
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-Company | Tier | Alloc% | Sector | Thesis Status | Ceiling Check
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-
-DIVERSIFICATION MAP:
-  Largest Single Stock:    [X]% — [Within/Exceeds ceiling]
-  Largest Sector:          [X]% — [Within/Exceeds ceiling]
-  Market Cap Split:        Large [%] | Mid [%] | Small [%]
-
-HIDDEN CONCENTRATION (Effective, Post-Overlap):
-  Correlated Cluster 1:    [Holdings] — Combined effective exposure: [X]%
-  Correlated Cluster 2:    [Holdings] — Combined effective exposure: [X]%
-  Effective vs. Nominal Concentration: [Materially different / Consistent]
-
-STRESS TEST:
-  -20% broad market scenario:      Estimated portfolio impact: [-X]%
-  Largest-sector -40% scenario:    Estimated portfolio impact: [-X]%
-  Behavioral Capacity Check:       [Investor's inferred tolerance vs.
-                                     stress-test outcome — Match/Mismatch]
-
-REBALANCING STATUS:
-  Positions Beyond Drift Threshold: [List — target% vs current%]
-  Thesis-Status Triggers Active:    [Any Weakened/Invalidated holdings]
-  Regime-Driven Cash Adjustment:    [Recommended cash % change, if any]
-
-RECOMMENDED ACTIONS:
-  Immediate:   [Trim/add/rebalance — specific holding and reason]
-  This Month:  [Action — reason]
-  Monitoring:  [What to watch before the next scheduled review]
-
-⚠️ FLAGS DETECTED: [Critical/High flags list, or "None detected"]
-```
-
----
-
-## Rules (Non-Negotiable)
-
-```
-1. Allocation size follows conviction tier — never justify size after the
-   fact by inflating the conviction description.
-2. Tier ceilings are hard caps; a single stock never exceeds 15% regardless
-   of stated conviction.
-3. Tactical/swing capital is tracked as a separate pool from long-duration
-   Tier 1–3 capital — never let the two commingle in reporting or sizing.
-4. Correlated holdings are sized against combined ceilings, not evaluated
-   independently.
-5. Behavioral capacity, when it conflicts with stated risk tolerance, must
-   be flagged explicitly rather than silently resolved in either direction.
-6. Cash reserve is a deliberate position sized to the market regime, not a
-   leftover residual.
-```
-
----
-
-*Skill Version 1.0 | IERL Specialist Skill Library | Style Specialist — Portfolio Construction*
-*Integrates with: Skill 06 (Portfolio Auditor), Skill 09 (Risk Auditor), AI_Swing_Trading_Skill,
-AI_Multibagger_Discovery_Skill, AI_Turnaround_Analysis_Skill, AI_Small_to_Mid_Cap_SIP_Stocks_Analysis_Skill*
-<!-- END SYSTEM FILE 11: AI_Portfolio_Construction_Skill.md -->
-
----
-
-<!-- BEGIN SYSTEM FILE 12: AI_Small_to_Mid_Cap_SIP_Stocks_Analysis_Skill.md | SHA256: 47d95e38d502403ad70582c96d8265db2e4cc23dd52d6bd808c80d90efdb8660 -->
-## Embedded source 12: AI Small to Mid Cap SIP Stocks Analysis Skill
+<!-- BEGIN SYSTEM FILE 1: AI_Small_to_Mid_Cap_SIP_Stocks_Analysis_Skill.md | SHA256: 47d95e38d502403ad70582c96d8265db2e4cc23dd52d6bd808c80d90efdb8660 -->
+## Embedded source 1: AI Small to Mid Cap SIP Stocks Analysis Skill
 
 <!-- IERL-CANONICAL-METADATA v1.2 -->
 > **Canonical retrieval label:** AI Small to Mid Cap SIP Stocks Analysis Skill  
@@ -1025,12 +408,12 @@ Re-Screen Trigger:          [What event — leadership change, debt spike, next
 *Skill Version 1.0 | IERL Specialist Skill Library | Style Specialist — SIP Durability Screening*
 *Integrates with: Forensic Accounting Skill, Skill 09 (Risk Auditor), AI_Portfolio_Construction_Skill,
 AI_Turnaround_Analysis_Skill (for deep-cyclical/distressed redirect)*
-<!-- END SYSTEM FILE 12: AI_Small_to_Mid_Cap_SIP_Stocks_Analysis_Skill.md -->
+<!-- END SYSTEM FILE 1: AI_Small_to_Mid_Cap_SIP_Stocks_Analysis_Skill.md -->
 
 ---
 
-<!-- BEGIN SYSTEM FILE 13: AI_Swing_Trading_Skill.md | SHA256: 3719df5eb93f4dd027bbfb56825649a6db6a5462cae4af9096689d733da21172 -->
-## Embedded source 13: AI Swing Trading Skill
+<!-- BEGIN SYSTEM FILE 2: AI_Swing_Trading_Skill.md | SHA256: 3719df5eb93f4dd027bbfb56825649a6db6a5462cae4af9096689d733da21172 -->
+## Embedded source 2: AI Swing Trading Skill
 
 <!-- IERL-CANONICAL-METADATA v1.2 -->
 > **Canonical retrieval label:** AI Swing Trading Skill  
@@ -1471,12 +854,12 @@ if more than 1 trading session has passed since this analysis.
 *Skill Version 1.0 | IERL Specialist Skill Library | Style Specialist — Swing Trading*
 *Integrates with: Skill 08 (Sector Rotation Analyzer), Forensic Accounting Skill (fundamental floor check),
 Skill 12 (Watchlist Prioritizer for post-trade monitoring), Skill 09 (Risk Auditor for portfolio-level exposure)*
-<!-- END SYSTEM FILE 13: AI_Swing_Trading_Skill.md -->
+<!-- END SYSTEM FILE 2: AI_Swing_Trading_Skill.md -->
 
 ---
 
-<!-- BEGIN SYSTEM FILE 14: AI_Technical_Analysis_Master_Skill.md | SHA256: 39016471186c06d2ff7fb271aa44e19e8529b56a705aa4d9ba92b13674279ea5 -->
-## Embedded source 14: AI Technical Analysis Master Skill
+<!-- BEGIN SYSTEM FILE 3: AI_Technical_Analysis_Master_Skill.md | SHA256: 39016471186c06d2ff7fb271aa44e19e8529b56a705aa4d9ba92b13674279ea5 -->
+## Embedded source 3: AI Technical Analysis Master Skill
 
 <!-- IERL-CANONICAL-METADATA v1.2 -->
 > **Canonical retrieval label:** AI Technical Analysis Master Skill  
@@ -2027,12 +1410,12 @@ This addendum makes the existing indicator modules usable with pasted historical
 **Version:** v_0.0
 **Paste Into:** AI_Technical_Analysis_Master_Skill.md (after Pre-Flight Requirements)
 
-<!-- END SYSTEM FILE 14: AI_Technical_Analysis_Master_Skill.md -->
+<!-- END SYSTEM FILE 3: AI_Technical_Analysis_Master_Skill.md -->
 
 ---
 
-<!-- BEGIN SYSTEM FILE 15: Technical_Analysis_Data_Input_Template_v_0.0.md | SHA256: d3d197d73284c932385c45eff34fcf82c96bed6cda473782d2b486eced42f170 -->
-## Embedded source 15: Technical Analysis Data Input Template v 0.0
+<!-- BEGIN SYSTEM FILE 4: Technical_Analysis_Data_Input_Template_v_0.0.md | SHA256: d3d197d73284c932385c45eff34fcf82c96bed6cda473782d2b486eced42f170 -->
+## Embedded source 4: Technical Analysis Data Input Template v 0.0
 
 # Technical Analysis — Data Input Template (Addendum v_0.0)
 
@@ -2107,12 +1490,12 @@ This addendum makes the existing indicator modules usable with pasted historical
 **Document:** Technical_Analysis_Data_Input_Template_v_0.0.md
 **Version:** v_0.0
 **Paste Into:** AI_Technical_Analysis_Master_Skill.md (after Pre-Flight Requirements)
-<!-- END SYSTEM FILE 15: Technical_Analysis_Data_Input_Template_v_0.0.md -->
+<!-- END SYSTEM FILE 4: Technical_Analysis_Data_Input_Template_v_0.0.md -->
 
 ---
 
-<!-- BEGIN SYSTEM FILE 16: AI_Turnaround_Analysis_Skill.md | SHA256: acaa4c25f8f169e9eaa1a23f0cc74632aa836ea2293c31c3851828097e91b124 -->
-## Embedded source 16: AI Turnaround Analysis Skill
+<!-- BEGIN SYSTEM FILE 5: AI_Turnaround_Analysis_Skill.md | SHA256: acaa4c25f8f169e9eaa1a23f0cc74632aa836ea2293c31c3851828097e91b124 -->
+## Embedded source 5: AI Turnaround Analysis Skill
 
 <!-- IERL-CANONICAL-METADATA v1.2 -->
 > **Canonical retrieval label:** AI Turnaround Analysis Skill  
@@ -2413,12 +1796,12 @@ HANDOFF NOTE: [If Stage T2 or higher — recommend running the Forensic
 *Skill Version 1.0 | IERL Specialist Skill Library | Style Specialist — Turnaround Analysis*
 *Integrates with: Forensic Accounting Skill, Skill 06 (Portfolio Auditor), Skill 09 (Risk Auditor),
 Skill 15 (Pre-Investment Master Checklist)*
-<!-- END SYSTEM FILE 16: AI_Turnaround_Analysis_Skill.md -->
+<!-- END SYSTEM FILE 5: AI_Turnaround_Analysis_Skill.md -->
 
 ---
 
-<!-- BEGIN SYSTEM FILE 17: AI_Uptrend_Momentum_Stock_Skill.md | SHA256: 22d53163913f3eb56761046a7dea391ab72457e8d2b153d08bfb94416e3c87c4 -->
-## Embedded source 17: AI Uptrend Momentum Stock Skill
+<!-- BEGIN SYSTEM FILE 6: AI_Uptrend_Momentum_Stock_Skill.md | SHA256: 22d53163913f3eb56761046a7dea391ab72457e8d2b153d08bfb94416e3c87c4 -->
+## Embedded source 6: AI Uptrend Momentum Stock Skill
 
 <!-- IERL-CANONICAL-METADATA v1.2 -->
 > **Canonical retrieval label:** AI Uptrend Momentum Stock Skill  
@@ -2768,12 +2151,12 @@ HIGH FLAGS:      [List, or "None detected"]
 *Skill Version 1.0 | IERL Specialist Skill Library | Style Specialist — Uptrend Momentum (Trend-Following)*
 *Integrates with: AI_Swing_Trading_Skill (shares regime filter, distinct exit philosophy),
 AI_Portfolio_Construction_Skill (Tier 4 tactical capital), Skill 08 (Sector Rotation Analyzer)*
-<!-- END SYSTEM FILE 17: AI_Uptrend_Momentum_Stock_Skill.md -->
+<!-- END SYSTEM FILE 6: AI_Uptrend_Momentum_Stock_Skill.md -->
 
 ---
 
-<!-- BEGIN SYSTEM FILE 18: AI_Volume_Delivery_Analysis_Skill.md | SHA256: a5d06dfab9833ebb5788345cfb0359f7b977f38ea1198483f4789e5d8525a9bb -->
-## Embedded source 18: AI Volume Delivery Analysis Skill
+<!-- BEGIN SYSTEM FILE 7: AI_Volume_Delivery_Analysis_Skill.md | SHA256: a5d06dfab9833ebb5788345cfb0359f7b977f38ea1198483f4789e5d8525a9bb -->
+## Embedded source 7: AI Volume Delivery Analysis Skill
 
 <!-- IERL-CANONICAL-METADATA v1.2 -->
 > **Canonical retrieval label:** AI Volume Delivery Analysis Skill  
@@ -3038,6 +2421,123 @@ FEEDS INTO: [Which calling skill — Swing, Uptrend, Multibagger Discovery,
 *Skill Version 1.0 | IERL Specialist Skill Library | Core Toolkit — Volume & Delivery Analysis*
 *Integrates with: AI_Technical_Analysis_Master_Skill, AI_Swing_Trading_Skill, AI_Uptrend_Momentum_Stock_Skill,
 Skill 01 (Master Research, Governance Gate), AI_Turnaround_Analysis_Skill, AI_Multibagger_Discovery_Skill*
-<!-- END SYSTEM FILE 18: AI_Volume_Delivery_Analysis_Skill.md -->
+<!-- END SYSTEM FILE 7: AI_Volume_Delivery_Analysis_Skill.md -->
 
 ---
+
+<!-- BEGIN SYSTEM FILE 8: AI_Four_Lens_Evidence_Weighting_Skill.md | SHA256: 8e6a7597cda1872350578d639b6cd86a46c8f6badce5e2d143cf173648c10dc5 -->
+## Embedded source 8: AI Four Lens Evidence Weighting Skill
+
+<!-- IERL-CANONICAL-METADATA v1.2 -->
+> **Canonical retrieval label:** Skill 42 — Four-Lens Evidence Weighting Skill  
+> **Role:** Executable workflow skill  
+> **Use when:** Use when evaluating early-stage multibagger candidates to attach qualitative evidence quality and investor-lens sub-question answers to the 7 canonical factors.  
+> **Cognitive mode:** Gate-based diagnostic execution: test the qualitative evidence quality and falsifiable investor questions before scoring.  
+> **Evidence rule:** Date material facts, distinguish fact/calculation/assumption/inference, and disclose missing inputs.  
+> **Handoff: Project Instructions → Confidence Standard → Quality Audit → relevant knowledge domains.**
+> **Minimum skill output:** objective/horizon and as-of date · completed modules · sub-question findings · evidence quality (HIGH/MEDIUM/LOW) · red flags.  
+
+# Skill 42 — Four-Lens Evidence Weighting Skill
+**Version:** 1.0 | **Status:** Production Ready | **Last Updated:** August 2026  
+**Category:** Analytical Lens — Kedia, Kacholia, Agrawal, Parikh Qualitative Evidence Weighting  
+
+---
+
+## CRITICAL AI INSTRUCTION
+
+Do not output four separate investor scores (e.g. "Kedia Score", "Kacholia Score"). Use this skill to attach evidence-quality ratings (HIGH/MEDIUM/LOW) and structured sub-question findings to the SEVEN canonical factors (Inflection, Runway, Management, Scalability, Cash Quality, Valuation, Market) defined in the Institutional Multibagger Engine. This skill modifies HOW qualitative evidence is evaluated; it does NOT add an eighth scoring system or duplicate quantitative points.
+
+---
+
+## Purpose
+
+Operationalize Kedia, Kacholia, Agrawal, and Parikh's investment philosophies as falsifiable sub-questions inside the 100-point structure, without double-counting overlapping traits (management quality, business quality) across multiple buckets.
+
+---
+
+## Pre-Flight Requirements
+
+```
+□ Candidate has passed the Hard Risk Gate (pledge ≤35%, no auditor resignation, no related-party red flags).
+□ Candidate has a Discovery Status classification (0-3 institutional attention scale, used as context not reward).
+□ Primary-source disclosures available (exchange filings, audited financials, concalls, investor presentations).
+```
+
+---
+
+## Analysis Module 1 — Kacholia Sub-Question (feeds: Capital Efficiency & Scalability)
+
+```
+"Is the incremental capital required to add the next ₹100cr of revenue falling or rising over the last 3 years?"
+Required evidence: Incremental ROCE trend, fixed-asset turnover trend, operating leverage metrics.
+Output: Sub-score contribution + Evidence Quality (HIGH/MEDIUM/LOW).
+```
+
+---
+
+## Analysis Module 2 — Kedia Sub-Question (feeds: Management Execution)
+
+```
+"Has this specific management team allocated capital well through at least one prior cycle, even at smaller scale?"
+Required evidence: Prior capex execution, downturn margin resilience, capital allocation history.
+Output: Sub-score contribution + Evidence Quality (HIGH/MEDIUM/LOW).
+```
+
+---
+
+## Analysis Module 3 — Agrawal Sub-Question (feeds: Operating Inflection & Market Confirmation)
+
+```
+"Is this quarter's growth rate higher than the trailing 8-quarter average (post one-off strip) — and is price/volume confirming it?"
+Required evidence: QoQ vs 8-quarter trailing comparison, one-off operating profit adjustments, delivery volume trends.
+Output: Sub-score contribution + Evidence Quality (HIGH/MEDIUM/LOW).
+```
+
+---
+
+## Analysis Module 4 — Parikh Sub-Question (feeds: Cash-Flow Quality & Durability)
+
+```
+"Would cumulative free cash flow over 5 years, at a fair multiple, justify today's market cap?"
+Required evidence: 5-year FCF trajectory, working capital turn, cash conversion efficiency (CFO / PAT).
+Output: Sub-score contribution + Evidence Quality (HIGH/MEDIUM/LOW).
+```
+
+---
+
+## Red Flag Summary — Four-Lens Context
+
+### CRITICAL Flags
+- Any sub-question answered from PR/interview quotes alone without regulatory exchange filings.
+- Same underlying evidence used to answer two different modules (double-attribution).
+
+### HIGH Flags
+- Evidence Quality LOW on 2 or more modules (flag output as "High-scoring hypothesis, weak evidence").
+
+---
+
+## Output Format
+
+```json
+{
+  "skill_name": "Skill 42 — Four-Lens Evidence Weighting",
+  "kacholia_evidence": {"finding": "...", "evidence_quality": "HIGH|MEDIUM|LOW"},
+  "kedia_evidence": {"finding": "...", "evidence_quality": "HIGH|MEDIUM|LOW"},
+  "agrawal_evidence": {"finding": "...", "evidence_quality": "HIGH|MEDIUM|LOW"},
+  "parikh_evidence": {"finding": "...", "evidence_quality": "HIGH|MEDIUM|LOW"},
+  "contradictions": [],
+  "red_flags": []
+}
+```
+
+---
+
+## Rules (Non-Negotiable)
+
+1. This skill NEVER outputs a "Kedia Score" or "Kacholia Score".
+2. This skill does not run on candidates that failed the Hard Risk Gate.
+3. Discovery Status (low institutional ownership) is analytical context only, never a scoring reward.
+<!-- END SYSTEM FILE 8: AI_Four_Lens_Evidence_Weighting_Skill.md -->
+
+---
+

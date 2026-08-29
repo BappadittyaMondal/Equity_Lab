@@ -88,6 +88,7 @@ FIVE_FILE_MAP = {
         "AI_SKILL_IRA_col_final/AI_Turnaround_Analysis_Skill.md",
         "AI_SKILL_IRA_col_final/AI_Uptrend_Momentum_Stock_Skill.md",
         "AI_SKILL_IRA_col_final/AI_Volume_Delivery_Analysis_Skill.md",
+        "AI_SKILL_IRA_col_final/AI_Four_Lens_Evidence_Weighting_Skill.md",
     ],
     "04_Master_Knowledge_Base_Vol_1_Fundamentals_Valuation_Governance.md": [
         "Knowledge_IRA_COL_FINAL/00_Index.md", "Knowledge_IRA_COL_FINAL/Domain_01_Economics.md",
@@ -125,16 +126,19 @@ FIVE_FILE_MAP = {
 
 }
 
-NINE_FILE_MAP = {
+TWELVE_FILE_MAP = {
     "01_System_Core_Instructions_Architecture.md": FIVE_FILE_MAP["01_Master_System_Core_Instructions_Architecture.md"],
-    "02_Engine_Contracts_Schemas_Registries.md": FIVE_FILE_MAP["02_Master_Engine_Contracts_Schemas_Registries.md"],
-    "03_Workflow_Skills_01_to_25.md": FIVE_FILE_MAP["03_Master_Skill_Library.md"][:2],
-    "04_Analytical_Lens_Skills_26_to_41.md": FIVE_FILE_MAP["03_Master_Skill_Library.md"][2:],
-    "05_Knowledge_Base_Vol_1_Economics_Financials.md": FIVE_FILE_MAP["04_Master_Knowledge_Base_Vol_1_Fundamentals_Valuation_Governance.md"][:12],
-    "06_Knowledge_Base_Vol_2_Markets_Governance_Macro.md": FIVE_FILE_MAP["04_Master_Knowledge_Base_Vol_1_Fundamentals_Valuation_Governance.md"][12:],
-    "07_Knowledge_Base_Vol_3_Forensics_Moats_Banking.md": FIVE_FILE_MAP["05_Master_Knowledge_Base_Vol_2_Sectors_Frameworks_Screening.md"][:8],
-    "08_Knowledge_Base_Vol_4_Sector_Deep_Dives.md": FIVE_FILE_MAP["05_Master_Knowledge_Base_Vol_2_Sectors_Frameworks_Screening.md"][8:17],
-    "09_Knowledge_Base_Vol_5_Screening_Portfolio_Glossaries.md": FIVE_FILE_MAP["05_Master_Knowledge_Base_Vol_2_Sectors_Frameworks_Screening.md"][17:],
+    "02_Engine_Contracts_Schemas.md": FIVE_FILE_MAP["02_Master_Engine_Contracts_Schemas_Registries.md"][:9],
+    "03_Engine_Registries_Pipelines.md": FIVE_FILE_MAP["02_Master_Engine_Contracts_Schemas_Registries.md"][9:],
+    "04_Workflow_Skills_01_to_09.md": FIVE_FILE_MAP["03_Master_Skill_Library.md"][:2],
+    "05_Workflow_Skills_10_to_25.md": FIVE_FILE_MAP["03_Master_Skill_Library.md"][2:6],
+    "06_Analytical_Lens_Skills_26_to_34.md": FIVE_FILE_MAP["03_Master_Skill_Library.md"][6:13],
+    "07_Analytical_Lens_Skills_35_to_41.md": FIVE_FILE_MAP["03_Master_Skill_Library.md"][13:],
+    "08_Knowledge_Base_Vol_1_Economics_Financials.md": FIVE_FILE_MAP["04_Master_Knowledge_Base_Vol_1_Fundamentals_Valuation_Governance.md"][:12],
+    "09_Knowledge_Base_Vol_2_Markets_Governance_Macro.md": FIVE_FILE_MAP["04_Master_Knowledge_Base_Vol_1_Fundamentals_Valuation_Governance.md"][12:],
+    "10_Knowledge_Base_Vol_3_Forensics_Moats_Banking.md": FIVE_FILE_MAP["05_Master_Knowledge_Base_Vol_2_Sectors_Frameworks_Screening.md"][:8],
+    "11_Knowledge_Base_Vol_4_Sector_Deep_Dives.md": FIVE_FILE_MAP["05_Master_Knowledge_Base_Vol_2_Sectors_Frameworks_Screening.md"][8:17],
+    "12_Knowledge_Base_Vol_5_Screening_Portfolio_Glossaries.md": FIVE_FILE_MAP["05_Master_Knowledge_Base_Vol_2_Sectors_Frameworks_Screening.md"][17:],
 }
 
 EXCLUDED_PRIVATE_OR_INTEGRATION_FILES = {
@@ -208,7 +212,8 @@ def build_master_files(mapping: dict, target_dir: Path, manifest_meta: dict) -> 
     target_dir.mkdir(exist_ok=True)
     bundle_manifest = {
         "manifest_metadata": manifest_meta,
-        "bundle_files": {}
+        "bundle_files": {},
+        "files": []
     }
     
     for master_filename, file_list in mapping.items():
@@ -238,14 +243,19 @@ def build_master_files(mapping: dict, target_dir: Path, manifest_meta: dict) -> 
             })
 
         output = "".join(chunks)
+        out_bytes = len(output.encode("utf-8"))
         (target_dir / master_filename).write_text(output, encoding="utf-8", newline="")
         bundle_manifest["bundle_files"][master_filename] = {
             "sources_count": len(file_list),
-            "output_bytes": len(output.encode("utf-8")),
+            "output_bytes": out_bytes,
             "sha256": hashlib.sha256(output.encode("utf-8")).hexdigest(),
             "embedded_sources": file_sources
         }
-        print(f"Created: {master_filename} ({len(file_list)} source files; {len(output.encode('utf-8')):,} bytes)")
+        bundle_manifest["files"].append({
+            "filename": master_filename,
+            "bytes": out_bytes
+        })
+        print(f"Created: {master_filename} ({len(file_list)} source files; {out_bytes:,} bytes)")
 
     # Stamp companion MANIFEST.json in bundle directory
     (target_dir / "MANIFEST.json").write_text(json.dumps(bundle_manifest, indent=2), encoding="utf-8", newline="")
@@ -307,7 +317,7 @@ def main() -> None:
 
     targets = (
         (FIVE_FILE_MAP, BASE_DIR / "CONSOLIDATED_5_FILE_SYSTEM"),
-        (NINE_FILE_MAP, BASE_DIR / "CONSOLIDATED_9_FILE_SYSTEM")
+        (TWELVE_FILE_MAP, BASE_DIR / "CONSOLIDATED_12_FILE_SYSTEM")
     )
     assert_canonical_completeness(targets)
     for mapping, target in targets:

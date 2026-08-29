@@ -69,7 +69,7 @@ class ConformalPredictor:
             upper_bound_90=upper_90,
             lower_bound_95=lower_95,
             upper_bound_95=upper_95,
-            coverage_guarantee_pct=90.0,
+            coverage_guarantee_pct=round((1.0 - self.alpha) * 100.0, 1),
             strata=strata,
             interval_width=round(upper_90 - lower_90, 4)
         )

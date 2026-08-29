@@ -2,7 +2,7 @@
 
 > **Version:** 1.0.0  
 > **Source of Truth:** `docs/api_contract.json`  
-> **Total Endpoints:** 65
+> **Total Endpoints:** 79
 
 ---
 
@@ -27,6 +27,7 @@
 **Description:** Triggers an on-demand market data freshness scan across universe symbols.  
 **Parameters:**
 - `max_age_hours` (query, optional)
+- `x-api-key` (header, required)
 
 ---
 
@@ -59,6 +60,13 @@
 **Summary:** Add Business Event  
 **Parameters:**
 - `x-data-write-key` (header, optional)
+- `x-api-key` (header, optional)
+
+---
+
+### `POST` /api/v1/data/causal-inference
+**Summary:** Run Causal Inference  
+**Parameters:**
 - `x-api-key` (header, optional)
 
 ---
@@ -131,6 +139,14 @@
 **Summary:** Add Ownership Snapshot  
 **Parameters:**
 - `x-data-write-key` (header, optional)
+- `x-api-key` (header, optional)
+
+---
+
+### `GET` /api/v1/data/thesis-tracker/{symbol}
+**Summary:** Get Thesis Tracker  
+**Parameters:**
+- `symbol` (path, required)
 - `x-api-key` (header, optional)
 
 ---
@@ -263,6 +279,14 @@ The file is stored under `frontend_deploy/data/digests/watchlist_digest.json`.
 
 ---
 
+### `POST` /api/v1/multibagger/multi-horizon-matrix
+**Summary:** Generate Multi-Horizon CAGR & Conformal Return Probability Matrix  
+**Description:** Generates 6M to 5Y CAGRs, conformal return probabilities, confidence labels, M0-M4 stages, and strategy buckets.  
+**Parameters:**
+- `x-api-key` (header, optional)
+
+---
+
 ### `GET` /api/v1/multibagger/portfolio/{symbol}
 **Summary:** Get Position Sizing & Drawdown Discipline Signal (§35, §36, §37)  
 **Description:** Returns fractional-Kelly position size, liquidity caps, scaling ladders, and drawdown tolerance bands.  
@@ -346,11 +370,86 @@ The file is stored under `frontend_deploy/data/digests/watchlist_digest.json`.
 
 ---
 
+### `GET` /api/v1/research/ai-committee/governance-audit/{symbol}
+**Summary:** Audit Governance  
+**Description:** Audit Form AOC-2 RPTs, promoter pledging, and auditor report notes.  
+**Parameters:**
+- `symbol` (path, required)
+- `x-api-key` (header, optional)
+
+---
+
+### `POST` /api/v1/research/ai-committee/nl-query
+**Summary:** Compile Nl Query  
+**Description:** Compile plain English search query into quantitative engine constraints.  
+**Parameters:**
+- `x-api-key` (header, optional)
+
+---
+
+### `POST` /api/v1/research/ai-committee/post-mortem
+**Summary:** Audit Post Mortem  
+**Description:** Run continuous failure post-mortem audit on underperforming stocks.  
+**Parameters:**
+- `x-api-key` (header, optional)
+
+---
+
+### `POST` /api/v1/research/ai-committee/review
+**Summary:** Run Ic Boardroom Review  
+**Description:** Run Multi-Agent Virtual Investment Committee debate and generate executive IC Memo.  
+**Parameters:**
+- `x-api-key` (header, optional)
+
+---
+
+### `GET` /api/v1/research/ai-committee/supply-chain/{symbol}
+**Summary:** Get Supply Chain Graph  
+**Description:** Fetch customer-supplier graph and second-order catalyst chain.  
+**Parameters:**
+- `symbol` (path, required)
+- `x-api-key` (header, optional)
+
+---
+
 ### `GET` /api/v1/research/cagr-matrix
 **Summary:** Fetch Cagr Sensitivity Matrix  
 **Description:** Calculates 1Y, 3Y, 5Y price targets and return CAGRs across 5 growth scenarios (10%-30%).  
 **Parameters:**
 - `symbol` (query, required)
+- `x-api-key` (header, optional)
+
+---
+
+### `POST` /api/v1/research/genai-redteam/concall-audit
+**Summary:** Audit Concall Transcript  
+**Description:** Run Automated Earnings Call Analyst to extract qualitative concall risks.  
+**Parameters:**
+- `x-api-key` (header, optional)
+
+---
+
+### `GET` /api/v1/research/genai-redteam/geopolitical-overlay/{symbol}
+**Summary:** Get Geopolitical Overlay  
+**Description:** Fetch Phase 3 MacroGeopoliticalOverlay (+15% Defense, +10% Renewables, -20% IT Exporters).  
+**Parameters:**
+- `symbol` (path, required)
+- `x-api-key` (header, optional)
+
+---
+
+### `POST` /api/v1/research/genai-redteam/red-team-review
+**Summary:** Generate Red Team Review  
+**Description:** Run Automated Counter-Thesis Bot / GenAI Red-Team Bear Case.  
+**Parameters:**
+- `x-api-key` (header, optional)
+
+---
+
+### `POST` /api/v1/research/genai-redteam/stress-test
+**Summary:** Run Stress Test  
+**Description:** Run Automated Geopolitical Stress Tester.  
+**Parameters:**
 - `x-api-key` (header, optional)
 
 ---
@@ -399,7 +498,11 @@ The file is stored under `frontend_deploy/data/digests/watchlist_digest.json`.
 **Summary:** Run Multibagger Screener  
 **Description:** Executes Strategy E4: Multi-Factor Multibagger Intelligence & Screening Engine.  
 **Parameters:**
-- `symbol` (query, required)
+- `symbol` (query, optional)
+- `finder_type` (query, optional)
+- `min_cagr` (query, optional)
+- `min_roce` (query, optional)
+- `max_de` (query, optional)
 - `as_of` (query, optional)
 - `x-api-key` (header, optional)
 
@@ -428,6 +531,26 @@ The file is stored under `frontend_deploy/data/digests/watchlist_digest.json`.
 **Parameters:**
 - `symbol` (query, required)
 - `as_of` (query, optional)
+- `x-api-key` (header, optional)
+
+---
+
+### `POST` /api/v1/research/user-feedback
+**Summary:** Submit Counter Question  
+**Description:** Process user counter-questions and generate evidence-based analytical feedback.  
+**Parameters:**
+- `x-api-key` (header, optional)
+
+---
+
+### `GET` /api/v1/research/walk-forward
+**Summary:** Run Walk Forward Backtest  
+**Description:** Executes friction-adjusted walk-forward backtesting evaluation.  
+**Parameters:**
+- `symbol` (query, required)
+- `horizon_months` (query, optional)
+- `slippage_pct` (query, optional)
+- `stt_brokerage_pct` (query, optional)
 - `x-api-key` (header, optional)
 
 ---

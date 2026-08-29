@@ -9,6 +9,7 @@ and return computed metrics with evidence strings. No synthetic fallbacks.
 
 from typing import Any, Dict, List, Optional, Tuple
 import statistics
+from app.services.utils.math import calculate_cagr
 
 
 # ─────────────────────────────────────────────────────────────────────────────
@@ -43,10 +44,8 @@ def _cagr(series: List[Tuple[str, float]], periods: int) -> Optional[float]:
         return None
     start = series[-(periods + 1)][1]
     end = series[-1][1]
-    if start <= 0 or end <= 0:
-        return None
     years = periods / 4.0
-    return ((end / start) ** (1.0 / years) - 1.0) * 100.0
+    return calculate_cagr(start, end, years)
 
 
 # ─────────────────────────────────────────────────────────────────────────────

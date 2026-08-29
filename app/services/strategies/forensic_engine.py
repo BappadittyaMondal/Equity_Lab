@@ -74,11 +74,17 @@ def compute_beneish_mscore(financials: List[Any]) -> Dict[str, Any]:
     debt_t = _get(debt_s, -1) or 0.0
     debt_t1 = _get(debt_s, -2) or 1.0
 
-    # Gross margin approximation if not direct
+    # Gross margin calculation from direct revenue and gross profit
     gp_t = _get(profit_s, -1)
     gp_t1 = _get(profit_s, -2)
-    gm_t = (gp_t / rev_t) if gp_t and rev_t > 0 else 0.3  # default 30% if missing
-    gm_t1 = (gp_t1 / rev_t1) if gp_t1 and rev_t1 > 0 else gm_t
+    if gp_t is None or gp_t1 is None or rev_t <= 0 or rev_t1 <= 0:
+        return {
+            "status": "insufficient_data",
+            "reason": "Gross profit or revenue missing for gross margin calculation",
+            "evidence": ["Beneish M-Score requires explicit gross margin observations"],
+        }
+    gm_t = gp_t / rev_t
+    gm_t1 = gp_t1 / rev_t1
 
     # ── Variable calculations ──────────────────────────────────────────────
 
@@ -204,13 +210,19 @@ def compute_altman_zscore(financials: List[Any]) -> Dict[str, Any]:
     re = _get(re_s, -1) or 0.0
     ebit = _get(ebit_s, -1) or 0.0
     equity = _get(equity_s, -1) or 0.0
-    debt = _get(debt_s, -1) or total_assets * 0.3  # approximate if missing
+    debt = _get(debt_s, -1)
+    if debt is None:
+        return {
+            "status": "insufficient_data",
+            "reason": "Total debt or liabilities data missing",
+            "evidence": ["Altman Z-Score requires debt/liabilities observations"],
+        }
     rev = _get(rev_s, -1) or 0.0
 
     x1 = wc / total_assets
     x2 = re / total_assets
     x3 = ebit / total_assets
-    x4 = equity / debt if debt > 0 else 2.0  # book equity/debt ratio
+    x4 = (equity / debt) if debt > 0 else (equity / 1.0 if equity > 0 else 5.0)
     x5 = rev / total_assets
 
     z_score = 1.2 * x1 + 1.4 * x2 + 3.3 * x3 + 0.6 * x4 + 1.0 * x5

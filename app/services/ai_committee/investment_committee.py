@@ -18,6 +18,12 @@ from app.services.market_data import normalize_symbol, create_meta_header, get_i
 from app.services.research.institutional_multibagger_engine import InstitutionalMultibaggerEngine
 from app.services.research.geopolitical_engine import evaluate_geopolitical_risk
 from app.services.decision_brain.red_team_engine import evaluate_red_team_review
+from app.services.intelligence.sub_agents import (
+    ForensicAuditorSubAgent,
+    SupplyChainCatalystSubAgent,
+    RedTeamBearCaseSubAgent,
+)
+from app.services.intelligence.arbiter import VirtualICArbiter
 
 logger = logging.getLogger(__name__)
 
@@ -200,14 +206,33 @@ class VirtualInvestmentCommittee:
 
         opinions = [forensic, valuation, growth, macro]
 
-        # 2. Consensus Resolution
+        # 2. Execute Skill-42 Domain Sub-Agents & Synthesize via VirtualICArbiter
+        sub_forensic_report = ForensicAuditorSubAgent().evaluate(
+            clean_sym,
+            ownership_snapshot={"promoter_pledge_pct": data.get("pledged_pct", 0.0)}
+        )
+        sub_supply_report = SupplyChainCatalystSubAgent().evaluate(
+            clean_sym,
+            sector=data.get("sector")
+        )
+        sub_red_team_report = RedTeamBearCaseSubAgent().evaluate(
+            clean_sym,
+            de_ratio=data.get("debt_to_equity")
+        )
+
+        arbiter = VirtualICArbiter()
+        sub_agent_reports = [sub_forensic_report, sub_supply_report, sub_red_team_report]
+        avg_raw_conviction = sum(op.conviction_weight for op in opinions) / len(opinions)
+        synthesis = arbiter.synthesize(sub_agent_reports, base_score=avg_raw_conviction)
+
+        # 3. Consensus Resolution (Adjusted by Arbiter synthesis)
         approve_count = sum(1 for op in opinions if op.vote == "APPROVE")
         caution_count = sum(1 for op in opinions if op.vote == "CAUTION")
         reject_count = sum(1 for op in opinions if op.vote == "REJECT")
 
-        avg_conviction = sum(op.conviction_weight for op in opinions) / len(opinions)
+        avg_conviction = synthesis["adjusted_score"]
 
-        if reject_count >= 2 or avg_conviction < 50.0:
+        if reject_count >= 2 or synthesis["is_halted"] or avg_conviction < 50.0:
             committee_decision = "REJECT_INVESTMENT"
         elif approve_count >= 3:
             committee_decision = "STRONG_CONVICTION_BUY"
@@ -216,7 +241,7 @@ class VirtualInvestmentCommittee:
         else:
             committee_decision = "CAUTION_WATCHLIST"
 
-        # 3. Generate Executive IC Memo
+        # 4. Generate Executive IC Memo
         ic_memo_lines = [
             f"=== INSTITUTIONAL INVESTMENT COMMITTEE (IC) MEMO: {clean_sym} ===",
             f"FINAL COMMITTEE DECISION: {committee_decision} (Consensus Weight: {avg_conviction:.1f}/100)",
@@ -230,6 +255,11 @@ class VirtualInvestmentCommittee:
                 ic_memo_lines.append(f"  + FINDING: {f}")
             for r in op.risk_concerns:
                 ic_memo_lines.append(f"  - RISK: {r}")
+
+        if synthesis["invalidation_triggers"]:
+            ic_memo_lines.append("\n--- THESIS INVALIDATION TRIGGERS ---")
+            for trig in synthesis["invalidation_triggers"]:
+                ic_memo_lines.append(f"  ! TRIGGER: {trig}")
 
         ic_memo_text = "\n".join(ic_memo_lines)
 
@@ -253,7 +283,9 @@ class VirtualInvestmentCommittee:
                 }
                 for op in opinions
             ],
+            "arbiter_synthesis": synthesis,
             "ic_memo": ic_memo_text,
             "executed_at": get_ist_now_str(),
             "meta": create_meta_header(source=f"Deterministic IC Rules Engine ({clean_sym})")
         }
+

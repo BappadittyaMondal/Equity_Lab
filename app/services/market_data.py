@@ -57,12 +57,13 @@ class YFinanceProvider(MarketDataProvider):
             price = info.get("currentPrice") or info.get("regularMarketPrice") or info.get("previousClose")
             if not price:
                 raise ValueError("Price not found in YFinance info")
+            raw_pe = info.get("trailingPE")
             return {
                 "symbol": symbol,
                 "price": float(price),
                 "fifty_two_week_high": float(info.get("fiftyTwoWeekHigh") or price * 1.2),
                 "fifty_two_week_low": float(info.get("fiftyTwoWeekLow") or price * 0.8),
-                "pe_ratio": float(info.get("trailingPE") or 22.0),
+                "pe_ratio": float(raw_pe) if raw_pe is not None else None,
                 "change_percent": float(info.get("regularMarketChangePercent") or 0.0),
                 "timestamp": int(datetime.datetime.now(timezone.utc).timestamp()),
                 "provider": "YFinanceProvider",
@@ -95,12 +96,13 @@ class YahooDirectJSONProvider(MarketDataProvider):
                 raise ValueError("Price missing from YahooDirect response")
             prev_close = meta.get("chartPreviousClose") or price
             change_pct = ((price - prev_close) / prev_close * 100.0) if prev_close else 0.0
+            raw_pe = meta.get("trailingPE")
             return {
                 "symbol": clean_sym,
                 "price": float(price),
                 "fifty_two_week_high": float(meta.get("fiftyTwoWeekHigh") or price * 1.2),
                 "fifty_two_week_low": float(meta.get("fiftyTwoWeekLow") or price * 0.8),
-                "pe_ratio": float(meta.get("trailingPE") or 22.0),
+                "pe_ratio": float(raw_pe) if raw_pe is not None else None,
                 "change_percent": float(change_pct),
                 "timestamp": int(datetime.datetime.now(timezone.utc).timestamp()),
                 "provider": "YahooDirectJSONProvider",
@@ -136,12 +138,13 @@ class NSEIndiaProvider(MarketDataProvider):
             price = price_info.get("lastPrice") or price_info.get("close")
             if not price:
                 raise ValueError("Price missing in NSE public API response")
+            raw_pe = data.get("metadata", {}).get("pdSectorPe")
             return {
                 "symbol": f"{clean_sym}.NS",
                 "price": float(price),
                 "fifty_two_week_high": float(price_info.get("upperCP") or price * 1.2),
                 "fifty_two_week_low": float(price_info.get("lowerCP") or price * 0.8),
-                "pe_ratio": float(data.get("metadata", {}).get("pdSectorPe") or 22.0),
+                "pe_ratio": float(raw_pe) if raw_pe is not None else None,
                 "change_percent": float(price_info.get("pChange") or 0.0),
                 "timestamp": int(datetime.datetime.now(timezone.utc).timestamp()),
                 "provider": "NSEIndiaProvider",
@@ -431,7 +434,9 @@ def get_market_quote(symbol: str, as_of: Optional[datetime.datetime] = None) -> 
     except RuntimeError:
         quote = asyncio.run(_async_get_market_quote(symbol))
     else:
-        quote = _get_mock_fallback_quote(symbol)
+        import concurrent.futures
+        with concurrent.futures.ThreadPoolExecutor(max_workers=1) as pool:
+            quote = pool.submit(lambda: asyncio.run(_async_get_market_quote(symbol))).result()
     if as_of and isinstance(quote, dict) and "meta" in quote:
         quote["meta"]["as_of"] = as_of.isoformat() if hasattr(as_of, "isoformat") else str(as_of)
     return quote

@@ -82,6 +82,7 @@ class ReturnProbabilityResponse(BaseModel):
     percentiles: Dict[str, float]  # P5, P25, P50, P75, P95
     conformal_prediction_interval_90: Optional[Dict[str, float]] = Field(default=None, description="Non-parametric 90% conformal prediction interval bounds [lower_bound_pct, upper_bound_pct]")
     conformal_coverage_guarantee_pct: float = Field(default=90.0, description="Target empirical coverage rate for distribution-free interval")
+    conformal_risk_tier: Optional[Dict[str, Any]] = Field(default=None, description="Certified confidence tier based on numeric conformal interval width")
     sample_size: int
     observation_window: Dict[str, str]  # start_date, end_date
     assumptions: List[str]

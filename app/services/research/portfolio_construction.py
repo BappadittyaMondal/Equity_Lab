@@ -32,17 +32,28 @@ def evaluate_portfolio_construction(
     fractional_kelly = max(0.01, full_kelly * 0.25)  # Quarter-Kelly safety factor
     conviction_weight_pct = round(fractional_kelly * 100.0, 1)
 
-    # 2. Liquidity & Concentration Caps
-    # Max 5% of ADTV over 5 days exit liquidity cap
+    # 2. Liquidity, Thesis Maturity & Discovery Status Caps
     liquidity_cap_pct = round(min(8.0, max(1.0, (adtv_cr * 5.0 * 0.05 / 500.0) * 100.0)), 1)
+    
+    confirmed_quarters = data.get("confirmed_quarters", data.get("thesis_maturity", {}).get("confirmed_quarters", 0))
+    if confirmed_quarters == 0:
+        maturity_cap_pct = 2.5  # Starter position cap for unconfirmed hypothesis
+        thesis_status = "Hypothesis (Starter Position)"
+    elif confirmed_quarters == 1:
+        maturity_cap_pct = 5.0  # Developing thesis cap
+        thesis_status = "Early Confirmation (Developing)"
+    else:
+        maturity_cap_pct = 8.0  # Full proven execution
+        thesis_status = "Confirmed Execution (Proven)"
+
     conviction_cap_pct = 7.5 if mivs_score >= 85.0 else (5.0 if mivs_score >= 70.0 else 2.5)
 
-    recommended_pct = round(min(conviction_weight_pct, liquidity_cap_pct, conviction_cap_pct), 1)
+    recommended_pct = round(min(conviction_weight_pct, liquidity_cap_pct, conviction_cap_pct, maturity_cap_pct), 1)
 
     # 3. Scaling Ladder (§35)
     scaling_ladder = [
         {"stage": "STARTER_POSITION", "size_pct": round(recommended_pct * 0.5, 1), "condition": "Initial thesis formation & Gate pass"},
-        {"stage": "FULL_POSITION", "size_pct": recommended_pct, "condition": "Confirmed Q-o-Q earnings inflection & order win"}
+        {"stage": "FULL_POSITION", "size_pct": recommended_pct, "condition": f"Confirmed execution ({thesis_status})"}
     ]
 
     # 4. Sell Discipline & Exit Framework (§36)

@@ -36,6 +36,7 @@ class WalkForwardSummary(BaseModel):
     max_drawdown_pct: float
     sharpe_ratio: float
     sortino_ratio: float
+    benchmark_mode: str = Field(default="REAL", description="REAL or BASELINE_6PCT_ANNUAL")
 
 
 class WalkForwardBacktester:
@@ -47,8 +48,10 @@ class WalkForwardBacktester:
         horizon_months: int,
         entry_scores_and_returns: List[Dict[str, Any]],
         benchmark_returns: Optional[List[float]] = None,
+        slippage_pct: float = 0.05,
+        stt_brokerage_pct: float = 0.10,
     ) -> WalkForwardSummary:
-        """Calculate walk-forward metrics across historical periods."""
+        """Calculate walk-forward metrics across historical periods including transaction costs and slippage."""
         normalized = normalize_symbol(symbol)
         if not entry_scores_and_returns:
             return WalkForwardSummary(
@@ -62,10 +65,19 @@ class WalkForwardBacktester:
                 max_drawdown_pct=0.0,
                 sharpe_ratio=0.0,
                 sortino_ratio=0.0,
+                benchmark_mode="UNSPECIFIED",
             )
 
-        stock_returns = [item["stock_return"] for item in entry_scores_and_returns]
-        bm_returns = benchmark_returns if benchmark_returns and len(benchmark_returns) == len(stock_returns) else [8.0] * len(stock_returns)
+        total_friction_pct = slippage_pct + stt_brokerage_pct
+        stock_returns = [item["stock_return"] - total_friction_pct for item in entry_scores_and_returns]
+        
+        if benchmark_returns and len(benchmark_returns) == len(stock_returns):
+            bm_returns = benchmark_returns
+            bm_mode = "REAL"
+        else:
+            period_bm = 6.0 * (horizon_months / 12.0)
+            bm_returns = [period_bm] * len(stock_returns)
+            bm_mode = "BASELINE_6PCT_ANNUAL"
 
         alphas = [s - b for s, b in zip(stock_returns, bm_returns)]
         wins = sum(1 for a in alphas if a > 0)
@@ -114,4 +126,5 @@ class WalkForwardBacktester:
             max_drawdown_pct=round(max_dd * 100.0, 2),
             sharpe_ratio=round(sharpe, 2),
             sortino_ratio=round(sortino, 2),
+            benchmark_mode=bm_mode,
         )
