@@ -735,25 +735,30 @@
     "files": [
         {
             "filename": "01_Master_System_Core_Instructions_Architecture.md",
-            "bytes": 139171
+            "bytes": 143093,
+            "sha256": "0c804c0555c29a1a869a5eab3cd0b27e6c3157bde1c191a8b51f168a73af16cc"
         },
         {
             "filename": "02_Master_Engine_Contracts_Schemas_Registries.md",
-            "bytes": 261142
+            "bytes": 271208,
+            "sha256": "a5c55dbaace2b45404481e156bd8d9eedd686bda7f8c797213a38beb6097203d"
         },
         {
             "filename": "03_Master_Skill_Library.md",
-            "bytes": 633475
+            "bytes": 647235,
+            "sha256": "3beb501e70ad399d32dbb0fb00448798b91777d9a713c70b6ef4f29cf9cdb6d4"
         },
         {
             "filename": "04_Master_Knowledge_Base_Vol_1_Fundamentals_Valuation_Governance.md",
-            "bytes": 167532
+            "bytes": 170161,
+            "sha256": "136cc165c2803abba8a2c2b46b261b8d4c6a061fd1e4e47d2276676dd722044f"
         },
         {
             "filename": "05_Master_Knowledge_Base_Vol_2_Sectors_Frameworks_Screening.md",
-            "bytes": 216508
+            "bytes": 219345,
+            "sha256": "d0ff6e4557dc22f805268a07df91fcf2ab0ee383a806152ee2684391f17c52bf"
         }
     ],
-    "GIT_COMMIT_SOURCE": "6494972",
-    "GIT_COMMIT": "6494972"
+    "GIT_COMMIT_SOURCE": "054330f",
+    "GIT_COMMIT": "054330f"
 }

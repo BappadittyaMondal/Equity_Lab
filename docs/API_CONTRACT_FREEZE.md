@@ -4,7 +4,7 @@
 
 ## 1. Summary Metrics
 
-- **Total Backend Endpoints**: 81
+- **Total Backend Endpoints**: 82
 - **API Spec Contract File**: `docs/api_contract.json`
 
 ---

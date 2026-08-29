@@ -25,18 +25,34 @@ def get_git_commit() -> str:
         return "b2bc250"
 
 
+import hashlib
+
+
 def update_manifest(manifest_path: str, commit_hash: str) -> None:
     if not os.path.exists(manifest_path):
         return
+    bundle_dir = os.path.dirname(manifest_path)
     with open(manifest_path, "r", encoding="utf-8") as f:
         data = json.load(f)
 
     data["GIT_COMMIT_SOURCE"] = commit_hash
     data["GIT_COMMIT"] = commit_hash
 
+    # Re-stamp disk byte counts and SHA-256 hashes for all files declared in manifest
+    files_list = data.get("files") or data.get("bundle_files") or []
+    for file_entry in files_list:
+        fname = file_entry.get("filename")
+        if fname:
+            fpath = os.path.join(bundle_dir, fname)
+            if os.path.exists(fpath):
+                file_entry["bytes"] = os.path.getsize(fpath)
+                with open(fpath, "rb") as bf:
+                    file_entry["sha256"] = hashlib.sha256(bf.read()).hexdigest()
+
     with open(manifest_path, "w", encoding="utf-8") as f:
         json.dump(data, f, indent=4)
-    print(f"Updated {manifest_path} with GIT_COMMIT = {commit_hash}")
+    print(f"Updated {manifest_path} with GIT_COMMIT = {commit_hash} and re-stamped disk file byte counts & hashes.")
+
 
 
 def sync_bundle_headers(bundle_dir: str, commit_hash: str) -> int:

@@ -3,7 +3,7 @@
   "info": {
     "title": "Equity Lab",
     "description": "Institutional Indian Equity Research, Options Arbitrage, and Return Probability Engine",
-    "version": "0.0.5"
+    "version": "0.0.9"
   },
   "paths": {
     "/api/v1/health": {
@@ -1368,7 +1368,7 @@
           "Expert Strategy & Research Engines"
         ],
         "summary": "Run Walk Forward Backtest",
-        "description": "Executes friction-adjusted walk-forward backtesting evaluation.",
+        "description": "Executes friction-adjusted walk-forward backtesting evaluation with real historical data.",
         "operationId": "run_walk_forward_backtest_api_v1_research_walk_forward_get",
         "parameters": [
           {
@@ -1437,6 +1437,61 @@
             "content": {
               "application/json": {
                 "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/research/inflection-multibagger": {
+      "get": {
+        "tags": [
+          "Expert Strategy & Research Engines"
+        ],
+        "summary": "Run Inflection Multibagger Endpoint",
+        "description": "Executes Strategy E19: Multibagger Inflection Engine (Volume Z-Score, Delivery Turnover, Earnings Convexity, PEG Mispricing).",
+        "operationId": "run_inflection_multibagger_endpoint_api_v1_research_inflection_multibagger_get",
+        "parameters": [
+          {
+            "name": "symbol",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "description": "Stock symbol (e.g. RELIANCE)",
+              "title": "Symbol"
+            },
+            "description": "Stock symbol (e.g. RELIANCE)"
+          },
+          {
+            "name": "x-api-key",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "default": "",
+              "title": "X-Api-Key"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StrategyRunResponse"
+                }
               }
             }
           },

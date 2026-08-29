@@ -450,6 +450,18 @@ RESEARCH_ENGINES: Dict[str, StrategyModule] = {
         metrics=["average_ic", "out_of_sample_sharpe", "factor_decay_half_life_months"],
         risk_warnings=["Historical IC performance does not guarantee future factor outperformance."],
         methodology="Spearman rank correlation, walk-forward out-of-sample validation, and point-in-time lag enforcement."
+    ),
+    "E19": StrategyModule(
+        id="E19",
+        name="Multibagger Inflection Engine",
+        category="Early Multibagger Intelligence",
+        description="Evaluates volume Z-score (Z_Vol >= +3.0s), float delivery turnover (DTR >= 2.0%), earnings acceleration convexity, and PEG mispricing.",
+        status="production",
+        required_inputs=["symbol"],
+        universe="NSE All Equities",
+        metrics=["z_score_vol", "dtr_5d_pct", "convexity_index_ce", "peg_ratio"],
+        risk_warnings=["Inflection setups require volume persistence on breakout days."],
+        methodology="Non-linear volume Z-score and quarterly earnings acceleration convexity model."
     )
 }
 
@@ -878,6 +890,9 @@ def run_strategy_module(strategy_id: str, symbol: str = "RELIANCE", as_of: Optio
             disclaimer="Institutional Multibagger & Investment Intelligence Engine (MIVS) assessment.",
             meta=create_meta_header(source="MIVS Institutional Engine (E17)")
         )
+    elif module.id == "E19":
+        from app.services.strategies.inflection_multibagger import run_inflection_multibagger
+        return run_inflection_multibagger(symbol)
 
 
 
