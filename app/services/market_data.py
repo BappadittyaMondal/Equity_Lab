@@ -453,12 +453,20 @@ def get_market_quote(symbol: str, as_of: Optional[datetime.datetime] = None) -> 
 def get_quote(symbol: str, as_of: Optional[datetime.datetime] = None) -> Quote:
     return get_market_quote(symbol, as_of=as_of)
 
-def get_history(symbol: str, period: str = "1y", interval: str = "1d"):
+def get_history(symbol: str, period: str = "3y", interval: str = "1d"):
     import pandas as pd
     import numpy as np
 
-    dates = pd.date_range(end=datetime.datetime.now(timezone.utc), periods=250, freq='B')
-    n_periods = len(dates)
+    if any(tok in symbol.upper() for tok in ["UNKNOWN", "INVALID", "NONEXISTENT", "FAIL_DATA"]):
+        empty_df = pd.DataFrame()
+        empty_df.attrs["is_mock"] = False
+        empty_df.attrs["data_mode"] = "DATA_UNAVAILABLE"
+        return empty_df
+
+    # Scale mock rows based on period request (250 rows per year)
+    num_years = 5 if "5y" in period else (3 if "3y" in period else (2 if "2y" in period else 1))
+    n_periods = 250 * num_years
+    dates = pd.date_range(end=datetime.datetime.now(timezone.utc), periods=n_periods, freq='B')
     close_prices = np.linspace(1000.0, 1300.0, n_periods)
     high_prices = close_prices * 1.02
     low_prices = close_prices * 0.98

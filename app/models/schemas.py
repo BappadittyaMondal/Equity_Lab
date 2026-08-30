@@ -3,7 +3,7 @@
 
 from datetime import date, datetime, timezone
 from typing import List, Dict, Any, Literal, Optional
-from pydantic import BaseModel, Field, HttpUrl, ConfigDict, model_validator
+from pydantic import BaseModel, Field, HttpUrl, ConfigDict, model_validator, field_validator
 
 
 class MetaHeader(BaseModel):
@@ -1200,12 +1200,68 @@ class MultiHorizonMatrixItem(BaseModel):
     primary_catalyst_thesis: str
     forensic_invalidation_rules: List[str] = Field(default_factory=list)
 
+    @field_validator("conformal_confidence_label")
+    @classmethod
+    def validate_confidence_label(cls, v: str) -> str:
+        v_upper = v.upper().strip()
+        valid_keywords = ["HIGH", "MEDIUM-HIGH", "MEDIUM", "SPECULATIVE", "UNTRUSTED"]
+        if not any(kw in v_upper for kw in valid_keywords):
+            raise ValueError(f"Invalid conformal confidence label '{v}'. Must contain one of {valid_keywords}")
+        return v
+
+    @field_validator("m_stage")
+    @classmethod
+    def validate_m_stage(cls, v: str) -> str:
+        v_upper = v.upper().strip()
+        valid_stages = ["M0", "M1", "M2", "M3", "M4"]
+        if not any(stage in v_upper for stage in valid_stages):
+            raise ValueError(f"Invalid M-stage '{v}'. Must contain one of {valid_stages}")
+        return v
+
 
 class MultiHorizonMatrixResponse(BaseModel):
     symbols_evaluated: int
     as_of: str
     matrix: List[MultiHorizonMatrixItem]
     meta: MetaHeader
+
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Sub-Agent & Intelligence Output Validation Schemas
+# ─────────────────────────────────────────────────────────────────────────────
+
+class SubAgentEvidenceOutput(BaseModel):
+    agent_id: str = Field(..., description="Sub-agent identifier (e.g. FORENSIC_AUDITOR, SUPPLY_CHAIN, RED_TEAM)")
+    symbol: str = Field(..., description="Stock symbol")
+    finding: str = Field(..., description="Summary of qualitative finding")
+    evidence: str = Field(..., description="Direct quote or fact from primary documents")
+    quality_tag: Literal["HIGH", "MEDIUM", "LOW"] = Field(default="MEDIUM")
+    severity: Literal["CRITICAL", "HIGH", "MEDIUM", "LOW", "NONE"] = Field(default="NONE")
+    confidence: float = Field(default=0.85, ge=0.0, le=1.0)
+    source_type: str = Field(default="ANNUAL_REPORT_FOOTNOTE")
+
+    @field_validator("confidence")
+    @classmethod
+    def validate_confidence_range(cls, v: float) -> float:
+        if not (0.0 <= v <= 1.0):
+            raise ValueError(f"Confidence value {v} must be strictly between 0.0 and 1.0")
+        return round(v, 4)
+
+
+class QualitativeMultiplierOutput(BaseModel):
+    symbol: str
+    qualitative_multiplier: float = Field(..., ge=0.5, le=1.5, description="Multiplier clamped between 0.5 and 1.5")
+    evidence_count: int = Field(default=0, ge=0)
+    primary_boosters: List[str] = Field(default_factory=list)
+    primary_penalties: List[str] = Field(default_factory=list)
+
+    @field_validator("qualitative_multiplier")
+    @classmethod
+    def validate_multiplier_clamp(cls, v: float) -> float:
+        if v < 0.5 or v > 1.5:
+            raise ValueError(f"Qualitative multiplier {v} out of bounds [0.5, 1.5]")
+        return round(v, 4)
+
 
 
 

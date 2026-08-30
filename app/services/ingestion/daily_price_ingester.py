@@ -22,12 +22,12 @@ class DailyPriceIngester:
     def __init__(self, store: Optional[ResearchDataStore] = None):
         self.store = store or ResearchDataStore()
 
-    def ingest_symbol(self, symbol: str, period: str = "1y") -> Dict[str, Any]:
+    def ingest_symbol(self, symbol: str, period: str = "3y") -> Dict[str, Any]:
         """Ingest daily price data for a symbol over given period.
 
         Args:
             symbol: Stock symbol (e.g., "RELIANCE")
-            period: Data period (e.g., "1y", "2y", "5y")
+            period: Data period (e.g., "1y", "2y", "3y", "5y")
 
         Returns:
             Summary dict with ingestion counts.

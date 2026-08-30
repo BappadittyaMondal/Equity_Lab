@@ -56,6 +56,11 @@ def compile_nl_query(payload: NLQueryRequest) -> Dict[str, Any]:
     return NLQuantCompiler.compile_natural_language_query(payload.user_query)
 
 
+from app.services.intelligence.financial_forensics import FinancialForensicsEngine
+from app.services.ml.evt_gpd_engine import EVTGPDEngine
+from app.services.market_data import get_history, normalize_symbol
+
+
 @router.post("/post-mortem", response_model=Dict[str, Any])
 def audit_post_mortem(payload: PostMortemAuditRequest) -> Dict[str, Any]:
     """Run continuous failure post-mortem audit on underperforming stocks."""
@@ -65,3 +70,23 @@ def audit_post_mortem(payload: PostMortemAuditRequest) -> Dict[str, Any]:
         forward_return_pct=payload.forward_return_pct,
         actual_drawdown_pct=payload.actual_drawdown_pct
     )
+
+
+@router.get("/forensics/{symbol}", response_model=Dict[str, Any])
+def get_company_forensics(symbol: str) -> Dict[str, Any]:
+    """Fetch balance sheet forensic analysis (CWIP turn, working capital drag, Cash-PAT persistence)."""
+    return FinancialForensicsEngine.analyze_company_forensics({"symbol": symbol})
+
+
+@router.get("/evt-tail/{symbol}", response_model=Dict[str, Any])
+def get_evt_tail_metrics(symbol: str) -> Dict[str, Any]:
+    """Fetch Extreme Value Theory (EVT) GPD tail-fitting parameters and 99th percentile breakout VaR."""
+    norm_sym = normalize_symbol(symbol)
+    try:
+        hist = get_history(norm_sym, period="3y")
+        returns = hist["Close"].pct_change().dropna().values if hist is not None and not hist.empty else None
+    except Exception:
+        returns = None
+
+    return EVTGPDEngine.fit_gpd_tail_exceedances(returns)
+

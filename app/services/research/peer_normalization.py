@@ -96,3 +96,65 @@ def evaluate_peer_normalization(
         "evidence": evidence,
         "meta": create_meta_header(source="Peer Normalization Engine (§44, §52)")
     }
+
+
+def compute_5_stage_dupont_and_dol(
+    net_income: float,
+    ebt: float,
+    ebit: float,
+    revenue: float,
+    total_assets: float,
+    equity: float,
+    prev_ebit: Optional[float] = None,
+    prev_revenue: Optional[float] = None,
+) -> Dict[str, Any]:
+    """Computes 5-stage DuPont ROE decomposition and Degree of Operating Leverage (DOL).
+
+    DuPont ROE = Tax Effect * Interest Burden * EBIT Margin * Asset Turnover * Leverage Factor
+    DOL = (% Change in EBIT) / (% Change in Revenue)
+    """
+    if revenue <= 0 or total_assets <= 0 or equity <= 0 or ebit <= 0 or ebt <= 0:
+        return {
+            "dupont_roe_pct": 0.0,
+            "tax_effect": 1.0,
+            "interest_burden": 1.0,
+            "ebit_margin_pct": 0.0,
+            "asset_turnover": 0.0,
+            "financial_leverage": 1.0,
+            "degree_of_operating_leverage": 0.0,
+            "operating_leverage_tier": "LOW",
+        }
+
+    tax_effect = round(net_income / ebt, 4)
+    interest_burden = round(ebt / ebit, 4)
+    ebit_margin = round((ebit / revenue) * 100.0, 2)
+    asset_turnover = round(revenue / total_assets, 2)
+    leverage = round(total_assets / equity, 2)
+
+    dupont_roe = round((tax_effect * interest_burden * (ebit / revenue) * asset_turnover * leverage) * 100.0, 2)
+
+    dol = 0.0
+    if prev_ebit is not None and prev_revenue is not None and prev_ebit > 0 and prev_revenue > 0:
+        pct_change_ebit = (ebit - prev_ebit) / prev_ebit
+        pct_change_rev = (revenue - prev_revenue) / prev_revenue
+        if abs(pct_change_rev) > 0.001:
+            dol = round(pct_change_ebit / pct_change_rev, 2)
+
+    if dol >= 2.5:
+        dol_tier = "HIGH_CONVEXITY"
+    elif dol >= 1.5:
+        dol_tier = "MODERATE_CONVEXITY"
+    else:
+        dol_tier = "STABLE"
+
+    return {
+        "dupont_roe_pct": dupont_roe,
+        "tax_effect": tax_effect,
+        "interest_burden": interest_burden,
+        "ebit_margin_pct": ebit_margin,
+        "asset_turnover": asset_turnover,
+        "financial_leverage": leverage,
+        "degree_of_operating_leverage": dol,
+        "operating_leverage_tier": dol_tier,
+    }
+

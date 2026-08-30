@@ -4549,6 +4549,74 @@
         }
       }
     },
+    "/api/v1/research/ai-committee/forensics/{symbol}": {
+      "get": {
+        "tags": [
+          "Next-Gen AI Committee & Intelligence"
+        ],
+        "summary": "Get Company Forensics",
+        "description": "Fetch balance sheet forensic analysis (CWIP turn, working capital drag, Cash-PAT persistence).",
+        "operationId": "get_company_forensics_api_v1_research_ai_committee_forensics__symbol__get",
+        "parameters": [
+          {
+            "name": "symbol",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Symbol"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": true
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/research/ai-committee/evt-tail/{symbol}": {
+      "get": {
+        "tags": [
+          "Next-Gen AI Committee & Intelligence"
+        ],
+        "summary": "Get EVT Tail Metrics",
+        "description": "Fetch Extreme Value Theory (EVT) GPD tail-fitting parameters and 99th percentile breakout VaR.",
+        "operationId": "get_evt_tail_metrics_api_v1_research_ai_committee_evt_tail__symbol__get",
+        "parameters": [
+          {
+            "name": "symbol",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Symbol"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": true
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/v1/admin/llm-usage": {
       "get": {
         "tags": [

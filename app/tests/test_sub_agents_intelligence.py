@@ -51,3 +51,19 @@ def test_virtual_ic_arbiter_critical_red_flag():
     arbiter = VirtualICArbiter()
     synth = arbiter.synthesize([critical], base_score=75.0)
     assert synth["is_halted"] is True
+
+
+def test_ai_committee_api_endpoints():
+    from fastapi.testclient import TestClient
+    from main import app
+    client = TestClient(app)
+
+    res_forensics = client.get("/api/v1/research/ai-committee/forensics/SHILCHAR")
+    assert res_forensics.status_code == 200
+    assert "forensic_risk_level" in res_forensics.json()
+
+    res_evt = client.get("/api/v1/research/ai-committee/evt-tail/SHILCHAR")
+    assert res_evt.status_code == 200
+    assert "scale_sigma" in res_evt.json()
+    assert "shape_xi" in res_evt.json()
+
