@@ -10,6 +10,7 @@ Detects business growth acceleration prior to price recognition:
 
 from datetime import datetime
 from typing import Optional, List, Dict, Any
+import numpy as np
 from app.models.schemas import GrowthInflectionResponse, MetaHeader
 from app.services.market_data import normalize_symbol, create_meta_header
 from app.services.research_data import ResearchDataStore
@@ -88,12 +89,14 @@ def evaluate_growth_inflection(
     else:
         evidence.append("Insufficient revenue observation history for acceleration trend.")
 
-    # 2. Profit & Operating Leverage (Up to 25 pts)
+    # 2. Profit & Operating Leverage & EBITDA Convexity (Up to 25 pts)
+    ebitda_obs = metric_map.get("ebitda", []) or pat_obs
     if len(pat_obs) >= 2:
         latest_pat = pat_obs[-1].value
         prev_pat = pat_obs[-2].value
         summary["latest_pat"] = latest_pat
         
+        pat_growth = 0.0
         if prev_pat > 0:
             pat_growth = ((latest_pat - prev_pat) / prev_pat) * 100
             summary["pat_growth_pct"] = round(pat_growth, 2)
@@ -106,12 +109,37 @@ def evaluate_growth_inflection(
                 evidence.append(f"PAT growth expanded by {round(pat_growth, 1)}% YoY.")
             elif pat_growth > 0:
                 score += 5.0
-                
-            # Check operating leverage (PAT growth > Revenue growth)
-            rev_growth = summary.get("revenue_growth_pct", 0)
-            if pat_growth > rev_growth and pat_growth > 15:
+        elif prev_pat <= 0 and latest_pat > 0:
+            # Turnaround inflection: PAT converted from negative/zero to positive
+            score += 25.0
+            evidence.append(f"STRONG TURNAROUND INFLECTION: PAT turned positive from {prev_pat} to {latest_pat}.")
+            pat_growth = 100.0
+            summary["pat_growth_pct"] = pat_growth
+            
+        # Operating leverage check (PAT growth > Revenue growth)
+        rev_growth = summary.get("revenue_growth_pct", 0)
+        if pat_growth > rev_growth and pat_growth > 15:
+            score += 5.0
+            evidence.append("Operating leverage confirmed: Profit growth outpaced revenue growth.")
+
+    # 2b. Compute TTM EBITDA Convexity C_EBITDA across historical observations
+    if len(ebitda_obs) >= 3:
+        growths = []
+        for i in range(1, len(ebitda_obs)):
+            curr = ebitda_obs[i].value
+            prev = ebitda_obs[i-1].value
+            base = abs(prev) if abs(prev) > 1e-5 else 1.0
+            growths.append(((curr - prev) / base) * 100.0)
+            
+        if len(growths) >= 2:
+            latest_g = growths[-1]
+            prev_g = growths[-2]
+            std_g = max(1.0, float(np.std(growths))) if len(growths) >= 3 else 10.0
+            c_ebitda = round((latest_g - prev_g) / std_g, 2)
+            summary["c_ebitda"] = c_ebitda
+            if c_ebitda >= 1.5:
                 score += 5.0
-                evidence.append("Operating leverage confirmed: Profit growth outpaced revenue growth.")
+                evidence.append(f"High EBITDA Acceleration Convexity: C_EBITDA={c_ebitda:.2f}σ")
     
     # 3. Operating Margin Expansion (Up to 20 pts)
     if len(margin_obs) >= 2:

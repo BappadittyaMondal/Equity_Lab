@@ -7,6 +7,7 @@ to prevent look-ahead bias.
 
 from datetime import datetime, timezone
 from typing import Dict, Any, List, Optional
+import numpy as np
 from pydantic import BaseModel, Field
 
 from app.models.schemas import ConvictionCall
@@ -90,3 +91,55 @@ class PointInTimeReplayEngine:
             contradicting_engines=call.contradicting_engines,
             data_snapshot=snapshot,
         )
+
+    @staticmethod
+    def evaluate_vectorized_forward_returns(
+        price_matrix: np.ndarray,
+        signals_matrix: np.ndarray,
+        horizons_weeks: List[int] = [12, 26, 52]
+    ) -> Dict[str, Any]:
+        """Calculates point-in-time forward return performance from Signal Date.
+
+        Uses 2D NumPy array operations [time, stock] to compute forward returns
+        without hindsight bias.
+        """
+        import numpy as np
+        n_times, n_stocks = price_matrix.shape
+        signal_mask = signals_matrix.astype(bool)
+        
+        results_by_horizon = {}
+        
+        for h in horizons_weeks:
+            # Shift price matrix forward by horizon h steps
+            if h >= n_times:
+                continue
+                
+            p_signal = price_matrix[:-h]
+            p_future = price_matrix[h:]
+            sig_sub = signal_mask[:-h]
+            
+            # Forward return from signal date
+            with np.errstate(divide='ignore', invalid='ignore'):
+                fwd_returns = np.where(p_signal > 0, (p_future - p_signal) / p_signal, 0.0)
+                
+            triggered_returns = fwd_returns[sig_sub]
+            
+            if len(triggered_returns) > 0:
+                mean_ret = float(np.mean(triggered_returns)) * 100.0
+                win_rate = float(np.mean(triggered_returns > 0)) * 100.0
+                max_ret = float(np.max(triggered_returns)) * 100.0
+            else:
+                mean_ret, win_rate, max_ret = 0.0, 0.0, 0.0
+                
+            results_by_horizon[f"{h}W"] = {
+                "signal_count": int(np.sum(sig_sub)),
+                "mean_forward_return_pct": round(mean_ret, 2),
+                "win_rate_pct": round(win_rate, 1),
+                "max_return_pct": round(max_ret, 2)
+            }
+            
+        return {
+            "total_signals_evaluated": int(np.sum(signal_mask)),
+            "horizon_performance": results_by_horizon
+        }
+

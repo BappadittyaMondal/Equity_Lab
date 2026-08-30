@@ -60,13 +60,15 @@ def _insufficient(strategy_id: str, name: str, symbol: str, reason: str) -> Stra
 # B4 — Volume Price Analysis
 # ─────────────────────────────────────────────────────────────────────────────
 
+# ─────────────────────────────────────────────────────────────────────────────
+# B4 — Volume Price Analysis
+# ─────────────────────────────────────────────────────────────────────────────
+
 def run_vpa_b4(symbol: str) -> StrategyRunResponse:
     """Volume Price Analysis — detects institutional accumulation.
 
-    Uses volume z-score and price spread ratio to identify:
-    - High volume narrow range bars (potential distribution)
-    - High volume wide range bars (genuine accumulation)
-    - Volume dry-up patterns before base breakout
+    Uses 252-day log-transformed volume z-score and circuit-guarded price spread
+    to identify genuine institutional cornering and accumulation.
     """
     norm = normalize_symbol(symbol)
     hist = _get_price_data(norm)
@@ -82,13 +84,17 @@ def run_vpa_b4(symbol: str) -> StrategyRunResponse:
     high = hist["High"]
     low = hist["Low"]
 
-    # ── Volume Z-Score (last 20-day window vs 50-day avg) ─────────────────
-    vol_20d_avg = volume.tail(20).mean()
-    vol_50d_avg = volume.tail(50).mean()
-    vol_std = volume.tail(50).std()
-    latest_vol = volume.iloc[-1]
-
-    vol_z = (latest_vol - vol_50d_avg) / vol_std if vol_std > 0 else 0.0
+    # ── Log-Transformed Volume Z-Score (5-day avg vs 252-day baseline) ────
+    import numpy as np
+    log_vol = np.log(np.maximum(1.0, volume.values))
+    
+    window_252 = log_vol[-252:] if len(log_vol) >= 252 else log_vol
+    log_vol_mean = np.mean(window_252)
+    log_vol_std = np.std(window_252)
+    
+    vol_5d_log_mean = np.mean(log_vol[-5:]) if len(log_vol) >= 5 else log_vol[-1]
+    
+    vol_z = (vol_5d_log_mean - log_vol_mean) / log_vol_std if log_vol_std > 0 else 0.0
 
     # ── Price Spread Ratio (today's range / 20d avg range) ────────────────
     daily_range = high - low
@@ -96,24 +102,41 @@ def run_vpa_b4(symbol: str) -> StrategyRunResponse:
     latest_range = daily_range.iloc[-1]
     spread_ratio = (latest_range / avg_range_20d) if avg_range_20d > 0 else 1.0
 
-    # ── Accumulation signal: High vol + wide spread + close near high ──────
-    close_position = (close.iloc[-1] - low.iloc[-1]) / latest_range if latest_range > 0 else 0.5
+    # ── Circuit Boundary Guard for Close Position ──────────────────────────
+    latest_close = close.iloc[-1]
+    latest_high = high.iloc[-1]
+    latest_low = low.iloc[-1]
+    prev_close = close.iloc[-2] if len(close) > 1 else latest_close
 
+    if latest_high == latest_low:
+        # Zero-range bar / Circuit limit
+        if latest_close > prev_close:
+            close_position = 1.0  # Upper Circuit
+        elif latest_close < prev_close:
+            close_position = 0.0  # Lower Circuit
+        else:
+            close_position = 0.5  # Flat
+    else:
+        close_position = (latest_close - latest_low) / (latest_high - latest_low)
+
+    # ── Accumulation signal: Log Vol Z > +1.5 & Close Position >= 0.60 ────
     accumulation_score = 0.0
-    if vol_z > 1.5 and spread_ratio > 1.2 and close_position > 0.7:
-        accumulation_score = 30.0
+    if vol_z >= 2.5 and close_position >= 0.60:
+        accumulation_score = 35.0
         evidence.append(
-            f"STRONG ACCUMULATION: Vol z-score={vol_z:.1f}, spread ratio={spread_ratio:.2f}, "
-            f"close near high ({close_position*100:.0f}th percentile)"
+            f"STRONG INSTITUTIONAL CORNERING: Log Vol z-score={vol_z:.2f}σ, "
+            f"close position ({close_position*100:.0f}th percentile)"
         )
-    elif vol_z > 0.5 and spread_ratio > 0.8:
-        accumulation_score = 15.0
-        evidence.append(f"Moderate volume expansion: z-score={vol_z:.1f}")
+    elif vol_z >= 1.5 and close_position >= 0.50:
+        accumulation_score = 20.0
+        evidence.append(f"Moderate log volume expansion: z-score={vol_z:.2f}σ")
     elif vol_z < -1.0:
         accumulation_score = -10.0
-        evidence.append(f"Volume DRYING UP (z-score={vol_z:.1f}) — potential basing or distribution")
+        evidence.append(f"Volume DRYING UP (log z-score={vol_z:.2f}σ) — basing or distribution")
 
     # ── Volume trend (20d vs 50d avg) ─────────────────────────────────────
+    vol_20d_avg = volume.tail(20).mean()
+    vol_50d_avg = volume.tail(50).mean()
     vol_trend = ((vol_20d_avg - vol_50d_avg) / vol_50d_avg) * 100 if vol_50d_avg > 0 else 0.0
 
     # ── Price trend context ────────────────────────────────────────────────
@@ -143,8 +166,9 @@ def run_vpa_b4(symbol: str) -> StrategyRunResponse:
         passed_gates=passed,
         results={
             "vpa_score": final_score,
-            "accumulation_signal": "STRONG" if accumulation_score >= 30 else ("MODERATE" if accumulation_score > 0 else "NONE"),
+            "accumulation_signal": "STRONG" if accumulation_score >= 35 else ("MODERATE" if accumulation_score > 0 else "NONE"),
             "volume_z_score": round(vol_z, 2),
+            "close_position": round(close_position, 2),
             "price_spread_ratio": round(spread_ratio, 2),
             "volume_trend_20v50_pct": round(vol_trend, 1),
             "price_above_sma20": price_above_sma20,
@@ -154,6 +178,7 @@ def run_vpa_b4(symbol: str) -> StrategyRunResponse:
         metrics={
             "vpa_score": final_score,
             "volume_z_score": round(vol_z, 2),
+            "close_position": round(close_position, 2),
             "price_spread_ratio": round(spread_ratio, 2),
         },
         risk_warnings=[
@@ -163,6 +188,7 @@ def run_vpa_b4(symbol: str) -> StrategyRunResponse:
         disclaimer="Volume Price Analysis — institutional accumulation detector.",
         meta=create_meta_header(source=f"IERL VPA Engine ({norm})"),
     )
+
 
 
 # ─────────────────────────────────────────────────────────────────────────────

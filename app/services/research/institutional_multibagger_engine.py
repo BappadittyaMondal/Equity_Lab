@@ -314,8 +314,8 @@ class InstitutionalMultibaggerEngine:
         debt_to_equity = item.get("debt_to_equity", 0.0)
 
         disqualifications = []
-        if pledged_pct > 35.0:
-            disqualifications.append(f"Excessive Promoter Pledge ({pledged_pct:.1f}% > 35%)")
+        if pledged_pct > 25.0:
+            disqualifications.append(f"Excessive Promoter Pledge ({pledged_pct:.1f}% > 25%)")
         if auditor_resigned:
             disqualifications.append("Auditor Resignation Flagged")
         if related_party_red_flag:

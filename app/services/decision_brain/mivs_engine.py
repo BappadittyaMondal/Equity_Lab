@@ -57,19 +57,13 @@ class MIVSEngine:
         symbol: str,
         engine_outputs: List[Dict[str, Any]],
         financial_snapshot: Optional[Any] = None,
-        sector: str = "MANUFACTURING"
+        sector: str = "MANUFACTURING",
+        qualitative_payload: Optional[Any] = None
     ) -> MIVSScoreResult:
-        """Computes the 100-point MIVS vector score across 9 weighted components.
-
-        Evaluates 7 Hard Gates before final score aggregation (§51):
-          1. Accounting & Forensic Integrity (Beneish > -1.78 / Piotroski < 3)
-          2. Financial Survival (Altman Z < 1.81)
-          3. Business Quality (ROIC floor check)
-          4. Fundamental Trajectory (Deteriorating operational trend)
-          5. Expectation Gap (Market over-expectation)
-          6. Valuation Asymmetry (Zero margin of safety)
-          7. Governance & Bias-Check (Promoter pledge > 40%, related-party red flags, missing red-team review)
+        """Computes the 100-point MIVS vector score across 9 weighted components
+        rescaled by Qualitative Evidence Multiplier M_Qual in [0.85, 1.15].
         """
+        from app.services.intelligence.qualitative_multiplier_engine import QualitativeMultiplierEngine
         norm_symbol = symbol.upper()
         gate_reasons = []
 
@@ -117,15 +111,25 @@ class MIVSEngine:
             if rec == "AVOID" and risk_rating == "EXTREME":
                 gate_reasons.append("Gate 6 Veto: Severe Valuation Overvaluation / Negative Asymmetry")
 
-            # Gate 7: Governance & Bias-Check
+            # Gate 7: Governance & Bias-Check (Promoter pledge > 25%)
             pledge = results.get("promoter_pledge_pct") or metrics.get("promoter_pledge_pct")
-            if pledge is not None and isinstance(pledge, (int, float)) and pledge > 40.0:
-                gate_reasons.append(f"Gate 7 Veto: High Promoter Pledge (Pledge={pledge:.1f}% > 40%)")
+            if pledge is not None and isinstance(pledge, (int, float)) and pledge > 25.0:
+                gate_reasons.append(f"Gate 7 Veto: High Promoter Pledge (Pledge={pledge:.1f}% > 25.0%)")
 
             if out.get("engine_id") == "C13":
                 gov_grade = results.get("governance_grade")
                 if gov_grade == "POOR":
                     gate_reasons.append("Gate 7 Veto: Governance Quality Grade POOR")
+
+            # Gate 8: Financial Leverage & Debt Servicing
+            debt_to_equity = results.get("debt_to_equity") or metrics.get("debt_to_equity")
+            interest_coverage = results.get("interest_coverage") or metrics.get("interest_coverage")
+            if debt_to_equity is not None and isinstance(debt_to_equity, (int, float)) and debt_to_equity > 1.0:
+                if interest_coverage is None or not isinstance(interest_coverage, (int, float)) or interest_coverage < 5.0:
+                    gate_reasons.append(
+                        f"Gate 8 Veto: High Financial Leverage (D/E={debt_to_equity:.2f} > 1.0 "
+                        f"without Interest Coverage >= 5.0x)"
+                    )
 
         passed_hard_gates = len(gate_reasons) == 0
 
@@ -196,11 +200,14 @@ class MIVSEngine:
                 details=details_map[dim_key],
             )
 
+        m_qual_res = QualitativeMultiplierEngine.compute_multiplier(qualitative_payload)
+        m_qual = m_qual_res["m_qual"]
+
         if not passed_hard_gates:
             final_mivs = min(weighted_sum, self.HARD_GATE_VETO_CAP)
             verdict = "Avoid"
         else:
-            final_mivs = weighted_sum
+            final_mivs = min(100.0, weighted_sum * m_qual)
             if final_mivs >= 85.0:
                 verdict = "Strong Buy"
             elif final_mivs >= 70.0:
@@ -220,6 +227,12 @@ class MIVSEngine:
             gate_reasons=gate_reasons,
             dimension_scores=dimension_scores,
             sector_relative_percentile=peer_norm_res.get("sector_relative_percentile", 50.0),
-            metadata={"dimension_count": len(dimension_scores), "hard_gates_checked": 7, "sector": sector},
+            metadata={
+                "dimension_count": len(dimension_scores),
+                "hard_gates_checked": 8,
+                "sector": sector,
+                "m_qual": m_qual,
+                "m_qual_details": m_qual_res
+            },
         )
 

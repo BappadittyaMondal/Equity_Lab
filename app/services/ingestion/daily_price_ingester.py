@@ -100,3 +100,43 @@ class DailyPriceIngester:
 
         logger.info("Ingested %d daily snapshots for %s", result["snapshots_ingested"], norm)
         return result
+
+    @staticmethod
+    def check_adtv_liquidity_floor(df: pd.DataFrame, min_adtv_inr: float = 2500000.0) -> bool:
+        """Verifies 20-day Average Daily Turnover Volume (ADTV_20d) >= ₹2,500,000."""
+        if df is None or len(df) < 20:
+            return False
+        tail_20 = df.tail(20)
+        daily_turnover = tail_20["Close"] * tail_20["Volume"]
+        adtv_20d = float(daily_turnover.mean())
+        return adtv_20d >= min_adtv_inr
+
+    @staticmethod
+    def compute_vpvr_vacuum_ratio(df: pd.DataFrame, num_bins: int = 50) -> float:
+        """Computes VPVR Volume Profile Overhead Vacuum Ratio (SVR_VPVR)."""
+        import numpy as np
+        if df is None or len(df) < 52:
+            return 1.0
+            
+        close = df["Close"].values
+        volume = df["Volume"].values
+        
+        breakout_price = close[-1]
+        p_min = np.min(close[-252:]) if len(close) >= 252 else np.min(close)
+        
+        if breakout_price <= p_min or breakout_price <= 0:
+            return 1.0
+            
+        bins = np.linspace(p_min, breakout_price * 1.5, num_bins + 1)
+        hist_vol, _ = np.histogram(close, bins=bins, weights=volume)
+        
+        # Split bins into base region (p_min -> breakout) vs overhead region (breakout -> 1.5x)
+        idx_breakout = np.digitize(breakout_price, bins) - 1
+        vol_base = np.sum(hist_vol[:max(1, idx_breakout)])
+        vol_overhead = np.sum(hist_vol[max(1, idx_breakout):])
+        
+        if vol_base <= 0:
+            return 1.0
+            
+        return float(vol_overhead / vol_base)
+
