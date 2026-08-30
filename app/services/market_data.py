@@ -467,10 +467,11 @@ def get_history(symbol: str, period: str = "3y", interval: str = "1d"):
     num_years = 5 if "5y" in period else (3 if "3y" in period else (2 if "2y" in period else 1))
     n_periods = 250 * num_years
     dates = pd.date_range(end=datetime.datetime.now(timezone.utc), periods=n_periods, freq='B')
-    close_prices = np.linspace(1000.0, 1300.0, n_periods)
+    n_actual = len(dates)
+    close_prices = np.linspace(1000.0, 1300.0, n_actual)
     high_prices = close_prices * 1.02
     low_prices = close_prices * 0.98
-    vol_data = np.full(n_periods, 500000)
+    vol_data = np.full(n_actual, 500000)
     mock_df = pd.DataFrame({
         'Open': close_prices,
         'High': high_prices,

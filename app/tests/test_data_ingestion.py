@@ -142,3 +142,13 @@ def test_ownership_ingester_with_data(monkeypatch):
     assert len(res["errors"]) == 0
 
 
+def test_mock_data_array_length_invariance():
+    from app.services.market_data import get_history
+    df = get_history("RELIANCE.NS", period="1y")
+    assert not df.empty
+    assert len(df) == len(df["Close"])
+    assert len(df["Open"]) == len(df["Close"])
+    assert len(df.index) == len(df["Volume"])
+
+
+
