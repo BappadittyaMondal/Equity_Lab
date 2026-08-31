@@ -451,6 +451,18 @@ RESEARCH_ENGINES: Dict[str, StrategyModule] = {
         risk_warnings=["Historical IC performance does not guarantee future factor outperformance."],
         methodology="Spearman rank correlation, walk-forward out-of-sample validation, and point-in-time lag enforcement."
     ),
+    "E18": StrategyModule(
+        id="E18",
+        name="10-30 Day Swing Predictive Engine",
+        category="Technical & Volatility Intelligence",
+        description="Calculates Volume Profile POC, Anchored VWAP, Choppiness Index, Balance of Power, and Multi-Timeframe Alignment.",
+        status="production",
+        required_inputs=["symbol"],
+        universe="NSE All Equities",
+        metrics=["confluence_score", "predictive_bias", "volume_poc", "anchored_vwap", "choppiness_index"],
+        risk_warnings=["Swing predictions are valid for 10-30 day trading horizons only."],
+        methodology="6-pillar technical confluence scoring, volume profile POC, and regime-filtered momentum model."
+    ),
     "E19": StrategyModule(
         id="E19",
         name="Multibagger Inflection Engine",
@@ -1038,6 +1050,56 @@ def run_strategy_module(strategy_id: str, symbol: str = "RELIANCE", as_of: Optio
             disclaimer="Dual Momentum Trend Following Engine assessment.",
             meta=res_d16["meta"]
         )
+    elif module.id == "E18":
+        import pandas as pd
+        import yfinance as yf
+        from app.services.strategies.swing_predictive_engine import SwingPredictiveEngine
+        norm_sym = normalize_symbol(symbol)
+        clean_sym = symbol.replace(".NS", "").replace(".BO", "").strip()
+        yf_sym = f"{clean_sym}.NS"
+        try:
+            df_d = yf.download(yf_sym, period="6mo", interval="1d", progress=False)
+            df_w = yf.download(yf_sym, period="2y", interval="1wk", progress=False)
+            if isinstance(df_d.columns, pd.MultiIndex):
+                df_d = df_d.xs(yf_sym, axis=1, level=1)
+            df_d.columns = [str(c).lower() for c in df_d.columns]
+
+            if isinstance(df_w.columns, pd.MultiIndex):
+                df_w = df_w.xs(yf_sym, axis=1, level=1)
+            df_w.columns = [str(c).lower() for c in df_w.columns]
+            
+            res_e18 = SwingPredictiveEngine.predict_swing_30d(df_d, df_w)
+            return StrategyRunResponse(
+                strategy_id="E18",
+                strategy_name=module.name,
+                status="production",
+                executed_at=get_ist_now_str(),
+                symbol=norm_sym,
+                passed_gates=(res_e18.get("confluence_score", 0) >= 60.0),
+                results=res_e18,
+                metrics={
+                    "confluence_score": res_e18.get("confluence_score", 0.0),
+                    "target_price": res_e18.get("model_estimated_target", 0.0),
+                    "stop_loss": res_e18.get("stop_loss", 0.0)
+                },
+                risk_warnings=module.risk_warnings,
+                disclaimer="10-30 Day Swing Predictive Engine assessment.",
+                meta=create_meta_header(source="E18 Swing Predictive Engine")
+            )
+        except Exception as ex:
+            return StrategyRunResponse(
+                strategy_id="E18",
+                strategy_name=module.name,
+                status="data_insufficient",
+                executed_at=get_ist_now_str(),
+                symbol=norm_sym,
+                passed_gates=False,
+                results={"error": str(ex)},
+                metrics={},
+                risk_warnings=module.risk_warnings,
+                disclaimer="10-30 Day Swing Predictive Engine data error.",
+                meta=create_meta_header(source="E18 Swing Predictive Engine")
+            )
     elif module.id == "DCF_FWD":
         return run_dcf_forward(symbol)
     else:

@@ -1453,6 +1453,61 @@
         }
       }
     },
+    "/api/v1/research/swing-predictive": {
+      "get": {
+        "tags": [
+          "Expert Strategy & Research Engines"
+        ],
+        "summary": "Run Swing Predictive Endpoint",
+        "description": "Executes Strategy E18: 10-30 Day Swing Predictive Engine (Volume Profile POC, Anchored VWAP, Choppiness Index, BOP).",
+        "operationId": "run_swing_predictive_endpoint_api_v1_research_swing_predictive_get",
+        "parameters": [
+          {
+            "name": "symbol",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "description": "Stock symbol (e.g. PTCIL or RELIANCE)",
+              "title": "Symbol"
+            },
+            "description": "Stock symbol (e.g. PTCIL or RELIANCE)"
+          },
+          {
+            "name": "x-api-key",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "default": "",
+              "title": "X-Api-Key"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StrategyRunResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/v1/research/inflection-multibagger": {
       "get": {
         "tags": [
@@ -4566,6 +4621,16 @@
               "type": "string",
               "title": "Symbol"
             }
+          },
+          {
+            "name": "x-api-key",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "default": "",
+              "title": "X-Api-Key"
+            }
           }
         ],
         "responses": {
@@ -4575,7 +4640,18 @@
               "application/json": {
                 "schema": {
                   "type": "object",
-                  "additionalProperties": true
+                  "additionalProperties": true,
+                  "title": "Response Get Company Forensics Api V1 Research Ai Committee Forensics  Symbol  Get"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
                 }
               }
             }
@@ -4588,7 +4664,7 @@
         "tags": [
           "Next-Gen AI Committee & Intelligence"
         ],
-        "summary": "Get EVT Tail Metrics",
+        "summary": "Get Evt Tail Metrics",
         "description": "Fetch Extreme Value Theory (EVT) GPD tail-fitting parameters and 99th percentile breakout VaR.",
         "operationId": "get_evt_tail_metrics_api_v1_research_ai_committee_evt_tail__symbol__get",
         "parameters": [
@@ -4600,6 +4676,16 @@
               "type": "string",
               "title": "Symbol"
             }
+          },
+          {
+            "name": "x-api-key",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "default": "",
+              "title": "X-Api-Key"
+            }
           }
         ],
         "responses": {
@@ -4609,7 +4695,18 @@
               "application/json": {
                 "schema": {
                   "type": "object",
-                  "additionalProperties": true
+                  "additionalProperties": true,
+                  "title": "Response Get Evt Tail Metrics Api V1 Research Ai Committee Evt Tail  Symbol  Get"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
                 }
               }
             }

@@ -171,11 +171,19 @@ def run_walk_forward_backtest(
     return summary.model_dump()
 
 
+@router.get("/research/swing-predictive", response_model=StrategyRunResponse)
+def run_swing_predictive_endpoint(symbol: str = Query(..., description="Stock symbol (e.g. PTCIL or RELIANCE)")):
+    """Executes Strategy E18: 10-30 Day Swing Predictive Engine (Volume Profile POC, Anchored VWAP, Choppiness Index, BOP)."""
+    return run_strategy_module("E18", symbol=symbol)
+
+
 @router.get("/research/inflection-multibagger", response_model=StrategyRunResponse)
 def run_inflection_multibagger_endpoint(symbol: str = Query(..., description="Stock symbol (e.g. RELIANCE)")):
     """Executes Strategy E19: Multibagger Inflection Engine (Volume Z-Score, Delivery Turnover, Earnings Convexity, PEG Mispricing)."""
     from app.services.strategies.inflection_multibagger import run_inflection_multibagger
     return run_inflection_multibagger(symbol=symbol)
+
+
 
 
 

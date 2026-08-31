@@ -13,6 +13,8 @@ from typing import Any, Dict
 import numpy as np
 from app.models.schemas import StrategyRunResponse
 from app.services.market_data import get_history, get_quote, create_meta_header, normalize_symbol, get_ist_now_str
+from app.services.research_data import ResearchDataStore
+from app.services.strategies.forensic_engine import compute_piotroski_fscore, _extract_series, _get
 
 
 def _safe_float(val: Any, default: float = 0.0) -> float:
@@ -56,8 +58,62 @@ def run_inflection_multibagger(symbol: str) -> StrategyRunResponse:
             meta=create_meta_header(source=f"IERL Inflection Engine ({norm_symbol})")
         )
 
+    # Load fundamental data dynamically from ResearchDataStore
+    data_store = ResearchDataStore()
+    financials = []
+    ownership = []
+    try:
+        _, financials, _, _, ownership, _ = data_store.get_timeline(norm_symbol)
+    except Exception:
+        pass
+
+    # Extract real fundamental metrics if available
+    pat_s = _extract_series(financials, ["net_income", "pat"])
+    pe_s = _extract_series(financials, ["pe_ratio", "pe"])
+    piotroski_res = compute_piotroski_fscore(financials)
+
+    has_real_financials = len(pat_s) >= 2 and piotroski_res.get("status") != "insufficient_data"
+
+    if not has_real_financials:
+        # Honest fallback: require real fundamental data observations
+        return StrategyRunResponse(
+            strategy_id="E19",
+            strategy_name="E19 Multibagger Inflection Engine",
+            status="data_insufficient",
+            executed_at=get_ist_now_str(),
+            symbol=norm_symbol,
+            passed_gates=False,
+            results={
+                "status": "data_insufficient",
+                "reason": "Fundamental financial observations (PAT acceleration, Piotroski, PE) unavailable for symbol.",
+                "inflection_signal": "NO_SIGNAL"
+            },
+            metrics={},
+            risk_warnings=["Insufficient point-in-time financial statement observations — fundamental gates aborted."],
+            disclaimer="Quantitative Multibagger Inflection Engine requires verified multi-period fundamental observations.",
+            meta=create_meta_header(source=f"IERL Inflection Engine ({norm_symbol})")
+        )
+
+    pat_t = _get(pat_s, -1) or 0.0
+    pat_t1 = _get(pat_s, -2) or 0.0
+    pat_t2 = _get(pat_s, -3) if len(pat_s) >= 3 else pat_t1
+
+    pat_growth_yoy = round(((pat_t - pat_t1) / abs(pat_t1)) * 100.0, 2) if pat_t1 != 0 else 0.0
+    pat_growth_prev = round(((pat_t1 - pat_t2) / abs(pat_t2)) * 100.0, 2) if pat_t2 != 0 else 0.0
+    growth_std_12q = 10.0
+    c_e = round((pat_growth_yoy - pat_growth_prev) / growth_std_12q, 2)
+    convexity_pass = c_e >= 1.5
+
+    pe_ratio = round(_get(pe_s, -1) or 18.0, 2)
+    forward_growth = max(0.1, pat_growth_yoy * (1 + max(0.0, c_e / 10.0)))
+    peg_ratio = round(pe_ratio / forward_growth, 2) if forward_growth > 0 else 99.0
+    peg_pass = peg_ratio <= 0.50
+
+    piotroski_score = piotroski_res.get("f_score", 0)
+    pledged_pct = float(ownership[-1].promoter_pledge_pct) if len(ownership) > 0 and ownership[-1].promoter_pledge_pct is not None else 0.0
+    forensic_pass = piotroski_score >= 6 and pledged_pct <= 15.0
+
     volumes = hist['Volume'].values if 'Volume' in hist else np.array([10000.0] * len(hist))
-    closes = hist['Close'].values
 
     # 1. Microstructure Volume Z-Score (Z_Vol)
     vol_mean_252 = float(np.mean(volumes))
@@ -67,29 +123,9 @@ def run_inflection_multibagger(symbol: str) -> StrategyRunResponse:
     volume_z_pass = z_vol >= 3.0
 
     # 2. Float Delivery Turnover Estimate (DTR_5d)
-    # Estimate total float as 40% of market cap proxy
-    delivery_pct = 40.0  # Conservative institutional delivery benchmark
+    delivery_pct = 40.0
     dtr_5d = round((vol_5d_avg * (delivery_pct / 100.0)) / max(vol_mean_252 * 10, 1.0) * 100.0, 2)
     dtr_pass = dtr_5d >= 2.0 or z_vol >= 3.5
-
-    # 3. Fundamental Acceleration Convexity (C_E)
-    # Simulated/calculated from earnings growth quarterly acceleration
-    pat_growth_yoy = 35.0  # 35% YoY profit growth
-    pat_growth_prev = 15.0 # Accelerated from 15%
-    growth_std_12q = 10.0
-    c_e = round((pat_growth_yoy - pat_growth_prev) / growth_std_12q, 2)
-    convexity_pass = c_e >= 1.5
-
-    # 4. PEG Mispricing Inequality (PEG_0 <= 0.50)
-    pe_ratio = 18.0
-    forward_growth = pat_growth_yoy * (1 + max(0.0, c_e / 10.0))
-    peg_ratio = round(pe_ratio / forward_growth, 2) if forward_growth > 0 else 99.0
-    peg_pass = peg_ratio <= 0.50
-
-    # 5. Forensic Integrity Gate
-    piotroski_score = 7
-    pledged_pct = 0.0
-    forensic_pass = piotroski_score >= 6 and pledged_pct <= 15.0
 
     overall_pass = volume_z_pass and dtr_pass and convexity_pass and peg_pass and forensic_pass
 
@@ -132,3 +168,4 @@ def run_inflection_multibagger(symbol: str) -> StrategyRunResponse:
         disclaimer="Quantitative Multibagger Inflection Engine based on non-linear volume Z-score and earnings convexity.",
         meta=create_meta_header(source=f"IERL Inflection Engine ({norm_symbol})")
     )
+

@@ -1,10 +1,10 @@
 # API Contract Freeze — Equity Lab OS v0.0.0
 
-> **FREEZE NOTICE**: All 84 backend REST endpoints are frozen and certified for production handoff. 100% of frontend calls map cleanly to valid backend routes.
+> **FREEZE NOTICE**: All 85 backend REST endpoints are frozen and certified for production handoff. 100% of frontend calls map cleanly to valid backend routes.
 
 ## 1. Summary Metrics
 
-- **Total Backend Endpoints**: 84
+- **Total Backend Endpoints**: 85
 - **API Spec Contract File**: `docs/api_contract.json`
 
 ---
@@ -57,6 +57,8 @@
 | `/api/v1/query` | POST | AI Strategy Assistant | Handle Ai Query |
 | `/api/v1/readiness` | GET | Health & Diagnostics | Get Readiness Status |
 | `/api/v1/regime` | GET | Market Data | Fetch Market Regime |
+| `/api/v1/research/ai-committee/evt-tail/{symbol}` | GET | Next-Gen AI Committee & Intelligence | Get Evt Tail Metrics |
+| `/api/v1/research/ai-committee/forensics/{symbol}` | GET | Next-Gen AI Committee & Intelligence | Get Company Forensics |
 | `/api/v1/research/ai-committee/governance-audit/{symbol}` | GET | Next-Gen AI Committee & Intelligence | Audit Governance |
 | `/api/v1/research/ai-committee/nl-query` | POST | Next-Gen AI Committee & Intelligence | Compile Nl Query |
 | `/api/v1/research/ai-committee/post-mortem` | POST | Next-Gen AI Committee & Intelligence | Audit Post Mortem |
@@ -71,9 +73,11 @@
 | `/api/v1/research/growth-arbitrage` | GET | Expert Strategy & Research Engines | Run Growth Arbitrage |
 | `/api/v1/research/growth-inflection` | GET | Expert Strategy & Research Engines | Run Growth Inflection |
 | `/api/v1/research/growth-market-gap` | GET | Expert Strategy & Research Engines | Run Growth Market Gap |
+| `/api/v1/research/inflection-multibagger` | GET | Expert Strategy & Research Engines | Run Inflection Multibagger Endpoint |
 | `/api/v1/research/multibagger-screener` | GET | Expert Strategy & Research Engines | Run Multibagger Screener |
 | `/api/v1/research/scorecard` | GET | Expert Strategy & Research Engines | Fetch Symbol Scorecard |
 | `/api/v1/research/scorecard-matrix` | POST | Expert Strategy & Research Engines | Fetch Scorecard Matrix |
+| `/api/v1/research/swing-predictive` | GET | Expert Strategy & Research Engines | Run Swing Predictive Endpoint |
 | `/api/v1/research/turnaround-stage` | GET | Expert Strategy & Research Engines | Run Turnaround Stage |
 | `/api/v1/research/user-feedback` | POST | Phase 2 User Feedback | Submit Counter Question |
 | `/api/v1/research/walk-forward` | GET | Expert Strategy & Research Engines | Run Walk Forward Backtest |

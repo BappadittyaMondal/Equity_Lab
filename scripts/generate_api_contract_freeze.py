@@ -4,20 +4,19 @@ Guarantees 100% synchronization between FastAPI openapi schema / api_contract.js
 """
 
 import json
+import sys
 from pathlib import Path
 
 BASE_DIR = Path(__file__).resolve().parent.parent
+sys.path.append(str(BASE_DIR))
 CONTRACT_JSON = BASE_DIR / "docs" / "api_contract.json"
 FREEZE_MD = BASE_DIR / "docs" / "API_CONTRACT_FREEZE.md"
 
 
 def generate_freeze_md() -> None:
-    if not CONTRACT_JSON.exists():
-        from app.main import app
-        schema = app.openapi()
-        CONTRACT_JSON.write_text(json.dumps(schema, indent=2), encoding="utf-8")
-    else:
-        schema = json.loads(CONTRACT_JSON.read_text(encoding="utf-8"))
+    from app.main import app
+    schema = app.openapi()
+    CONTRACT_JSON.write_text(json.dumps(schema, indent=2), encoding="utf-8")
 
     paths = schema.get("paths", {})
     routes = []
