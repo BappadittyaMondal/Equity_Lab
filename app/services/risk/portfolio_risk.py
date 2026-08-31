@@ -130,3 +130,43 @@ def compute_portfolio_covariance_matrix(returns_dict: Dict[str, Any]) -> Dict[st
         "correlation_matrix": corr_df.values.tolist(),
         "average_correlation": round(float(avg_corr), 4)
     }
+
+
+def evaluate_capital_governor(
+    current_gross_exposure_pct: float,
+    candidate_allocation_pct: float,
+    portfolio_trailing_drawdown_pct: float = 0.0,
+    max_gross_exposure_pct: float = 100.0,
+    max_allowed_drawdown_pct: float = 8.0,
+) -> Dict[str, Any]:
+    """Portfolio Capital Governor (Institutional Book Level Gate).
+
+    Enforces:
+      1. Gross exposure ceiling (hard max 100% long, no unintentional leverage).
+      2. Drawdown circuit breaker (halts new entries when trailing portfolio drawdown exceeds threshold).
+    """
+    projected_exposure = current_gross_exposure_pct + candidate_allocation_pct
+    drawdown_breached = portfolio_trailing_drawdown_pct >= max_allowed_drawdown_pct
+    exposure_breached = projected_exposure > max_gross_exposure_pct
+
+    if drawdown_breached:
+        status = "REJECTED_DRAWDOWN_CIRCUIT_BREAKER"
+        action = f"Halting new capital commitments: Portfolio drawdown ({portfolio_trailing_drawdown_pct:.1f}%) exceeds {max_allowed_drawdown_pct:.1f}% limit."
+    elif exposure_breached:
+        status = "REJECTED_GROSS_EXPOSURE_CAP"
+        action = f"Projected gross exposure ({projected_exposure:.1f}%) exceeds {max_gross_exposure_pct:.1f}% capital ceiling."
+    else:
+        status = "PASS"
+        action = "Portfolio capital governor checks passed."
+
+    return {
+        "status": status,
+        "is_approved": status == "PASS",
+        "current_gross_exposure_pct": round(current_gross_exposure_pct, 2),
+        "projected_gross_exposure_pct": round(projected_exposure, 2),
+        "max_gross_exposure_pct": max_gross_exposure_pct,
+        "portfolio_trailing_drawdown_pct": round(portfolio_trailing_drawdown_pct, 2),
+        "max_allowed_drawdown_pct": max_allowed_drawdown_pct,
+        "circuit_breaker_active": drawdown_breached,
+        "action_required": action,
+    }

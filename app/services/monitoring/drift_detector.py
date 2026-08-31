@@ -80,6 +80,25 @@ class DriftDetector:
             except Exception:
                 pass
 
+            # Push notification via webhook if configured (Slack/Discord/PagerDuty)
+            import os
+            webhook_url = os.getenv("DRIFT_ALERT_WEBHOOK_URL")
+            if webhook_url:
+                try:
+                    import urllib.request
+                    import json
+                    payload = json.dumps({
+                        "event": "MODEL_DRIFT_ALERT",
+                        "severity": alert,
+                        "accuracy_pct": round(high_score_acc, 2),
+                        "action_required": action,
+                        "timestamp": datetime.now(timezone.utc).isoformat()
+                    }).encode("utf-8")
+                    req = urllib.request.Request(webhook_url, data=payload, headers={"Content-Type": "application/json"})
+                    urllib.request.urlopen(req, timeout=3.0)
+                except Exception:
+                    pass
+
         return DriftReport(
             total_predictions_evaluated=count,
             rolling_30d_accuracy_pct=round(high_score_acc, 2),
