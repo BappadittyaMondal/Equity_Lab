@@ -549,6 +549,10 @@ class ConvictionCall(BaseModel):
     )
     data_backed: bool = Field(default=False, description="True if based on empirical ResearchDataStore observations (confidence >= 0.3)")
     ml_outperformance_probability: Optional[float] = Field(default=None, description="Scikit-Learn baseline estimated probability of benchmark outperformance (0.0 to 1.0)")
+    disclaimer: str = Field(
+        default="Quantitative research report generated for decision support. Not personalized investment advice under SEBI regulations.",
+        description="Regulatory disclaimer string"
+    )
 
 
 class ThesisDriftEvent(BaseModel):

@@ -9,6 +9,7 @@ Implements qualitative LLM analysis features:
 import logging
 from typing import Dict, Any, List, Optional
 from datetime import datetime
+from app.core.config import settings
 from app.services.market_data import normalize_symbol, create_meta_header, get_ist_now_str
 from app.services.research.geopolitical_engine import evaluate_geopolitical_risk
 from app.services.decision_brain.red_team_engine import evaluate_red_team_review
@@ -74,6 +75,34 @@ class GenAIRedTeamService:
                 else:
                     sentiment_score -= 5.0
 
+        # Try Gemini LLM semantic transcript evaluation when API key is available
+        llm_analysis_note = ""
+        gemini_key = getattr(settings, "GEMINI_API_KEY", "")
+        if gemini_key and "your_" not in gemini_key.lower() and len(clean_transcript) > 50:
+            try:
+                prompt = (
+                    f"Analyze the following earnings call transcript for equity {clean_sym}.\n"
+                    f"1. Extract overall management sentiment (BULLISH/NEUTRAL/BEARISH)\n"
+                    f"2. Identify qualitative risk flags (e.g. pricing pressure, demand slowdown, guidance cuts)\n"
+                    f"3. Summarize key takeaways in 2 concise sentences.\n\n"
+                    f"TRANSCRIPT:\n{clean_transcript[:2000]}"
+                )
+                try:
+                    from google import genai
+                    client = genai.Client(api_key=gemini_key)
+                    resp = client.models.generate_content(model="gemini-1.5-flash", contents=prompt)
+                    if resp.text:
+                        llm_analysis_note = f" [Gemini AI Analysis: {resp.text.strip()[:200]}...]"
+                except Exception:
+                    import google.generativeai as genai
+                    genai.configure(api_key=gemini_key)
+                    model = genai.GenerativeModel("gemini-1.5-flash")
+                    resp = model.generate_content(prompt)
+                    if resp.text:
+                        llm_analysis_note = f" [Gemini AI Analysis: {resp.text.strip()[:200]}...]"
+            except Exception as e:
+                logger.warning("Gemini concall analysis failed: %s", e)
+
         sentiment_label = "BULLISH" if sentiment_score >= 70.0 else ("NEUTRAL" if sentiment_score >= 50.0 else "BEARISH")
 
         return {
@@ -82,7 +111,7 @@ class GenAIRedTeamService:
             "sentiment_score": round(max(0.0, min(100.0, sentiment_score)), 1),
             "sentiment_label": sentiment_label,
             "flagged_concall_risks": flagged_risks,
-            "concall_summary": f"Concall transcript analysis completed for {clean_sym}. Management tone: {sentiment_label}. {len(flagged_risks)} risk flags identified.",
+            "concall_summary": f"Concall transcript analysis completed for {clean_sym}. Management tone: {sentiment_label}. {len(flagged_risks)} risk flags identified.{llm_analysis_note}",
             "executed_at": get_ist_now_str(),
             "meta": create_meta_header(source=f"Automated Earnings Call Analyst ({clean_sym})")
         }

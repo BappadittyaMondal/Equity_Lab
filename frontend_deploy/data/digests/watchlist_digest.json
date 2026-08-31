@@ -1,26 +1,12 @@
 {
-  "generated_at": "2026-08-31T08:04:45.795416+00:00",
+  "generated_at": "2026-08-31T09:32:22.399496+00:00",
   "auto_refresh_summary": {
     "scanned_count": 14,
-    "stale_count": 13,
-    "refreshed_count": 13,
-    "refreshed_symbols": [
-      "TCS.NS",
-      "INFY.NS",
-      "NETWEB.NS",
-      "ZENTEC.NS",
-      "PARAS.NS",
-      "GENSOL.NS",
-      "CYIENTDLM.NS",
-      "AVALON.NS",
-      "SYRMA.NS",
-      "JYOTICNC.NS",
-      "PREMIERENE.NS",
-      "DYNAMATECH.NS",
-      "ASTRAMICRO.NS"
-    ],
+    "stale_count": 0,
+    "refreshed_count": 0,
+    "refreshed_symbols": [],
     "failed_symbols": [],
-    "timestamp": "2026-08-31T13:34:45.774635+05:30",
+    "timestamp": "2026-08-31T15:02:22.379957+05:30",
     "max_age_hours_threshold": 72
   },
   "data": {
@@ -55,9 +41,10 @@
       "supporting_evidence": null,
       "invalidation_condition": null,
       "catalyst_timing": null,
-      "timestamp": "2026-08-31T08:04:45.786504+00:00",
+      "timestamp": "2026-08-31T09:32:22.391889+00:00",
       "data_backed": true,
-      "ml_outperformance_probability": null
+      "ml_outperformance_probability": null,
+      "disclaimer": "Quantitative research report generated for decision support. Not personalized investment advice under SEBI regulations."
     },
     "ITC.NS": {
       "symbol": "ITC.NS",
@@ -87,9 +74,10 @@
       "supporting_evidence": null,
       "invalidation_condition": null,
       "catalyst_timing": null,
-      "timestamp": "2026-08-31T08:04:45.788821+00:00",
+      "timestamp": "2026-08-31T09:32:22.393019+00:00",
       "data_backed": true,
-      "ml_outperformance_probability": null
+      "ml_outperformance_probability": null,
+      "disclaimer": "Quantitative research report generated for decision support. Not personalized investment advice under SEBI regulations."
     },
     "HINDUNILVR.NS": {
       "symbol": "HINDUNILVR.NS",
@@ -119,9 +107,10 @@
       "supporting_evidence": null,
       "invalidation_condition": null,
       "catalyst_timing": null,
-      "timestamp": "2026-08-31T08:04:45.789167+00:00",
+      "timestamp": "2026-08-31T09:32:22.393320+00:00",
       "data_backed": true,
-      "ml_outperformance_probability": null
+      "ml_outperformance_probability": null,
+      "disclaimer": "Quantitative research report generated for decision support. Not personalized investment advice under SEBI regulations."
     },
     "TATAPOWER.NS": {
       "symbol": "TATAPOWER.NS",
@@ -151,9 +140,10 @@
       "supporting_evidence": null,
       "invalidation_condition": null,
       "catalyst_timing": null,
-      "timestamp": "2026-08-31T08:04:45.789370+00:00",
+      "timestamp": "2026-08-31T09:32:22.393566+00:00",
       "data_backed": true,
-      "ml_outperformance_probability": null
+      "ml_outperformance_probability": null,
+      "disclaimer": "Quantitative research report generated for decision support. Not personalized investment advice under SEBI regulations."
     },
     "POWERGRID.NS": {
       "symbol": "POWERGRID.NS",
@@ -183,9 +173,10 @@
       "supporting_evidence": null,
       "invalidation_condition": null,
       "catalyst_timing": null,
-      "timestamp": "2026-08-31T08:04:45.789566+00:00",
+      "timestamp": "2026-08-31T09:32:22.393794+00:00",
       "data_backed": true,
-      "ml_outperformance_probability": null
+      "ml_outperformance_probability": null,
+      "disclaimer": "Quantitative research report generated for decision support. Not personalized investment advice under SEBI regulations."
     },
     "NTPC.NS": {
       "symbol": "NTPC.NS",
@@ -215,9 +206,10 @@
       "supporting_evidence": null,
       "invalidation_condition": null,
       "catalyst_timing": null,
-      "timestamp": "2026-08-31T08:04:45.789759+00:00",
+      "timestamp": "2026-08-31T09:32:22.394014+00:00",
       "data_backed": true,
-      "ml_outperformance_probability": null
+      "ml_outperformance_probability": null,
+      "disclaimer": "Quantitative research report generated for decision support. Not personalized investment advice under SEBI regulations."
     },
     "BHARATFORG.NS": {
       "symbol": "BHARATFORG.NS",
@@ -247,9 +239,10 @@
       "supporting_evidence": null,
       "invalidation_condition": null,
       "catalyst_timing": null,
-      "timestamp": "2026-08-31T08:04:45.789949+00:00",
+      "timestamp": "2026-08-31T09:32:22.394230+00:00",
       "data_backed": true,
-      "ml_outperformance_probability": null
+      "ml_outperformance_probability": null,
+      "disclaimer": "Quantitative research report generated for decision support. Not personalized investment advice under SEBI regulations."
     },
     "TATAMOTORS.NS": {
       "symbol": "TATAMOTORS.NS",
@@ -279,9 +272,10 @@
       "supporting_evidence": null,
       "invalidation_condition": null,
       "catalyst_timing": null,
-      "timestamp": "2026-08-31T08:04:45.790142+00:00",
+      "timestamp": "2026-08-31T09:32:22.394441+00:00",
       "data_backed": true,
-      "ml_outperformance_probability": null
+      "ml_outperformance_probability": null,
+      "disclaimer": "Quantitative research report generated for decision support. Not personalized investment advice under SEBI regulations."
     },
     "MARUTI.NS": {
       "symbol": "MARUTI.NS",
@@ -311,9 +305,10 @@
       "supporting_evidence": null,
       "invalidation_condition": null,
       "catalyst_timing": null,
-      "timestamp": "2026-08-31T08:04:45.790332+00:00",
+      "timestamp": "2026-08-31T09:32:22.394647+00:00",
       "data_backed": true,
-      "ml_outperformance_probability": null
+      "ml_outperformance_probability": null,
+      "disclaimer": "Quantitative research report generated for decision support. Not personalized investment advice under SEBI regulations."
     },
     "LT.NS": {
       "symbol": "LT.NS",
@@ -343,9 +338,10 @@
       "supporting_evidence": null,
       "invalidation_condition": null,
       "catalyst_timing": null,
-      "timestamp": "2026-08-31T08:04:45.790519+00:00",
+      "timestamp": "2026-08-31T09:32:22.394845+00:00",
       "data_backed": true,
-      "ml_outperformance_probability": null
+      "ml_outperformance_probability": null,
+      "disclaimer": "Quantitative research report generated for decision support. Not personalized investment advice under SEBI regulations."
     },
     "BDL.NS": {
       "symbol": "BDL.NS",
@@ -375,9 +371,10 @@
       "supporting_evidence": null,
       "invalidation_condition": null,
       "catalyst_timing": null,
-      "timestamp": "2026-08-31T08:04:45.790703+00:00",
+      "timestamp": "2026-08-31T09:32:22.395043+00:00",
       "data_backed": true,
-      "ml_outperformance_probability": null
+      "ml_outperformance_probability": null,
+      "disclaimer": "Quantitative research report generated for decision support. Not personalized investment advice under SEBI regulations."
     },
     "BEL.NS": {
       "symbol": "BEL.NS",
@@ -407,9 +404,10 @@
       "supporting_evidence": null,
       "invalidation_condition": null,
       "catalyst_timing": null,
-      "timestamp": "2026-08-31T08:04:45.790889+00:00",
+      "timestamp": "2026-08-31T09:32:22.395236+00:00",
       "data_backed": true,
-      "ml_outperformance_probability": null
+      "ml_outperformance_probability": null,
+      "disclaimer": "Quantitative research report generated for decision support. Not personalized investment advice under SEBI regulations."
     },
     "HAL.NS": {
       "symbol": "HAL.NS",
@@ -439,9 +437,10 @@
       "supporting_evidence": null,
       "invalidation_condition": null,
       "catalyst_timing": null,
-      "timestamp": "2026-08-31T08:04:45.791085+00:00",
+      "timestamp": "2026-08-31T09:32:22.395436+00:00",
       "data_backed": true,
-      "ml_outperformance_probability": null
+      "ml_outperformance_probability": null,
+      "disclaimer": "Quantitative research report generated for decision support. Not personalized investment advice under SEBI regulations."
     },
     "DIVISLAB.NS": {
       "symbol": "DIVISLAB.NS",
@@ -471,9 +470,10 @@
       "supporting_evidence": null,
       "invalidation_condition": null,
       "catalyst_timing": null,
-      "timestamp": "2026-08-31T08:04:45.791272+00:00",
+      "timestamp": "2026-08-31T09:32:22.395631+00:00",
       "data_backed": true,
-      "ml_outperformance_probability": null
+      "ml_outperformance_probability": null,
+      "disclaimer": "Quantitative research report generated for decision support. Not personalized investment advice under SEBI regulations."
     },
     "CIPLA.NS": {
       "symbol": "CIPLA.NS",
@@ -503,9 +503,10 @@
       "supporting_evidence": null,
       "invalidation_condition": null,
       "catalyst_timing": null,
-      "timestamp": "2026-08-31T08:04:45.791464+00:00",
+      "timestamp": "2026-08-31T09:32:22.395825+00:00",
       "data_backed": true,
-      "ml_outperformance_probability": null
+      "ml_outperformance_probability": null,
+      "disclaimer": "Quantitative research report generated for decision support. Not personalized investment advice under SEBI regulations."
     },
     "DRREDDY.NS": {
       "symbol": "DRREDDY.NS",
@@ -535,9 +536,10 @@
       "supporting_evidence": null,
       "invalidation_condition": null,
       "catalyst_timing": null,
-      "timestamp": "2026-08-31T08:04:45.791653+00:00",
+      "timestamp": "2026-08-31T09:32:22.396019+00:00",
       "data_backed": true,
-      "ml_outperformance_probability": null
+      "ml_outperformance_probability": null,
+      "disclaimer": "Quantitative research report generated for decision support. Not personalized investment advice under SEBI regulations."
     },
     "SUNPHARMA.NS": {
       "symbol": "SUNPHARMA.NS",
@@ -567,9 +569,10 @@
       "supporting_evidence": null,
       "invalidation_condition": null,
       "catalyst_timing": null,
-      "timestamp": "2026-08-31T08:04:45.791837+00:00",
+      "timestamp": "2026-08-31T09:32:22.396214+00:00",
       "data_backed": true,
-      "ml_outperformance_probability": null
+      "ml_outperformance_probability": null,
+      "disclaimer": "Quantitative research report generated for decision support. Not personalized investment advice under SEBI regulations."
     },
     "BAJFINANCE.NS": {
       "symbol": "BAJFINANCE.NS",
@@ -599,9 +602,10 @@
       "supporting_evidence": null,
       "invalidation_condition": null,
       "catalyst_timing": null,
-      "timestamp": "2026-08-31T08:04:45.792032+00:00",
+      "timestamp": "2026-08-31T09:32:22.396409+00:00",
       "data_backed": true,
-      "ml_outperformance_probability": null
+      "ml_outperformance_probability": null,
+      "disclaimer": "Quantitative research report generated for decision support. Not personalized investment advice under SEBI regulations."
     },
     "SBIN.NS": {
       "symbol": "SBIN.NS",
@@ -631,9 +635,10 @@
       "supporting_evidence": null,
       "invalidation_condition": null,
       "catalyst_timing": null,
-      "timestamp": "2026-08-31T08:04:45.792217+00:00",
+      "timestamp": "2026-08-31T09:32:22.396597+00:00",
       "data_backed": true,
-      "ml_outperformance_probability": null
+      "ml_outperformance_probability": null,
+      "disclaimer": "Quantitative research report generated for decision support. Not personalized investment advice under SEBI regulations."
     },
     "KOTAKBANK.NS": {
       "symbol": "KOTAKBANK.NS",
@@ -663,9 +668,10 @@
       "supporting_evidence": null,
       "invalidation_condition": null,
       "catalyst_timing": null,
-      "timestamp": "2026-08-31T08:04:45.792403+00:00",
+      "timestamp": "2026-08-31T09:32:22.396783+00:00",
       "data_backed": true,
-      "ml_outperformance_probability": null
+      "ml_outperformance_probability": null,
+      "disclaimer": "Quantitative research report generated for decision support. Not personalized investment advice under SEBI regulations."
     },
     "ICICIBANK.NS": {
       "symbol": "ICICIBANK.NS",
@@ -695,9 +701,10 @@
       "supporting_evidence": null,
       "invalidation_condition": null,
       "catalyst_timing": null,
-      "timestamp": "2026-08-31T08:04:45.792592+00:00",
+      "timestamp": "2026-08-31T09:32:22.396970+00:00",
       "data_backed": true,
-      "ml_outperformance_probability": null
+      "ml_outperformance_probability": null,
+      "disclaimer": "Quantitative research report generated for decision support. Not personalized investment advice under SEBI regulations."
     },
     "HDFCBANK.NS": {
       "symbol": "HDFCBANK.NS",
@@ -727,9 +734,10 @@
       "supporting_evidence": null,
       "invalidation_condition": null,
       "catalyst_timing": null,
-      "timestamp": "2026-08-31T08:04:45.792777+00:00",
+      "timestamp": "2026-08-31T09:32:22.397155+00:00",
       "data_backed": true,
-      "ml_outperformance_probability": null
+      "ml_outperformance_probability": null,
+      "disclaimer": "Quantitative research report generated for decision support. Not personalized investment advice under SEBI regulations."
     },
     "TECHM.NS": {
       "symbol": "TECHM.NS",
@@ -759,9 +767,10 @@
       "supporting_evidence": null,
       "invalidation_condition": null,
       "catalyst_timing": null,
-      "timestamp": "2026-08-31T08:04:45.792963+00:00",
+      "timestamp": "2026-08-31T09:32:22.397344+00:00",
       "data_backed": true,
-      "ml_outperformance_probability": null
+      "ml_outperformance_probability": null,
+      "disclaimer": "Quantitative research report generated for decision support. Not personalized investment advice under SEBI regulations."
     },
     "HCLTECH.NS": {
       "symbol": "HCLTECH.NS",
@@ -791,9 +800,10 @@
       "supporting_evidence": null,
       "invalidation_condition": null,
       "catalyst_timing": null,
-      "timestamp": "2026-08-31T08:04:45.793159+00:00",
+      "timestamp": "2026-08-31T09:32:22.397530+00:00",
       "data_backed": true,
-      "ml_outperformance_probability": null
+      "ml_outperformance_probability": null,
+      "disclaimer": "Quantitative research report generated for decision support. Not personalized investment advice under SEBI regulations."
     },
     "WIPRO.NS": {
       "symbol": "WIPRO.NS",
@@ -823,9 +833,10 @@
       "supporting_evidence": null,
       "invalidation_condition": null,
       "catalyst_timing": null,
-      "timestamp": "2026-08-31T08:04:45.793373+00:00",
+      "timestamp": "2026-08-31T09:32:22.397718+00:00",
       "data_backed": true,
-      "ml_outperformance_probability": null
+      "ml_outperformance_probability": null,
+      "disclaimer": "Quantitative research report generated for decision support. Not personalized investment advice under SEBI regulations."
     },
     "BPCL.NS": {
       "symbol": "BPCL.NS",
@@ -855,9 +866,10 @@
       "supporting_evidence": null,
       "invalidation_condition": null,
       "catalyst_timing": null,
-      "timestamp": "2026-08-31T08:04:45.793562+00:00",
+      "timestamp": "2026-08-31T09:32:22.397901+00:00",
       "data_backed": true,
-      "ml_outperformance_probability": null
+      "ml_outperformance_probability": null,
+      "disclaimer": "Quantitative research report generated for decision support. Not personalized investment advice under SEBI regulations."
     },
     "ONGC.NS": {
       "symbol": "ONGC.NS",
@@ -887,9 +899,10 @@
       "supporting_evidence": null,
       "invalidation_condition": null,
       "catalyst_timing": null,
-      "timestamp": "2026-08-31T08:04:45.793747+00:00",
+      "timestamp": "2026-08-31T09:32:22.398085+00:00",
       "data_backed": true,
-      "ml_outperformance_probability": null
+      "ml_outperformance_probability": null,
+      "disclaimer": "Quantitative research report generated for decision support. Not personalized investment advice under SEBI regulations."
     },
     "RELIANCE.NS": {
       "symbol": "RELIANCE.NS",
@@ -944,9 +957,10 @@
       "supporting_evidence": null,
       "invalidation_condition": null,
       "catalyst_timing": null,
-      "timestamp": "2026-08-31T08:04:45.793836+00:00",
+      "timestamp": "2026-08-31T09:32:22.398169+00:00",
       "data_backed": true,
-      "ml_outperformance_probability": null
+      "ml_outperformance_probability": null,
+      "disclaimer": "Quantitative research report generated for decision support. Not personalized investment advice under SEBI regulations."
     },
     "TCS": {
       "symbol": "TCS",
@@ -980,9 +994,10 @@
       "supporting_evidence": null,
       "invalidation_condition": null,
       "catalyst_timing": null,
-      "timestamp": "2026-08-31T08:04:45.794064+00:00",
+      "timestamp": "2026-08-31T09:32:22.398301+00:00",
       "data_backed": true,
-      "ml_outperformance_probability": null
+      "ml_outperformance_probability": null,
+      "disclaimer": "Quantitative research report generated for decision support. Not personalized investment advice under SEBI regulations."
     },
     "INFY.NS": {
       "symbol": "INFY.NS",
@@ -1023,9 +1038,10 @@
       "supporting_evidence": null,
       "invalidation_condition": null,
       "catalyst_timing": null,
-      "timestamp": "2026-08-31T08:04:45.794820+00:00",
+      "timestamp": "2026-08-31T09:32:22.399021+00:00",
       "data_backed": false,
-      "ml_outperformance_probability": null
+      "ml_outperformance_probability": null,
+      "disclaimer": "Quantitative research report generated for decision support. Not personalized investment advice under SEBI regulations."
     }
   }
 }

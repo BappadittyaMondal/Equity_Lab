@@ -337,7 +337,7 @@ def process_llm_query(req: QueryRequest) -> QueryResponse:
 class LLMService:
     """Wrapper formatting ConvictionCall into human-readable narrative.
 
-    Phase 3: Uses evidence from conviction call, not boilerplate.
+    Phase 3: Uses evidence from conviction call, grounded in Gemini LLM synthesis when available.
     """
 
     def generate_narrative(self, conviction: ConvictionCall) -> str:
@@ -358,4 +358,34 @@ class LLMService:
             f"Explain WHY this verdict was reached, what the key supporting evidence is, "
             f"and what could change the verdict. Flag any uncertainty explicitly."
         )
-        return generate_text(prompt)
+
+        gemini_key = settings.GEMINI_API_KEY
+        if gemini_key and "your_" not in gemini_key.lower():
+            try:
+                try:
+                    from google import genai
+                    client = genai.Client(api_key=gemini_key)
+                    resp = client.models.generate_content(model="gemini-1.5-flash", contents=prompt)
+                    if resp.text:
+                        return f"[Gemini Synthesized Narrative] {resp.text.strip()}"
+                except Exception:
+                    import google.generativeai as genai
+                    genai.configure(api_key=gemini_key)
+                    model = genai.GenerativeModel("gemini-1.5-flash")
+                    resp = model.generate_content(prompt)
+                    if resp.text:
+                        return f"[Gemini Synthesized Narrative] {resp.text.strip()}"
+            except Exception as e:
+                logger.warning("Gemini narrative generation failed: %s — falling back to deterministic narrative", e)
+
+        # Deterministic narrative fallback
+        contributing_str = ", ".join(conviction.contributing_engines[:5]) if conviction.contributing_engines else "None"
+        contradicting_str = ", ".join(conviction.contradicting_engines[:5]) if conviction.contradicting_engines else "None"
+        return (
+            f"Narrative Synthesis for {conviction.symbol} — Verdict: {conviction.verdict} "
+            f"(Conviction Score: {conviction.conviction_score}/100, Tier: {conviction.confidence_tier}). "
+            f"Primary Thesis: {conviction.primary_thesis}. "
+            f"Key Contributing Engines: [{contributing_str}]. "
+            f"Key Contradicting Factors: [{contradicting_str}]."
+        )
+
