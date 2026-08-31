@@ -78,7 +78,10 @@ def classify_market_regime(
     # Synthesize breadth percentage proxy (50dma)
     breadth_50dma = 75.0 if (above_50dma and sma50_slope > 0) else (40.0 if above_50dma else 20.0)
 
-    # 4. Regime Classification Decision Rules (§6)
+    # 4. 3-State HMM Market Regime Fitting
+    hmm_res = fit_3state_hmm_market_regime(daily_returns.to_numpy()) if len(daily_returns) >= 60 else None
+
+    # 5. Regime Classification Decision Rules (§6)
     if realized_vol_20d > 28.0:
         regime_code = "R5_PANIC_STRESS"
         desc = "Panic / Stress — High realized volatility, correlation spike, liquidity degradation"
@@ -112,7 +115,10 @@ def classify_market_regime(
         breadth_pct_above_50dma=round(breadth_50dma, 1),
         advance_decline_ratio=round(ad_ratio, 2),
         realized_volatility_pct=round(realized_vol_20d, 1),
-        market_stress_level=stress
+        market_stress_level=stress,
+        hmm_state=hmm_res.get("current_state") if hmm_res else None,
+        hmm_label=hmm_res.get("state_label") if hmm_res else None,
+        hmm_probabilities=hmm_res.get("state_probabilities") if hmm_res else None
     )
 
 

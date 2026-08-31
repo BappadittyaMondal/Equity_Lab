@@ -15,6 +15,13 @@ def test_3state_hmm_market_regime():
     assert len(res["state_probabilities"]) == 3
 
 
+def test_classify_market_regime_hmm_wiring():
+    from app.services.research.market_regime import classify_market_regime
+    regime = classify_market_regime("^NSEI")
+    assert hasattr(regime, "regime_code")
+    assert hasattr(regime, "hmm_state")
+
+
 def test_evt_gpd_engine():
     rng = np.random.RandomState(42)
     rets = rng.exponential(scale=0.02, size=200)

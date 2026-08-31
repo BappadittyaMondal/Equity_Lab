@@ -119,15 +119,34 @@ class TestSwingPredictiveFilters(unittest.TestCase):
         self.assertTrue(res["is_liquid_enough"])
 
     def test_high_conviction_3to1_reward_risk_ratio_assertion(self):
-        res = SwingPredictiveEngine.predict_swing_30d(self.trending_df)
+        # Construct strong institutional breakout series to reach confluence_score >= 80.0
+        dates = pd.date_range("2025-01-01", periods=60)
+        closes = np.linspace(100.0, 180.0, 60) + np.random.normal(0, 0.5, 60)
+        highs = closes + 2.0
+        lows = closes - 1.0
+        opens = closes - 0.5
+        volumes = np.full(60, 500_000)
+        delivery_pct = np.full(60, 0.75)
+        
+        strong_df = pd.DataFrame({
+            "open": opens,
+            "high": highs,
+            "low": lows,
+            "close": closes,
+            "volume": volumes,
+            "delivery_pct": delivery_pct
+        }, index=dates)
+
+        res = SwingPredictiveEngine.predict_swing_30d(strong_df)
         self.assertIn("reward_risk_ratio", res)
         self.assertIn("reward_risk_tier", res)
-        if res.get("confluence_score", 0) >= 80.0:
-            target = res["model_estimated_target"]
-            cp = res["current_price"]
-            sl = res["stop_loss"]
-            rr = (target - cp) / (cp - sl)
-            self.assertGreaterEqual(rr, 3.0)
+        self.assertGreaterEqual(res["confluence_score"], 80.0)
+        
+        target = res["model_estimated_target"]
+        cp = res["current_price"]
+        sl = res["stop_loss"]
+        rr = (target - cp) / (cp - sl)
+        self.assertGreaterEqual(round(rr, 2), 3.0)
 
 
 if __name__ == "__main__":

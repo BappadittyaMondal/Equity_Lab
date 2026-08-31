@@ -1075,6 +1075,9 @@ class MarketRegimeClassification(BaseModel):
     advance_decline_ratio: float = 1.65
     realized_volatility_pct: float = 14.2
     market_stress_level: str = "LOW"
+    hmm_state: Optional[int] = None
+    hmm_label: Optional[str] = None
+    hmm_probabilities: Optional[List[float]] = None
 
 
 class TechnicalStateVector(BaseModel):

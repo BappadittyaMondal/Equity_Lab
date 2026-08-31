@@ -132,7 +132,11 @@ def run_inflection_multibagger(symbol: str) -> StrategyRunResponse:
     volume_z_pass = z_vol >= 3.0
 
     # 2. Float Delivery Turnover Estimate (DTR_5d)
-    delivery_pct = float(hist['Delivery_Pct'].iloc[-1]) if 'Delivery_Pct' in hist and len(hist['Delivery_Pct']) > 0 else 40.0
+    if 'Delivery_Pct' in hist and len(hist['Delivery_Pct']) > 0 and not np.isnan(hist['Delivery_Pct'].iloc[-1]):
+        delivery_pct = float(hist['Delivery_Pct'].iloc[-1])
+    else:
+        from app.services.market_data import get_latest_db_delivery_pct
+        delivery_pct = get_latest_db_delivery_pct(symbol)
     dtr_5d = round((vol_5d_avg * (delivery_pct / 100.0)) / max(vol_mean_252 * 10, 1.0) * 100.0, 2)
     dtr_pass = dtr_5d >= 2.0 or z_vol >= 3.5
 

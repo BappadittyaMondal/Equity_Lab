@@ -1,12 +1,12 @@
 {
-  "generated_at": "2026-08-31T10:08:52.448306+00:00",
+  "generated_at": "2026-08-31T10:43:06.762857+00:00",
   "auto_refresh_summary": {
     "scanned_count": 14,
     "stale_count": 0,
     "refreshed_count": 0,
     "refreshed_symbols": [],
     "failed_symbols": [],
-    "timestamp": "2026-08-31T15:38:52.415668+05:30",
+    "timestamp": "2026-08-31T16:13:06.742687+05:30",
     "max_age_hours_threshold": 72
   },
   "data": {
@@ -41,7 +41,7 @@
       "supporting_evidence": null,
       "invalidation_condition": null,
       "catalyst_timing": null,
-      "timestamp": "2026-08-31T10:08:52.435214+00:00",
+      "timestamp": "2026-08-31T10:43:06.754712+00:00",
       "data_backed": true,
       "ml_outperformance_probability": null,
       "disclaimer": "Quantitative research report generated for decision support. Not personalized investment advice under SEBI regulations."
@@ -74,7 +74,7 @@
       "supporting_evidence": null,
       "invalidation_condition": null,
       "catalyst_timing": null,
-      "timestamp": "2026-08-31T10:08:52.442083+00:00",
+      "timestamp": "2026-08-31T10:43:06.755945+00:00",
       "data_backed": true,
       "ml_outperformance_probability": null,
       "disclaimer": "Quantitative research report generated for decision support. Not personalized investment advice under SEBI regulations."
@@ -107,7 +107,7 @@
       "supporting_evidence": null,
       "invalidation_condition": null,
       "catalyst_timing": null,
-      "timestamp": "2026-08-31T10:08:52.442422+00:00",
+      "timestamp": "2026-08-31T10:43:06.756183+00:00",
       "data_backed": true,
       "ml_outperformance_probability": null,
       "disclaimer": "Quantitative research report generated for decision support. Not personalized investment advice under SEBI regulations."
@@ -140,7 +140,7 @@
       "supporting_evidence": null,
       "invalidation_condition": null,
       "catalyst_timing": null,
-      "timestamp": "2026-08-31T10:08:52.442631+00:00",
+      "timestamp": "2026-08-31T10:43:06.756376+00:00",
       "data_backed": true,
       "ml_outperformance_probability": null,
       "disclaimer": "Quantitative research report generated for decision support. Not personalized investment advice under SEBI regulations."
@@ -173,7 +173,7 @@
       "supporting_evidence": null,
       "invalidation_condition": null,
       "catalyst_timing": null,
-      "timestamp": "2026-08-31T10:08:52.442833+00:00",
+      "timestamp": "2026-08-31T10:43:06.756628+00:00",
       "data_backed": true,
       "ml_outperformance_probability": null,
       "disclaimer": "Quantitative research report generated for decision support. Not personalized investment advice under SEBI regulations."
@@ -206,7 +206,7 @@
       "supporting_evidence": null,
       "invalidation_condition": null,
       "catalyst_timing": null,
-      "timestamp": "2026-08-31T10:08:52.443019+00:00",
+      "timestamp": "2026-08-31T10:43:06.757030+00:00",
       "data_backed": true,
       "ml_outperformance_probability": null,
       "disclaimer": "Quantitative research report generated for decision support. Not personalized investment advice under SEBI regulations."
@@ -239,7 +239,7 @@
       "supporting_evidence": null,
       "invalidation_condition": null,
       "catalyst_timing": null,
-      "timestamp": "2026-08-31T10:08:52.443203+00:00",
+      "timestamp": "2026-08-31T10:43:06.757632+00:00",
       "data_backed": true,
       "ml_outperformance_probability": null,
       "disclaimer": "Quantitative research report generated for decision support. Not personalized investment advice under SEBI regulations."
@@ -272,7 +272,7 @@
       "supporting_evidence": null,
       "invalidation_condition": null,
       "catalyst_timing": null,
-      "timestamp": "2026-08-31T10:08:52.443388+00:00",
+      "timestamp": "2026-08-31T10:43:06.757939+00:00",
       "data_backed": true,
       "ml_outperformance_probability": null,
       "disclaimer": "Quantitative research report generated for decision support. Not personalized investment advice under SEBI regulations."
@@ -305,7 +305,7 @@
       "supporting_evidence": null,
       "invalidation_condition": null,
       "catalyst_timing": null,
-      "timestamp": "2026-08-31T10:08:52.443570+00:00",
+      "timestamp": "2026-08-31T10:43:06.758157+00:00",
       "data_backed": true,
       "ml_outperformance_probability": null,
       "disclaimer": "Quantitative research report generated for decision support. Not personalized investment advice under SEBI regulations."
@@ -338,7 +338,7 @@
       "supporting_evidence": null,
       "invalidation_condition": null,
       "catalyst_timing": null,
-      "timestamp": "2026-08-31T10:08:52.443786+00:00",
+      "timestamp": "2026-08-31T10:43:06.758353+00:00",
       "data_backed": true,
       "ml_outperformance_probability": null,
       "disclaimer": "Quantitative research report generated for decision support. Not personalized investment advice under SEBI regulations."
@@ -371,7 +371,7 @@
       "supporting_evidence": null,
       "invalidation_condition": null,
       "catalyst_timing": null,
-      "timestamp": "2026-08-31T10:08:52.444088+00:00",
+      "timestamp": "2026-08-31T10:43:06.758562+00:00",
       "data_backed": true,
       "ml_outperformance_probability": null,
       "disclaimer": "Quantitative research report generated for decision support. Not personalized investment advice under SEBI regulations."
@@ -404,7 +404,7 @@
       "supporting_evidence": null,
       "invalidation_condition": null,
       "catalyst_timing": null,
-      "timestamp": "2026-08-31T10:08:52.444393+00:00",
+      "timestamp": "2026-08-31T10:43:06.758750+00:00",
       "data_backed": true,
       "ml_outperformance_probability": null,
       "disclaimer": "Quantitative research report generated for decision support. Not personalized investment advice under SEBI regulations."
@@ -437,7 +437,7 @@
       "supporting_evidence": null,
       "invalidation_condition": null,
       "catalyst_timing": null,
-      "timestamp": "2026-08-31T10:08:52.444594+00:00",
+      "timestamp": "2026-08-31T10:43:06.759020+00:00",
       "data_backed": true,
       "ml_outperformance_probability": null,
       "disclaimer": "Quantitative research report generated for decision support. Not personalized investment advice under SEBI regulations."
@@ -470,7 +470,7 @@
       "supporting_evidence": null,
       "invalidation_condition": null,
       "catalyst_timing": null,
-      "timestamp": "2026-08-31T10:08:52.444776+00:00",
+      "timestamp": "2026-08-31T10:43:06.759243+00:00",
       "data_backed": true,
       "ml_outperformance_probability": null,
       "disclaimer": "Quantitative research report generated for decision support. Not personalized investment advice under SEBI regulations."
@@ -503,7 +503,7 @@
       "supporting_evidence": null,
       "invalidation_condition": null,
       "catalyst_timing": null,
-      "timestamp": "2026-08-31T10:08:52.444951+00:00",
+      "timestamp": "2026-08-31T10:43:06.759449+00:00",
       "data_backed": true,
       "ml_outperformance_probability": null,
       "disclaimer": "Quantitative research report generated for decision support. Not personalized investment advice under SEBI regulations."
@@ -536,7 +536,7 @@
       "supporting_evidence": null,
       "invalidation_condition": null,
       "catalyst_timing": null,
-      "timestamp": "2026-08-31T10:08:52.445126+00:00",
+      "timestamp": "2026-08-31T10:43:06.759654+00:00",
       "data_backed": true,
       "ml_outperformance_probability": null,
       "disclaimer": "Quantitative research report generated for decision support. Not personalized investment advice under SEBI regulations."
@@ -569,7 +569,7 @@
       "supporting_evidence": null,
       "invalidation_condition": null,
       "catalyst_timing": null,
-      "timestamp": "2026-08-31T10:08:52.445299+00:00",
+      "timestamp": "2026-08-31T10:43:06.759839+00:00",
       "data_backed": true,
       "ml_outperformance_probability": null,
       "disclaimer": "Quantitative research report generated for decision support. Not personalized investment advice under SEBI regulations."
@@ -602,7 +602,7 @@
       "supporting_evidence": null,
       "invalidation_condition": null,
       "catalyst_timing": null,
-      "timestamp": "2026-08-31T10:08:52.445471+00:00",
+      "timestamp": "2026-08-31T10:43:06.760024+00:00",
       "data_backed": true,
       "ml_outperformance_probability": null,
       "disclaimer": "Quantitative research report generated for decision support. Not personalized investment advice under SEBI regulations."
@@ -635,7 +635,7 @@
       "supporting_evidence": null,
       "invalidation_condition": null,
       "catalyst_timing": null,
-      "timestamp": "2026-08-31T10:08:52.445641+00:00",
+      "timestamp": "2026-08-31T10:43:06.760204+00:00",
       "data_backed": true,
       "ml_outperformance_probability": null,
       "disclaimer": "Quantitative research report generated for decision support. Not personalized investment advice under SEBI regulations."
@@ -668,7 +668,7 @@
       "supporting_evidence": null,
       "invalidation_condition": null,
       "catalyst_timing": null,
-      "timestamp": "2026-08-31T10:08:52.445811+00:00",
+      "timestamp": "2026-08-31T10:43:06.760386+00:00",
       "data_backed": true,
       "ml_outperformance_probability": null,
       "disclaimer": "Quantitative research report generated for decision support. Not personalized investment advice under SEBI regulations."
@@ -701,7 +701,7 @@
       "supporting_evidence": null,
       "invalidation_condition": null,
       "catalyst_timing": null,
-      "timestamp": "2026-08-31T10:08:52.445979+00:00",
+      "timestamp": "2026-08-31T10:43:06.760589+00:00",
       "data_backed": true,
       "ml_outperformance_probability": null,
       "disclaimer": "Quantitative research report generated for decision support. Not personalized investment advice under SEBI regulations."
@@ -734,7 +734,7 @@
       "supporting_evidence": null,
       "invalidation_condition": null,
       "catalyst_timing": null,
-      "timestamp": "2026-08-31T10:08:52.446149+00:00",
+      "timestamp": "2026-08-31T10:43:06.760774+00:00",
       "data_backed": true,
       "ml_outperformance_probability": null,
       "disclaimer": "Quantitative research report generated for decision support. Not personalized investment advice under SEBI regulations."
@@ -767,7 +767,7 @@
       "supporting_evidence": null,
       "invalidation_condition": null,
       "catalyst_timing": null,
-      "timestamp": "2026-08-31T10:08:52.446318+00:00",
+      "timestamp": "2026-08-31T10:43:06.760956+00:00",
       "data_backed": true,
       "ml_outperformance_probability": null,
       "disclaimer": "Quantitative research report generated for decision support. Not personalized investment advice under SEBI regulations."
@@ -800,7 +800,7 @@
       "supporting_evidence": null,
       "invalidation_condition": null,
       "catalyst_timing": null,
-      "timestamp": "2026-08-31T10:08:52.446488+00:00",
+      "timestamp": "2026-08-31T10:43:06.761134+00:00",
       "data_backed": true,
       "ml_outperformance_probability": null,
       "disclaimer": "Quantitative research report generated for decision support. Not personalized investment advice under SEBI regulations."
@@ -833,7 +833,7 @@
       "supporting_evidence": null,
       "invalidation_condition": null,
       "catalyst_timing": null,
-      "timestamp": "2026-08-31T10:08:52.446657+00:00",
+      "timestamp": "2026-08-31T10:43:06.761316+00:00",
       "data_backed": true,
       "ml_outperformance_probability": null,
       "disclaimer": "Quantitative research report generated for decision support. Not personalized investment advice under SEBI regulations."
@@ -866,7 +866,7 @@
       "supporting_evidence": null,
       "invalidation_condition": null,
       "catalyst_timing": null,
-      "timestamp": "2026-08-31T10:08:52.446855+00:00",
+      "timestamp": "2026-08-31T10:43:06.761494+00:00",
       "data_backed": true,
       "ml_outperformance_probability": null,
       "disclaimer": "Quantitative research report generated for decision support. Not personalized investment advice under SEBI regulations."
@@ -899,7 +899,7 @@
       "supporting_evidence": null,
       "invalidation_condition": null,
       "catalyst_timing": null,
-      "timestamp": "2026-08-31T10:08:52.447022+00:00",
+      "timestamp": "2026-08-31T10:43:06.761674+00:00",
       "data_backed": true,
       "ml_outperformance_probability": null,
       "disclaimer": "Quantitative research report generated for decision support. Not personalized investment advice under SEBI regulations."
@@ -957,7 +957,7 @@
       "supporting_evidence": null,
       "invalidation_condition": null,
       "catalyst_timing": null,
-      "timestamp": "2026-08-31T10:08:52.447096+00:00",
+      "timestamp": "2026-08-31T10:43:06.761751+00:00",
       "data_backed": true,
       "ml_outperformance_probability": null,
       "disclaimer": "Quantitative research report generated for decision support. Not personalized investment advice under SEBI regulations."
@@ -994,7 +994,7 @@
       "supporting_evidence": null,
       "invalidation_condition": null,
       "catalyst_timing": null,
-      "timestamp": "2026-08-31T10:08:52.447216+00:00",
+      "timestamp": "2026-08-31T10:43:06.761876+00:00",
       "data_backed": true,
       "ml_outperformance_probability": null,
       "disclaimer": "Quantitative research report generated for decision support. Not personalized investment advice under SEBI regulations."
@@ -1038,7 +1038,7 @@
       "supporting_evidence": null,
       "invalidation_condition": null,
       "catalyst_timing": null,
-      "timestamp": "2026-08-31T10:08:52.447726+00:00",
+      "timestamp": "2026-08-31T10:43:06.762340+00:00",
       "data_backed": false,
       "ml_outperformance_probability": null,
       "disclaimer": "Quantitative research report generated for decision support. Not personalized investment advice under SEBI regulations."

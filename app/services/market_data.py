@@ -297,6 +297,27 @@ def _store_in_cache(symbol: str, quote: Quote) -> None:
     except Exception as e:
         logger.warning("Failed to persist quote cache for %s: %s", symbol, e)
 
+
+def get_latest_db_delivery_pct(symbol: str) -> float:
+    """Queries local DB for the symbol's latest recorded delivery_pct before falling back to 40.0."""
+    try:
+        norm_sym = normalize_symbol(symbol)
+        conn = get_db_connection()
+        try:
+            cur = conn.cursor()
+            cur.execute(
+                "SELECT delivery_pct FROM market_daily_snapshots WHERE symbol = ? AND delivery_pct IS NOT NULL ORDER BY published_at DESC LIMIT 1",
+                (norm_sym,)
+            )
+            row = cur.fetchone()
+            if row and row[0] is not None:
+                return float(row[0])
+        finally:
+            conn.close()
+    except Exception:
+        pass
+    return 40.0
+
 def _load_from_cache(symbol: str, max_age_seconds: int = 259200) -> Optional[Quote]:
     """Load cached quote if fetched within max_age_seconds (default 72 hours / 3 days max gap)."""
     try:

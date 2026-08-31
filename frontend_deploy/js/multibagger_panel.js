@@ -202,10 +202,10 @@ export async function executeFinderQuery(finderType = "multibagger") {
       ];
     } else if (finderType === "e19") {
       candidates = [
-        { symbol: "POLYCAB", name: "Polycab India Ltd (E19 Inflection)", price: 6850, score: 96, cagr: "3.8x Vol Z", roce: "3.2% DTR", de: "Piotroski 8" },
-        { symbol: "KEI", name: "KEI Industries Ltd (E19 Inflection)", price: 4220, score: 93, cagr: "3.4x Vol Z", roce: "2.8% DTR", de: "Piotroski 7" },
-        { symbol: "KAYNES", name: "Kaynes Technology India", price: 5410, score: 91, cagr: "4.1x Vol Z", roce: "4.5% DTR", de: "Piotroski 8" },
-        { symbol: "SHILCHAR", name: "Shilchar Technologies", price: 6150, score: 89, cagr: "3.2x Vol Z", roce: "2.5% DTR", de: "Piotroski 7" },
+        { symbol: "POLYCAB", name: "Polycab India Ltd (E19 Inflection)", price: 6850, score: 96, volZ: "3.8x", dtr: "3.2%", piotroski: "8 / 9" },
+        { symbol: "KEI", name: "KEI Industries Ltd (E19 Inflection)", price: 4220, score: 93, volZ: "3.4x", dtr: "2.8%", piotroski: "7 / 9" },
+        { symbol: "KAYNES", name: "Kaynes Technology India", price: 5410, score: 91, volZ: "4.1x", dtr: "4.5%", piotroski: "8 / 9" },
+        { symbol: "SHILCHAR", name: "Shilchar Technologies", price: 6150, score: 89, volZ: "3.2x", dtr: "2.5%", piotroski: "7 / 9" },
       ];
     } else if (finderType === "sip") {
       candidates = [
