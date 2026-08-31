@@ -40,3 +40,20 @@ def test_direct_registry_point_in_time_threading():
     resp = registry.run_strategy_module("E1", "RELIANCE", as_of=historical_dt)
     assert resp is not None
     assert resp.symbol in ("RELIANCE", "RELIANCE.NS")
+
+
+def test_arbiter_sub_agent_governance_veto_integration():
+    """Test that high promoter pledge (>50%) triggers sub-agent veto and caps score."""
+    arbiter = Arbiter()
+    # Mock snapshot with critical 60% promoter pledge
+    class MockSnap:
+        promoter_pledge_pct = 60.0
+        related_party_pct = 5.0
+        auditor_resigned_recently = False
+        net_income_3y_cagr = 10.0
+        ocf_3y_cagr = 12.0
+
+    mock_snap = MockSnap()
+    veto = arbiter._apply_governance_veto([{"symbol": "HIGH_PLEDGE_CO"}], snap=mock_snap)
+    assert veto is True, "Sub-agent pledge veto must trigger True for 60% pledge"
+

@@ -6,7 +6,7 @@ Key changes from Phase 3:
   - Weighted composite scoring: Fundamental 30%, Valuation 20%, Technical 15%,
     Forensic 15%, Macro/Regime 10%, Prediction (from L10) 10%
   - Per-engine confidence: score × (data_quality_grade / 100)
-  - Forensic veto: Beneish > -1.78, Altman < 1.81, or pledge > 40% → cap at 30
+  - Forensic veto: Beneish > -1.78, Altman < 1.81, or pledge > 40% → score capped at 15 (50% of VETO_SCORE_CAP 30)
   - 5-tier granular verdicts: Strong Buy / Buy / Accumulate / Watch / Avoid
   - Auto-logs every call to prediction_ledger (Phase 5 prerequisite)
   - Generates full DecisionAuditTrail (Layer 14)
@@ -295,22 +295,24 @@ class Arbiter:
                 return True
 
         # Check Micro/Small-Cap Integrity & Forensic Audit Gates
-        try:
-            from app.services.research.microcap_integrity_gate import evaluate_microcap_integrity_gate
-            from app.services.research.forensic_auditor import ForensicAuditor
+        symbol = None
+        for out in outputs:
+            if out.get("symbol"):
+                symbol = out["symbol"]
+                break
 
-            symbol = None
-            for out in outputs:
-                if out.get("symbol"):
-                    symbol = out["symbol"]
-                    break
-
-            if symbol:
+        if symbol:
+            try:
+                from app.services.research.microcap_integrity_gate import evaluate_microcap_integrity_gate
                 m_res = evaluate_microcap_integrity_gate(symbol)
                 if not m_res.pass_all_gates:
                     logger.warning("Microcap integrity gate veto triggered for %s: %s", symbol, m_res.veto_reasons)
                     return True
+            except Exception as e:
+                logger.debug("Microcap integrity gate check skipped: %s", e)
 
+            try:
+                from app.services.research.forensic_auditor import ForensicAuditor
                 related_party_pct = getattr(snap, "related_party_pct", None) if snap else None
                 auditor_resigned = getattr(snap, "auditor_resigned_recently", None) if snap else None
                 net_income_cagr = getattr(snap, "net_income_3y_cagr", None) if snap else None
@@ -326,16 +328,31 @@ class Arbiter:
                 if f_res.governance_veto:
                     logger.warning("Forensic auditor veto triggered for %s: %s", symbol, f_res.red_flags)
                     return True
+            except Exception as e:
+                logger.debug("Forensic auditor check skipped: %s", e)
 
+            try:
                 # Check Sub-Agent qualitative audit findings for CRITICAL_RED_FLAG
                 from app.services.intelligence.sub_agents import ForensicAuditorSubAgent
-                sub_report = ForensicAuditorSubAgent().evaluate(symbol, snap=snap)
+                if isinstance(snap, dict):
+                    snap_dict = snap
+                elif snap:
+                    snap_dict = {
+                        "promoter_pledge_pct": getattr(snap, "promoter_pledge_pct", None),
+                        "related_party_pct": getattr(snap, "related_party_pct", None),
+                        "auditor_resigned_recently": getattr(snap, "auditor_resigned_recently", None),
+                        "net_income_3y_cagr": getattr(snap, "net_income_3y_cagr", None),
+                        "ocf_3y_cagr": getattr(snap, "ocf_3y_cagr", None),
+                    }
+                else:
+                    snap_dict = None
+                sub_report = ForensicAuditorSubAgent().evaluate(symbol, ownership_snapshot=snap_dict)
                 for finding in sub_report.findings:
                     if getattr(finding.severity, "value", str(finding.severity)) == "CRITICAL_RED_FLAG":
                         logger.warning("Sub-agent critical red flag veto triggered for %s: %s", symbol, finding.finding)
                         return True
-        except Exception as e:
-            logger.debug("Microcap/Forensic gate check skipped: %s", e)
+            except Exception as e:
+                logger.debug("Sub-agent audit check skipped: %s", e)
 
         return False
 

@@ -41,12 +41,12 @@ class DriftDetector:
         if count == 0:
             return DriftReport(
                 total_predictions_evaluated=0,
-                rolling_30d_accuracy_pct=100.0,
-                rolling_90d_accuracy_pct=100.0,
+                rolling_30d_accuracy_pct=0.0,
+                rolling_90d_accuracy_pct=0.0,
                 high_score_decay_detected=False,
-                score_monotonicity_status="HEALTHY (NO DATA)",
-                drift_alert_level="GREEN",
-                action_required="None. Awaiting live outcome data.",
+                score_monotonicity_status="INSUFFICIENT_DATA",
+                drift_alert_level="UNKNOWN",
+                action_required="Awaiting realized outcome data for empirical drift calibration.",
             )
 
         high_score_samples = [r for r in rows if r["score"] >= 75]

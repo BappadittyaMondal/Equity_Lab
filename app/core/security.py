@@ -79,6 +79,10 @@ class ApiSecurityMiddleware(BaseHTTPMiddleware):
         # Health checks stay unauthenticated for infrastructure monitoring.
         if settings.REQUIRE_AUTH and request.url.path != "/api/v1/health":
             if not settings.API_KEY_SECRET:
+                env = os.getenv("IERL_ENVIRONMENT", "development").lower()
+                if env == "production":
+                    logger.error("FATAL: REQUIRE_AUTH is True but API_KEY_SECRET is empty in production mode.")
+                    return JSONResponse(status_code=500, content={"detail": "Server authentication configuration error."})
                 logger.warning("SECURITY WARNING: REQUIRE_AUTH is True but API_KEY_SECRET is empty! API running unauthenticated.")
             else:
                 supplied_key = request.headers.get("X-API-Key", "")

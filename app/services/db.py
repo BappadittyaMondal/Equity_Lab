@@ -110,6 +110,7 @@ def get_connection():
     On Vercel serverless environments, falls back to `/tmp/ierl_research.db` to prevent read-only filesystem locks.
     """
     db_url = os.getenv("DATABASE_URL")
+    env = os.getenv("IERL_ENVIRONMENT", "development").lower()
     if db_url and (db_url.startswith("postgres://") or db_url.startswith("postgresql://")):
         try:
             import psycopg2
@@ -124,7 +125,11 @@ def get_connection():
             return PostgresConnectionWrapper(conn)
         except Exception as exc:
             import logging
-            logging.getLogger(__name__).warning("Failed to connect to DATABASE_URL, falling back to SQLite: %s", exc)
+            logger = logging.getLogger(__name__)
+            if env == "production":
+                logger.error("FATAL: PostgreSQL connection failed in production mode: %s", exc)
+                raise RuntimeError(f"Database connection failure in production: {exc}")
+            logger.warning("Failed to connect to DATABASE_URL in development, falling back to SQLite: %s", exc)
 
     # SQLite connection with /tmp fallback for Vercel serverless execution
     db_path = settings.DATA_STORE_PATH

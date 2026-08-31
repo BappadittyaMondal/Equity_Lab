@@ -54,4 +54,6 @@ The following backend endpoints are high-performance analytical engines operatio
 1. `/api/v1/data/custom-screen` — Dynamic Universal AST Custom Screener Engine (`POST /api/v1/data/custom-screen`). Reason: Serves programmatic AST query DSL callers; UI query builder scheduled for v1.1.
 2. `/api/v1/multibagger/institutional-rank` — Universal 27-Engine Multibagger Ranker (`POST /api/v1/multibagger/institutional-rank`). Reason: High-throughput batch calculation engine consumed by background schedulers and CLI reports; UI grid view targeted for v1.1.
 3. `/api/v1/multibagger/institutional-score/{symbol}` — Single-Stock 27-Engine Scorecard (`GET /api/v1/multibagger/institutional-score/{symbol}`). Reason: Deep vector breakdown consumed by automated reporting pipelines; modal UI inspector scheduled for v1.1.
+4. `/api/v1/admin/*` — Administrative & System Health Endpoints (`GET /api/v1/admin/health`, `/api/v1/admin/cache/clear`, etc.). Reason: Dedicated exclusively to infrastructure monitoring, operator commands, and CLI automation.
+5. `/api/v1/digest/*` — Watchlist & Portfolio Digest Service (`GET /api/v1/digest/watchlist-summary`). Reason: Background cron generation producing static digest files; consumed by automated notification workers.
 
