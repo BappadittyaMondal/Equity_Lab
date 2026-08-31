@@ -86,3 +86,31 @@ def test_arbiter_mivs_integration():
     assert call is not None
     assert call.symbol == "RELIANCE"
     assert call.conviction_score >= 0
+
+
+def test_arbiter_subagent_critical_red_flag_veto(monkeypatch):
+    from app.services.intelligence.sub_agents import ForensicAuditorSubAgent
+    from app.services.intelligence.event_extractor import SubAgentAuditReport, QualitativeEvidenceFinding, FindingSeverity
+
+    def mock_evaluate(self, symbol, snap=None):
+        return SubAgentAuditReport(
+            agent_name="ForensicAuditorSubAgent",
+            symbol=symbol,
+            findings=[
+                QualitativeEvidenceFinding(
+                    category="GOVERNANCE_FRAUD",
+                    finding="High promoter pledge exceeding critical threshold",
+                    severity=FindingSeverity.CRITICAL_RED_FLAG,
+                    confidence=0.95,
+                    source_tag="BSE_FILING"
+                )
+            ]
+        )
+
+    monkeypatch.setattr(ForensicAuditorSubAgent, "evaluate", mock_evaluate)
+
+    arbiter = Arbiter()
+    call = arbiter.arbitrate("RELIANCE")
+    assert call.verdict in ("Avoid", "ABSTAIN")
+    assert call.conviction_score <= 30.0
+

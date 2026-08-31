@@ -325,6 +325,14 @@ class Arbiter:
                 if f_res.governance_veto:
                     logger.warning("Forensic auditor veto triggered for %s: %s", symbol, f_res.red_flags)
                     return True
+
+                # Check Sub-Agent qualitative audit findings for CRITICAL_RED_FLAG
+                from app.services.intelligence.sub_agents import ForensicAuditorSubAgent
+                sub_report = ForensicAuditorSubAgent().evaluate(symbol, snap=snap)
+                for finding in sub_report.findings:
+                    if getattr(finding.severity, "value", str(finding.severity)) == "CRITICAL_RED_FLAG":
+                        logger.warning("Sub-agent critical red flag veto triggered for %s: %s", symbol, finding.finding)
+                        return True
         except Exception as e:
             logger.debug("Microcap/Forensic gate check skipped: %s", e)
 

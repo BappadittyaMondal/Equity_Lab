@@ -92,6 +92,11 @@ def test_api_js_endpoint_wiring():
         "/api/v1/monitoring/strategy-health",
         "/api/v1/monitoring/prediction-ledger",
         "/api/v1/readiness",
+        "/api/v1/technical/screener",
+        "/api/v1/technical/regime",
+        "/api/v1/research/swing-predictive",
+        "/api/v1/research/walk-forward",
+        "/api/v1/turnaround/rank/universe",
     ]
     for ep in endpoints:
         assert ep in code, f"Missing endpoint fetch call '{ep}' in api.js"

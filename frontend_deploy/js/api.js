@@ -967,4 +967,61 @@ export async function loadTurnaroundTransitionHistory(symbol = "RELIANCE") {
   }
 }
 
+export async function loadTechnicalScreener() {
+  try {
+    const resp = await apiFetch(`/api/v1/technical/screener`);
+    if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
+    return await resp.json();
+  } catch (err) {
+    console.warn("Technical screener load failed:", err.message);
+    return null;
+  }
+}
+
+export async function loadTechnicalRegime() {
+  try {
+    const resp = await apiFetch(`/api/v1/technical/regime`);
+    if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
+    return await resp.json();
+  } catch (err) {
+    console.warn("Technical regime load failed:", err.message);
+    return null;
+  }
+}
+
+export async function loadSwingPredictiveResearch(symbol = "RELIANCE") {
+  try {
+    const sym = encodeURIComponent(symbol);
+    const resp = await apiFetch(`/api/v1/research/swing-predictive?symbol=${sym}`);
+    if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
+    return await resp.json();
+  } catch (err) {
+    console.warn("Swing predictive research load failed:", err.message);
+    return null;
+  }
+}
+
+export async function loadWalkForwardResearch(symbol = "RELIANCE") {
+  try {
+    const sym = encodeURIComponent(symbol);
+    const resp = await apiFetch(`/api/v1/research/walk-forward?symbol=${sym}`);
+    if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
+    return await resp.json();
+  } catch (err) {
+    console.warn("Walk-forward research load failed:", err.message);
+    return null;
+  }
+}
+
+export async function loadTurnaroundUniverseRank() {
+  try {
+    const resp = await apiFetch(`/api/v1/turnaround/rank/universe`);
+    if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
+    return await resp.json();
+  } catch (err) {
+    console.warn("Turnaround universe rank load failed:", err.message);
+    return null;
+  }
+}
+
 

@@ -23,6 +23,7 @@ from app.models.schemas import GrowthArbitrageResponse, MetaHeader
 from app.services.market_data import get_quote, get_history, normalize_symbol, create_meta_header
 from app.services.research_data import ResearchDataStore
 from app.services.strategies.reverse_dcf_c9 import run_reverse_dcf_c9
+from app.services.utils.math import calculate_cagr
 
 logger = logging.getLogger(__name__)
 
@@ -121,8 +122,8 @@ def evaluate_growth_arbitrage(
             d_start = datetime.fromisoformat(str(rev_earliest.period_end))
             d_end = datetime.fromisoformat(str(rev_latest.period_end))
             n_years = max(0.5, (d_end - d_start).days / 365.25)
-            rev_cagr = (((rev_latest.value / max(1.0, rev_earliest.value)) ** (1.0 / n_years)) - 1.0) * 100.0 if rev_earliest.value > 0 else None
-            pat_cagr = (((pat_latest.value / max(1.0, pat_earliest.value)) ** (1.0 / n_years)) - 1.0) * 100.0 if pat_earliest.value > 0 else None
+            rev_cagr = calculate_cagr(rev_earliest.value, rev_latest.value, n_years)
+            pat_cagr = calculate_cagr(pat_earliest.value, pat_latest.value, n_years)
             if rev_cagr is not None and pat_cagr is not None:
                 expected_growth = round((rev_cagr * 0.4) + (pat_cagr * 0.6), 1)
         except Exception as e:
