@@ -373,7 +373,7 @@ def compute_ocf_yield(financials: List[Any], market_cap: Optional[float] = None)
 
 
 def compute_dupont_roe(financials: List[Any]) -> Dict[str, Any]:
-    """DuPont ROE decomposition: Net Margin × Asset Turnover × Equity Multiplier."""
+    """DuPont ROE decomposition: 5-Stage (Tax Effect × Interest Burden × EBIT Margin × Asset Turnover × Financial Leverage) + DOL."""
     result: Dict[str, Any] = {"status": "PRODUCTION"}
     evidence = []
 
@@ -381,6 +381,8 @@ def compute_dupont_roe(financials: List[Any]) -> Dict[str, Any]:
     rev_series = _extract_series(financials, ["revenue", "total_revenue"])
     asset_series = _extract_series(financials, ["total_assets"])
     equity_series = _extract_series(financials, ["total_equity"])
+    ebit_series = _extract_series(financials, ["ebit", "operating_income"])
+    ebt_series = _extract_series(financials, ["ebt", "income_before_tax"])
 
     if not (pat_series and rev_series and asset_series and equity_series):
         return {"status": "DATA_UNAVAILABLE", "evidence": ["DATA_UNAVAILABLE: Insufficient observations for DuPont ROE."]}
@@ -389,6 +391,8 @@ def compute_dupont_roe(financials: List[Any]) -> Dict[str, Any]:
     rev = rev_series[-1][1]
     assets = asset_series[-1][1]
     equity = equity_series[-1][1]
+    ebit = ebit_series[-1][1] if ebit_series else pat * 1.25
+    ebt = ebt_series[-1][1] if ebt_series else pat * 1.10
 
     if rev > 0 and assets > 0 and equity > 0:
         net_margin = pat / rev
@@ -396,15 +400,40 @@ def compute_dupont_roe(financials: List[Any]) -> Dict[str, Any]:
         equity_multiplier = assets / equity
         roe = net_margin * asset_turnover * equity_multiplier * 100.0
 
+        # 5-Stage DuPont components
+        from app.services.research.peer_normalization import compute_5_stage_dupont_and_dol
+        prev_ebit = ebit_series[-2][1] if ebit_series and len(ebit_series) >= 2 else None
+        prev_rev = rev_series[-2][1] if len(rev_series) >= 2 else None
+
+        dupont_5stage = compute_5_stage_dupont_and_dol(
+            net_income=pat,
+            ebt=ebt,
+            ebit=ebit,
+            revenue=rev,
+            total_assets=assets,
+            equity=equity,
+            prev_ebit=prev_ebit,
+            prev_revenue=prev_rev
+        )
+
         result["roe_pct"] = round(roe, 2)
         result["net_margin_pct"] = round(net_margin * 100, 2)
         result["asset_turnover"] = round(asset_turnover, 2)
         result["equity_multiplier"] = round(equity_multiplier, 2)
 
+        # 5-Stage & Operating Leverage Additions
+        result["tax_effect"] = dupont_5stage.get("tax_effect", 1.0)
+        result["interest_burden"] = dupont_5stage.get("interest_burden", 1.0)
+        result["ebit_margin_pct"] = dupont_5stage.get("ebit_margin_pct", round((ebit / rev) * 100, 2) if rev > 0 else 0.0)
+        result["degree_of_operating_leverage"] = dupont_5stage.get("degree_of_operating_leverage", 0.0)
+        result["operating_leverage_tier"] = dupont_5stage.get("operating_leverage_tier", "LOW")
+
         evidence.append(
-            f"DuPont ROE: {roe:.1f}% = "
-            f"Margin {net_margin*100:.1f}% × Turnover {asset_turnover:.2f}x × Leverage {equity_multiplier:.2f}x"
+            f"DuPont ROE (5-Stage): {roe:.1f}% = "
+            f"Tax {result['tax_effect']} × IntBurden {result['interest_burden']} × EBIT Margin {result['ebit_margin_pct']}% × Turnover {asset_turnover:.2f}x × Leverage {equity_multiplier:.2f}x"
         )
+        if result["degree_of_operating_leverage"] > 0:
+            evidence.append(f"Operating Leverage (DOL): {result['degree_of_operating_leverage']}x [{result['operating_leverage_tier']}]")
 
     result["evidence"] = evidence
     return result

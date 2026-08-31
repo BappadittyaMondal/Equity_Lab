@@ -474,6 +474,18 @@ RESEARCH_ENGINES: Dict[str, StrategyModule] = {
         metrics=["z_score_vol", "dtr_5d_pct", "convexity_index_ce", "peg_ratio"],
         risk_warnings=["Inflection setups require volume persistence on breakout days."],
         methodology="Non-linear volume Z-score and quarterly earnings acceleration convexity model."
+    ),
+    "OBV_ACC": StrategyModule(
+        id="OBV_ACC",
+        name="OBV Slope Acceleration Convexity",
+        category="Volume & Microstructure",
+        description="Tracks corporate-action-adjusted cumulative OBV slope acceleration to detect stealth institutional accumulation.",
+        status="production",
+        required_inputs=["symbol"],
+        universe="NSE All Equities",
+        metrics=["c_obv", "obv_convexity_score", "slope_12w", "slope_40w"],
+        risk_warnings=["OBV signals require volume-weighted delivery confirmation."],
+        methodology="Cumulative OBV slope acceleration detector across 12W vs 40W windows."
     )
 }
 
@@ -905,6 +917,9 @@ def run_strategy_module(strategy_id: str, symbol: str = "RELIANCE", as_of: Optio
     elif module.id == "E19":
         from app.services.strategies.inflection_multibagger import run_inflection_multibagger
         return run_inflection_multibagger(symbol)
+    elif module.id == "OBV_ACC":
+        from app.services.strategies.obv_accumulation_engine import run_obv_accumulation
+        return run_obv_accumulation(symbol)
 
 
 

@@ -120,7 +120,7 @@ def fit_3state_hmm_market_regime(
     returns_series: Optional[np.ndarray] = None,
     default_n_states: int = 3,
 ) -> Dict[str, Any]:
-    """Fits a 3-State Hidden Markov Model (HMM) on return/volatility dynamics.
+    """Fits an empirical 3-State Markov Regime Model on return/volatility dynamics.
 
     States:
       State 0: Accumulation / Low Volatility Range (Bullish Setup)
@@ -141,31 +141,53 @@ def fit_3state_hmm_market_regime(
             "regime_stability_score": 0.88,
         }
 
-    vol = np.std(returns_series[-20:]) * np.sqrt(252)
-    ret_mean = np.mean(returns_series[-20:]) * 252
+    # Classify windowed historical returns into discrete regimes
+    # Use rolling 20-day blocks across the returns series
+    n = len(returns_series)
+    window = 20
+    states = []
+    for i in range(window, n + 1):
+        sub = returns_series[i - window:i]
+        vol = np.std(sub) * np.sqrt(252)
+        ret_mean = np.mean(sub) * 252
+        if vol > 0.25 or ret_mean < -0.10:
+            st = 2
+        elif ret_mean > 0.10 and vol < 0.20:
+            st = 1
+        else:
+            st = 0
+        states.append(st)
 
-    if vol > 0.25 or ret_mean < -0.10:
-        state = 2
-        label = "VOLATILE_DISTRIBUTION"
-        probs = [0.10, 0.15, 0.75]
-    elif ret_mean > 0.10 and vol < 0.20:
-        state = 1
-        label = "TRENDING_EXPANSION"
-        probs = [0.15, 0.80, 0.05]
-    else:
-        state = 0
-        label = "ACCUMULATION_RANGE"
-        probs = [0.75, 0.20, 0.05]
+    states = np.array(states)
+    curr_state = int(states[-1])
+
+    labels = {
+        0: "ACCUMULATION_RANGE",
+        1: "TRENDING_EXPANSION",
+        2: "VOLATILE_DISTRIBUTION"
+    }
+
+    # Estimate empirical transition matrix C_ij from state sequence
+    counts = np.ones((3, 3), dtype=float) * 0.1  # Laplace smoothing
+    for t in range(len(states) - 1):
+        i, j = states[t], states[t + 1]
+        counts[i, j] += 1.0
+
+    trans_matrix = (counts / counts.sum(axis=1, keepdims=True)).round(4).tolist()
+
+    # Calculate empirical state probabilities from recent history & transition row
+    recent_counts = np.bincount(states[-30:], minlength=3)
+    raw_probs = recent_counts / max(1, len(states[-30:]))
+    # Blend with current state transition vector
+    transition_row = np.array(trans_matrix[curr_state])
+    blended_probs = 0.5 * raw_probs + 0.5 * transition_row
+    blended_probs = (blended_probs / blended_probs.sum()).round(4).tolist()
 
     return {
-        "current_state": state,
-        "state_label": label,
-        "state_probabilities": probs,
-        "transition_matrix": [
-            [0.85, 0.12, 0.03],
-            [0.05, 0.90, 0.05],
-            [0.10, 0.15, 0.75]
-        ],
-        "regime_stability_score": round(float(max(probs)), 2),
+        "current_state": curr_state,
+        "state_label": labels[curr_state],
+        "state_probabilities": blended_probs,
+        "transition_matrix": trans_matrix,
+        "regime_stability_score": round(float(max(blended_probs)), 2),
     }
 

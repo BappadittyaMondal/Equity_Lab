@@ -138,6 +138,9 @@ def evaluate_backtest_validation(
 
     avg_ic = round(sum(ic_by_factor.values()) / max(1, len(ic_by_factor)), 3)
 
+    # Wire White's Reality Check / SPA multiple testing correction
+    spa_res = compute_family_wise_significance_spa(ic_by_factor)
+
     if is_simulated:
         evidence.append("DATA MODE: SIMULATED_FALLBACK (Live price history unavailable; synthetic price walk used)")
     else:
@@ -146,6 +149,7 @@ def evaluate_backtest_validation(
     evidence.append(f"Walk-Forward Out-of-Sample Sharpe: {out_of_sample_sharpe:.2f} | Average IC: {avg_ic:.3f}")
     evidence.append(f"Factor Decay Half-Life: {factor_decay_months:.1f} months | Point-in-Time Compliant: {point_in_time_compliant}")
     evidence.append(f"Survivorship Bias Controlled: {survivorship_bias_controlled} (Includes historical delisted companies)")
+    evidence.append(f"White's Reality Check / SPA: {spa_res['significant_modules_count']}/{spa_res['total_modules_tested']} factors significant (Multiple-testing penalty: {spa_res['multiple_testing_penalty_factor']}x)")
 
     market_data_type = "SIMULATION" if is_simulated else "EMPIRICAL"
 
@@ -158,6 +162,7 @@ def evaluate_backtest_validation(
         "factor_decay_half_life_months": factor_decay_months,
         "point_in_time_compliant": point_in_time_compliant,
         "survivorship_bias_controlled": survivorship_bias_controlled,
+        "spa_multiple_testing_summary": spa_res,
         "evidence": evidence,
         "meta": create_meta_header(source="Validation & Backtesting Engine (§53)", data_mode=data_mode, market_data_type=market_data_type)
     }
