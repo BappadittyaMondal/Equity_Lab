@@ -486,6 +486,18 @@ RESEARCH_ENGINES: Dict[str, StrategyModule] = {
         metrics=["c_obv", "obv_convexity_score", "slope_12w", "slope_40w"],
         risk_warnings=["OBV signals require volume-weighted delivery confirmation."],
         methodology="Cumulative OBV slope acceleration detector across 12W vs 40W windows."
+    ),
+    "E20": StrategyModule(
+        id="E20",
+        name="Institutional Turnaround Prediction Engine",
+        category="Turnaround & Fundamental Intelligence",
+        description="Evaluates 2-layer fundamental recovery probability P_Recovery, relapse risk P_Relapse, cash flow truth, and FRMR expectation gap.",
+        status="production",
+        required_inputs=["symbol"],
+        universe="NSE All Equities",
+        metrics=["turnaround_score", "p_recovery", "p_relapse", "value_trap_risk_score"],
+        risk_warnings=["Turnaround candidates require multi-quarter cash flow confirmation."],
+        methodology="2-layer probability model, historical damage detection, and fundamental recovery vs market repricing gap."
     )
 }
 
@@ -920,6 +932,9 @@ def run_strategy_module(strategy_id: str, symbol: str = "RELIANCE", as_of: Optio
     elif module.id == "OBV_ACC":
         from app.services.strategies.obv_accumulation_engine import run_obv_accumulation
         return run_obv_accumulation(symbol)
+    elif module.id == "E20":
+        from app.services.turnaround.turnaround_engine import run_turnaround_engine
+        return run_turnaround_engine(symbol)
 
 
 

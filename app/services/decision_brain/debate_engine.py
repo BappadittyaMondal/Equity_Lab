@@ -36,6 +36,7 @@ ENGINE_CATEGORIES: Dict[str, str] = {
     "D15": "TECHNICAL", "D17": "TECHNICAL", "D18": "GOVERNANCE",
     "A1": "OPTIONS", "A2": "OPTIONS", "A3": "OPTIONS",
     "OBV_ACC": "TECHNICAL",
+    "E20": "FUNDAMENTAL",
 }
 
 # Severity matrix: which category pairs cause what severity

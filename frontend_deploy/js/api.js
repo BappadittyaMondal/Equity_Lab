@@ -912,3 +912,59 @@ export async function loadThesisTracker(symbol = "RELIANCE") {
   }
 }
 
+// ---------------------------------------------------------------------------
+// E20 Turnaround Engine API Callers
+// ---------------------------------------------------------------------------
+
+export async function loadTurnaroundPrediction(symbol = "RELIANCE") {
+  try {
+    const resp = await apiFetch(`/api/v1/turnaround/prediction`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ symbol })
+    });
+    if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
+    return await resp.json();
+  } catch (err) {
+    console.warn("Turnaround prediction load failed:", err.message);
+    return null;
+  }
+}
+
+export async function loadTurnaroundStageDetails(symbol = "RELIANCE") {
+  try {
+    const sym = encodeURIComponent(symbol);
+    const resp = await apiFetch(`/api/v1/turnaround/stage/${sym}`);
+    if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
+    return await resp.json();
+  } catch (err) {
+    console.warn("Turnaround stage details load failed:", err.message);
+    return null;
+  }
+}
+
+export async function loadTurnaroundFeatures(symbol = "RELIANCE") {
+  try {
+    const sym = encodeURIComponent(symbol);
+    const resp = await apiFetch(`/api/v1/turnaround/features/${sym}`);
+    if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
+    return await resp.json();
+  } catch (err) {
+    console.warn("Turnaround features load failed:", err.message);
+    return null;
+  }
+}
+
+export async function loadTurnaroundTransitionHistory(symbol = "RELIANCE") {
+  try {
+    const sym = encodeURIComponent(symbol);
+    const resp = await apiFetch(`/api/v1/turnaround/transitions/${sym}`);
+    if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
+    return await resp.json();
+  } catch (err) {
+    console.warn("Turnaround transition history load failed:", err.message);
+    return null;
+  }
+}
+
+

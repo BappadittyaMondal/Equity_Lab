@@ -690,13 +690,17 @@ class Arbiter:
         evidence_log.extend(e14_res["evidence"])
         evidence_log.extend(e16_res["evidence"])
 
+        from app.services.backtesting.validation_framework import evaluate_backtest_validation
+        backtest_val = evaluate_backtest_validation(norm, as_of=as_of)
+
         strategic_conviction = {
             "horizon": "1-3_YEARS",
             "business_quality_score": round(score * 0.24, 1),
             "financial_quality_score": round(score * 0.22, 1),
             "growth_quality_score": round(score * 0.24, 1),
             "valuation_margin_of_safety_pct": round(max(0.0, 35.0 - (score * 0.2)), 1),
-            "conviction_tier": tier
+            "conviction_tier": tier,
+            "spa_multiple_testing_summary": backtest_val.get("spa_multiple_testing_summary", {})
         }
         tactical_execution = {
             "horizon": "5-30_DAYS",

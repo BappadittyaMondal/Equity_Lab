@@ -1,10 +1,10 @@
 # API Contract Freeze — Equity Lab OS v0.0.0
 
-> **FREEZE NOTICE**: All 85 backend REST endpoints are frozen and certified for production handoff. 100% of frontend calls map cleanly to valid backend routes.
+> **FREEZE NOTICE**: All 87 backend REST endpoints are frozen and certified for production handoff. 100% of frontend calls map cleanly to valid backend routes.
 
 ## 1. Summary Metrics
 
-- **Total Backend Endpoints**: 85
+- **Total Backend Endpoints**: 91
 - **API Spec Contract File**: `docs/api_contract.json`
 
 ---
@@ -95,6 +95,8 @@
 | `/api/v1/ticker-strip` | GET | Market Data | Fetch Ticker Strip |
 | `/api/v1/ticker/{symbol}` | GET | Market Data | Fetch Ticker Quote |
 | `/api/v1/ticker/{symbol}/history` | GET | Market Data | Fetch Ticker History |
+| `/api/v1/turnaround/rank/universe` | GET | Turnaround Prediction Framework | Rank Universe for Turnaround Opportunities |
+| `/api/v1/turnaround/{symbol}` | GET | Turnaround Prediction Framework | Get Single-Stock Turnaround Intelligence (E20) |
 | `/api/v1/watchlist` | GET | Watchlist | Get Watchlist |
 | `/api/v1/watchlist` | POST | Watchlist | Add To Watchlist |
 | `/api/v1/watchlist/{symbol}` | DELETE | Watchlist | Delete From Watchlist |

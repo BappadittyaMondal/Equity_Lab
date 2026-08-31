@@ -391,8 +391,8 @@ def compute_dupont_roe(financials: List[Any]) -> Dict[str, Any]:
     rev = rev_series[-1][1]
     assets = asset_series[-1][1]
     equity = equity_series[-1][1]
-    ebit = ebit_series[-1][1] if ebit_series else pat * 1.25
-    ebt = ebt_series[-1][1] if ebt_series else pat * 1.10
+    ebit = ebit_series[-1][1] if ebit_series else (ebt_series[-1][1] if ebt_series else pat)
+    ebt = ebt_series[-1][1] if ebt_series else pat
 
     if rev > 0 and assets > 0 and equity > 0:
         net_margin = pat / rev
@@ -416,7 +416,8 @@ def compute_dupont_roe(financials: List[Any]) -> Dict[str, Any]:
             prev_revenue=prev_rev
         )
 
-        result["roe_pct"] = round(roe, 2)
+        headline_roe = dupont_5stage.get("dupont_roe_pct", round(roe, 2))
+        result["roe_pct"] = headline_roe
         result["net_margin_pct"] = round(net_margin * 100, 2)
         result["asset_turnover"] = round(asset_turnover, 2)
         result["equity_multiplier"] = round(equity_multiplier, 2)
@@ -429,7 +430,7 @@ def compute_dupont_roe(financials: List[Any]) -> Dict[str, Any]:
         result["operating_leverage_tier"] = dupont_5stage.get("operating_leverage_tier", "LOW")
 
         evidence.append(
-            f"DuPont ROE (5-Stage): {roe:.1f}% = "
+            f"DuPont ROE (5-Stage): {headline_roe:.1f}% = "
             f"Tax {result['tax_effect']} × IntBurden {result['interest_burden']} × EBIT Margin {result['ebit_margin_pct']}% × Turnover {asset_turnover:.2f}x × Leverage {equity_multiplier:.2f}x"
         )
         if result["degree_of_operating_leverage"] > 0:
