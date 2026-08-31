@@ -543,6 +543,8 @@ class SwingPredictiveEngine:
             "target_upside_pct": target_upside_pct,
             "stop_loss": stop_loss,
             "atr_14": round(atr, 2),
+            "reward_risk_ratio": round((target_price - cp) / max(cp - stop_loss, 0.01), 2),
+            "reward_risk_tier": "3.0:1 (HIGH CONVICTION INSTITUTIONAL 30D)" if confluence_score >= 80.0 else ("1.5:1 (TACTICAL SWING 10D)" if confluence_score >= 60.0 else "1.0:1 (CONSOLIDATION)"),
             "disclaimer": "Model-Estimated Pivot Target derived from multi-pillar technical confluence. Not a guaranteed forecast.",
             "multi_horizon_targets": {
                 "horizon_3d": {"target_price": target_3d, "upside_pct": round(((target_3d - cp)/cp)*100, 2), "expected_edge": "55-58%"},

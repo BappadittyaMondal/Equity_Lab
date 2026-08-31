@@ -72,7 +72,7 @@ def run_inflection_multibagger(symbol: str) -> StrategyRunResponse:
     pe_s = _extract_series(financials, ["pe_ratio", "pe"])
     piotroski_res = compute_piotroski_fscore(financials)
 
-    has_real_financials = len(pat_s) >= 2 and piotroski_res.get("status") != "insufficient_data"
+    has_real_financials = len(pat_s) >= 2 and len(pe_s) >= 1 and piotroski_res.get("status") != "insufficient_data"
 
     if not has_real_financials:
         # Honest fallback: require real fundamental data observations
@@ -123,7 +123,7 @@ def run_inflection_multibagger(symbol: str) -> StrategyRunResponse:
     volume_z_pass = z_vol >= 3.0
 
     # 2. Float Delivery Turnover Estimate (DTR_5d)
-    delivery_pct = 40.0
+    delivery_pct = float(hist['Delivery_Pct'].iloc[-1]) if 'Delivery_Pct' in hist and len(hist['Delivery_Pct']) > 0 else 40.0
     dtr_5d = round((vol_5d_avg * (delivery_pct / 100.0)) / max(vol_mean_252 * 10, 1.0) * 100.0, 2)
     dtr_pass = dtr_5d >= 2.0 or z_vol >= 3.5
 

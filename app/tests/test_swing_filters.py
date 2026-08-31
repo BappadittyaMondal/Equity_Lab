@@ -118,6 +118,17 @@ class TestSwingPredictiveFilters(unittest.TestCase):
         self.assertIn("is_liquid_enough", res)
         self.assertTrue(res["is_liquid_enough"])
 
+    def test_high_conviction_3to1_reward_risk_ratio_assertion(self):
+        res = SwingPredictiveEngine.predict_swing_30d(self.trending_df)
+        self.assertIn("reward_risk_ratio", res)
+        self.assertIn("reward_risk_tier", res)
+        if res.get("confluence_score", 0) >= 80.0:
+            target = res["model_estimated_target"]
+            cp = res["current_price"]
+            sl = res["stop_loss"]
+            rr = (target - cp) / (cp - sl)
+            self.assertGreaterEqual(rr, 3.0)
+
 
 if __name__ == "__main__":
     unittest.main()

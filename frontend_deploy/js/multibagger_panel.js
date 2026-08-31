@@ -16,6 +16,9 @@ export async function renderMultibaggerPanel() {
         <button class="tab-btn active" data-finder="multibagger" onclick="window.switchFinderTab('multibagger')">
           🚀 Multibagger Screener
         </button>
+        <button class="tab-btn" data-finder="e19" onclick="window.switchFinderTab('e19')">
+          ⚡ E19 Inflection Engine
+        </button>
         <button class="tab-btn" data-finder="sip" onclick="window.switchFinderTab('sip')">
           💎 SIP Compounders
         </button>
@@ -71,6 +74,28 @@ function renderFinderForm(finderType) {
         <div class="flex items-end">
           <button onclick="window.executeFinderQuery('multibagger')" class="btn-primary text-xs w-full py-1.5 justify-center">
             <span class="material-symbols-outlined text-xs">filter_list</span> Run Screener
+          </button>
+        </div>
+      </div>
+    `;
+  } else if (finderType === "e19") {
+    form.innerHTML = `
+      <div class="grid grid-cols-2 md:grid-cols-4 gap-3">
+        <div>
+          <label class="block text-muted font-mono mb-1">Min Vol Z-Score</label>
+          <input type="number" value="3.0" step="0.5" class="form-input text-xs" id="e19-zvol" />
+        </div>
+        <div>
+          <label class="block text-muted font-mono mb-1">Min DTR Turnover %</label>
+          <input type="number" value="2.0" step="0.5" class="form-input text-xs" id="e19-dtr" />
+        </div>
+        <div>
+          <label class="block text-muted font-mono mb-1">Piotroski Floor</label>
+          <input type="number" value="6" class="form-input text-xs" id="e19-piotroski" />
+        </div>
+        <div class="flex items-end">
+          <button onclick="window.executeFinderQuery('e19')" class="btn-primary text-xs w-full py-1.5 justify-center">
+            <span class="material-symbols-outlined text-xs">bolt</span> Run E19 Inflection Engine
           </button>
         </div>
       </div>
@@ -174,6 +199,13 @@ export async function executeFinderQuery(finderType = "multibagger") {
         { symbol: "KEI", name: "KEI Industries Ltd", price: 4220, score: 91, cagr: "24.1%", roce: "22.8%", de: "0.12" },
         { symbol: "TRENT", name: "Trent Ltd", price: 7100, score: 89, cagr: "35.2%", roce: "19.5%", de: "0.45" },
         { symbol: "DIXON", name: "Dixon Technologies", price: 12400, score: 87, cagr: "31.0%", roce: "26.4%", de: "0.32" },
+      ];
+    } else if (finderType === "e19") {
+      candidates = [
+        { symbol: "POLYCAB", name: "Polycab India Ltd (E19 Inflection)", price: 6850, score: 96, cagr: "3.8x Vol Z", roce: "3.2% DTR", de: "Piotroski 8" },
+        { symbol: "KEI", name: "KEI Industries Ltd (E19 Inflection)", price: 4220, score: 93, cagr: "3.4x Vol Z", roce: "2.8% DTR", de: "Piotroski 7" },
+        { symbol: "KAYNES", name: "Kaynes Technology India", price: 5410, score: 91, cagr: "4.1x Vol Z", roce: "4.5% DTR", de: "Piotroski 8" },
+        { symbol: "SHILCHAR", name: "Shilchar Technologies", price: 6150, score: 89, cagr: "3.2x Vol Z", roce: "2.5% DTR", de: "Piotroski 7" },
       ];
     } else if (finderType === "sip") {
       candidates = [
