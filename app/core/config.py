@@ -25,6 +25,20 @@ class Settings:
     VERSION: str = "0.0.9"
     DESCRIPTION: str = "Institutional Indian Equity Research, Options Arbitrage, and Return Probability Engine"
 
+    @classmethod
+    def get_git_commit_sha(cls) -> str:
+        """Dynamically resolve current Git commit hash without manual file editing."""
+        sha = os.getenv("VERCEL_GIT_COMMIT_SHA") or os.getenv("GIT_COMMIT_SHA") or os.getenv("GITHUB_SHA")
+        if sha:
+            return sha[:7]
+        try:
+            import subprocess
+            res = subprocess.check_output(["git", "rev-parse", "--short", "HEAD"], stderr=subprocess.DEVNULL)
+            return res.decode().strip()
+        except Exception:
+            return "29489be"
+
+
     # Infrastructure & Distributed Cache/Limiter Settings
     REDIS_URL: Optional[str] = os.getenv("REDIS_URL", None)
     LOG_FORMAT: str = os.getenv("LOG_FORMAT", "text").lower()

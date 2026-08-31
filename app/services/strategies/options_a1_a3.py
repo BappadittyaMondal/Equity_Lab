@@ -33,6 +33,8 @@ def evaluate_option_arbitrage(underlying: str = "NIFTY", as_of: Optional[datetim
     arb_flag = abs(parity_gap_pct) > 0.45
 
     meta = create_meta_header(source="A1 Option Arbitrage Engine")
+    meta["data_mode"] = "DERIVATIVE_SYNTHETIC_MODEL"
+    meta["broker_feed_status"] = "AWAITING_AUTHENTICATED_BROKER_KEY"
     if as_of:
         meta["as_of"] = as_of.isoformat() if hasattr(as_of, "isoformat") else str(as_of)
 
@@ -78,6 +80,8 @@ def evaluate_iron_condor(underlying: str = "NIFTY", as_of: Optional[datetime] = 
     reward_to_risk = round(max_profit / max_risk, 4) if max_risk > 0 else 0.0
 
     meta = create_meta_header(source="A3 Iron Condor Engine")
+    meta["data_mode"] = "DERIVATIVE_SYNTHETIC_MODEL"
+    meta["broker_feed_status"] = "AWAITING_AUTHENTICATED_BROKER_KEY"
     if as_of:
         meta["as_of"] = as_of.isoformat() if hasattr(as_of, "isoformat") else str(as_of)
 

@@ -72,3 +72,14 @@ def test_champion_challenger_evaluator():
 
     assert len(res) == 2
     assert res[0].brier_score <= res[1].brier_score
+
+
+def test_benjamini_hochberg_fdr():
+    from app.services.ml.statistical_fdr import benjamini_hochberg_fdr
+    raw_p = [0.001, 0.012, 0.045, 0.20, 0.55]
+    results = benjamini_hochberg_fdr(raw_p, alpha=0.05)
+    assert len(results) == 5
+    assert results[0]["adjusted_p_value"] <= results[1]["adjusted_p_value"]
+    assert results[0]["is_significant"] is True
+    assert results[4]["is_significant"] is False
+
