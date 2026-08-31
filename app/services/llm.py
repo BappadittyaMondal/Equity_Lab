@@ -334,6 +334,38 @@ def process_llm_query(req: QueryRequest) -> QueryResponse:
 # LLM Narrative Generator (for ConvictionCall)
 # ─────────────────────────────────────────────────────────────────────────────
 
+def check_and_log_llm_budget(call_type: str = "narrative", symbol: str = "N/A") -> bool:
+    """Checks daily call budget against LLM_DAILY_CALL_LIMIT and logs usage if permitted."""
+    try:
+        from app.services.db import get_connection
+        conn = get_connection()
+        today_start = datetime.datetime.now(datetime.timezone.utc).replace(
+            hour=0, minute=0, second=0, microsecond=0
+        ).isoformat()
+        daily_calls = conn.execute(
+            "SELECT COUNT(*) as cnt FROM llm_usage WHERE timestamp >= ?",
+            (today_start,)
+        ).fetchone()["cnt"]
+
+        limit = getattr(settings, "LLM_DAILY_CALL_LIMIT", 500)
+        if daily_calls >= limit:
+            logger.warning("LLM daily budget limit exceeded (%d/%d). Using deterministic fallback.", daily_calls, limit)
+            conn.close()
+            return False
+
+        now_iso = datetime.datetime.now(datetime.timezone.utc).isoformat()
+        conn.execute(
+            "INSERT INTO llm_usage (prompt, response, model_name, timestamp) VALUES (?, ?, ?, ?)",
+            (f"{call_type}:{symbol}", "INVOKED", "gemini-1.5-flash", now_iso)
+        )
+        conn.commit()
+        conn.close()
+        return True
+    except Exception as e:
+        logger.warning("Failed to check/log LLM budget: %s", e)
+        return True
+
+
 class LLMService:
     """Wrapper formatting ConvictionCall into human-readable narrative.
 
@@ -360,7 +392,7 @@ class LLMService:
         )
 
         gemini_key = settings.GEMINI_API_KEY
-        if gemini_key and "your_" not in gemini_key.lower():
+        if gemini_key and "your_" not in gemini_key.lower() and check_and_log_llm_budget("narrative", conviction.symbol):
             try:
                 try:
                     from google import genai
@@ -388,4 +420,5 @@ class LLMService:
             f"Key Contributing Engines: [{contributing_str}]. "
             f"Key Contradicting Factors: [{contradicting_str}]."
         )
+
 

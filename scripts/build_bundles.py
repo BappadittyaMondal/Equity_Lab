@@ -115,12 +115,12 @@ def main():
     commit = get_git_commit()
     print(f"Current Git HEAD commit: {commit}")
 
-    update_manifest("CONSOLIDATED_5_FILE_SYSTEM/MANIFEST.json", commit)
-    update_manifest("CONSOLIDATED_12_FILE_SYSTEM/MANIFEST.json", commit)
-
     c5 = sync_bundle_headers("CONSOLIDATED_5_FILE_SYSTEM", commit)
     c12 = sync_bundle_headers("CONSOLIDATED_12_FILE_SYSTEM", commit)
     print(f"Updated Markdown headers in {c5} files (5-file system) and {c12} files (12-file system).")
+
+    update_manifest("CONSOLIDATED_5_FILE_SYSTEM/MANIFEST.json", commit)
+    update_manifest("CONSOLIDATED_12_FILE_SYSTEM/MANIFEST.json", commit)
 
     success = verify_bundle_parity()
     sys.exit(0 if success else 1)
