@@ -63,8 +63,26 @@ class DailyPriceIngester:
 
         now_iso = datetime.now(timezone.utc).isoformat()
 
+        # Outlier screening: MAD (Median Absolute Deviation) filter on close price series
+        outlier_indices = set()
+        if len(hist) >= 10 and "Close" in hist.columns:
+            try:
+                closes = hist["Close"].astype(float)
+                med = float(closes.median())
+                mad = float((closes - med).abs().median())
+                if mad > 1e-6:
+                    # Modified Z-score > 6.0 (conservative outlier gate)
+                    mod_z = 0.6745 * (closes - med).abs() / mad
+                    outlier_indices = set(hist.index[mod_z > 6.0])
+            except Exception:
+                outlier_indices = set()
+
         for idx, row in hist.iterrows():
             try:
+                if idx in outlier_indices:
+                    logger.warning("MAD price outlier spike detected for %s on %s — skipping row", norm, idx)
+                    continue
+
                 open_val = row.get("Open")
                 high_val = row.get("High")
                 low_val = row.get("Low")
@@ -73,6 +91,11 @@ class DailyPriceIngester:
                 # Guard against NaN / None / corrupted zero price entries
                 if any(v is None or pd.isna(v) or float(v) <= 0.0 for v in [open_val, high_val, low_val, close_val]):
                     logger.warning("Null or invalid OHLC for %s on %s — skipping row", norm, idx)
+                    continue
+
+                # DEF-001: Guard against inverted High/Low
+                if float(high_val) < float(low_val):
+                    logger.warning("Inverted High/Low for %s on %s (H=%s, L=%s) — skipping row", norm, idx, high_val, low_val)
                     continue
 
                 trading_date = idx.strftime("%Y-%m-%d") if hasattr(idx, "strftime") else str(idx)[:10]

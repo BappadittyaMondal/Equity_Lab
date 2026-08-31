@@ -23,6 +23,7 @@ from app.models.schemas import ConvictionCall, ContradictionReport, MacroContext
 from app.services.synthesis import DataSynthesizer
 from app.services.decision_brain.debate_engine import generate_debate, ENGINE_CATEGORIES
 from app.core.config import settings
+from app.core.constants import PLEDGE_VETO_THRESHOLD
 
 logger = logging.getLogger(__name__)
 
@@ -287,10 +288,10 @@ class Arbiter:
                     logger.warning("Forensic veto triggered: risk=CRITICAL")
                     return True
 
-            # Promoter pledge > 40% — only when key is explicitly present
+            # Promoter pledge > threshold — only when key is explicitly present
             pledge = results.get("promoter_pledge_pct") or metrics.get("promoter_pledge_pct")
-            if pledge is not None and isinstance(pledge, (int, float)) and pledge > 40.0:
-                logger.warning("Promoter pledge veto triggered: pledge=%.1f%%", pledge)
+            if pledge is not None and isinstance(pledge, (int, float)) and pledge > PLEDGE_VETO_THRESHOLD:
+                logger.warning("Promoter pledge veto triggered: pledge=%.1f%% (>%.1f%%)", pledge, PLEDGE_VETO_THRESHOLD)
                 return True
 
         # Check Micro/Small-Cap Integrity & Forensic Audit Gates

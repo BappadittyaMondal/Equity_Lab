@@ -75,9 +75,26 @@ class WalkForwardBacktester:
             bm_returns = benchmark_returns
             bm_mode = "REAL"
         else:
-            period_bm = 6.0 * (horizon_months / 12.0)
-            bm_returns = [period_bm] * len(stock_returns)
-            bm_mode = "BASELINE_6PCT_ANNUAL"
+            # Dynamic Nifty 50 fetch or institutional Indian market benchmark
+            fetched_bm = None
+            try:
+                from app.services.market_data import get_history
+                nifty_hist = get_history("^NSEI", period=f"{max(1, horizon_months // 12)}y", interval="1mo")
+                if nifty_hist is not None and not nifty_hist.empty and "Close" in nifty_hist.columns and len(nifty_hist) > 1:
+                    pct_changes = nifty_hist["Close"].pct_change().dropna().tolist()
+                    if len(pct_changes) >= len(stock_returns):
+                        fetched_bm = [r * 100.0 for r in pct_changes[-len(stock_returns):]]
+            except Exception:
+                fetched_bm = None
+
+            if fetched_bm and len(fetched_bm) == len(stock_returns):
+                bm_returns = fetched_bm
+                bm_mode = "REAL_NIFTY50"
+            else:
+                # Scaled baseline: 12.0% annual historical Nifty baseline scaled to horizon
+                default_rate = 12.0 * (horizon_months / 12.0)
+                bm_returns = [default_rate] * len(stock_returns)
+                bm_mode = "BASELINE_12PCT_ANNUAL"
 
         alphas = [s - b for s, b in zip(stock_returns, bm_returns)]
         wins = sum(1 for a in alphas if a > 0)

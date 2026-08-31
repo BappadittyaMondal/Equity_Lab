@@ -33,10 +33,14 @@ def fetch_all_strategies():
 
 
 @router.get("/strategies/swing-alerts")
-def fetch_swing_trade_alerts(universe: Optional[str] = Query(default=None, description="Optional universe descriptor")):
+def fetch_swing_trade_alerts(
+    symbol: Optional[str] = Query(default=None, description="Optional symbol to filter"),
+    universe: Optional[str] = Query(default=None, description="Optional universe descriptor")
+):
     """Returns active short-to-medium term high-probability swing trade alerts."""
     from app.services.strategies.swing_alerts_service import get_swing_trade_alerts
-    return get_swing_trade_alerts()
+    target_symbols = [symbol] if symbol else None
+    return get_swing_trade_alerts(symbols=target_symbols)
 
 
 @router.get("/strategies/{strategy_id}", response_model=StrategyModule)

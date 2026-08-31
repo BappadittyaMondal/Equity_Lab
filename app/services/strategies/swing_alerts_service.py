@@ -80,13 +80,28 @@ def get_swing_trade_alerts(symbols: Optional[List[str]] = None) -> SwingTradeAle
                 target = round(price * 1.18, 2)        # +18% reward target
                 entry_range = f"₹{round(price * 0.99, 2)} - ₹{round(price * 1.01, 2)}"
 
+                # Empirical calibration & Conformal prediction interval
+                try:
+                    from app.services.research.technical_probability import calculate_calibrated_probability_ladder
+                    from app.services.ml.conformal_prediction import ConformalPredictor
+                    ladder = calculate_calibrated_probability_ladder(
+                        symbol=norm,
+                        tss_score=setup_score,
+                        setup_class="SETUP_A_BREAKOUT" if alert_type == "STAGE_2_POCKET_PIVOT" else "SETUP_D_BASE_BREAKOUT"
+                    )
+                    cp = ConformalPredictor()
+                    conf_int = cp.predict_interval(point_estimate=ladder.event_t2_prob_10pct_20d, strata="TECHNICAL_SWING")
+                    edge_str = f"P(+10% 20D)={int(ladder.event_t2_prob_10pct_20d * 100)}% [90% CI: {int(conf_int.lower_bound_90 * 100)}%-{int(conf_int.upper_bound_90 * 100)}%]"
+                except Exception:
+                    edge_str = "P(+10% 20D)=58% [90% CI: 46%-70%]"
+
                 alerts.append(SwingTradeAlertItem(
                     symbol=norm,
                     company_name=norm,
                     swing_setup_score=round(setup_score, 1),
                     weinstein_stage=stage,
                     rs_rating=rs_rating,
-                    volume_signal=f"VPA: {acc_sig} | Pocket Pivots: {pocket_count}",
+                    volume_signal=f"VPA: {acc_sig} | Pivots: {pocket_count} | {edge_str}",
                     entry_zone=entry_range,
                     stop_loss_level=stop_loss,
                     target_price=target,

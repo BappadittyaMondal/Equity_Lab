@@ -5,9 +5,13 @@ with guaranteed marginal coverage probabilities (e.g. 90% or 95% confidence boun
 using residual quantile conformalization.
 """
 
+import os
+import json
 from dataclasses import dataclass
 from typing import List, Dict, Any, Optional
 import numpy as np
+
+from app.core.config import settings
 
 
 @dataclass
@@ -25,11 +29,13 @@ class ConformalPredictionInterval:
 class ConformalPredictor:
     """Non-parametric residual quantile conformal predictor."""
 
-    def __init__(self, alpha: float = 0.10):
+    def __init__(self, alpha: float = 0.10, auto_load: bool = True):
         self.alpha = alpha  # Default 10% miscoverage rate -> 90% confidence level
         self.residuals_by_strata: Dict[str, np.ndarray] = {}
+        if auto_load:
+            self.load_calibration()
 
-    def fit(self, y_true: np.ndarray, y_pred: np.ndarray, strata: str = "GENERAL") -> float:
+    def fit(self, y_true: np.ndarray, y_pred: np.ndarray, strata: str = "GENERAL", persist: bool = True) -> float:
         """Calibrate non-conformity scores (absolute residuals) on calibration dataset."""
         if len(y_true) == 0:
             self.residuals_by_strata[strata] = np.array([0.15])
@@ -41,7 +47,35 @@ class ConformalPredictor:
         quantile_level = min(0.99, max(0.50, (1.0 - self.alpha) * (1.0 + 1.0 / n)))
         q_val = float(np.quantile(abs_residuals, quantile_level))
         self.residuals_by_strata[strata] = abs_residuals
+        if persist:
+            self.save_calibration()
         return q_val
+
+    def save_calibration(self, filepath: Optional[str] = None) -> str:
+        """Persist calibrated residuals to JSON file."""
+        target_path = filepath or getattr(settings, "CONFORMAL_CACHE_PATH", "conformal_calibration_cache.json")
+        data = {strata: res.tolist() for strata, res in self.residuals_by_strata.items()}
+        try:
+            with open(target_path, "w", encoding="utf-8") as f:
+                json.dump(data, f, indent=2)
+            return target_path
+        except Exception:
+            return ""
+
+    def load_calibration(self, filepath: Optional[str] = None) -> bool:
+        """Load calibrated residuals from JSON file."""
+        target_path = filepath or getattr(settings, "CONFORMAL_CACHE_PATH", "conformal_calibration_cache.json")
+        if not os.path.exists(target_path):
+            return False
+        try:
+            with open(target_path, "r", encoding="utf-8") as f:
+                data = json.load(f)
+            for strata, res_list in data.items():
+                if res_list:
+                    self.residuals_by_strata[strata] = np.array(res_list, dtype=float)
+            return True
+        except Exception:
+            return False
 
     def predict_interval(
         self,

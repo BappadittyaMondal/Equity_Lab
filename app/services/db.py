@@ -19,7 +19,7 @@ class PostgresCursorWrapper:
         if pg_sql.strip().upper().startswith("PRAGMA TABLE_INFO"):
             raw = pg_sql.strip()
             table_name = raw[raw.find("(")+1:raw.find(")")].strip("'\" ")
-            pg_sql = "SELECT ordinal_position as cid, column_name as name, data_type as type FROM information_schema.columns WHERE table_name = %s"
+            pg_sql = "SELECT ordinal_position as cid, column_name as name, data_type as type, 0 as notnull, NULL as dflt_value, 0 as pk FROM information_schema.columns WHERE table_name = %s ORDER BY ordinal_position"
             params = (table_name,)
             
         if params is not None:

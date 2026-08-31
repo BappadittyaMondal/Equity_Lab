@@ -11,6 +11,8 @@ from typing import Optional, List, Dict, Any
 from app.models.schemas import GovernanceQualityResponse, MetaHeader
 from app.services.market_data import normalize_symbol, create_meta_header
 from app.services.research_data import ResearchDataStore
+from app.core.constants import PLEDGE_VETO_THRESHOLD
+
 
 
 def evaluate_governance_quality(
@@ -57,10 +59,10 @@ def evaluate_governance_quality(
         summary["promoter_holding_pct"] = latest_promoter_pct
         summary["promoter_pledge_pct"] = latest_pledge_pct
 
-        if latest_pledge_pct > 40.0:
+        if latest_pledge_pct > PLEDGE_VETO_THRESHOLD:
             pledge_risk = "CRITICAL"
             score -= 50.0
-            evidence.append(f"CRITICAL PROMOTER PLEDGE RISK: {latest_pledge_pct}% of promoter shares are pledged.")
+            evidence.append(f"CRITICAL PROMOTER PLEDGE RISK: {latest_pledge_pct}% of promoter shares are pledged (> {PLEDGE_VETO_THRESHOLD}% threshold).")
         elif latest_pledge_pct > 15.0:
             pledge_risk = "HIGH"
             score -= 30.0
