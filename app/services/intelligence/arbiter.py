@@ -1,7 +1,7 @@
-"""Virtual IC Arbiter — Rule-Based Score Synthesis Engine.
+"""Virtual IC Arbiter — Specialized AI-Committee Score Penalty Synthesizer.
 
-Converts structured sub-agent findings into deterministic quantitative penalties/bonuses.
-Strictly adheres to Pipeline Law: No raw LLM % score shifts; penalties are computed by deterministic rules.
+Converts qualitative sub-agent findings into deterministic quantitative score adjustments for AI-Committee debate workflows.
+Canonical platform conviction scores are produced by ``app.services.decision_brain.arbiter.Arbiter``.
 """
 
 from typing import Any, Dict, List, Optional

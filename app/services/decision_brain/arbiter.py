@@ -91,9 +91,10 @@ _ensure_table()
 
 
 class Arbiter:
-    """Phase 4 Conviction Engine — weighted multi-engine arbitration.
+    """Master Conviction Engine — canonical multi-lens platform arbitration.
 
     Pipeline: DATA → RESEARCH → REASONING → DEBATE → PREDICTION → CONVICTION → AUDIT
+    Combines: Fundamental (30%), Valuation (20%), Technical (15%), Forensic (15%), Macro (10%), Governance (10%).
     """
 
     # Governance veto threshold

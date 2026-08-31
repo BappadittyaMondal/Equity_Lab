@@ -736,29 +736,29 @@
         {
             "filename": "01_Master_System_Core_Instructions_Architecture.md",
             "bytes": 143093,
-            "sha256": "786e788b8c7eb15f0617e84debeb188351727ebbc58c2e4cee39c4ebe4e2b0b1"
+            "sha256": "97ed3194af0ed01cf314c86fac163d2629ab92bb10ae29d2ba105b98a324d01e"
         },
         {
             "filename": "02_Master_Engine_Contracts_Schemas_Registries.md",
             "bytes": 271208,
-            "sha256": "d29657a286b51c0ad948ebfa39b1439280ff58cc08e216c78a2333536afb6c62"
+            "sha256": "b9068d496766237ff96a5b85aed9a68ab49cceda75eb87bc6d9c59c560103598"
         },
         {
             "filename": "03_Master_Skill_Library.md",
             "bytes": 647235,
-            "sha256": "78ae1be40a823695100f8944b20f7d53f712d1f94ecd9f5eaf205a94cb3a9bcf"
+            "sha256": "366d45f618b0d3fef8c06ac6b20d1c570bf81eef22e55b33e9093502e3472c38"
         },
         {
             "filename": "04_Master_Knowledge_Base_Vol_1_Fundamentals_Valuation_Governance.md",
             "bytes": 170161,
-            "sha256": "cb234454b655b5970cf2fcfda03729e8228e7694d99f945b80803e2821acb31a"
+            "sha256": "b752a048af4f4ce56c1f2ff4e5a3caf5ebd8e8ce42c9a19bec111fef58be4b88"
         },
         {
             "filename": "05_Master_Knowledge_Base_Vol_2_Sectors_Frameworks_Screening.md",
             "bytes": 219345,
-            "sha256": "8a37f7099c793647a0a1a4f4cba4413295b99a40ed0a20be278fe55e18a67b2e"
+            "sha256": "3a4e2978294a266e6a39e2b06f37bdd491a8d8962cfeed028c8ca070c439ceb7"
         }
     ],
-    "GIT_COMMIT_SOURCE": "e2b7c2b",
-    "GIT_COMMIT": "e2b7c2b"
+    "GIT_COMMIT_SOURCE": "f088559",
+    "GIT_COMMIT": "f088559"
 }

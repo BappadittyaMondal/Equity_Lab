@@ -72,6 +72,18 @@ def test_portfolio_router_authentication(monkeypatch):
     assert "symbols" in res_auth.json()
 
 
+def test_security_warning_when_require_auth_with_empty_secret(monkeypatch, caplog):
+    monkeypatch.setattr(settings, "REQUIRE_AUTH", True)
+    monkeypatch.setattr(settings, "API_KEY_SECRET", "")
+
+    import logging
+    with caplog.at_level(logging.WARNING):
+        res = client.get("/api/v1/portfolio/")
+        # Request passes unauthenticated but warning is emitted
+        assert res.status_code == 200
+        assert "SECURITY WARNING: REQUIRE_AUTH is True but API_KEY_SECRET is empty" in caplog.text
+
+
 
 
 def test_a2_endpoint_is_suspended_by_default(monkeypatch):

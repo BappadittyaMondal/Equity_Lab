@@ -1,9 +1,9 @@
-"""Domain-Specialized Sub-Agents for Evidence Extraction.
+"""Domain-Specialized Rule-Engine Sub-Agents for Evidence Extraction (Pipeline Law Compliant).
 
-Implements:
-- ForensicAuditorSubAgent (RPTs, auditor remarks, pledge trends)
-- SupplyChainCatalystSubAgent (Order book inflections, 2nd-order catalysts)
-- RedTeamBearCaseSubAgent (Adversarial thesis destruction & counter-arguments)
+Implements deterministic threshold-based evaluation rubrics for:
+- ForensicAuditorSubAgent (Promoter pledge & governance thresholds)
+- SupplyChainCatalystSubAgent (Sector capex & order book catalysts)
+- RedTeamBearCaseSubAgent (Debt balance-sheet leverage stress tests)
 """
 
 from datetime import datetime, timezone
@@ -17,7 +17,7 @@ from app.services.intelligence.event_extractor import (
 
 
 class ForensicAuditorSubAgent:
-    """Forensic Accounting & Corporate Governance Sub-Agent."""
+    """Forensic Accounting & Corporate Governance Sub-Agent (Deterministic Rule Rubric)."""
 
     def evaluate(self, symbol: str, ownership_snapshot: Optional[Dict[str, Any]] = None) -> SubAgentAuditReport:
         findings = []

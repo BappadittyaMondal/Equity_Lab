@@ -302,7 +302,7 @@ def get_latest_db_delivery_pct(symbol: str) -> float:
     """Queries local DB for the symbol's latest recorded delivery_pct before falling back to 40.0."""
     try:
         norm_sym = normalize_symbol(symbol)
-        conn = get_db_connection()
+        conn = _get_connection()
         try:
             cur = conn.cursor()
             cur.execute(

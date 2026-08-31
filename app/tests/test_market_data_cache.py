@@ -54,3 +54,21 @@ def test_provider_fallback(monkeypatch, temp_db_path):
     quote = asyncio.run(market_data._async_get_market_quote("TEST"))
     assert quote["price"] == 123.4
     assert quote["symbol"] == "TEST"
+
+
+def test_get_latest_db_delivery_pct_retrieves_seeded_value(temp_db_path):
+    # Ensure database schema is initialized
+    conn = market_data._get_connection()
+    try:
+        conn.execute(
+            """INSERT INTO market_daily_snapshots 
+               (symbol, trading_date, open_price, high_price, low_price, close_price, volume, delivery_pct, published_at, source_name, source_url, ingested_at)
+               VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)""",
+            ("DELIV_TEST.NS", "2025-01-01", 100.0, 105.0, 95.0, 102.0, 500000, 58.5, "2025-01-01T10:00:00Z", "Test", "http://test", "2025-01-01T10:00:00Z")
+        )
+        conn.commit()
+    finally:
+        conn.close()
+
+    deliv_pct = market_data.get_latest_db_delivery_pct("DELIV_TEST.NS")
+    assert deliv_pct == 58.5

@@ -8,7 +8,10 @@ from typing import Dict
 from fastapi import Request, HTTPException, Header, status
 from starlette.middleware.base import BaseHTTPMiddleware
 from starlette.responses import JSONResponse, Response
+import logging
 from app.core.config import settings
+
+logger = logging.getLogger(__name__)
 
 
 def verify_api_key(x_api_key: str = Header(default="")) -> bool:
@@ -74,10 +77,13 @@ class ApiSecurityMiddleware(BaseHTTPMiddleware):
                 return JSONResponse(status_code=400, content={"detail": "Invalid Content-Length header."})
 
         # Health checks stay unauthenticated for infrastructure monitoring.
-        if settings.REQUIRE_AUTH and settings.API_KEY_SECRET and request.url.path != "/api/v1/health":
-            supplied_key = request.headers.get("X-API-Key", "")
-            if not hmac.compare_digest(supplied_key, settings.API_KEY_SECRET):
-                return JSONResponse(status_code=401, content={"detail": "Valid API authentication is required."})
+        if settings.REQUIRE_AUTH and request.url.path != "/api/v1/health":
+            if not settings.API_KEY_SECRET:
+                logger.warning("SECURITY WARNING: REQUIRE_AUTH is True but API_KEY_SECRET is empty! API running unauthenticated.")
+            else:
+                supplied_key = request.headers.get("X-API-Key", "")
+                if not hmac.compare_digest(supplied_key, settings.API_KEY_SECRET):
+                    return JSONResponse(status_code=401, content={"detail": "Valid API authentication is required."})
 
         if request.url.path != "/api/v1/health":
             try:
