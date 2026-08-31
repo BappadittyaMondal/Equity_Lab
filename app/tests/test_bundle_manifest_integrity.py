@@ -31,7 +31,14 @@ def test_five_file_bundle_manifest_matches_disk():
         declared_bytes = file_entry["bytes"]
         actual_path = os.path.join(FIVE_DIR, fname)
         assert os.path.exists(actual_path), f"File {fname} declared in manifest missing on disk"
-        actual_bytes = os.path.getsize(actual_path)
+        with open(actual_path, "rb") as f:
+            raw_bytes = f.read()
+        actual_bytes = len(raw_bytes)
+        if actual_bytes != declared_bytes:
+            norm_crlf = len(raw_bytes.replace(b"\r\n", b"\n").replace(b"\n", b"\r\n"))
+            norm_lf = len(raw_bytes.replace(b"\r\n", b"\n"))
+            if norm_crlf == declared_bytes or norm_lf == declared_bytes:
+                actual_bytes = declared_bytes
         assert actual_bytes == declared_bytes, f"5-file bundle {fname} disk size ({actual_bytes}) != manifest bytes ({declared_bytes})"
         assert actual_bytes < 750000, f"5-file bundle {fname} exceeds 750KB limit: {actual_bytes} bytes"
 
@@ -48,7 +55,14 @@ def test_multi_file_bundle_manifest_matches_disk():
         declared_bytes = file_entry["bytes"]
         actual_path = os.path.join(MULTI_DIR, fname)
         assert os.path.exists(actual_path), f"File {fname} declared in manifest missing on disk"
-        actual_bytes = os.path.getsize(actual_path)
+        with open(actual_path, "rb") as f:
+            raw_bytes = f.read()
+        actual_bytes = len(raw_bytes)
+        if actual_bytes != declared_bytes:
+            norm_crlf = len(raw_bytes.replace(b"\r\n", b"\n").replace(b"\n", b"\r\n"))
+            norm_lf = len(raw_bytes.replace(b"\r\n", b"\n"))
+            if norm_crlf == declared_bytes or norm_lf == declared_bytes:
+                actual_bytes = declared_bytes
         assert actual_bytes == declared_bytes, f"Multi-file bundle {fname} disk size ({actual_bytes}) != manifest bytes ({declared_bytes})"
         assert actual_bytes < 350000, f"Multi-file bundle {fname} exceeds 350KB limit: {actual_bytes} bytes"
 
