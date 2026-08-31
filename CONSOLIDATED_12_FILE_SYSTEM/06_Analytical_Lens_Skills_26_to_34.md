@@ -1,7 +1,7 @@
 # 06_Analytical_Lens_Skills_26_to_34
 
 > **IERL AI Equity OS — curated upload artifact**  
-> Project Version: `0.0.0` · Bundle Version: `2.0` · Source Commit: `35fc103`  
+> Project Version: `0.0.0` · Bundle Version: `2.0` · Source Commit: `65c1a3e`  
 > Generated At: `2026-08-31T08:32:49.176711+00:00` · Source Hash: `1868c6bc608b14cb` · Compiler: `consolidate_project.py` v2.0
 
 ## Operating contract
