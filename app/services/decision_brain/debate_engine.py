@@ -25,18 +25,28 @@ logger = logging.getLogger(__name__)
 
 # Engine category mapping for severity calculation
 ENGINE_CATEGORIES: Dict[str, str] = {
+    # Phase 1 & 2 Core Fundamentals & Valuations
     "E1": "FUNDAMENTAL", "E2": "FUNDAMENTAL", "E3": "FUNDAMENTAL",
     "E4": "FUNDAMENTAL", "E5": "FUNDAMENTAL", "E6": "FUNDAMENTAL",
     "E7": "VALUATION",
+    "E8": "FUNDAMENTAL", "E9": "FUNDAMENTAL", "E10": "FUNDAMENTAL",
+    "E11": "FUNDAMENTAL", "E12": "FUNDAMENTAL", "E13": "FUNDAMENTAL",
+    "E14": "FUNDAMENTAL",
+    "E15": "TECHNICAL", "E16": "TECHNICAL", "E17": "GOVERNANCE",
+    "E18": "TECHNICAL", "E19": "FUNDAMENTAL", "E20": "FUNDAMENTAL",
+    "E21": "FUNDAMENTAL",
+    # Techno-Fundamental Patterns & Momentum
     "B4": "TECHNICAL", "B5": "TECHNICAL", "B6": "TECHNICAL",
     "B7": "TECHNICAL", "B8": "TECHNICAL",
+    "D15": "TECHNICAL", "D16": "TECHNICAL", "D17": "TECHNICAL",
+    "D18": "GOVERNANCE", "OBV_ACC": "TECHNICAL",
+    # Valuations
     "C9": "VALUATION", "DCF_FWD": "VALUATION",
-    "C11": "FORENSIC", "C12": "FORENSIC", "C13": "FORENSIC",
-    "FORENSIC": "FORENSIC",
-    "D15": "TECHNICAL", "D17": "TECHNICAL", "D18": "GOVERNANCE",
+    # Forensic & Quality-of-Earnings Guardrails
+    "C10": "FORENSIC", "C11": "FORENSIC", "C12": "FORENSIC",
+    "C13": "FORENSIC", "C14": "FORENSIC", "FORENSIC": "FORENSIC",
+    # Options & Volatility
     "A1": "OPTIONS", "A2": "OPTIONS", "A3": "OPTIONS",
-    "OBV_ACC": "TECHNICAL",
-    "E20": "FUNDAMENTAL",
 }
 
 # Severity matrix: which category pairs cause what severity
