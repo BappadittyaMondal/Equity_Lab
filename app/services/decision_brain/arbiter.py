@@ -186,6 +186,10 @@ class Arbiter:
                 "status":     getattr(resp, "status", "unknown"),
             })
 
+        production_engines = [eid for eid, mod in all_modules.items() if mod.status == "production"]
+        evaluated_ids = [o["engine_id"] for o in outputs]
+        self._last_engines_missing = [eid for eid in production_engines if eid not in evaluated_ids]
+
         return outputs
 
     # ──────────────────────────────────────────────────────────────────────
@@ -611,11 +615,13 @@ class Arbiter:
             "timestamp": datetime.now(timezone.utc).isoformat(),
             "as_of": as_of.isoformat() if hasattr(as_of, "isoformat") else (str(as_of) if as_of else None),
             "model_version": MODEL_VERSION,
-            "git_commit_sha": getattr(settings, "GIT_COMMIT_SHA", "HEAD_1BDE51C"),
+            "git_commit_sha": getattr(settings, "GIT_COMMIT_SHA", "HEAD_1B4339A"),
             "evidence_coverage_pct": coverage_pct,
             "evidence_clusters": clusters,
             "engines_evaluated": len(outputs),
             "engines_contributing": len([o for o in outputs if o.get("verdict") == "Buy"]),
+            "engines_missing": getattr(self, "_last_engines_missing", []),
+            "min_engines_required": 10,
             "governance_veto_applied": veto,
             "data_backed": is_data_backed,
         }
@@ -813,14 +819,49 @@ class Arbiter:
         from app.services.research.technical_probability import calculate_calibrated_probability_ladder
         from app.services.risk.trade_management import evaluate_in_position_management
         from app.services.risk.portfolio_risk import evaluate_portfolio_heat_and_risk
-
         norm = symbol.upper()
         regime = classify_market_regime(as_of=as_of)
         trend_res = evaluate_technical_trend_and_rs(norm, as_of=as_of)
         struct_res = evaluate_technical_structure_and_setups(norm, as_of=as_of)
         vol_res = evaluate_volume_and_microstructure(norm, as_of=as_of)
         surv_res = evaluate_surveillance_and_cost_gate(norm)
-        heat_res = evaluate_portfolio_heat_and_risk(norm, regime_code=regime.regime_code)
+
+        # Wire active portfolio positions into Gate 11 Portfolio Heat & Risk Evaluator
+        open_positions = {}
+        candidate_sector = "MANUFACTURING"
+        try:
+            from app.services.research_data import ResearchDataStore
+            rds = ResearchDataStore()
+            items = rds.get_watchlist()
+            for item in items:
+                sym = item.get("symbol")
+                if sym and sym != norm:
+                    try:
+                        co = rds.get_company(sym)
+                        sec = co.sector if (co and co.sector) else "GENERAL"
+                    except Exception:
+                        sec = "GENERAL"
+                    open_positions[sym] = {
+                        "symbol": sym,
+                        "sector": sec,
+                        "risk_pct": 1.5,
+                    }
+            try:
+                cand_co = rds.get_company(norm)
+                if cand_co and cand_co.sector:
+                    candidate_sector = cand_co.sector
+            except Exception:
+                pass
+        except Exception:
+            open_positions = {}
+
+        heat_res = evaluate_portfolio_heat_and_risk(
+            candidate_symbol=norm,
+            candidate_sector=candidate_sector,
+            candidate_risk_pct=1.5,
+            open_positions=open_positions,
+            regime_code=regime.regime_code
+        )
 
         trend_score = trend_res.get("trend_score", 50.0)
         rs_score = trend_res.get("rs_score", 50.0)

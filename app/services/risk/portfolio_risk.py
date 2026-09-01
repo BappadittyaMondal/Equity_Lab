@@ -89,7 +89,7 @@ def evaluate_portfolio_heat_and_risk(
         gate11_status = "FAIL_HEAT_EXCEEDED"
     elif current_count >= 10:
         gate11_status = "FAIL_MAX_POSITIONS"
-    elif sector_concentration_pct > 35.0:
+    elif current_count >= 3 and sector_concentration_pct > 35.0:
         gate11_status = "FAIL_SECTOR_CONCENTRATION"
     else:
         gate11_status = "PASS"
