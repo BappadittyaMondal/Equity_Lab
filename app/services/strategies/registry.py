@@ -498,6 +498,18 @@ RESEARCH_ENGINES: Dict[str, StrategyModule] = {
         metrics=["turnaround_score", "p_recovery", "p_relapse", "value_trap_risk_score"],
         risk_warnings=["Turnaround candidates require multi-quarter cash flow confirmation."],
         methodology="2-layer probability model, historical damage detection, and fundamental recovery vs market repricing gap."
+    ),
+    "E21": StrategyModule(
+        id="E21",
+        name="Early-Stage ₹100Cr+ Microcap Compounder Engine",
+        category="Microcap Incubator Intelligence",
+        description="Incubates early-stage microcaps (₹100Cr–₹500Cr) evaluating Incremental ROIC (ΔNOPAT/ΔInvested Capital), Capex Productivity, Reverse Valuation Forensics, and PM Kill-Test.",
+        status="production",
+        required_inputs=["symbol"],
+        universe="NSE ₹100Cr–₹500Cr Microcaps",
+        metrics=["early_compounder_score", "incremental_roic_pct", "incubator_tier"],
+        risk_warnings=["Micro-cap illiquidity and execution lag risks apply."],
+        methodology="Sequential 3-agent pipeline: Agent 10 (Incremental ROIC) + Agent 11 (Reverse Valuation) + Agent 12 (PM Kill-Test)."
     )
 }
 
@@ -1132,6 +1144,12 @@ def run_strategy_module(strategy_id: str, symbol: str = "RELIANCE", as_of: Optio
             )
     elif module.id == "DCF_FWD":
         return run_dcf_forward(symbol)
+    elif module.id == "E20":
+        from app.services.turnaround.turnaround_engine import run_turnaround_engine
+        return run_turnaround_engine(symbol, as_of=as_of)
+    elif module.id == "E21":
+        from app.services.research.early_compounder_engine import run_early_compounder_engine
+        return run_early_compounder_engine(symbol, as_of=as_of)
     else:
         # No fake scores — return data_insufficient for any genuinely unimplemented module
         return StrategyRunResponse(

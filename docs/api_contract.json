@@ -524,6 +524,24 @@
         "operationId": "fetch_swing_trade_alerts_api_v1_strategies_swing_alerts_get",
         "parameters": [
           {
+            "name": "symbol",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Optional symbol to filter",
+              "title": "Symbol"
+            },
+            "description": "Optional symbol to filter"
+          },
+          {
             "name": "universe",
             "in": "query",
             "required": false,
@@ -1527,6 +1545,61 @@
               "title": "Symbol"
             },
             "description": "Stock symbol (e.g. RELIANCE)"
+          },
+          {
+            "name": "x-api-key",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "default": "",
+              "title": "X-Api-Key"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StrategyRunResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/research/early-compounder": {
+      "get": {
+        "tags": [
+          "Expert Strategy & Research Engines"
+        ],
+        "summary": "Run Early Compounder Endpoint",
+        "description": "Executes Strategy E21: Early-Stage \u20b9100Cr+ Microcap Compounder Engine (Incremental ROIC, Reverse Valuation, PM Kill-Test).",
+        "operationId": "run_early_compounder_endpoint_api_v1_research_early_compounder_get",
+        "parameters": [
+          {
+            "name": "symbol",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "description": "Stock symbol (e.g. SHILCHAR or RELIANCE)",
+              "title": "Symbol"
+            },
+            "description": "Stock symbol (e.g. SHILCHAR or RELIANCE)"
           },
           {
             "name": "x-api-key",
@@ -5885,6 +5958,44 @@
             ],
             "title": "Ml Outperformance Probability",
             "description": "Scikit-Learn baseline estimated probability of benchmark outperformance (0.0 to 1.0)"
+          },
+          "evidence_coverage_pct": {
+            "type": "number",
+            "title": "Evidence Coverage Pct",
+            "description": "Percentage of standard category evidence clusters available (0.0 to 100.0)",
+            "default": 100.0
+          },
+          "decision_manifest": {
+            "anyOf": [
+              {
+                "additionalProperties": true,
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Decision Manifest",
+            "description": "Immutable Decision Run Manifest containing run_id, dataset lineage, and config hash"
+          },
+          "evidence_clusters": {
+            "anyOf": [
+              {
+                "additionalProperties": true,
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Evidence Clusters",
+            "description": "Independent evidence cluster score breakdown"
+          },
+          "disclaimer": {
+            "type": "string",
+            "title": "Disclaimer",
+            "description": "Regulatory disclaimer string",
+            "default": "Quantitative research report generated for decision support. Not personalized investment advice under SEBI regulations."
           }
         },
         "type": "object",

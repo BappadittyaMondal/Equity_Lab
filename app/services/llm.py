@@ -41,11 +41,12 @@ def generate_text(prompt: str) -> str:
 # Phase 3: Research Context Builder
 # ─────────────────────────────────────────────────────────────────────────────
 
-def build_research_context(symbol: str) -> str:
+def build_research_context(symbol: str, max_context_tokens: int = 8000) -> str:
     """Assemble structured ResearchContext from live data + database.
 
     Injects into LLM prompt as structured data (not prose) to ground reasoning.
     The LLM MUST cite numbers from this context — no fabrication allowed.
+    Enforces max_context_tokens budget to prevent token bloat and latency.
     """
     norm = normalize_symbol(symbol)
     context_lines = [
@@ -126,7 +127,11 @@ def build_research_context(symbol: str) -> str:
         pass
 
     context_lines.append("═══ END RESEARCH CONTEXT ═══")
-    return "\n".join(context_lines)
+    full_text = "\n".join(context_lines)
+    max_chars = max_context_tokens * 4
+    if len(full_text) > max_chars:
+        full_text = full_text[:max_chars] + "\n[... Truncated to stay within max_context_tokens ceiling ...]\n═══ END RESEARCH CONTEXT ═══"
+    return full_text
 
 
 def _build_analysis_prompt(query_text: str, symbol: str, mode: str, research_context: str) -> str:

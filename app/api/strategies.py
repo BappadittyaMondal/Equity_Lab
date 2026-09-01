@@ -188,6 +188,13 @@ def run_inflection_multibagger_endpoint(symbol: str = Query(..., description="St
     return run_inflection_multibagger(symbol=symbol)
 
 
+@router.get("/research/early-compounder", response_model=StrategyRunResponse)
+def run_early_compounder_endpoint(symbol: str = Query(..., description="Stock symbol (e.g. SHILCHAR or RELIANCE)")):
+    """Executes Strategy E21: Early-Stage ₹100Cr+ Microcap Compounder Engine (Incremental ROIC, Reverse Valuation, PM Kill-Test)."""
+    return run_strategy_module("E21", symbol=symbol)
+
+
+
 
 
 

@@ -37,6 +37,8 @@ class WalkForwardSummary(BaseModel):
     sharpe_ratio: float
     sortino_ratio: float
     benchmark_mode: str = Field(default="REAL", description="REAL or BASELINE_6PCT_ANNUAL")
+    capital_allocated_pct: float = Field(default=10.0, description="Portfolio position sizing weight percentage")
+    portfolio_contribution_alpha: float = Field(default=0.0, description="Alpha scaled by capital allocation weight")
 
 
 class WalkForwardBacktester:
@@ -50,8 +52,9 @@ class WalkForwardBacktester:
         benchmark_returns: Optional[List[float]] = None,
         slippage_pct: float = 0.05,
         stt_brokerage_pct: float = 0.10,
+        capital_allocated_pct: float = 10.0,
     ) -> WalkForwardSummary:
-        """Calculate walk-forward metrics across historical periods including transaction costs and slippage."""
+        """Calculate walk-forward metrics across historical periods including transaction costs, slippage, and position sizing."""
         normalized = normalize_symbol(symbol)
         if not entry_scores_and_returns:
             return WalkForwardSummary(
@@ -66,6 +69,8 @@ class WalkForwardBacktester:
                 sharpe_ratio=0.0,
                 sortino_ratio=0.0,
                 benchmark_mode="UNSPECIFIED",
+                capital_allocated_pct=capital_allocated_pct,
+                portfolio_contribution_alpha=0.0,
             )
 
         total_friction_pct = slippage_pct + stt_brokerage_pct
@@ -132,6 +137,8 @@ class WalkForwardBacktester:
             if dd > max_dd:
                 max_dd = dd
 
+        portfolio_alpha = round(mean_alpha * (capital_allocated_pct / 100.0), 2)
+
         return WalkForwardSummary(
             symbol=normalized,
             horizon_months=horizon_months,
@@ -144,4 +151,6 @@ class WalkForwardBacktester:
             sharpe_ratio=round(sharpe, 2),
             sortino_ratio=round(sortino, 2),
             benchmark_mode=bm_mode,
+            capital_allocated_pct=capital_allocated_pct,
+            portfolio_contribution_alpha=portfolio_alpha,
         )
