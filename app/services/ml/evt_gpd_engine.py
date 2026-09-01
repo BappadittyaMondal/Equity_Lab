@@ -28,13 +28,13 @@ class EVTGPDEngine:
         """
         if returns is None or len(returns) < 30:
             return {
-                "threshold": 0.03,
+                "threshold": None,
                 "exceedance_count": 0,
-                "scale_sigma": 0.02,
-                "shape_xi": 0.15,
-                "tail_type": "HEAVY_TAILED",
-                "var_99_pct": 5.5,
-                "expected_shortfall_99_pct": 7.2,
+                "scale_sigma": None,
+                "shape_xi": None,
+                "tail_type": "INSUFFICIENT_DATA",
+                "var_99_pct": None,
+                "expected_shortfall_99_pct": None,
             }
 
         clean_rets = np.sort(returns[~np.isnan(returns)])

@@ -92,6 +92,8 @@ def compute_beneish_mscore(financials: List[Any]) -> Dict[str, Any]:
     # Typically DSRI = (Receivables_t / Rev_t) / (Receivables_t-1 / Rev_t-1)
     # We approximate using revenue ratio change as proxy
     dsri = 1.0  # neutral if not available
+    result["dsri"] = dsri
+    result["dsri_status"] = "PROXY_REVENUE_BASED"
     evidence.append(f"DSRI: {dsri:.3f} (proxy — receivables not in DB)")
 
     # GMI: Gross Margin Index

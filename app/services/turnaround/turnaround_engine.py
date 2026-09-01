@@ -42,9 +42,33 @@ def run_turnaround_engine(symbol: str, as_of: Optional[str] = None) -> StrategyR
             pass
 
     if not financials:
+        if not is_offline:
+            meta = create_meta_header(source="Turnaround Prediction Engine (E20)")
+            meta["data_mode"] = "INSUFFICIENT_DATA"
+            return StrategyRunResponse(
+                strategy_id="E20",
+                strategy_name="Institutional Turnaround Prediction Engine",
+                status="data_insufficient",
+                executed_at=get_ist_now_str(),
+                symbol=symbol,
+                passed_gates=False,
+                results={"symbol": symbol, "data_status": "insufficient_financial_observations", "turnaround_score": 0.0},
+                metrics={"score": 0.0, "turnaround_score": 0.0},
+                risk_warnings=["Insufficient financial observations to evaluate corporate turnaround."],
+                disclaimer="Real financial observation data required for corporate turnaround evaluation.",
+                meta=meta
+            )
         financials = get_mock_turnaround_financials(symbol)
 
     quote = {"price_change_6m_pct": 12.0}
+    if not is_offline:
+        try:
+            from app.services.market_data import get_quote
+            q = get_quote(symbol)
+            if q and hasattr(q, "price_change_6m_pct") and q.price_change_6m_pct is not None:
+                quote = {"price_change_6m_pct": float(q.price_change_6m_pct)}
+        except Exception:
+            pass
 
     # Pipeline math execution
     features = extract_turnaround_features(financials, market_quote=quote)

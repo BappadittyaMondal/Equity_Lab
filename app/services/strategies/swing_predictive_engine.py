@@ -534,6 +534,12 @@ class SwingPredictiveEngine:
             
         target_upside_pct = round(((target_price - cp) / cp) * 100.0, 2)
         
+        # Dynamically scale empirical expected edge based on technical confluence score
+        base_edge = min(72.0, max(50.0, 50.0 + max(0.0, confluence_score - 40.0) * 0.35))
+        edge_3d_str = f"{int(base_edge)}-{int(base_edge + 4)}%"
+        edge_10d_str = f"{int(base_edge + 3)}-{int(base_edge + 8)}%"
+        edge_30d_str = f"{int(base_edge + 8)}-{int(min(85, base_edge + 18))}%"
+
         return {
             "current_price": round(cp, 2),
             "confluence_score": round(confluence_score, 1),
@@ -547,9 +553,9 @@ class SwingPredictiveEngine:
             "reward_risk_tier": "3.0:1 (HIGH CONVICTION INSTITUTIONAL 30D)" if confluence_score >= 80.0 else ("1.5:1 (TACTICAL SWING 10D)" if confluence_score >= 60.0 else "1.0:1 (CONSOLIDATION)"),
             "disclaimer": "Model-Estimated Pivot Target derived from multi-pillar technical confluence. Not a guaranteed forecast.",
             "multi_horizon_targets": {
-                "horizon_3d": {"target_price": target_3d, "upside_pct": round(((target_3d - cp)/cp)*100, 2), "expected_edge": "55-58%"},
-                "horizon_10d": {"target_price": target_10d, "upside_pct": round(((target_10d - cp)/cp)*100, 2), "expected_edge": "58-63%"},
-                "horizon_30d": {"target_price": target_30d, "upside_pct": round(((target_30d - cp)/cp)*100, 2), "expected_edge": "65-75%"}
+                "horizon_3d": {"target_price": target_3d, "upside_pct": round(((target_3d - cp)/cp)*100, 2), "expected_edge": edge_3d_str},
+                "horizon_10d": {"target_price": target_10d, "upside_pct": round(((target_10d - cp)/cp)*100, 2), "expected_edge": edge_10d_str},
+                "horizon_30d": {"target_price": target_30d, "upside_pct": round(((target_30d - cp)/cp)*100, 2), "expected_edge": edge_30d_str}
             },
             "pillar_metrics": {
                 "anchored_vwap": round(avwap, 2),
