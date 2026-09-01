@@ -615,3 +615,23 @@ class ResearchDataStore:
             "latest_financials": [f.model_dump() for f in financials[-10:]]
         }
 
+    def get_market_daily_snapshot(self, symbol: str, as_of_date: Optional[str] = None) -> Optional[Dict[str, Any]]:
+        """Retrieve the nearest historical daily snapshot on or before as_of_date."""
+        norm_symbol = normalize_symbol(symbol)
+        with self._connect() as conn:
+            if as_of_date:
+                cutoff = str(as_of_date)[:10]
+                row = conn.execute(
+                    "SELECT * FROM market_daily_snapshots WHERE symbol = ? AND trading_date <= ? ORDER BY trading_date DESC LIMIT 1",
+                    (norm_symbol, cutoff),
+                ).fetchone()
+            else:
+                row = conn.execute(
+                    "SELECT * FROM market_daily_snapshots WHERE symbol = ? ORDER BY trading_date DESC LIMIT 1",
+                    (norm_symbol,),
+                ).fetchone()
+            if row:
+                return dict(row)
+        return None
+
+

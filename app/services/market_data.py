@@ -459,6 +459,33 @@ async def _async_get_market_quote(symbol: str) -> Quote:
 
 
 def get_market_quote(symbol: str, as_of: Optional[datetime.datetime] = None) -> Quote:
+    if as_of:
+        try:
+            from app.services.research_data import ResearchDataStore
+            as_of_str = as_of.strftime("%Y-%m-%d") if hasattr(as_of, "strftime") else str(as_of)[:10]
+            snap_hist = ResearchDataStore().get_market_daily_snapshot(symbol, as_of_str)
+            if snap_hist and snap_hist.get("close_price"):
+                cp = float(snap_hist["close_price"])
+                quote = {
+                    "symbol": symbol,
+                    "price": cp,
+                    "close_price": cp,
+                    "open": float(snap_hist.get("open_price", cp)),
+                    "high": float(snap_hist.get("high_price", cp)),
+                    "low": float(snap_hist.get("low_price", cp)),
+                    "volume": int(snap_hist.get("volume", 0)),
+                    "is_mock": False,
+                    "active_provider": "PIT_HISTORICAL_SNAPSHOT",
+                    "meta": {
+                        "source": "ResearchDataStore Market Daily Snapshot",
+                        "as_of": as_of.isoformat() if hasattr(as_of, "isoformat") else str(as_of),
+                        "data_mode": "PIT_HISTORICAL",
+                    }
+                }
+                return quote
+        except Exception as e:
+            logger.debug("Historical PIT quote lookup skipped: %s", e)
+
     try:
         loop = asyncio.get_running_loop()
     except RuntimeError:

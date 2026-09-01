@@ -14,6 +14,7 @@ Key changes from Phase 3:
 """
 
 import json
+import uuid
 import logging
 import sqlite3
 from datetime import datetime, timezone
@@ -240,6 +241,23 @@ class Arbiter:
             composite = (len(buy_outputs) / max(len(outputs), 1)) * 75.0
 
         return round(composite, 1), category_breakdown
+
+    def _compute_evidence_clusters(self, category_breakdown: Dict[str, float]) -> Tuple[float, Dict[str, float]]:
+        """Group category scores into independent evidence clusters and calculate coverage %."""
+        standard_categories = ["FUNDAMENTAL", "VALUATION", "TECHNICAL", "FORENSIC", "MACRO", "GOVERNANCE"]
+        active_cats = [c for c in standard_categories if c in category_breakdown]
+        coverage_pct = round((len(active_cats) / len(standard_categories)) * 100.0, 1)
+
+        forensic_gov_denom = (1 if "FORENSIC" in category_breakdown else 0) + (1 if "GOVERNANCE" in category_breakdown else 0)
+        forensic_gov_score = round((category_breakdown.get("FORENSIC", 0.0) + category_breakdown.get("GOVERNANCE", 0.0)) / max(1, forensic_gov_denom), 1) if forensic_gov_denom > 0 else 0.0
+
+        clusters = {
+            "fundamental_growth": category_breakdown.get("FUNDAMENTAL", 0.0),
+            "valuation": category_breakdown.get("VALUATION", 0.0),
+            "forensic_governance": forensic_gov_score,
+            "technical_momentum": category_breakdown.get("TECHNICAL", 0.0),
+        }
+        return coverage_pct, clusters
 
     # ──────────────────────────────────────────────────────────────────────
     # 3. Forensic veto (enhanced — checks real forensic flags)
@@ -572,6 +590,7 @@ class Arbiter:
 
         if veto or (mivs_result and not mivs_result.passed_hard_gates):
             final_score_f = self.VETO_SCORE_CAP * 0.5  # Hard cap under veto
+            _, category_breakdown = self._compute_weighted_score(outputs)
         else:
             final_score_f, category_breakdown = self._compute_weighted_score(outputs)
             if mivs_result:
@@ -582,6 +601,24 @@ class Arbiter:
             final_score_f = max(0.0, final_score_f - penalty)
 
         final_score = int(round(final_score_f))
+
+        # Compute independent evidence clusters and explicit coverage %
+        coverage_pct, clusters = self._compute_evidence_clusters(category_breakdown)
+        run_id = f"RUN-{uuid.uuid4().hex[:12].upper()}"
+        decision_manifest = {
+            "run_id": run_id,
+            "symbol": normalized,
+            "timestamp": datetime.now(timezone.utc).isoformat(),
+            "as_of": as_of.isoformat() if hasattr(as_of, "isoformat") else (str(as_of) if as_of else None),
+            "model_version": MODEL_VERSION,
+            "git_commit_sha": getattr(settings, "GIT_COMMIT_SHA", "HEAD_1BDE51C"),
+            "evidence_coverage_pct": coverage_pct,
+            "evidence_clusters": clusters,
+            "engines_evaluated": len(outputs),
+            "engines_contributing": len([o for o in outputs if o.get("verdict") == "Buy"]),
+            "governance_veto_applied": veto,
+            "data_backed": is_data_backed,
+        }
 
         if abstain_reason:
             final_verdict = "ABSTAIN"
@@ -622,6 +659,9 @@ class Arbiter:
             catalyst_timing="12-24 Months",
             data_backed=is_data_backed,
             ml_outperformance_probability=ml_prob,
+            evidence_coverage_pct=coverage_pct,
+            decision_manifest=decision_manifest,
+            evidence_clusters=clusters,
         )
 
 
