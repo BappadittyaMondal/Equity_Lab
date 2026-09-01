@@ -33,7 +33,8 @@ class DataSanitizer:
         mad = sorted_devs[n // 2] if n % 2 != 0 else (sorted_devs[n // 2 - 1] + sorted_devs[n // 2]) / 2.0
 
         if mad == 0:
-            return [False] * len(series)
+            # Flat-run fallback: flag single ticks that deviate by >15% from flat median
+            return [abs(x - med) / max(med, 1e-6) > 0.15 for x in series]
 
         outliers = []
         for x in series:

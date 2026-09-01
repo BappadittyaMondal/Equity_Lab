@@ -12,6 +12,7 @@ from typing import Any, Dict, List, Optional
 
 from app.services.research_data import ResearchDataStore
 from app.services.market_data import normalize_symbol, get_history
+from app.services.utils.data_sanitizer import DataSanitizer
 
 logger = logging.getLogger(__name__)
 
@@ -63,17 +64,13 @@ class DailyPriceIngester:
 
         now_iso = datetime.now(timezone.utc).isoformat()
 
-        # Outlier screening: MAD (Median Absolute Deviation) filter on close price series
+        # Outlier screening: Invoke DataSanitizer MAD (Median Absolute Deviation > 4.0) filter
         outlier_indices = set()
-        if len(hist) >= 10 and "Close" in hist.columns:
+        if len(hist) >= 5 and "Close" in hist.columns:
             try:
-                closes = hist["Close"].astype(float)
-                med = float(closes.median())
-                mad = float((closes - med).abs().median())
-                if mad > 1e-6:
-                    # Modified Z-score > 6.0 (conservative outlier gate)
-                    mod_z = 0.6745 * (closes - med).abs() / mad
-                    outlier_indices = set(hist.index[mod_z > 6.0])
+                closes = hist["Close"].astype(float).tolist()
+                flags = DataSanitizer.calculate_mad_outliers(closes, threshold=4.0)
+                outlier_indices = {idx for idx, is_out in zip(hist.index, flags) if is_out}
             except Exception:
                 outlier_indices = set()
 

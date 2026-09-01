@@ -540,10 +540,15 @@ class SwingPredictiveEngine:
         edge_10d_str = f"{int(base_edge + 3)}-{int(base_edge + 8)}%"
         edge_30d_str = f"{int(base_edge + 8)}-{int(min(85, base_edge + 18))}%"
 
+        data_mode_val = daily_df.attrs.get("data_mode", "LIVE") if hasattr(daily_df, "attrs") else "LIVE"
+        is_synthetic_val = bool(daily_df.attrs.get("is_mock", False) or data_mode_val == "MOCK") if hasattr(daily_df, "attrs") else False
+
         return {
             "current_price": round(cp, 2),
             "confluence_score": round(confluence_score, 1),
             "model_bias": bias,
+            "data_mode": data_mode_val,
+            "is_synthetic": is_synthetic_val,
             "horizon": "3 to 30 Days",
             "model_estimated_target": target_price,
             "target_upside_pct": target_upside_pct,

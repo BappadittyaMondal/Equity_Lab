@@ -550,6 +550,27 @@ def get_history(symbol: str, period: str = "3y", interval: str = "1d"):
     return mock_df
 
 
+def is_live_data(df: Any) -> bool:
+    """Return True if dataframe is confirmed live market data, False if synthetic/mock/empty."""
+    if df is None:
+        return False
+    if hasattr(df, "empty") and df.empty:
+        return False
+    if hasattr(df, "attrs"):
+        if df.attrs.get("data_mode") == "MOCK" or df.attrs.get("is_mock") is True:
+            return False
+    return True
+
+
+def get_data_mode(df: Any) -> str:
+    """Return data mode string for dataframe ('LIVE', 'MOCK', 'DATA_UNAVAILABLE')."""
+    if df is None or (hasattr(df, "empty") and df.empty):
+        return "DATA_UNAVAILABLE"
+    if hasattr(df, "attrs") and "data_mode" in df.attrs:
+        return str(df.attrs["data_mode"])
+    return "LIVE"
+
+
 def get_market_regime():
     return {"regime": "stable", "vix": None, "nifty": None}
 

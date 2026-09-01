@@ -51,3 +51,22 @@ def test_compute_data_trust_vector_untrusted(sanitizer):
     res = sanitizer.compute_data_trust_vector(quotes)
     assert res["overall_trust_tier"] == "UNTRUSTED"
     assert res["is_trusted"] is False
+
+
+def test_mad_outlier_flat_run_fallback(sanitizer):
+    # Flat series where MAD collapses to 0
+    flat_series = [10.0, 10.0, 10.0, 10.0, 15.0]
+    outliers = sanitizer.calculate_mad_outliers(flat_series, threshold=4.0)
+    assert outliers[4] is True
+    assert outliers[0] is False
+
+
+def test_daily_price_ingester_mad_filtering():
+    from app.services.ingestion.daily_price_ingester import DailyPriceIngester
+    from app.services.research_data import ResearchDataStore
+    store = ResearchDataStore()
+    ingester = DailyPriceIngester(store=store)
+    res = ingester.ingest_symbol("RELIANCE", period="1mo")
+    assert res["symbol"] == "RELIANCE"
+    assert "snapshots_ingested" in res
+
