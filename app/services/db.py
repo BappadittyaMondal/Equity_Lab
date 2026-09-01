@@ -6,13 +6,25 @@ from typing import Optional
 from app.core.config import settings
 
 
+import re
+import contextlib
+
 class PostgresCursorWrapper:
     def __init__(self, cursor):
         self._cursor = cursor
         self.lastrowid = None
 
     def execute(self, sql: str, params: Optional[tuple] = None):
-        pg_sql = sql.replace("?", "%s")
+        # Replace ? with %s only when outside single or double quoted string literals
+        tokens = re.split(r"('(?:''|[^'])*'|\"(?:\"\"|[^\"])*\")", sql)
+        out = []
+        for i, token in enumerate(tokens):
+            if i % 2 == 0:
+                out.append(token.replace("?", "%s"))
+            else:
+                out.append(token)
+        pg_sql = "".join(out)
+
         pg_sql = pg_sql.replace("INTEGER PRIMARY KEY AUTOINCREMENT", "SERIAL PRIMARY KEY")
         pg_sql = pg_sql.replace("AUTOINCREMENT", "")
         
@@ -154,6 +166,19 @@ def get_connection():
     _OPEN_CONNECTIONS.add(conn)
     return conn
 
+
+@contextlib.contextmanager
+def db_session():
+    """Context manager for automatically managed, scoped database connections."""
+    conn = get_connection()
+    try:
+        yield conn
+    finally:
+        try:
+            conn.close()
+            _OPEN_CONNECTIONS.discard(conn)
+        except Exception:
+            pass
 
 
 def _ensure_tables() -> None:

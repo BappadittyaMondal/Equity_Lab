@@ -25,7 +25,7 @@ class PredictionLedgerStore:
             conn = sqlite3.connect(self.db_path)
             cursor = conn.cursor()
             cursor.execute("""
-                CREATE TABLE IF NOT EXISTS prediction_ledger (
+                CREATE TABLE IF NOT EXISTS prediction_ledger_conformal (
                     prediction_id TEXT PRIMARY KEY,
                     symbol TEXT NOT NULL,
                     logged_at TEXT NOT NULL,
@@ -77,7 +77,7 @@ class PredictionLedgerStore:
                 conn = sqlite3.connect(self.db_path)
                 cursor = conn.cursor()
                 cursor.execute("""
-                    INSERT OR REPLACE INTO prediction_ledger 
+                    INSERT OR REPLACE INTO prediction_ledger_conformal 
                     (prediction_id, symbol, logged_at, base_price, predicted_target, conformal_lower, conformal_upper, confidence_tier, invalidation_triggers, evaluations)
                     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
                 """, (
@@ -100,7 +100,7 @@ class PredictionLedgerStore:
             try:
                 conn = sqlite3.connect(self.db_path)
                 cursor = conn.cursor()
-                cursor.execute("SELECT * FROM prediction_ledger WHERE prediction_id = ?", (prediction_id,))
+                cursor.execute("SELECT * FROM prediction_ledger_conformal WHERE prediction_id = ?", (prediction_id,))
                 row = cursor.fetchone()
                 conn.close()
                 if row:
@@ -152,7 +152,7 @@ class PredictionLedgerStore:
                 conn = sqlite3.connect(self.db_path)
                 cursor = conn.cursor()
                 cursor.execute(
-                    "UPDATE prediction_ledger SET evaluations = ? WHERE prediction_id = ?",
+                    "UPDATE prediction_ledger_conformal SET evaluations = ? WHERE prediction_id = ?",
                     (json.dumps(pred["evaluations"]), prediction_id)
                 )
                 conn.commit()

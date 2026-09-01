@@ -37,9 +37,8 @@ async def retrain_ml_model_task(ctx: Dict[str, Any]) -> Dict[str, Any]:
     """Asynchronous background task to retrain baseline ML model."""
     logger.info("Executing background ML baseline model retraining task...")
     try:
-        from app.services.ml_baseline import MLEngine
-        engine = MLEngine()
-        results = engine.evaluate_and_retrain_model()
+        from app.services.ml.baseline_model import evaluate_and_retrain_model
+        results = evaluate_and_retrain_model()
         return {"status": "success", "metrics": results}
     except Exception as exc:
         logger.error("ML model retraining task failed: %s", exc)
