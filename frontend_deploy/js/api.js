@@ -1024,4 +1024,71 @@ export async function loadTurnaroundUniverseRank() {
   }
 }
 
+export async function loadEarlyCompounderResearch(symbol = "RELIANCE") {
+  try {
+    const sym = encodeURIComponent(symbol);
+    const resp = await apiFetch(`/api/v1/research/early-compounder?symbol=${sym}`);
+    if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
+    return await resp.json();
+  } catch (err) {
+    console.warn("Early compounder research load failed:", err.message);
+    return null;
+  }
+}
+
+export async function loadInflectionMultibagger(symbol = "RELIANCE") {
+  try {
+    const sym = encodeURIComponent(symbol);
+    const resp = await apiFetch(`/api/v1/research/inflection-multibagger?symbol=${sym}`);
+    if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
+    return await resp.json();
+  } catch (err) {
+    console.warn("Inflection multibagger load failed:", err.message);
+    return null;
+  }
+}
+
+export async function loadTurnaroundEvaluation(symbol = "RELIANCE") {
+  try {
+    const sym = encodeURIComponent(symbol);
+    const resp = await apiFetch(`/api/v1/turnaround/${sym}`);
+    if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
+    return await resp.json();
+  } catch (err) {
+    console.warn("Turnaround evaluation load failed:", err.message);
+    return null;
+  }
+}
+
+export async function loadStockComparison(symbols = ["RELIANCE", "TCS"]) {
+  try {
+    const resp = await apiFetch(`/api/v1/compare`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ symbols }),
+    });
+    if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
+    return await resp.json();
+  } catch (err) {
+    console.warn("Stock comparison load failed:", err.message);
+    return null;
+  }
+}
+
+export async function loadInstitutionalMultibaggerRank(symbols = ["RELIANCE", "TCS", "INFY"]) {
+  try {
+    const resp = await apiFetch(`/api/v1/multibagger/institutional-rank`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ symbols }),
+    });
+    if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
+    return await resp.json();
+  } catch (err) {
+    console.warn("Institutional multibagger rank load failed:", err.message);
+    return null;
+  }
+}
+
+
 
