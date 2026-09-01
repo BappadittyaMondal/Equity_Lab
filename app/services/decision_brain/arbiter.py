@@ -430,7 +430,7 @@ class Arbiter:
     # 8. Evidence-based thesis (top 2 contributing engines)
     # ──────────────────────────────────────────────────────────────────────
     def _generate_thesis(
-        self, symbol: str, outputs: List[Dict[str, Any]], verdict: str, regime: str
+        self, symbol: str, outputs: List[Dict[str, Any]], verdict: str, regime: str, snap: Any = None
     ) -> str:
         buy_engines = sorted(
             [o for o in outputs if o["verdict"] == "Buy" and o.get("status") != "data_insufficient"],
@@ -450,6 +450,21 @@ class Arbiter:
                     evidence = ev[:1]
             eng_ev = evidence[0] if evidence else f"{eng['engine_id']} passed screening"
             parts.append(f"  ✅ {eng['engine_id']}: {eng_ev}")
+
+        # Sub-Agent Qualitative Evidence Fusion (§8)
+        try:
+            from app.services.intelligence.sub_agents import SupplyChainCatalystSubAgent, RedTeamBearCaseSubAgent
+            sec = getattr(snap, "sector", None) if snap else None
+            cap = getattr(snap, "capex_growth_yoy", None) if snap else None
+            sc_rep = SupplyChainCatalystSubAgent().evaluate(symbol, sector=sec, capex_growth_yoy=cap)
+            for finding in sc_rep.findings[:1]:
+                parts.append(f"  🔗 Catalyst: {finding.finding}")
+
+            red_rep = RedTeamBearCaseSubAgent().evaluate(symbol)
+            for finding in red_rep.findings[:1]:
+                parts.append(f"  🐻 Red-Team Risk: {finding.finding}")
+        except Exception:
+            pass
 
         if avoid_engines:
             risk_ids = [o["engine_id"] for o in avoid_engines[:2]]
@@ -633,7 +648,7 @@ class Arbiter:
         else:
             final_verdict = self._score_to_verdict(final_score_f, veto)
             confidence_tier = self._confidence_tier(final_score_f)
-            primary_thesis = self._generate_thesis(normalized, outputs, final_verdict, regime)
+            primary_thesis = self._generate_thesis(normalized, outputs, final_verdict, regime, snap=snap)
 
         # Variant perception synthesis
         variant_view_str = f"Variant Perception ({confidence_tier}): {primary_thesis}"

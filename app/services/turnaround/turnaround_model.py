@@ -36,10 +36,13 @@ def predict_turnaround_probabilities(features: Dict[str, Any]) -> Dict[str, Any]
     opm_damage = float(features.get("opm_damage_gap", 0.0))
     improving_q = float(features.get("improving_quarters", 0.0))
 
-    # Layer 1: Fundamental Recovery Probability P_Recovery
+    # Layer 1: Fundamental Recovery Probability P_Recovery (Multi-Horizon 4Q / 8Q / 12Q)
     # Logit calculation: fund_score baseline + improving quarters boost
     logit_recovery = (fund_score - 50.0) * 0.06 + (improving_q * 0.25) + (cash_score - 50.0) * 0.03
     p_recovery = round(sigmoid(logit_recovery), 4)
+    p_recovery_4q = round(sigmoid(logit_recovery - 0.25), 4)
+    p_recovery_8q = p_recovery
+    p_recovery_12q = round(sigmoid(logit_recovery + 0.30), 4)
 
     # Relapse Classifier P_Relapse (PAT growing but CFO falling or low CFO/PAT)
     logit_relapse = (0.8 - cfo_pat) * 2.5 + (opm_damage * 0.1) - (improving_q * 0.3)
@@ -60,6 +63,9 @@ def predict_turnaround_probabilities(features: Dict[str, Any]) -> Dict[str, Any]
         "status": "production",
         "turnaround_score": turnaround_score,
         "p_recovery": p_recovery,
+        "p_recovery_4q": p_recovery_4q,
+        "p_recovery_8q": p_recovery_8q,
+        "p_recovery_12q": p_recovery_12q,
         "p_relapse": p_relapse,
         "p_outperformance": p_outperformance,
         "value_trap_risk_score": value_trap_risk,

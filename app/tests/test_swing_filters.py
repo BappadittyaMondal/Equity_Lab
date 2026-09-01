@@ -150,6 +150,7 @@ class TestSwingPredictiveFilters(unittest.TestCase):
         sl = res["stop_loss"]
         rr = (target - cp) / (cp - sl)
         self.assertGreaterEqual(round(rr, 2), 3.0)
+        self.assertTrue(res["reward_risk_tier"].startswith(f"{res['reward_risk_ratio']:.1f}:1"))
 
 
 if __name__ == "__main__":

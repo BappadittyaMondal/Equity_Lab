@@ -92,6 +92,9 @@ def run_turnaround_engine(symbol: str, as_of: Optional[str] = None) -> StrategyR
         "symbol": symbol,
         "turnaround_score": t_score,
         "p_recovery": model_output.get("p_recovery", 0.0),
+        "p_recovery_4q": model_output.get("p_recovery_4q", 0.0),
+        "p_recovery_8q": model_output.get("p_recovery_8q", 0.0),
+        "p_recovery_12q": model_output.get("p_recovery_12q", 0.0),
         "p_relapse": model_output.get("p_relapse", 0.0),
         "p_outperformance": model_output.get("p_outperformance", 0.0),
         "value_trap_risk_score": model_output.get("value_trap_risk_score", 0.0),
@@ -108,6 +111,9 @@ def run_turnaround_engine(symbol: str, as_of: Optional[str] = None) -> StrategyR
         "score": t_score,
         "turnaround_score": t_score,
         "p_recovery": model_output.get("p_recovery", 0.0),
+        "p_recovery_4q": model_output.get("p_recovery_4q", 0.0),
+        "p_recovery_8q": model_output.get("p_recovery_8q", 0.0),
+        "p_recovery_12q": model_output.get("p_recovery_12q", 0.0),
         "value_trap_risk_score": model_output.get("value_trap_risk_score", 0.0),
     }
 
