@@ -25,11 +25,11 @@ class ForensicAuditorSubAgent:
 
         if ownership_snapshot:
             pledge = float(ownership_snapshot.get("promoter_pledge_pct") or 0.0)
-            if pledge > 50.0:
+            if pledge > 40.0:
                 findings.append(
                     QualitativeEvidenceFinding(
                         finding="Critical Promoter Pledge Alarm",
-                        evidence=f"Promoter pledge ratio is extremely high at {pledge:.1f}%",
+                        evidence=f"Promoter pledge ratio is extremely high at {pledge:.1f}%, exceeding safety threshold of 40.0%",
                         severity=FindingSeverity.CRITICAL_RED_FLAG,
                         confidence=0.98,
                         source="BSE/NSE Shareholding Pattern Filing",
@@ -75,12 +75,13 @@ class SupplyChainCatalystSubAgent:
     def evaluate(self, symbol: str, sector: Optional[str] = None) -> SubAgentAuditReport:
         findings = []
         now_str = datetime.now(timezone.utc).isoformat()
+        norm_sec = (sector or "").strip().title()
 
-        if sector in ("Infrastructure", "Power", "Capital Goods"):
+        if norm_sec in ("Infrastructure", "Power", "Capital Goods"):
             findings.append(
                 QualitativeEvidenceFinding(
                     finding="Capex Inflection Beneficiary",
-                    evidence=f"Symbol operates in {sector} benefiting from national infrastructure spending tailwinds.",
+                    evidence=f"Symbol operates in {norm_sec} benefiting from national infrastructure spending tailwinds.",
                     severity=FindingSeverity.POSITIVE_CATALYST,
                     confidence=0.88,
                     source="Policy Transmission Graph",

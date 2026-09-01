@@ -19,11 +19,19 @@ def test_forensic_auditor_sub_agent():
     assert rep.findings[0].severity == FindingSeverity.HIGH_PENALTY
     assert rep.findings[0].thesis_invalidation_trigger is not None
 
+    # Test 45.0% (>40.0%) triggers CRITICAL_RED_FLAG
+    rep_crit = agent.evaluate("HIGH_PLEDGE", ownership_snapshot={"promoter_pledge_pct": 45.0})
+    assert rep_crit.findings[0].severity == FindingSeverity.CRITICAL_RED_FLAG
+
 
 def test_supply_chain_catalyst_sub_agent():
     agent = SupplyChainCatalystSubAgent()
     rep = agent.evaluate("TATA-POWER", sector="Power")
     assert rep.findings[0].severity == FindingSeverity.POSITIVE_CATALYST
+
+    # Test case and whitespace normalization
+    rep_norm = agent.evaluate("INFRA_CO", sector="  infrastructure  ")
+    assert rep_norm.findings[0].severity == FindingSeverity.POSITIVE_CATALYST
 
 
 def test_red_team_bear_case_sub_agent():
