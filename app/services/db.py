@@ -533,6 +533,14 @@ def _ensure_tables() -> None:
             debt_to_equity REAL DEFAULT 0.0,
             interest_coverage REAL DEFAULT 0.0,
             peg_ratio REAL DEFAULT 0.0,
+            order_book REAL DEFAULT 0.0,
+            fii_holding REAL DEFAULT 0.0,
+            dii_holding REAL DEFAULT 0.0,
+            total_assets REAL DEFAULT 0.0,
+            dma_50 REAL DEFAULT 0.0,
+            dma_200 REAL DEFAULT 0.0,
+            shares_count REAL DEFAULT 0.0,
+            shares_count_10yr_back REAL DEFAULT 0.0,
             updated_at TEXT NOT NULL
         )
         """
@@ -558,7 +566,15 @@ def _ensure_tables() -> None:
             ("pledged_pct", "REAL DEFAULT 0.0"),
             ("debt_to_equity", "REAL DEFAULT 0.0"),
             ("interest_coverage", "REAL DEFAULT 0.0"),
-            ("peg_ratio", "REAL DEFAULT 0.0")
+            ("peg_ratio", "REAL DEFAULT 0.0"),
+            ("order_book", "REAL DEFAULT 0.0"),
+            ("fii_holding", "REAL DEFAULT 0.0"),
+            ("dii_holding", "REAL DEFAULT 0.0"),
+            ("total_assets", "REAL DEFAULT 0.0"),
+            ("dma_50", "REAL DEFAULT 0.0"),
+            ("dma_200", "REAL DEFAULT 0.0"),
+            ("shares_count", "REAL DEFAULT 0.0"),
+            ("shares_count_10yr_back", "REAL DEFAULT 0.0")
         ]
         for col_name, col_def in new_cols:
             if col_name not in existing_cols:

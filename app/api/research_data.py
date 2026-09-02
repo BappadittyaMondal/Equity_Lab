@@ -127,9 +127,34 @@ def get_alerts(limit: int = 50, symbol: str | None = None):
 
 
 @router.post("/custom-screen")
-def run_custom_screen(query: dict):
-    from app.services.research.custom_screener import CustomScreenerEngine
-    query_str = query.get("query", "")
+def run_custom_screen(payload: dict):
+    """Execute custom Screener.in query or preset, with optional 27-factor Multibagger Brain ranking."""
+    from app.services.research.custom_screener import CustomScreenerEngine, CANONICAL_SCREENER_ARCHETYPES
+
+    if payload.get("get_archetypes") or payload.get("action") == "get_archetypes":
+        return {
+            "total_archetypes": len(CANONICAL_SCREENER_ARCHETYPES),
+            "archetypes": CANONICAL_SCREENER_ARCHETYPES
+        }
+
+    query_str = payload.get("query", "")
+    preset = payload.get("preset")
+    rank_with_brain = payload.get("rank_with_multibagger_brain", False)
+    min_score = float(payload.get("min_multibagger_score", 65.0))
+    top_n = int(payload.get("top_n", 5))
+
+    if rank_with_brain:
+        return CustomScreenerEngine.execute_institutional_funnel(
+            query_string=query_str or None,
+            preset_name=preset,
+            min_multibagger_score=min_score,
+            top_n=top_n
+        )
+
+    if preset:
+        if preset in CANONICAL_SCREENER_ARCHETYPES:
+            query_str = CANONICAL_SCREENER_ARCHETYPES[preset]["query"]
+
     return CustomScreenerEngine.execute_query(query_str)
 
 

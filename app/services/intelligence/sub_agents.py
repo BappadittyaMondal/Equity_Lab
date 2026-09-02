@@ -72,10 +72,54 @@ class ForensicAuditorSubAgent:
 class SupplyChainCatalystSubAgent:
     """Supply Chain & Second-Order Catalyst Sub-Agent."""
 
-    def evaluate(self, symbol: str, sector: Optional[str] = None) -> SubAgentAuditReport:
+    def evaluate(
+        self,
+        symbol: str,
+        sector: Optional[str] = None,
+        order_book: Optional[float] = None,
+        market_cap: Optional[float] = None
+    ) -> SubAgentAuditReport:
         findings = []
         now_str = datetime.now(timezone.utc).isoformat()
         norm_sec = (sector or "").strip().title()
+
+        # Check order book visibility directly or via fundamental data
+        if order_book is None or market_cap is None:
+            try:
+                from app.services.data_ingestion.screener_connector import ScreenerCloudConnector
+                fund = ScreenerCloudConnector.get_company_fundamentals(symbol)
+                if fund:
+                    if order_book is None:
+                        order_book = float(fund.get("order_book", 0.0))
+                    if market_cap is None:
+                        market_cap = float(fund.get("market_cap", 1.0))
+            except Exception:
+                pass
+
+        if order_book and market_cap and market_cap > 0:
+            ratio = order_book / market_cap
+            if ratio >= 4.0:
+                findings.append(
+                    QualitativeEvidenceFinding(
+                        finding="Exceptional Order Book Coverage (>=4x Market Cap)",
+                        evidence=f"Order backlog of Rs. {order_book:,.1f} Cr is {ratio:.1f}x market cap (Rs. {market_cap:,.1f} Cr), locking in multi-year revenue visibility.",
+                        severity=FindingSeverity.POSITIVE_CATALYST,
+                        confidence=0.96,
+                        source="BSE/NSE Contract Disclosures",
+                        thesis_invalidation_trigger="Order book de-growth or cancellation > 20%",
+                    )
+                )
+            elif ratio >= 2.5:
+                findings.append(
+                    QualitativeEvidenceFinding(
+                        finding="High Order Book Coverage (>=2.5x Market Cap)",
+                        evidence=f"Order backlog of Rs. {order_book:,.1f} Cr is {ratio:.1f}x market cap (Rs. {market_cap:,.1f} Cr), providing strong operating leverage visibility.",
+                        severity=FindingSeverity.POSITIVE_CATALYST,
+                        confidence=0.92,
+                        source="BSE/NSE Contract Disclosures",
+                        thesis_invalidation_trigger="Order book de-growth > 25%",
+                    )
+                )
 
         if norm_sec in ("Infrastructure", "Power", "Capital Goods"):
             findings.append(
@@ -88,7 +132,7 @@ class SupplyChainCatalystSubAgent:
                     thesis_invalidation_trigger="Government infrastructure budget allocation reduction > 15%",
                 )
             )
-        else:
+        elif not findings:
             findings.append(
                 QualitativeEvidenceFinding(
                     finding="Stable Demand Pipeline",
