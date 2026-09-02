@@ -18,7 +18,8 @@ async def test_arq_market_data_task_execution():
 async def test_arq_ml_task_execution():
     ctx = {}
     res = await retrain_ml_model_task(ctx)
-    assert res["status"] in ["success", "error"]
+    assert res["status"] == "success"
+    assert "metrics" in res
 
 
 def test_arq_scheduler_summary():

@@ -67,7 +67,8 @@ def _ensure_table():
     """)
     # Auto-migration: ensure data_backed column exists and backfill 0
     try:
-        cols = [r[1] for r in conn.execute("PRAGMA table_info(conviction_calls)").fetchall()]
+        from app.services.db import get_table_columns
+        cols = get_table_columns(conn, "conviction_calls")
         if "data_backed" not in cols:
             conn.execute("ALTER TABLE conviction_calls ADD COLUMN data_backed BOOLEAN DEFAULT 0")
             conn.execute("UPDATE conviction_calls SET data_backed = 0 WHERE data_backed IS NULL")

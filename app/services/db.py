@@ -181,6 +181,27 @@ def db_session():
             pass
 
 
+def get_table_columns(conn, table: str) -> list[str]:
+    """Driver-agnostic column extractor supporting both SQLite (tuple/Row) and PostgreSQL (RealDictCursor)."""
+    try:
+        rows = conn.execute(f"PRAGMA table_info({table})").fetchall()
+        cols = []
+        for r in rows:
+            if isinstance(r, dict):
+                col_name = r.get("name") or r.get("column_name")
+                if col_name:
+                    cols.append(col_name)
+            elif hasattr(r, "keys") and "name" in r.keys():
+                cols.append(r["name"])
+            else:
+                cols.append(r[1])
+        return cols
+    except Exception as exc:
+        import logging
+        logging.getLogger(__name__).warning("Failed to inspect columns for table %s: %s", table, exc)
+        return []
+
+
 def _ensure_tables() -> None:
     """Create any additional tables needed for orchestration.
     Currently ensures the `thesis_drift_events` table exists.
@@ -204,7 +225,7 @@ def _ensure_tables() -> None:
     )
     # Check if data_backed column exists in conviction_calls, migrate and backfill as false if missing
     try:
-        existing_cols = [r[1] for r in conn.execute("PRAGMA table_info(conviction_calls)").fetchall()]
+        existing_cols = get_table_columns(conn, "conviction_calls")
         if "data_backed" not in existing_cols:
             conn.execute("ALTER TABLE conviction_calls ADD COLUMN data_backed BOOLEAN DEFAULT 0")
             conn.execute("UPDATE conviction_calls SET data_backed = 0 WHERE data_backed IS NULL")
@@ -307,7 +328,7 @@ def _ensure_tables() -> None:
     )
     # Check if conviction_call_id and pre_fix_unverified columns exist in prediction_ledger, migrate if missing
     try:
-        existing_cols = [r[1] for r in conn.execute("PRAGMA table_info(prediction_ledger)").fetchall()]
+        existing_cols = get_table_columns(conn, "prediction_ledger")
         if "conviction_call_id" not in existing_cols:
             conn.execute("ALTER TABLE prediction_ledger ADD COLUMN conviction_call_id INTEGER REFERENCES conviction_calls(id)")
         if "pre_fix_unverified" not in existing_cols:
@@ -336,7 +357,7 @@ def _ensure_tables() -> None:
         """
     )
     try:
-        existing_outcome_cols = [r[1] for r in conn.execute("PRAGMA table_info(outcome_ledger)").fetchall()]
+        existing_outcome_cols = get_table_columns(conn, "outcome_ledger")
         if "pre_fix_unverified" not in existing_outcome_cols:
             conn.execute("ALTER TABLE outcome_ledger ADD COLUMN pre_fix_unverified BOOLEAN DEFAULT 0")
             conn.execute("UPDATE outcome_ledger SET pre_fix_unverified = 1 WHERE pre_fix_unverified IS NULL OR pre_fix_unverified = 0")
@@ -464,7 +485,7 @@ def _ensure_tables() -> None:
     try:
         pit_tables = ["earnings_estimates", "quarterly_financials", "promoter_shareholding", "market_corporate_actions", "historical_prices"]
         for tbl in pit_tables:
-            existing_cols = [r[1] for r in conn.execute(f"PRAGMA table_info({tbl})").fetchall()]
+            existing_cols = get_table_columns(conn, tbl)
             for col in ["published_at", "available_at", "effective_at"]:
                 if col not in existing_cols:
                     conn.execute(f"ALTER TABLE {tbl} ADD COLUMN {col} TEXT")
@@ -520,7 +541,7 @@ def _ensure_tables() -> None:
 
     # Migration for new company_fundamentals columns if existing table is present
     try:
-        existing_cols = [r[1] for r in conn.execute("PRAGMA table_info(company_fundamentals)").fetchall()]
+        existing_cols = get_table_columns(conn, "company_fundamentals")
         new_cols = [
             ("net_block", "REAL DEFAULT 0.0"),
             ("net_block_3yr_back", "REAL DEFAULT 0.0"),

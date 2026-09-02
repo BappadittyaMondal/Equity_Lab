@@ -165,6 +165,9 @@ def run_inflection_multibagger(symbol: str) -> StrategyRunResponse:
         "Inflection setups require volume persistence on breakout days.",
         "Enforce mandatory 8% stop-loss from entry base price."
     ]
+    if is_mock or hist_is_mock:
+        results["data_mode"] = "MOCK"
+        risk_warnings.append("Operating on simulated mock data (offline test mode).")
 
     retrieved_at = get_ist_now_str()
 

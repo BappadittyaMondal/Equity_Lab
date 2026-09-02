@@ -8,6 +8,7 @@ from app.models.schemas import ConvictionCall, ThesisDriftEvent, PortfolioSnapsh
 from app.services.decision_brain.arbiter import Arbiter
 from app.services.llm import LLMService
 from app.services.db import get_connection, _ensure_tables
+from app.core.config import settings
 from app.services.research_data import ResearchDataStore
 
 class Orchestrator:
@@ -133,7 +134,8 @@ class Orchestrator:
         except Exception:
             cnt = 0
             
-        max_calls = int(os.getenv("MAX_DAILY_LLM_CALLS", "500"))
+        default_limit = getattr(settings, "LLM_DAILY_CALL_LIMIT", 150)
+        max_calls = int(os.getenv("MAX_DAILY_LLM_CALLS", str(default_limit)))
         if cnt >= max_calls:
             return (
                 f"[{conviction.symbol}] Conviction Verdict: {conviction.verdict} (Score: {conviction.conviction_score}/100). "

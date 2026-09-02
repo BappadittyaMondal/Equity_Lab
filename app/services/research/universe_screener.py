@@ -39,11 +39,12 @@ _DEFAULT_UNIVERSE = [
 def run_technical_universe_screener(
     universe: Optional[List[str]] = None,
     min_tss_score: float = 65.0,
-    setup_filter: Optional[str] = None
+    setup_filter: Optional[str] = None,
+    as_of: Optional[datetime] = None
 ) -> Dict[str, Any]:
     """Executes 3-tier technical universe screener and returns top technical probability candidates."""
     symbols = universe or _DEFAULT_UNIVERSE
-    regime = classify_market_regime()
+    regime = classify_market_regime(as_of=as_of)
 
     tier0_survivors = []
     tier1_survivors = []
@@ -57,8 +58,8 @@ def run_technical_universe_screener(
 
     # 2. Tier 1 Trend & RS Filtering (§0)
     for norm in tier0_survivors:
-        trend_res = evaluate_technical_trend_and_rs(norm)
-        struct_res = evaluate_technical_structure_and_setups(norm)
+        trend_res = evaluate_technical_trend_and_rs(norm, as_of=as_of)
+        struct_res = evaluate_technical_structure_and_setups(norm, as_of=as_of)
 
         rs_rating = trend_res.get("rs_rating_0_99", 50)
         base_depth = struct_res.get("base_depth_pct", 30.0)
@@ -68,7 +69,7 @@ def run_technical_universe_screener(
 
     # 3. Tier 2 Deep 26-Layer Technical Engine (§0)
     for norm, trend_res, struct_res in tier1_survivors:
-        vol_res = evaluate_volume_and_microstructure(norm)
+        vol_res = evaluate_volume_and_microstructure(norm, as_of=as_of)
         surv_res = evaluate_surveillance_and_cost_gate(norm)
 
         trend_score = trend_res.get("trend_score", 50.0)
@@ -112,6 +113,7 @@ def run_technical_universe_screener(
 
     return {
         "executed_at": datetime.now().isoformat(),
+        "as_of": as_of.isoformat() if as_of else None,
         "total_universe_scanned": len(symbols),
         "tier0_survivors_count": len(tier0_survivors),
         "tier1_survivors_count": len(tier1_survivors),

@@ -14,6 +14,7 @@ Validates:
 """
 
 import pytest
+from datetime import datetime
 from fastapi.testclient import TestClient
 
 from app.main import app
@@ -118,6 +119,13 @@ def test_3tier_universe_screener():
     res = run_technical_universe_screener(universe=["POLYCAB", "RELIANCE", "INFY"], min_tss_score=50.0)
     assert res["total_universe_scanned"] == 3
     assert len(res["candidates"]) >= 0
+
+
+def test_3tier_universe_screener_point_in_time():
+    target_date = datetime(2025, 1, 15, 10, 0, 0)
+    res = run_technical_universe_screener(universe=["POLYCAB", "RELIANCE"], min_tss_score=50.0, as_of=target_date)
+    assert res["total_universe_scanned"] == 2
+    assert res["as_of"] == target_date.isoformat()
 
 
 def test_arbiter_technical_report():

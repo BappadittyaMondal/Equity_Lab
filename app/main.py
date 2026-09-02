@@ -115,10 +115,13 @@ async def lifespan(app: FastAPI):
         except ImportError:
             from core.db_health import check_db_health
         health_status = check_db_health()
-        if health_status.get("is_vercel") and not health_status.get("is_postgres"):
-            if os.getenv("STRICT_VERCEL_POSTGRES_GATE", "1") == "1":
-                logger.critical("BOOT ABORTED: Vercel environment detected without PostgreSQL DATABASE_URL. Set DATABASE_URL or STRICT_VERCEL_POSTGRES_GATE=0.")
-                raise RuntimeError("Deployment aborted: Vercel environment requires PostgreSQL DATABASE_URL to prevent silent data loss.")
+        is_cloud_prod = health_status.get("is_vercel") or health_status.get("is_prod")
+        if is_cloud_prod and not health_status.get("is_postgres"):
+            gate_active = os.getenv("STRICT_PRODUCTION_POSTGRES_GATE", os.getenv("STRICT_VERCEL_POSTGRES_GATE", "1")) == "1"
+            if gate_active:
+                env_name = "Render" if health_status.get("is_render") else ("Vercel" if health_status.get("is_vercel") else "Production")
+                logger.critical(f"BOOT ABORTED: {env_name} production environment detected without PostgreSQL DATABASE_URL. Set DATABASE_URL or STRICT_PRODUCTION_POSTGRES_GATE=0.")
+                raise RuntimeError(f"Deployment aborted: {env_name} environment requires PostgreSQL DATABASE_URL to prevent silent data loss.")
     except Exception as e:
         if isinstance(e, RuntimeError):
             raise e

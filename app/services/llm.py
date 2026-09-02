@@ -360,8 +360,8 @@ def check_and_log_llm_budget(call_type: str = "narrative", symbol: str = "N/A") 
 
         now_iso = datetime.datetime.now(datetime.timezone.utc).isoformat()
         conn.execute(
-            "INSERT INTO llm_usage (prompt, response, model_name, timestamp) VALUES (?, ?, ?, ?)",
-            (f"{call_type}:{symbol}", "INVOKED", "gemini-1.5-flash", now_iso)
+            "INSERT INTO llm_usage (timestamp, provider, token_count, estimated_cost) VALUES (?, ?, ?, ?)",
+            (now_iso, f"{call_type}:{symbol}", 100, 0.0001)
         )
         conn.commit()
         conn.close()

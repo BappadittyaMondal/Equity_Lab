@@ -34,6 +34,9 @@ jobs:
         run: safety check --full-report
         continue-on-error: true
 
+      - name: Scan repository for real secrets and credentials
+        run: python scripts/check_no_real_secrets.py
+
   test:
     runs-on: ubuntu-latest
     needs: lint

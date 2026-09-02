@@ -65,51 +65,51 @@ Equity Lab is an institutional-grade quantitative investment research and decisi
 ## 2. 18 Strategy Engines (A1 – D18)
 
 ### Category A: Derivatives & Options Engines (3)
-1. **A1 — Option Arbitrage & Calendar Spreads Engine**: `app/services/strategies/option_arbitrage.py`
+1. **A1 — Option Arbitrage & Calendar Spreads Engine**: `app/services/strategies/options_a1_a3.py`
 2. **A2 — Short Strangle Options Payoff Engine**: `app/services/strategies/options_a2.py`
-3. **A3 — Iron Condor Volatility Engine**: `app/services/strategies/iron_condor.py`
+3. **A3 — Iron Condor Volatility Engine**: `app/services/strategies/options_a1_a3.py`
 
 ### Category B: Technical & Microstructure Engines (5)
-4. **B4 — Volume Price Analysis (VPA)**: `app/services/strategies/technical_vpa.py`
-5. **B5 — Volatility Contraction Pattern (VCP)**: `app/services/strategies/technical_vcp.py`
-6. **B6 — Relative Strength Rating (RS)**: `app/services/strategies/technical_rs_rating.py`
-7. **B7 — Pocket Pivot Detector**: `app/services/strategies/technical_pocket_pivot.py`
-8. **B8 — Specific Entry Point Analysis (SEPA)**: `app/services/strategies/technical_sepa.py`
+4. **B4 — Volume Price Analysis (VPA)**: `app/services/strategies/technical_engines.py`
+5. **B5 — Volatility Contraction Pattern (VCP)**: `app/services/strategies/vcp_b5.py`
+6. **B6 — Relative Strength Rating (RS)**: `app/services/strategies/technical_engines.py`
+7. **B7 — Pocket Pivot Detector**: `app/services/strategies/technical_engines.py`
+8. **B8 — Specific Entry Point Analysis (SEPA)**: `app/services/strategies/sepa_b8.py`
 
 ### Category C: Fundamental & Forensic Engines (6)
-9. **C9 — Reverse Discounted Cash Flow (Reverse DCF)**: `app/services/strategies/reverse_dcf.py`
-10. **C10 — Owner Earnings & Free Cash Flow Yield**: `app/services/strategies/owner_earnings.py`
+9. **C9 — Reverse Discounted Cash Flow (Reverse DCF)**: `app/services/strategies/reverse_dcf_c9.py`
+10. **C10 — Owner Earnings & Free Cash Flow Yield**: `app/services/strategies/owner_earnings_c10.py`
 11. **C11 — Beneish M-Score Earnings Manipulation Detector**: `app/services/strategies/forensic_engine.py`
 12. **C12 — Altman Z-Score & Piotroski F-Score**: `app/services/strategies/forensic_engine.py`
 13. **C13 — Growth Arbitrage Engine**: `app/services/strategies/growth_arbitrage.py`
-14. **C14 — Microcap Integrity & Governance Gate**: `app/services/strategies/microcap_integrity.py`
+14. **C14 — Microcap Integrity & Governance Gate**: `app/services/research/microcap_integrity_gate.py`
 
 ### Category D: Momentum & Quantitative Filter Engines (4)
-15. **D15 — All-Time High (ATH) Breakout Engine**: `app/services/strategies/ath_breakout.py`
-16. **D16 — Dual Momentum Trend Following Engine**: `app/services/strategies/dual_momentum.py`
-17. **D17 — Mean Reversion Engine**: `app/services/strategies/mean_reversion.py`
-18. **D18 — Saatvik Ethical & Sin Industry Filter**: `app/services/strategies/saatvik_filter.py`
+15. **D15 — All-Time High (ATH) Breakout Engine**: `app/services/strategies/ath_breakout_d15.py`
+16. **D16 — Dual Momentum Trend Following Engine**: `app/services/strategies/dual_momentum_d16.py`
+17. **D17 — Mean Reversion Engine**: `app/services/strategies/technical_engines.py`
+18. **D18 — Saatvik Ethical & Sin Industry Filter**: `app/services/strategies/saatvik_d18.py`
 
 ---
 
 ## 3. 17 Research Engines (E1 – E17)
 
-1. **E1 — Unit Economics Engine**: `app/services/research/unit_economics.py` (9 sector models)
-2. **E2 — Promoter Behavior Forensics**: `app/services/research/promoter_forensics.py` (Pledge & insider trading tracking)
-3. **E3 — Shareholding Pattern Intelligence**: `app/services/research/shareholding_intelligence.py` (FII/DII accumulation trends)
-4. **E4 — Alternative Data & Scuttlebutt**: `app/services/research/alt_data_scuttlebutt.py` (Channel checks & web sentiment)
-5. **E5 — Concall NLP Commentary Analyzer**: `app/services/research/concall_nlp.py` (Management tone & transcript NLP)
-6. **E6 — Policy Catalysts & Corporate Actions**: `app/services/research/policy_catalysts.py` (PLI schemes, demergers, buybacks)
+1. **E1 — Unit Economics Engine**: `app/services/strategies/unit_economics.py` (9 sector models)
+2. **E2 — Promoter Behavior Forensics**: `app/services/strategies/promoter_behaviour.py` (Pledge & insider trading tracking)
+3. **E3 — Shareholding Pattern Intelligence**: `app/services/strategies/shareholding_pattern.py` (FII/DII accumulation trends)
+4. **E4 — Alternative Data & Scuttlebutt**: `app/services/strategies/alternative_data.py` (Channel checks & sentiment)
+5. **E5 — Concall NLP Commentary Analyzer**: `app/services/strategies/concall_nlp.py` (Management tone & transcript NLP)
+6. **E6 — Policy Catalysts & Corporate Actions**: `app/services/strategies/catalyst_corporate_actions.py` (PLI schemes, demergers, buybacks)
 7. **E7 — Portfolio Position Sizing Engine**: `app/services/research/portfolio_construction.py` (Kelly Criterion & risk limits)
 8. **E8 — Business-Model Peer Normalization**: `app/services/research/peer_normalization.py` (Sector-relative Z-scores)
-9. **E9 — Red-Team Pre-Mortem Review**: `app/services/decision_brain/red_team_engine.py`
-10. **E10 — Backtesting & Statistical Validation**: `app/services/backtesting/validation_framework.py` (Information Coefficient & Out-of-sample Sharpe)
-11. **E11 — Multibagger Integrity & Valuation System (MIVS)**: `app/services/research/mivs_engine.py` (9-component quality framework)
+9. **E9 — Red-Team Pre-Mortem Review**: `app/services/research/genai_redteam_service.py`
+10. **E10 — Backtesting & Statistical Validation**: `app/services/research/thesis_tracker.py`
+11. **E11 — Multibagger Integrity & Valuation System (MIVS)**: `app/services/strategies/inflection_multibagger.py`
 12. **E12 — Scorecard Service**: `app/services/research/scorecard_service.py` (Multi-factor matrix scoring)
-13. **E13 — Expectation Gap Engine**: `app/services/research/expectation_gap.py` (Consensus vs. internal model gap)
-14. **E14 — Longitudinal Thesis Monitor**: `app/services/research/longitudinal_engine.py` (Thesis invalidation alerts)
+13. **E13 — Expectation Gap Engine**: `app/services/strategies/expectation_gap.py` (Consensus vs. internal model gap)
+14. **E14 — Longitudinal Thesis Monitor**: `app/services/research/thesis_tracker.py` (Thesis invalidation alerts)
 15. **E15 — Geopolitical Risk Engine**: `app/services/research/geopolitical_engine.py` (Supply chain & war risk exposures)
-16. **E16 — Macro Regime Classifier**: `app/services/research/macro_regime.py` (Inflation/rates macro regime mapping)
+16. **E16 — Macro Regime Classifier**: `app/services/research/market_regime.py` (Inflation/rates macro regime mapping)
 17. **E17 — Causal Analysis Engine**: `app/services/research/causal_engine.py` (Causal graph impact modelling)
 
 ---

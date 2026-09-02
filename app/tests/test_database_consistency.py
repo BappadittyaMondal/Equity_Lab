@@ -92,3 +92,49 @@ def test_service_connection_delegation():
     conn_ml = _get_db_connection()
     assert conn_ml is not None
     conn_ml.close()
+
+
+def test_get_table_columns_sqlite_and_postgres_dict():
+    from app.services.db import get_table_columns
+    conn = get_connection()
+    cols = get_table_columns(conn, "conviction_calls")
+    assert "symbol" in cols
+    assert "conviction_score" in cols
+    assert "data_backed" in cols
+    conn.close()
+
+    class MockPostgresConn:
+        def execute(self, sql):
+            class MockCursor:
+                def fetchall(self):
+                    return [
+                        {"cid": 1, "name": "col_a", "type": "text"},
+                        {"cid": 2, "name": "col_b", "type": "integer"}
+                    ]
+            return MockCursor()
+
+    pg_cols = get_table_columns(MockPostgresConn(), "test_table")
+    assert pg_cols == ["col_a", "col_b"]
+
+
+def test_db_health_render_and_production_checks(monkeypatch):
+    from app.core.db_health import check_db_health
+
+    monkeypatch.delenv("RENDER", raising=False)
+    monkeypatch.delenv("VERCEL", raising=False)
+    monkeypatch.setenv("IERL_ENVIRONMENT", "development")
+    monkeypatch.setenv("DATABASE_URL", "")
+    h1 = check_db_health()
+    assert h1["is_postgres"] is False
+    assert h1["is_prod"] is False
+
+    monkeypatch.setenv("RENDER", "true")
+    h2 = check_db_health()
+    assert h2["is_render"] is True
+    assert h2["is_prod"] is True
+    assert "PRODUCTION DATABASE WARNING" in (h2["warning"] or "")
+
+    monkeypatch.setenv("DATABASE_URL", "postgresql://user:pass@localhost:5432/testdb")
+    h3 = check_db_health()
+    assert h3["is_postgres"] is True
+    assert h3["status"] == "HEALTHY"

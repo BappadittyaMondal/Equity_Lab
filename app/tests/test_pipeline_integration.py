@@ -71,3 +71,33 @@ def test_watchlist_digest_endpoint():
     data = resp.json()
     assert "generated_at" in data
     assert "data" in data
+
+
+def test_llm_budget_logging():
+    from app.services.db import get_connection
+    from app.services.llm import check_and_log_llm_budget
+    import datetime
+
+    conn = get_connection()
+    today_start = datetime.datetime.now(datetime.timezone.utc).replace(
+        hour=0, minute=0, second=0, microsecond=0
+    ).isoformat()
+    row = conn.execute(
+        "SELECT COUNT(*) as cnt FROM llm_usage WHERE timestamp >= ?",
+        (today_start,)
+    ).fetchone()
+    initial_cnt = row["cnt"] if row else 0
+    conn.close()
+
+    ok = check_and_log_llm_budget(call_type="test", symbol="INFY")
+    assert ok is True
+
+    conn = get_connection()
+    row2 = conn.execute(
+        "SELECT COUNT(*) as cnt FROM llm_usage WHERE timestamp >= ?",
+        (today_start,)
+    ).fetchone()
+    new_cnt = row2["cnt"] if row2 else 0
+    conn.close()
+
+    assert new_cnt == initial_cnt + 1

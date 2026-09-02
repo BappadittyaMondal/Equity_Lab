@@ -32,4 +32,4 @@ jobs:
           ANGEL_ONE_API_KEY: ${{ secrets.ANGEL_ONE_API_KEY }}
           GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
         run: |
-          python scripts/run_ingestion.py || echo "Ingestion completed with non-fatal notices"
+          python scripts/run_ingestion.py
