@@ -501,11 +501,34 @@ def get_market_quote(symbol: str, as_of: Optional[datetime.datetime] = None) -> 
 def get_quote(symbol: str, as_of: Optional[datetime.datetime] = None) -> Quote:
     return get_market_quote(symbol, as_of=as_of)
 
-def get_history(symbol: str, period: str = "3y", interval: str = "1d"):
+def get_history(symbol: str, period: str = "3y", interval: str = "1d", allow_simulated: bool = True):
     import pandas as pd
     import numpy as np
 
     if any(tok in symbol.upper() for tok in ["UNKNOWN", "INVALID", "NONEXISTENT", "FAIL_DATA"]):
+        empty_df = pd.DataFrame()
+        empty_df.attrs["is_mock"] = False
+        empty_df.attrs["data_mode"] = "DATA_UNAVAILABLE"
+        return empty_df
+
+    try:
+        import yfinance as yf
+        import warnings
+        import contextlib
+        import io
+        with warnings.catch_warnings(), contextlib.redirect_stderr(io.StringIO()):
+            warnings.simplefilter("ignore")
+            df = yf.download(symbol, period=period, interval=interval, progress=False, timeout=2.0)
+            if isinstance(df, pd.DataFrame) and not df.empty and len(df) > 5:
+                if isinstance(df.columns, pd.MultiIndex):
+                    df.columns = df.columns.get_level_values(0)
+                df.attrs["is_mock"] = False
+                df.attrs["data_mode"] = "LIVE"
+                return df
+    except Exception:
+        pass
+
+    if not allow_simulated:
         empty_df = pd.DataFrame()
         empty_df.attrs["is_mock"] = False
         empty_df.attrs["data_mode"] = "DATA_UNAVAILABLE"
@@ -529,24 +552,6 @@ def get_history(symbol: str, period: str = "3y", interval: str = "1d"):
     }, index=dates)
     mock_df.attrs["is_mock"] = True
     mock_df.attrs["data_mode"] = "MOCK"
-
-    try:
-        import yfinance as yf
-        import warnings
-        import contextlib
-        import io
-        with warnings.catch_warnings(), contextlib.redirect_stderr(io.StringIO()):
-            warnings.simplefilter("ignore")
-            df = yf.download(symbol, period=period, interval=interval, progress=False, timeout=2.0)
-            if isinstance(df, pd.DataFrame) and not df.empty and len(df) > 5:
-                if isinstance(df.columns, pd.MultiIndex):
-                    df.columns = df.columns.get_level_values(0)
-                df.attrs["is_mock"] = False
-                df.attrs["data_mode"] = "LIVE"
-                return df
-    except Exception:
-        pass
-
     return mock_df
 
 

@@ -49,21 +49,45 @@ def generate_scorecard_for_symbol(symbol: str, rank: Optional[int] = None) -> Sc
         logger.warning("Multibagger score fallback for %s: %s", norm, e)
         mb_score = call.conviction_score * 0.9
 
-    # 3. Probability matrix — fail open with N/A on missing data (no hardcoded synthetic probabilities)
+    # 3. Independent Empirical Probability Matrix (No heuristic offset formulas)
     prob_1y = "N/A"
     prob_2y = "N/A"
     prob_3y = "N/A"
     prob_3y_2x = "N/A"
     prob_5y_15x = "N/A"
+    prob_res = None
     try:
-        req = ReturnProbabilityRequest(symbol=norm, horizon_days=252, return_threshold_pct=10.0)
-        prob_res = calculate_return_probability(req)
-        p1 = round(prob_res.probability_above_threshold_pct)
-        prob_1y = f"{p1}%"
-        prob_2y = f"{min(99, p1 + 7)}%"
-        prob_3y = f"{min(99, p1 + 11)}%"
-        prob_3y_2x = f"{max(10, p1 - 5)}%"
-        prob_5y_15x = f"{max(5, round(p1 * 0.25))}%"
+        req_1y = ReturnProbabilityRequest(symbol=norm, horizon_days=252, return_threshold_pct=10.0)
+        prob_res = calculate_return_probability(req_1y)
+        prob_1y = f"{round(prob_res.probability_above_threshold_pct)}%"
+
+        try:
+            req_2y = ReturnProbabilityRequest(symbol=norm, horizon_days=504, return_threshold_pct=20.0)
+            res_2y = calculate_return_probability(req_2y)
+            prob_2y = f"{round(res_2y.probability_above_threshold_pct)}%"
+        except Exception:
+            prob_2y = "N/A"
+
+        try:
+            req_3y = ReturnProbabilityRequest(symbol=norm, horizon_days=756, return_threshold_pct=30.0)
+            res_3y = calculate_return_probability(req_3y)
+            prob_3y = f"{round(res_3y.probability_above_threshold_pct)}%"
+        except Exception:
+            prob_3y = "N/A"
+
+        try:
+            req_2x = ReturnProbabilityRequest(symbol=norm, horizon_days=756, return_threshold_pct=100.0)
+            res_2x = calculate_return_probability(req_2x)
+            prob_3y_2x = f"{round(res_2x.probability_above_threshold_pct)}%"
+        except Exception:
+            prob_3y_2x = "N/A"
+
+        try:
+            req_15x = ReturnProbabilityRequest(symbol=norm, horizon_days=1260, return_threshold_pct=1400.0)
+            res_15x = calculate_return_probability(req_15x)
+            prob_5y_15x = f"{round(res_15x.probability_above_threshold_pct)}%"
+        except Exception:
+            prob_5y_15x = "N/A"
     except Exception as e:
         logger.warning("Probability calculation unavailable for %s: %s", norm, e)
 
@@ -71,7 +95,17 @@ def generate_scorecard_for_symbol(symbol: str, rank: Optional[int] = None) -> Sc
     bq_val = min(10.0, round(call.conviction_score * 0.1, 1))
     gp_val = min(10.0, round((call.conviction_score * 0.5 + mb_score * 0.5) * 0.1, 1))
     op_val = min(10.0, round(mb_score * 0.1, 1))
-    rk_val = min(10.0, round(10.0 - (call.conviction_score * 0.03), 1))
+
+    # Empirical Risk Calculation (Independent from conviction score)
+    downside_risk_pts = 2.0
+    if prob_res and hasattr(prob_res, "probability_negative_return_pct"):
+        downside_risk_pts = min(4.0, (prob_res.probability_negative_return_pct / 100.0) * 4.0)
+
+    contradict_count = len(call.contradicting_engines) if call.contradicting_engines else 0
+    contradict_pts = min(3.0, contradict_count * 0.75)
+    verdict_penalty = 3.0 if call.verdict in ("Avoid", "ABSTAIN") else (1.5 if call.verdict == "Watch" else 0.5)
+
+    rk_val = min(10.0, max(0.5, round(downside_risk_pts + contradict_pts + verdict_penalty, 1)))
 
     # Pick qualitative tag
     q_tag = "Risk-adjusted leader"

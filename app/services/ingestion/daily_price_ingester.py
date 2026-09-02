@@ -54,9 +54,13 @@ class DailyPriceIngester:
             pass
 
         try:
-            hist = get_history(norm, period=period, interval="1d")
+            from app.services.market_data import is_live_data
+            hist = get_history(norm, period=period, interval="1d", allow_simulated=False)
             if hist is None or hist.empty:
                 result["errors"].append(f"No historical data returned for {norm}")
+                return result
+            if not is_live_data(hist):
+                result["errors"].append(f"Simulated data rejected for {norm} from canonical database persistence")
                 return result
         except Exception as e:
             result["errors"].append(f"History fetch failed: {e}")

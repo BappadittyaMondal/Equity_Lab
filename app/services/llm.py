@@ -223,20 +223,15 @@ def process_llm_query(req: QueryRequest) -> QueryResponse:
     # ── Build Research Context (Phase 3 core) ────────────────────────────
     research_context = build_research_context(symbol)
 
-    # ── Phase 2: RAG Filing Retrieval & Claim Verification ─────────────
+    # ── Phase 2: RAG Filing Retrieval ─────────────────────────────────
     rag_context = ""
+    docs = []
     try:
         from app.services.rag.document_store import FilingDocumentStore
-        from app.services.rag.claim_verifier import ClaimVerifier
 
         doc_store = FilingDocumentStore()
         docs = doc_store.search_documents(symbol=symbol, query=query_text, top_k=3)
-        verifier = ClaimVerifier(min_confidence_threshold=0.70)
-        v_res = verifier.verify_ai_response(query_text, docs)
-
-        if v_res.status_code == "INSUFFICIENT_FILING_EVIDENCE":
-            rag_context = f"\n[RAG_GOVERNANCE_NOTICE: INSUFFICIENT_FILING_EVIDENCE — Filing retrieval confidence ({v_res.confidence_score:.2f}) < institutional threshold (0.70)]\n"
-        elif docs:
+        if docs:
             rag_snippets = "\n".join([f"• [{d['doc_type']} {d['effective_date']}] {d['title']}: {d['content'][:150]}..." for d in docs])
             rag_context = f"\n── RETRIEVED REGULATORY FILINGS (Provenance Hashes Verified) ──\n{rag_snippets}\n"
     except Exception as e:
@@ -277,6 +272,19 @@ def process_llm_query(req: QueryRequest) -> QueryResponse:
                     challenge_section = f"\n\n━━━ DEVIL'S ADVOCATE (Challenge Mode) ━━━\n{response2.text}"
 
             final_reply = initial_analysis + challenge_section
+
+            # Post-Generation Claim Verification: audit the actual AI response against retrieved filings
+            try:
+                from app.services.rag.claim_verifier import ClaimVerifier
+                verifier = ClaimVerifier(min_confidence_threshold=0.70)
+                v_res = verifier.verify_ai_response(final_reply, docs)
+                if v_res.status_code == "INSUFFICIENT_FILING_EVIDENCE":
+                    final_reply += f"\n\n[RAG_GOVERNANCE_NOTICE: INSUFFICIENT_FILING_EVIDENCE — Claim verification confidence ({v_res.confidence_score:.2f}) < institutional threshold (0.70)]"
+                elif v_res.status_code == "UNVERIFIED_CLAIMS_DETECTED" and v_res.unbacked_claims:
+                    unbacked_str = "; ".join(v_res.unbacked_claims[:3])
+                    final_reply += f"\n\n[RAG_GOVERNANCE_NOTICE: UNVERIFIED_CLAIMS — Specific claims not corroborated by filings: {unbacked_str}]"
+            except Exception as e:
+                logger.warning("Post-generation claim verification failed: %s", e)
 
             provider_used = f"Google Gemini 1.5 Flash — Evidence-Grounded (Skill Ver: {settings.SKILL_LIBRARY_VERSION})"
             token_count = len(final_reply.split())
@@ -404,14 +412,36 @@ class LLMService:
                     client = genai.Client(api_key=gemini_key)
                     resp = client.models.generate_content(model="gemini-1.5-flash", contents=prompt)
                     if resp.text:
-                        return f"[Gemini Synthesized Narrative] {resp.text.strip()}"
+                        ai_text = resp.text.strip()
+                        try:
+                            from app.services.rag.claim_verifier import ClaimVerifier
+                            verifier = ClaimVerifier(min_confidence_threshold=0.70)
+                            evidence_records = [
+                                {"metric": "conviction_score", "value": conviction.conviction_score},
+                                {"metric": "verdict", "value": conviction.verdict},
+                            ]
+                            verifier.verify_ai_response(ai_text, [], financial_records=evidence_records)
+                        except Exception:
+                            pass
+                        return f"[Gemini Synthesized Narrative] {ai_text}"
                 except Exception:
                     import google.generativeai as genai
                     genai.configure(api_key=gemini_key)
                     model = genai.GenerativeModel("gemini-1.5-flash")
                     resp = model.generate_content(prompt)
                     if resp.text:
-                        return f"[Gemini Synthesized Narrative] {resp.text.strip()}"
+                        ai_text = resp.text.strip()
+                        try:
+                            from app.services.rag.claim_verifier import ClaimVerifier
+                            verifier = ClaimVerifier(min_confidence_threshold=0.70)
+                            evidence_records = [
+                                {"metric": "conviction_score", "value": conviction.conviction_score},
+                                {"metric": "verdict", "value": conviction.verdict},
+                            ]
+                            verifier.verify_ai_response(ai_text, [], financial_records=evidence_records)
+                        except Exception:
+                            pass
+                        return f"[Gemini Synthesized Narrative] {ai_text}"
             except Exception as e:
                 logger.warning("Gemini narrative generation failed: %s — falling back to deterministic narrative", e)
 

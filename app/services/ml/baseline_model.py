@@ -788,9 +788,13 @@ def evaluate_and_retrain_model() -> Dict[str, Any]:
     X = np.array(X_data, dtype=np.float64)
     y = np.array(y_data, dtype=np.int32)
 
-    X_train, X_test, y_train, y_test = train_test_split(
-        X, y, test_size=0.20, random_state=42, stratify=y if len(set(y)) > 1 else None
-    )
+    # Walk-Forward Chronological Split (Eliminates temporal lookahead leakage)
+    split_idx = int(len(X) * 0.80)
+    if split_idx >= len(X):
+        split_idx = max(1, len(X) - 1)
+
+    X_train, X_test = X[:split_idx], X[split_idx:]
+    y_train, y_test = y[:split_idx], y[split_idx:]
 
     scaler_train = StandardScaler()
     X_train_scaled = scaler_train.fit_transform(X_train)
@@ -837,17 +841,18 @@ def evaluate_and_retrain_model() -> Dict[str, Any]:
                     "sample_count": len(rows),
                     "test_accuracy": candidate_acc,
                     "previous_accuracy": active_acc,
+                    "validation_protocol": "walk_forward_chronological_split",
                 },
-                backtest_summary=f"Retrained NumPyEnsembleClassifier model promoted. Test Acc: {candidate_acc:.4f} vs Prev Acc: {active_acc:.4f} on {len(rows)} ledger outcomes.",
-                human_approved_by="auto_retrain_cadence_engine"
+                backtest_summary=f"Walk-forward validated NumPyEnsembleClassifier promoted. Out-of-sample Test Acc: {candidate_acc:.4f} vs Prev Acc: {active_acc:.4f} on {len(rows)} ledger outcomes.",
+                human_approved_by="automated_walkforward_gate"
             )
         except Exception:
             pass
 
         promoted = True
-        action_msg = f"PROMOTED: Candidate model test accuracy ({candidate_acc:.4f}) > Active model ({active_acc:.4f}). Registered {new_version}."
+        action_msg = f"PROMOTED: Candidate model out-of-sample accuracy ({candidate_acc:.4f}) > Active model ({active_acc:.4f}). Registered {new_version}."
     else:
-        action_msg = f"RETAINED: Active model test accuracy ({active_acc:.4f}) >= Candidate ({candidate_acc:.4f}). Current version retained."
+        action_msg = f"RETAINED: Active model out-of-sample accuracy ({active_acc:.4f}) >= Candidate ({candidate_acc:.4f}). Current version retained."
 
     return {
         "status": "EVALUATED",

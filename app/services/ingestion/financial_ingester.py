@@ -238,8 +238,10 @@ class FinancialIngester:
                 promoter_final = promoter_pct if promoter_pct is not None else 0.0
                 inst_final = inst_pct if inst_pct is not None else 0.0
                 public_final = round(max(0.0, 100.0 - promoter_final - inst_final), 2)
-                fii_final = round(inst_final * 0.55, 2)
-                dii_final = round(inst_final * 0.45, 2)
+                # Truth Gate: DO NOT fabricate FII/DII subcomponents with artificial 55/45 multipliers.
+                # If sub-filings are not explicitly available, store None instead of inventing numbers.
+                fii_final = None
+                dii_final = None
                 confidence = 0.88 if (promoter_pct is not None and inst_pct is not None) else 0.70
 
                 now_iso = datetime.now(timezone.utc).isoformat()
@@ -249,11 +251,11 @@ class FinancialIngester:
                     "promoter_pct": promoter_final,
                     "fii_pct": fii_final,
                     "dii_pct": dii_final,
-                    "mutual_fund_pct": round(dii_final * 0.6, 2),
-                    "insurance_pct": round(dii_final * 0.4, 2),
+                    "mutual_fund_pct": None,
+                    "insurance_pct": None,
                     "public_pct": public_final,
                     "aif_pct": None,
-                    "promoter_pledge_pct": 0.0,
+                    "promoter_pledge_pct": None,  # Not observed in generic filings, do not assume 0.0!
                     "published_at": now_iso,
                     "source_name": _SOURCE_NAME,
                     "source_url": f"https://finance.yahoo.com/quote/{symbol}/holders/",
