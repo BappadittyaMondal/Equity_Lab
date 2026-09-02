@@ -44,50 +44,44 @@ CATEGORY_WEIGHTS: Dict[str, float] = {
 MODEL_VERSION = "0.4.0"
 
 
-def _get_connection():
-    from app.services.db import get_connection
-    return get_connection()
-
-
 def _ensure_table():
-    conn = _get_connection()
-    conn.execute("""
-        CREATE TABLE IF NOT EXISTS conviction_calls (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
-            symbol TEXT NOT NULL,
-            verdict TEXT NOT NULL,
-            conviction_score INTEGER NOT NULL,
-            primary_thesis TEXT,
-            contributing_engines TEXT,
-            contradicting_engines TEXT,
-            confidence_tier TEXT,
-            created_at TEXT NOT NULL,
-            data_backed BOOLEAN DEFAULT 0
-        )
-    """)
-    # Auto-migration: ensure data_backed column exists and backfill 0
-    try:
-        from app.services.db import get_table_columns
-        cols = get_table_columns(conn, "conviction_calls")
-        if "data_backed" not in cols:
-            conn.execute("ALTER TABLE conviction_calls ADD COLUMN data_backed BOOLEAN DEFAULT 0")
-            conn.execute("UPDATE conviction_calls SET data_backed = 0 WHERE data_backed IS NULL")
-    except Exception:
-        pass
-    conn.execute("""
-        CREATE TABLE IF NOT EXISTS thesis_drift_events (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
-            symbol TEXT NOT NULL,
-            old_score INTEGER NOT NULL,
-            new_score INTEGER NOT NULL,
-            old_verdict TEXT NOT NULL,
-            new_verdict TEXT NOT NULL,
-            delta INTEGER NOT NULL,
-            timestamp TEXT NOT NULL
-        )
-    """)
-    conn.commit()
-    conn.close()
+    from app.services.db import db_session
+    with db_session() as conn:
+        conn.execute("""
+            CREATE TABLE IF NOT EXISTS conviction_calls (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                symbol TEXT NOT NULL,
+                verdict TEXT NOT NULL,
+                conviction_score INTEGER NOT NULL,
+                primary_thesis TEXT,
+                contributing_engines TEXT,
+                contradicting_engines TEXT,
+                confidence_tier TEXT,
+                created_at TEXT NOT NULL,
+                data_backed BOOLEAN DEFAULT 0
+            )
+        """)
+        # Auto-migration: ensure data_backed column exists and backfill 0
+        try:
+            from app.services.db import get_table_columns
+            cols = get_table_columns(conn, "conviction_calls")
+            if "data_backed" not in cols:
+                conn.execute("ALTER TABLE conviction_calls ADD COLUMN data_backed BOOLEAN DEFAULT 0")
+                conn.execute("UPDATE conviction_calls SET data_backed = 0 WHERE data_backed IS NULL")
+        except Exception:
+            pass
+        conn.execute("""
+            CREATE TABLE IF NOT EXISTS thesis_drift_events (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                symbol TEXT NOT NULL,
+                old_score INTEGER NOT NULL,
+                new_score INTEGER NOT NULL,
+                old_verdict TEXT NOT NULL,
+                new_verdict TEXT NOT NULL,
+                delta INTEGER NOT NULL,
+                timestamp TEXT NOT NULL
+            )
+        """)
 
 
 _ensure_table()
@@ -478,21 +472,19 @@ class Arbiter:
     # 9. Persist conviction call
     # ──────────────────────────────────────────────────────────────────────
     def _persist(self, call: ConvictionCall) -> Optional[int]:
-        conn = _get_connection()
-        cursor = conn.execute(
-            "INSERT INTO conviction_calls (symbol, verdict, conviction_score, primary_thesis, "
-            "contributing_engines, contradicting_engines, confidence_tier, created_at, data_backed) "
-            "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)",
-            (
-                call.symbol, call.verdict, call.conviction_score, call.primary_thesis,
-                json.dumps(call.contributing_engines), json.dumps(call.contradicting_engines),
-                call.confidence_tier, call.timestamp, 1 if call.data_backed else 0,
-            ),
-        )
-        call_id = cursor.lastrowid
-        conn.commit()
-        conn.close()
-        return call_id
+        from app.services.db import db_session
+        with db_session() as conn:
+            cursor = conn.execute(
+                "INSERT INTO conviction_calls (symbol, verdict, conviction_score, primary_thesis, "
+                "contributing_engines, contradicting_engines, confidence_tier, created_at, data_backed) "
+                "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)",
+                (
+                    call.symbol, call.verdict, call.conviction_score, call.primary_thesis,
+                    json.dumps(call.contributing_engines), json.dumps(call.contradicting_engines),
+                    call.confidence_tier, call.timestamp, 1 if call.data_backed else 0,
+                ),
+            )
+            return cursor.lastrowid
 
     # ──────────────────────────────────────────────────────────────────────
     # 10. Auto-log to prediction ledger (Phase 5 prerequisite)

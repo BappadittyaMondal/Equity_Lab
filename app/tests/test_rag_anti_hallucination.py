@@ -59,3 +59,18 @@ def test_process_llm_query_rag_integration():
     resp = process_llm_query(req)
     assert resp.reply is not None
     assert "DETERMINISTIC RESEARCH SUMMARY" in resp.reply or "KEY FINDINGS" in resp.reply
+
+
+def test_claim_verifier_with_financial_records():
+    verifier = ClaimVerifier(min_confidence_threshold=0.70)
+    financials = [{"revenue": 500.0, "ebitda": 100.0}]
+    # Case A: claim matches financial records
+    res = verifier.verify_ai_response("The company reported revenue of 500 Cr.", [], financial_records=financials)
+    assert res.is_verified is True
+    assert res.status_code == "VERIFIED"
+
+    # Case B: claim contradicts financial records
+    res_bad = verifier.verify_ai_response("The company reported revenue of 900 Cr.", [], financial_records=financials)
+    assert res_bad.is_verified is False
+    assert res_bad.status_code == "CONTRADICTION"
+

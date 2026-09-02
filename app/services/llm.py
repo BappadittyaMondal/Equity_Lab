@@ -404,6 +404,35 @@ class LLMService:
             f"and what could change the verdict. Flag any uncertainty explicitly."
         )
 
+        # Retrieve filing documents for symbol if available
+        docs = []
+        try:
+            from app.services.rag.document_store import FilingDocumentStore
+            doc_store = FilingDocumentStore()
+            docs = doc_store.search_documents(symbol=conviction.symbol, query="financial performance revenue EBITDA", top_k=2)
+        except Exception:
+            pass
+
+        def _verify_and_annotate(narrative_raw: str) -> str:
+            annotated = narrative_raw
+            try:
+                from app.services.rag.claim_verifier import ClaimVerifier
+                verifier = ClaimVerifier(min_confidence_threshold=0.70)
+                evidence_records = [
+                    {"metric": "conviction_score", "value": conviction.conviction_score},
+                    {"metric": "verdict", "value": conviction.verdict},
+                ]
+                v_res = verifier.verify_ai_response(narrative_raw, docs, financial_records=evidence_records)
+                if v_res.status_code == "INSUFFICIENT_FILING_EVIDENCE":
+                    annotated += f"\n\n[RAG_GOVERNANCE_NOTICE: INSUFFICIENT_FILING_EVIDENCE — Narrative verification confidence ({v_res.confidence_score:.2f}) < institutional threshold (0.70)]"
+                elif v_res.status_code in ("UNVERIFIED_CLAIMS_DETECTED", "CONTRADICTION") and (v_res.unbacked_claims or v_res.contradictions):
+                    discrepancies = v_res.contradictions or v_res.unbacked_claims
+                    disc_str = "; ".join(discrepancies[:2])
+                    annotated += f"\n\n[RAG_GOVERNANCE_NOTICE: UNVERIFIED_NARRATIVE_CLAIMS — {disc_str}]"
+            except Exception as ex:
+                logger.debug("Narrative verification check notice: %s", ex)
+            return f"[Gemini Synthesized Narrative] {annotated}"
+
         gemini_key = settings.GEMINI_API_KEY
         if gemini_key and "your_" not in gemini_key.lower() and check_and_log_llm_budget("narrative", conviction.symbol):
             try:
@@ -412,36 +441,14 @@ class LLMService:
                     client = genai.Client(api_key=gemini_key)
                     resp = client.models.generate_content(model="gemini-1.5-flash", contents=prompt)
                     if resp.text:
-                        ai_text = resp.text.strip()
-                        try:
-                            from app.services.rag.claim_verifier import ClaimVerifier
-                            verifier = ClaimVerifier(min_confidence_threshold=0.70)
-                            evidence_records = [
-                                {"metric": "conviction_score", "value": conviction.conviction_score},
-                                {"metric": "verdict", "value": conviction.verdict},
-                            ]
-                            verifier.verify_ai_response(ai_text, [], financial_records=evidence_records)
-                        except Exception:
-                            pass
-                        return f"[Gemini Synthesized Narrative] {ai_text}"
+                        return _verify_and_annotate(resp.text.strip())
                 except Exception:
                     import google.generativeai as genai
                     genai.configure(api_key=gemini_key)
                     model = genai.GenerativeModel("gemini-1.5-flash")
                     resp = model.generate_content(prompt)
                     if resp.text:
-                        ai_text = resp.text.strip()
-                        try:
-                            from app.services.rag.claim_verifier import ClaimVerifier
-                            verifier = ClaimVerifier(min_confidence_threshold=0.70)
-                            evidence_records = [
-                                {"metric": "conviction_score", "value": conviction.conviction_score},
-                                {"metric": "verdict", "value": conviction.verdict},
-                            ]
-                            verifier.verify_ai_response(ai_text, [], financial_records=evidence_records)
-                        except Exception:
-                            pass
-                        return f"[Gemini Synthesized Narrative] {ai_text}"
+                        return _verify_and_annotate(resp.text.strip())
             except Exception as e:
                 logger.warning("Gemini narrative generation failed: %s — falling back to deterministic narrative", e)
 

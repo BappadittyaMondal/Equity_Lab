@@ -805,6 +805,10 @@ class DecisionAuditTrail(BaseModel):
         description="Traceable source chain for each key data input"
     )
 
+    # Cryptographic immutability (Phase 4 / BRAIN-06 tamper-proof ledger)
+    record_hash: Optional[str] = Field(default=None, description="SHA-256 hash of canonical audit payload chained with prev_record_hash")
+    prev_record_hash: Optional[str] = Field(default=None, description="SHA-256 hash of previous audit record in immutable ledger")
+
     model_config = ConfigDict(
         json_schema_extra={
             "example": {

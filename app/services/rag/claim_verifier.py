@@ -40,16 +40,16 @@ class ClaimVerifier:
         financial_records: Optional[List[Dict[str, Any]]] = None
     ) -> VerificationResult:
         """Verify an AI generated response against retrieved filing documents and financials."""
-        if not retrieved_documents:
+        if not retrieved_documents and not financial_records:
             return VerificationResult(
                 is_verified=False,
                 confidence_score=0.0,
                 status_code="INSUFFICIENT_FILING_EVIDENCE",
-                unbacked_claims=["No filing documents retrieved for verification."]
+                unbacked_claims=["No filing documents or financial records retrieved for verification."]
             )
 
         citations = []
-        highest_doc_score = max((doc.get("relevance_score", 0.0) for doc in retrieved_documents), default=0.0)
+        highest_doc_score = max((doc.get("relevance_score", 0.0) for doc in retrieved_documents), default=0.85 if financial_records else 0.0)
 
         for doc in retrieved_documents:
             citations.append(Citation(

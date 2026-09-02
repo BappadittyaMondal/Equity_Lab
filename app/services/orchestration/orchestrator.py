@@ -24,7 +24,6 @@ class Orchestrator:
     DRIFT_THRESHOLD = 15
 
     def __init__(self):
-        self.db = get_connection()
         self.arbiter = Arbiter()
         self.llm = LLMService()
         # Ensure any required tables exist (drift events)
@@ -32,10 +31,12 @@ class Orchestrator:
         self.watchlist_store = ResearchDataStore()
 
     def _load_latest(self, symbol: str) -> Optional[ConvictionCall]:
-        row = self.db.execute(
-            "SELECT * FROM conviction_calls WHERE symbol = ? ORDER BY id DESC LIMIT 1",
-            (symbol,)
-        ).fetchone()
+        from app.services.db import db_session
+        with db_session() as conn:
+            row = conn.execute(
+                "SELECT * FROM conviction_calls WHERE symbol = ? ORDER BY id DESC LIMIT 1",
+                (symbol,)
+            ).fetchone()
         if not row:
             return None
         row_dict = dict(row)
@@ -80,21 +81,22 @@ class Orchestrator:
                 new_verdict=new.verdict,
                 triggering_engines=new.contributing_engines,
             )
-            self.db.execute(
-                "INSERT INTO thesis_drift_events (symbol, old_score, new_score, delta, old_verdict, new_verdict, triggering_engines, created_at) "
-                "VALUES (?,?,?,?,?,?,?,?)",
-                (
-                    event.symbol,
-                    event.old_score,
-                    event.new_score,
-                    event.delta,
-                    event.old_verdict,
-                    event.new_verdict,
-                    json.dumps(event.triggering_engines),
-                    event.timestamp,
-                ),
-            )
-            self.db.commit()
+            from app.services.db import db_session
+            with db_session() as conn:
+                conn.execute(
+                    "INSERT INTO thesis_drift_events (symbol, old_score, new_score, delta, old_verdict, new_verdict, triggering_engines, created_at) "
+                    "VALUES (?,?,?,?,?,?,?,?)",
+                    (
+                        event.symbol,
+                        event.old_score,
+                        event.new_score,
+                        event.delta,
+                        event.old_verdict,
+                        event.new_verdict,
+                        json.dumps(event.triggering_engines),
+                        event.timestamp,
+                    ),
+                )
 
     # ------------------------------------------------------------------
     def _watchlist_symbols(self) -> List[str]:
@@ -107,7 +109,18 @@ class Orchestrator:
     # ------------------------------------------------------------------
     def get_portfolio_snapshot(self) -> PortfolioSnapshot:
         symbols = self._watchlist_symbols()
-        conv_map: Dict[str, ConvictionCall] = {sym: self.get_conviction(sym) for sym in symbols}
+        conv_map: Dict[str, ConvictionCall] = {}
+        if symbols:
+            from concurrent.futures import ThreadPoolExecutor
+            with ThreadPoolExecutor(max_workers=min(8, len(symbols))) as executor:
+                future_to_sym = {executor.submit(self.get_conviction, sym): sym for sym in symbols}
+                for future in future_to_sym:
+                    sym = future_to_sym[future]
+                    try:
+                        conv_map[sym] = future.result()
+                    except Exception as e:
+                        logger.warning("Error getting conviction for %s: %s", sym, e)
+
         scores = [c.conviction_score for c in conv_map.values()]
         avg = sum(scores) / len(scores) if scores else 0.0
         verdict_counts: Dict[str, int] = {}
@@ -126,11 +139,13 @@ class Orchestrator:
         # Circuit breaker check: daily LLM usage threshold
         today_start = datetime.now(timezone.utc).replace(hour=0, minute=0, second=0, microsecond=0).isoformat()
         try:
-            row = self.db.execute(
-                "SELECT COUNT(*) as cnt FROM llm_usage WHERE timestamp >= ?",
-                (today_start,)
-            ).fetchone()
-            cnt = row["cnt"] if row else 0
+            from app.services.db import db_session
+            with db_session() as conn:
+                row = conn.execute(
+                    "SELECT COUNT(*) as cnt FROM llm_usage WHERE timestamp >= ?",
+                    (today_start,)
+                ).fetchone()
+                cnt = row["cnt"] if row else 0
         except Exception:
             cnt = 0
             

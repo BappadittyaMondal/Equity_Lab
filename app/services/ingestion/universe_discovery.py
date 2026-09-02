@@ -37,6 +37,22 @@ def seed_universe_companies(store: Optional[ResearchDataStore] = None) -> int:
     return total_count
 
 
+def get_universe_symbols(universe_name: str = "ALL") -> List[str]:
+    """Retrieve list of ticker symbols for a requested universe name.
+
+    Supports 'NIFTY50', 'MEGA_CAP', 'NIFTY500', or 'ALL' (the full 406 expanded universe).
+    """
+    if str(universe_name).strip().upper() in ("NIFTY50", "MEGA_CAP"):
+        mega_caps = [
+            "RELIANCE", "TCS", "HDFCBANK", "INFY", "ICICIBANK", "KOTAKBANK", "SBIN",
+            "BAJFINANCE", "SUNPHARMA", "LT", "MARUTI", "TATAMOTORS", "NTPC",
+            "POWERGRID", "HINDUNILVR", "ITC", "TITAN", "ONGC", "WIPRO", "HCLTECH",
+        ]
+        return mega_caps
+    return [c["symbol"] for c in EXPANDED_UNIVERSE_MASTERS]
+
+
 if __name__ == "__main__":
     count = seed_universe_companies()
     print(f"Seeded universe companies count: {count}")
+

@@ -44,16 +44,48 @@ CREATE TABLE IF NOT EXISTS decision_audit_trail (
     falsification_conditions TEXT,   -- JSON array
     engine_outputs           TEXT,   -- JSON array of EngineOutputRecord dicts
     data_lineage             TEXT,   -- JSON array
-    created_at               TEXT NOT NULL
+    created_at               TEXT NOT NULL,
+    record_hash              TEXT,   -- SHA-256 cryptographic chain
+    prev_record_hash         TEXT    -- Chained hash of preceding audit entry
 )
 """
 
 
 def _ensure_table() -> None:
     conn = get_connection()
-    conn.execute(_AUDIT_TABLE_SQL)
-    conn.commit()
-    conn.close()
+    try:
+        conn.execute(_AUDIT_TABLE_SQL)
+        # Migrate existing table if columns are missing
+        try:
+            cols = [r[1] for r in conn.execute("PRAGMA table_info(decision_audit_trail)").fetchall()]
+            if "record_hash" not in cols:
+                conn.execute("ALTER TABLE decision_audit_trail ADD COLUMN record_hash TEXT")
+            if "prev_record_hash" not in cols:
+                conn.execute("ALTER TABLE decision_audit_trail ADD COLUMN prev_record_hash TEXT")
+        except Exception:
+            pass
+
+        # Ensure cryptographic immutability triggers exist
+        try:
+            conn.execute("""
+                CREATE TRIGGER IF NOT EXISTS block_audit_trail_update
+                BEFORE UPDATE ON decision_audit_trail
+                BEGIN
+                    SELECT RAISE(ABORT, 'decision_audit_trail is cryptographically immutable: UPDATE rejected');
+                END;
+            """)
+            conn.execute("""
+                CREATE TRIGGER IF NOT EXISTS block_audit_trail_delete
+                BEFORE DELETE ON decision_audit_trail
+                BEGIN
+                    SELECT RAISE(ABORT, 'decision_audit_trail is cryptographically immutable: DELETE rejected');
+                END;
+            """)
+        except Exception:
+            pass
+        conn.commit()
+    finally:
+        conn.close()
 
 
 _ensure_table()
@@ -292,44 +324,124 @@ def build_and_persist_audit_trail(
 
 
 def _persist_audit_trail(trail: DecisionAuditTrail) -> int:
-    """Insert audit trail into decision_audit_trail table. Returns row id."""
+    """Insert audit trail into decision_audit_trail table with SHA-256 cryptographic chain. Returns row id."""
+    import hashlib
     conn = get_connection()
-    cursor = conn.execute(
-        """
-        INSERT INTO decision_audit_trail (
-            symbol, timestamp, model_version, final_score, final_verdict,
-            governance_veto_applied, macro_regime, india_vix,
-            contradiction_severity, net_evidence_balance,
-            expected_return_1y_pct, confidence_composite_pct,
-            catalyst_count, why_this_verdict, falsification_conditions,
-            engine_outputs, data_lineage, created_at
-        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-        """,
-        (
-            trail.symbol,
-            trail.timestamp,
-            trail.model_version,
-            trail.final_score,
-            trail.final_verdict,
-            1 if trail.governance_veto_applied else 0,
-            trail.macro_regime,
-            trail.india_vix_at_decision,
-            trail.contradiction_severity,
-            trail.net_evidence_balance,
-            trail.expected_return_1y_pct,
-            trail.confidence_composite_pct,
-            trail.catalyst_count,
-            trail.why_this_verdict,
-            json.dumps(trail.falsification_conditions),
-            json.dumps([e.model_dump() for e in trail.engine_outputs]),
-            json.dumps(trail.data_lineage),
-            datetime.now(timezone.utc).isoformat(),
-        ),
-    )
-    row_id = cursor.lastrowid
-    conn.commit()
-    conn.close()
-    return row_id
+    try:
+        prev_row = conn.execute("SELECT record_hash FROM decision_audit_trail ORDER BY id DESC LIMIT 1").fetchone()
+        prev_hash = prev_row[0] if (prev_row and prev_row[0]) else "GENESIS_BLOCK_0000000000000000000000000000000000000000000000000000000000000000"
+
+        canonical_payload = json.dumps({
+            "symbol": trail.symbol,
+            "timestamp": trail.timestamp,
+            "model_version": trail.model_version,
+            "final_score": trail.final_score,
+            "final_verdict": trail.final_verdict,
+            "governance_veto_applied": 1 if trail.governance_veto_applied else 0,
+            "prev_hash": prev_hash,
+        }, sort_keys=True)
+        record_hash = hashlib.sha256(canonical_payload.encode("utf-8")).hexdigest()
+
+        trail.record_hash = record_hash
+        trail.prev_record_hash = prev_hash
+
+        cursor = conn.execute(
+            """
+            INSERT INTO decision_audit_trail (
+                symbol, timestamp, model_version, final_score, final_verdict,
+                governance_veto_applied, macro_regime, india_vix,
+                contradiction_severity, net_evidence_balance,
+                expected_return_1y_pct, confidence_composite_pct,
+                catalyst_count, why_this_verdict, falsification_conditions,
+                engine_outputs, data_lineage, created_at,
+                record_hash, prev_record_hash
+            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+            """,
+            (
+                trail.symbol,
+                trail.timestamp,
+                trail.model_version,
+                trail.final_score,
+                trail.final_verdict,
+                1 if trail.governance_veto_applied else 0,
+                trail.macro_regime,
+                trail.india_vix_at_decision,
+                trail.contradiction_severity,
+                trail.net_evidence_balance,
+                trail.expected_return_1y_pct,
+                trail.confidence_composite_pct,
+                trail.catalyst_count,
+                trail.why_this_verdict,
+                json.dumps(trail.falsification_conditions),
+                json.dumps([e.model_dump() for e in trail.engine_outputs]),
+                json.dumps(trail.data_lineage),
+                datetime.now(timezone.utc).isoformat(),
+                record_hash,
+                prev_hash,
+            ),
+        )
+        row_id = cursor.lastrowid
+        conn.commit()
+        return row_id
+    finally:
+        conn.close()
+
+
+def verify_audit_chain_integrity(limit: int = 100) -> Dict[str, Any]:
+    """Cryptographically verify that the decision_audit_trail hash chain has not been tampered with.
+
+    Re-computes SHA-256 for each record and verifies linkage to previous record's hash.
+    """
+    import hashlib
+    conn = get_connection()
+    try:
+        rows = conn.execute(
+            """
+            SELECT id, symbol, timestamp, model_version, final_score, final_verdict,
+                   governance_veto_applied, record_hash, prev_record_hash
+            FROM decision_audit_trail
+            ORDER BY id ASC
+            LIMIT ?
+            """,
+            (limit,)
+        ).fetchall()
+
+        if not rows:
+            return {"status": "EMPTY", "records_verified": 0, "chain_valid": True}
+
+        expected_prev = "GENESIS_BLOCK_0000000000000000000000000000000000000000000000000000000000000000"
+        for row in rows:
+            r_id, sym, ts, mv, score, verdict, veto, r_hash, p_hash = row
+            if r_hash and p_hash:
+                if p_hash != expected_prev and expected_prev != "GENESIS_BLOCK_0000000000000000000000000000000000000000000000000000000000000000":
+                    return {
+                        "status": "TAMPERED_CHAIN_LINK",
+                        "broken_at_id": r_id,
+                        "symbol": sym,
+                        "chain_valid": False,
+                    }
+                canonical_payload = json.dumps({
+                    "symbol": sym,
+                    "timestamp": ts,
+                    "model_version": mv,
+                    "final_score": score,
+                    "final_verdict": verdict,
+                    "governance_veto_applied": veto,
+                    "prev_hash": p_hash,
+                }, sort_keys=True)
+                computed = hashlib.sha256(canonical_payload.encode("utf-8")).hexdigest()
+                if computed != r_hash:
+                    return {
+                        "status": "TAMPERED_RECORD_PAYLOAD",
+                        "tampered_id": r_id,
+                        "symbol": sym,
+                        "chain_valid": False,
+                    }
+                expected_prev = r_hash
+
+        return {"status": "VERIFIED_VALID", "records_verified": len(rows), "chain_valid": True}
+    finally:
+        conn.close()
 
 
 def query_audit_history(symbol: str, limit: int = 10) -> List[Dict[str, Any]]:
