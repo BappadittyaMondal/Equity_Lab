@@ -940,13 +940,13 @@ def run_strategy_module(strategy_id: str, symbol: str = "RELIANCE", as_of: Optio
         )
     elif module.id == "E19":
         from app.services.strategies.inflection_multibagger import run_inflection_multibagger
-        return run_inflection_multibagger(symbol)
+        return run_inflection_multibagger(symbol, as_of=as_of)
     elif module.id == "OBV_ACC":
         from app.services.strategies.obv_accumulation_engine import run_obv_accumulation
-        return run_obv_accumulation(symbol)
+        return run_obv_accumulation(symbol, as_of=as_of)
     elif module.id == "E20":
         from app.services.turnaround.turnaround_engine import run_turnaround_engine
-        return run_turnaround_engine(symbol)
+        return run_turnaround_engine(symbol, as_of=str(as_of) if as_of else None)
 
 
 

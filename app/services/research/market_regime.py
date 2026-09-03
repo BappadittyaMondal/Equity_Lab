@@ -26,7 +26,7 @@ def classify_market_regime(
     norm_bench = normalize_symbol(benchmark_symbol)
     
     try:
-        hist = get_history(norm_bench, period="1y", interval="1d")
+        hist = get_history(norm_bench, period="1y", interval="1d", as_of=as_of)
     except Exception:
         hist = None
 

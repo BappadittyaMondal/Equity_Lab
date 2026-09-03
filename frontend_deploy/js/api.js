@@ -1,13 +1,13 @@
 // api.js — Centralized API interaction layer for IERL frontend
 // Handles health checks, data fetching, and chart rendering with authenticated API key injection.
 
-const API_BASE = "";
+const API_BASE = (typeof window !== 'undefined' && (window.API_BASE || window.__API_BASE)) || "";
 
 /**
  * Helper wrapper for fetch that automatically attaches the X-API-Key header.
  */
 export async function apiFetch(endpoint, options = {}) {
-  const apiKey = (typeof window !== 'undefined' && (window.__IERL_API_KEY || localStorage.getItem("ierl_api_key"))) || "";
+  const apiKey = (typeof window !== 'undefined' && (window.__IERL_API_KEY || (window.IERL_CONFIG && window.IERL_CONFIG.apiKey))) || "";
   const headers = {
     ...(options.headers || {}),
   };

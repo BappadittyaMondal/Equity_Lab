@@ -10,7 +10,7 @@
 
 ## 📌 Overview
 
-**Equity Lab** is an institutional-grade quantitative stock screening, forensic accounting, valuation, and decision-support OS tailored for the Indian Equity Market. It integrates 35 deterministic strategy and research engines (18 Expert Strategy Modules A1–D18 + 17 Core Research Engines E1–E17) with a multi-engine Arbiter and Bull/Bear Debate framework.
+**Equity Lab** is an institutional-grade quantitative stock screening, forensic accounting, valuation, and decision-support OS tailored for the Indian Equity Market. It integrates 40 deterministic strategy and research engines (18 Expert Strategy Modules A1–D18 + 22 Core Research Engines E1–E21/OBV_ACC) with a multi-engine Arbiter and Bull/Bear Debate framework.
 
 ---
 

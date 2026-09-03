@@ -60,28 +60,45 @@ def evaluate_microcap_integrity_gate(
     max_position_size_inr = adv_20d_inr * 0.10 if adtv_valid else 0.0
 
     # 2. Promoter Pledge Check (Hard Veto if > 20.0%)
-    pledge = promoter_pledge_pct if promoter_pledge_pct is not None else 0.0
-    if pledge > 20.0:
-        veto_reasons.append(f"Promoter pledge ({pledge:.1f}%) exceeds maximum 20.0% institutional threshold.")
+    missing_evidence = []
+    if promoter_pledge_pct is not None:
+        pledge = float(promoter_pledge_pct)
+        if pledge > 20.0:
+            veto_reasons.append(f"Promoter pledge ({pledge:.1f}%) exceeds maximum 20.0% institutional threshold.")
+    else:
+        pledge = 0.0
+        missing_evidence.append("Promoter pledge data unverified/missing for microcap security.")
 
     # 3. Surveillance Gate (ASM/GSM stage check)
-    surv_stage = asm_gsm_stage or "CLEAN"
-    if surv_stage not in ["CLEAN", "ASM_STAGE_1"]:
-        veto_reasons.append(f"Security is under SEBI/BSE surveillance restriction: {surv_stage}.")
+    if asm_gsm_stage is not None:
+        surv_stage = str(asm_gsm_stage)
+        if surv_stage not in ["CLEAN", "ASM_STAGE_1"]:
+            veto_reasons.append(f"Security is under SEBI/BSE surveillance restriction: {surv_stage}.")
+    else:
+        surv_stage = "UNKNOWN"
+        missing_evidence.append("SEBI/BSE surveillance verification unverified/missing for microcap security.")
 
     # 4. Cash Flow Quality (CFO / EBITDA ratio < 0.70)
-    cfo_ratio = cfo_ebitda_ratio if cfo_ebitda_ratio is not None else 0.85
-    if cfo_ratio < 0.70:
-        veto_reasons.append(f"Cash conversion quality (CFO/EBITDA = {cfo_ratio:.2f}) below minimum 0.70 threshold.")
+    if cfo_ebitda_ratio is not None:
+        cfo_ratio = float(cfo_ebitda_ratio)
+        if cfo_ratio < 0.70:
+            veto_reasons.append(f"Cash conversion quality (CFO/EBITDA = {cfo_ratio:.2f}) below minimum 0.70 threshold.")
+    else:
+        cfo_ratio = 0.0
+        missing_evidence.append("Cash conversion ratio (CFO/EBITDA) unverified/missing for microcap security.")
 
     # 5. Position Capacity Check vs ADTV Cap
     if adtv_valid and target_portfolio_value_inr * 0.05 > max_position_size_inr:
         veto_reasons.append(f"Target allocation exceeds 10% 20D ADTV liquidity cap (Max ₹{max_position_size_inr:,.0f}).")
 
-    pass_all = len(veto_reasons) == 0
+    pass_all = len(veto_reasons) == 0 and len(missing_evidence) == 0
+    all_reasons = veto_reasons + missing_evidence
+
     if pass_all:
         status_code = "APPROVED"
-    elif not adtv_valid and len(veto_reasons) == 1:
+    elif any("exceeds maximum 20.0%" in r or "surveillance restriction" in r or "below minimum 0.70" in r for r in veto_reasons):
+        status_code = "REJECTED_GATE_VETO"
+    elif not adtv_valid or missing_evidence:
         status_code = "REJECTED_INSUFFICIENT_DATA"
     else:
         status_code = "REJECTED_GATE_VETO"

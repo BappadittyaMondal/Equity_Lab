@@ -623,14 +623,9 @@ class ResearchDataStore:
                 cutoff = str(as_of_date)[:10]
                 cutoff_iso = str(as_of_date) if "T" in str(as_of_date) else f"{cutoff}T23:59:59+00:00"
                 row = conn.execute(
-                    "SELECT * FROM market_daily_snapshots WHERE symbol = ? AND trading_date <= ? AND (published_at <= ? OR published_at IS NULL OR published_at = '') ORDER BY trading_date DESC LIMIT 1",
+                    "SELECT * FROM market_daily_snapshots WHERE symbol = ? AND trading_date <= ? AND published_at IS NOT NULL AND published_at != '' AND published_at <= ? ORDER BY trading_date DESC LIMIT 1",
                     (norm_symbol, cutoff, cutoff_iso),
                 ).fetchone()
-                if row is None:
-                    row = conn.execute(
-                        "SELECT * FROM market_daily_snapshots WHERE symbol = ? AND trading_date <= ? ORDER BY trading_date DESC LIMIT 1",
-                        (norm_symbol, cutoff),
-                    ).fetchone()
             else:
                 row = conn.execute(
                     "SELECT * FROM market_daily_snapshots WHERE symbol = ? ORDER BY trading_date DESC LIMIT 1",

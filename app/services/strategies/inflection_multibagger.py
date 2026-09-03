@@ -30,10 +30,10 @@ def _safe_float(val: Any, default: float = 0.0) -> float:
         return default
 
 
-def run_inflection_multibagger(symbol: str) -> StrategyRunResponse:
+def run_inflection_multibagger(symbol: str, as_of: Optional[Any] = None) -> StrategyRunResponse:
     norm_symbol = normalize_symbol(symbol)
-    hist = get_history(norm_symbol, period="1y")
-    quote = get_quote(norm_symbol)
+    hist = get_history(norm_symbol, period="1y", as_of=as_of)
+    quote = get_quote(norm_symbol, as_of=as_of)
 
     import os
     is_offline_env = os.getenv("OFFLINE_TEST_MODE", "false").lower() == "true"

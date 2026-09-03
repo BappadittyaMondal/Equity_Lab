@@ -81,5 +81,9 @@ def calculate_calibrated_probability_ladder(
         risk_adjusted_ev=raev,
         median_time_to_target_days=median_time_to_target,
         expected_mae_pct=expected_mae,
-        expected_mfe_pct=expected_mfe
+        expected_mfe_pct=expected_mfe,
+        probability_nature="HEURISTIC_BASE_RATE_ADJUSTED",
+        is_empirically_calibrated=False,
+        heuristic_win_index=p_t2,
+        heuristic_ev_proxy=ev
     )

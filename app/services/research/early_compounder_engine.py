@@ -1,4 +1,4 @@
-﻿"""Early-Stage ₹100Cr+ Microcap Compounder Engine (E21).
+"""Early-Stage ₹100Cr+ Microcap Compounder Engine (E21).
 
 Dedicated microcap incubator (₹100Cr–₹500Cr) evaluating:
 - Agent 10: Incremental ROIC (ΔNOPAT / ΔInvested Capital) & Capex Productivity
@@ -27,26 +27,89 @@ def run_early_compounder_engine(symbol: str, as_of: Optional[str] = None) -> Str
     
     # 1. Fetch Financials & Quote
     financials: List[Dict[str, Any]] = []
-    market_cap_cr = 250.0
-    current_rev_cr = 120.0
-    trailing_roce = 14.5
-    capex_cr = 35.0
-    delta_nopat = 18.0
-    delta_ic = 60.0
-    delta_ebitda = 12.0
-    de_ratio = 0.35
+    market_cap_cr = None
+    current_rev_cr = None
+    trailing_roce = None
+    capex_cr = None
+    delta_nopat = None
+    delta_ic = None
+    delta_ebitda = None
+    de_ratio = None
 
     if not is_offline:
         try:
-            from app.services.market_data import get_company_financials, get_quote
-            real_fins = get_company_financials(norm)
-            if real_fins:
-                financials = real_fins
-            q = get_quote(norm)
+            from app.services.market_data import get_quote
+            from app.services.research_data import ResearchDataStore
+            import pandas as pd
+            
+            as_of_dt = pd.to_datetime(as_of) if as_of else None
+            q = get_quote(norm, as_of=as_of_dt)
             if q and hasattr(q, "market_cap_cr") and q.market_cap_cr:
                 market_cap_cr = float(q.market_cap_cr)
+            
+            store = ResearchDataStore()
+            _, fin_obs, _, _, _, _ = store.get_timeline(norm, as_of=as_of_dt)
+            if fin_obs and len(fin_obs) >= 4:
+                obs_map = {}
+                for o in fin_obs:
+                    obs_map.setdefault(o.metric, []).append(o)
+                for k in obs_map:
+                    obs_map[k].sort(key=lambda x: x.period_end)
+                
+                rev_list = obs_map.get("revenue") or obs_map.get("sales") or []
+                if rev_list:
+                    current_rev_cr = float(rev_list[-1].value)
+                roce_list = obs_map.get("roce") or []
+                if roce_list:
+                    trailing_roce = float(roce_list[-1].value)
+                capex_list = obs_map.get("capex") or []
+                if capex_list:
+                    capex_cr = float(capex_list[-1].value)
+                nopat_list = obs_map.get("nopat") or obs_map.get("pat") or []
+                if len(nopat_list) >= 2:
+                    delta_nopat = float(nopat_list[-1].value - nopat_list[0].value)
+                ic_list = obs_map.get("invested_capital") or obs_map.get("net_worth") or []
+                if len(ic_list) >= 2:
+                    delta_ic = float(ic_list[-1].value - ic_list[0].value)
+                ebitda_list = obs_map.get("ebitda") or []
+                if len(ebitda_list) >= 2:
+                    delta_ebitda = float(ebitda_list[-1].value - ebitda_list[0].value)
+                de_list = obs_map.get("debt_to_equity") or []
+                if de_list:
+                    de_ratio = float(de_list[-1].value)
         except Exception:
             pass
+
+    if is_offline:
+        financials = financials or [{"cfo_inr": 120.0, "pat_inr": 100.0}, {"cfo_inr": 150.0, "pat_inr": 120.0}]
+        market_cap_cr = market_cap_cr or 250.0
+        current_rev_cr = current_rev_cr or 120.0
+        trailing_roce = trailing_roce or 14.5
+        capex_cr = capex_cr or 35.0
+        delta_nopat = delta_nopat or 18.0
+        delta_ic = delta_ic or 60.0
+        delta_ebitda = delta_ebitda or 12.0
+        de_ratio = de_ratio or 0.35
+
+    # Fail closed on missing required fundamentals in production
+    if any(v is None for v in [market_cap_cr, current_rev_cr, trailing_roce, capex_cr, delta_nopat, delta_ic, delta_ebitda, de_ratio]):
+        return StrategyRunResponse(
+            strategy_id="E21",
+            strategy_name="Early-Stage ₹100Cr+ Microcap Compounder",
+            status="data_insufficient",
+            executed_at=get_ist_now_str(),
+            symbol=norm,
+            passed_gates=False,
+            results={
+                "status": "data_insufficient",
+                "symbol": norm,
+                "reason": "Insufficient verified financial observations to derive incremental ROIC and Capex productivity without synthetic defaults."
+            },
+            metrics={"score": 0.0},
+            risk_warnings=["Microcap fundamentals unverified in official filings."],
+            disclaimer="Production microcap evaluation strictly prohibits ungrounded financial defaults.",
+            meta=create_meta_header(source="Early-Stage Microcap Compounder (E21)")
+        )
 
     # 2. Dispatch Sub-Agents 10, 11, 12
     agent10 = IncrementalROICSubAgent().evaluate(

@@ -519,7 +519,7 @@ def get_market_quote(symbol: str, as_of: Optional[datetime.datetime] = None) -> 
 def get_quote(symbol: str, as_of: Optional[datetime.datetime] = None) -> Quote:
     return get_market_quote(symbol, as_of=as_of)
 
-def get_history(symbol: str, period: str = "3y", interval: str = "1d", allow_simulated: bool = True):
+def get_history(symbol: str, period: str = "3y", interval: str = "1d", allow_simulated: bool = True, as_of: Optional[Any] = None):
     import pandas as pd
     import numpy as np
 
@@ -528,6 +528,16 @@ def get_history(symbol: str, period: str = "3y", interval: str = "1d", allow_sim
         empty_df.attrs["is_mock"] = False
         empty_df.attrs["data_mode"] = "DATA_UNAVAILABLE"
         return empty_df
+
+    as_of_dt = None
+    if as_of is not None:
+        try:
+            if isinstance(as_of, str):
+                as_of_dt = pd.to_datetime(as_of)
+            elif isinstance(as_of, (datetime.datetime, datetime.date)):
+                as_of_dt = pd.to_datetime(as_of)
+        except Exception:
+            as_of_dt = None
 
     try:
         import yfinance as yf
@@ -540,6 +550,28 @@ def get_history(symbol: str, period: str = "3y", interval: str = "1d", allow_sim
             if isinstance(df, pd.DataFrame) and not df.empty and len(df) > 5:
                 if isinstance(df.columns, pd.MultiIndex):
                     df.columns = df.columns.get_level_values(0)
+                
+                # Strict Point-in-Time filter if as_of provided
+                if as_of_dt is not None:
+                    try:
+                        if hasattr(df.index, "tz") and df.index.tz is not None and as_of_dt.tz is None:
+                            as_of_cmp = as_of_dt.tz_localize(df.index.tz)
+                        elif (not hasattr(df.index, "tz") or df.index.tz is None) and as_of_dt.tz is not None:
+                            as_of_cmp = as_of_dt.tz_localize(None)
+                        else:
+                            as_of_cmp = as_of_dt
+                        df = df[df.index <= as_of_cmp]
+                    except Exception:
+                        pass
+                    if df.empty or len(df) <= 5:
+                        empty_df = pd.DataFrame()
+                        empty_df.attrs["is_mock"] = False
+                        empty_df.attrs["data_mode"] = "DATA_INSUFFICIENT"
+                        return empty_df
+                    df.attrs["is_mock"] = False
+                    df.attrs["data_mode"] = "HISTORICAL_PIT"
+                    return df
+
                 df.attrs["is_mock"] = False
                 df.attrs["data_mode"] = "LIVE"
                 return df
@@ -555,7 +587,8 @@ def get_history(symbol: str, period: str = "3y", interval: str = "1d", allow_sim
     # Scale mock rows based on period request (250 rows per year)
     num_years = 5 if "5y" in period else (3 if "3y" in period else (2 if "2y" in period else 1))
     n_periods = 250 * num_years
-    dates = pd.date_range(end=datetime.datetime.now(timezone.utc), periods=n_periods, freq='B')
+    end_date = as_of_dt if as_of_dt is not None else datetime.datetime.now(timezone.utc)
+    dates = pd.date_range(end=end_date, periods=n_periods, freq='B')
     n_actual = len(dates)
     close_prices = np.linspace(1000.0, 1300.0, n_actual)
     high_prices = close_prices * 1.02
@@ -569,7 +602,7 @@ def get_history(symbol: str, period: str = "3y", interval: str = "1d", allow_sim
         'Volume': vol_data
     }, index=dates)
     mock_df.attrs["is_mock"] = True
-    mock_df.attrs["data_mode"] = "MOCK"
+    mock_df.attrs["data_mode"] = "MOCK" if as_of_dt is None else "HISTORICAL_MOCK"
     return mock_df
 
 

@@ -1116,6 +1116,10 @@ class CalibratedProbabilityLadder(BaseModel):
     median_time_to_target_days: int = 12
     expected_mae_pct: float = -2.1
     expected_mfe_pct: float = +12.4
+    probability_nature: str = "HEURISTIC_BASE_RATE_ADJUSTED"
+    is_empirically_calibrated: bool = False
+    heuristic_win_index: float = 0.58
+    heuristic_ev_proxy: float = 6.45
 
 
 class SurveillanceRiskGate(BaseModel):

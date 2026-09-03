@@ -91,13 +91,13 @@ def compute_obv_convexity(weekly_df: pd.DataFrame) -> Dict[str, Any]:
     }
 
 
-def run_obv_accumulation(symbol: str, hist_df: Optional[pd.DataFrame] = None) -> StrategyRunResponse:
+def run_obv_accumulation(symbol: str, hist_df: Optional[pd.DataFrame] = None, as_of: Optional[Any] = None) -> StrategyRunResponse:
     """Runs Cumulative OBV Acceleration Convexity Engine on symbol."""
     norm = normalize_symbol(symbol)
     
     if hist_df is None or hist_df.empty:
         try:
-            hist_df = get_history(norm, period="3y", interval="1wk")
+            hist_df = get_history(norm, period="3y", interval="1wk", as_of=as_of)
         except Exception as e:
             logger.warning("Failed fetching weekly data for OBV Engine (%s): %s", norm, e)
             hist_df = None
