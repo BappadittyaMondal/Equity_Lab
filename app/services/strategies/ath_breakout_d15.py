@@ -1,3 +1,4 @@
+from __future__ import annotations
 """Strategy Module D15: All-Time High (ATH) & Triple-Filter Quant Momentum Engine.
 
 Systematic quantitative momentum model evaluating price breakout, volume expansion,
@@ -32,12 +33,13 @@ def _safe_float(val: Any, default: float = 0.0) -> float:
 def run_ath_breakout_d15(
     symbol: str,
     portfolio_capital: float = 10000000.0,
-    max_risk_pct: float = 1.2
+    max_risk_pct: float = 1.2,
+    as_of: Optional[Any] = None,
 ) -> StrategyRunResponse:
     """Execute D15 ATH Breakout & Triple-Filter Quant Momentum strategy."""
     norm_symbol = normalize_symbol(symbol)
-    quote = get_quote(norm_symbol)
-    hist = get_history(norm_symbol, period="1y")
+    quote = get_quote(norm_symbol, as_of=as_of)
+    hist = get_history(norm_symbol, period="1y", as_of=as_of)
 
     spot = _safe_float(quote.get("price") if isinstance(quote, dict) else getattr(quote, "price", None), None)
     is_mock = getattr(quote, "data_mode", "") == "MOCK" if not isinstance(quote, dict) else quote.get("data_mode") == "MOCK"

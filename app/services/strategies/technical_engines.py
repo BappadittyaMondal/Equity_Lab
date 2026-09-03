@@ -26,10 +26,10 @@ _FALLBACK_PERIOD = "1y"
 _MIN_BARS = 60  # Minimum bars for meaningful technical analysis
 
 
-def _get_price_data(symbol: str, period: str = _FALLBACK_PERIOD) -> Optional[pd.DataFrame]:
+def _get_price_data(symbol: str, period: str = _FALLBACK_PERIOD, as_of: Optional[Any] = None) -> Optional[pd.DataFrame]:
     """Safely fetch observed OHLCV data as a DataFrame. Rejects synthetic/mock data."""
     try:
-        hist = get_history(symbol, period=period, interval="1d")
+        hist = get_history(symbol, period=period, interval="1d", as_of=as_of)
         if hist is not None and not hist.empty and len(hist) >= _MIN_BARS:
             if getattr(hist, "attrs", {}).get("is_mock", False) or getattr(hist, "attrs", {}).get("data_mode") == "MOCK":
                 return None
@@ -64,14 +64,14 @@ def _insufficient(strategy_id: str, name: str, symbol: str, reason: str) -> Stra
 # B4 — Volume Price Analysis
 # ─────────────────────────────────────────────────────────────────────────────
 
-def run_vpa_b4(symbol: str) -> StrategyRunResponse:
+def run_vpa_b4(symbol: str, as_of: Optional[Any] = None) -> StrategyRunResponse:
     """Volume Price Analysis — detects institutional accumulation.
 
     Uses 252-day log-transformed volume z-score and circuit-guarded price spread
     to identify genuine institutional cornering and accumulation.
     """
     norm = normalize_symbol(symbol)
-    hist = _get_price_data(norm)
+    hist = _get_price_data(norm, as_of=as_of) if as_of is not None else _get_price_data(norm)
 
     if hist is None:
         return _insufficient("B4", "Volume Price Analysis", norm, f"Insufficient price history (need ≥{_MIN_BARS} bars)")
@@ -195,7 +195,7 @@ def run_vpa_b4(symbol: str) -> StrategyRunResponse:
 # B6 — Relative Strength Rating
 # ─────────────────────────────────────────────────────────────────────────────
 
-def run_rs_rating_b6(symbol: str, benchmark: str = "^NSEI") -> StrategyRunResponse:
+def run_rs_rating_b6(symbol: str, benchmark: str = "^NSEI", as_of: Optional[Any] = None) -> StrategyRunResponse:
     """Relative Strength Rating — 12-month weighted return vs Nifty 50.
 
     Weights: Q1 (oldest) = 40%, Q2 = 20%, Q3 = 20%, Q4 (recent) = 20%.
@@ -204,8 +204,8 @@ def run_rs_rating_b6(symbol: str, benchmark: str = "^NSEI") -> StrategyRunRespon
     norm = normalize_symbol(symbol)
     bench_norm = normalize_symbol(benchmark)
 
-    stock_hist = _get_price_data(norm, "1y")
-    bench_hist = _get_price_data(bench_norm, "1y")
+    stock_hist = _get_price_data(norm, "1y", as_of=as_of) if as_of is not None else _get_price_data(norm, "1y")
+    bench_hist = _get_price_data(bench_norm, "1y", as_of=as_of) if as_of is not None else _get_price_data(bench_norm, "1y")
 
     if stock_hist is None or bench_hist is None:
         return _insufficient("B6", "RS Rating", norm, "Need 1Y price history for both stock and benchmark")
@@ -298,7 +298,7 @@ def run_rs_rating_b6(symbol: str, benchmark: str = "^NSEI") -> StrategyRunRespon
 # B7 — Pocket Pivot Volume
 # ─────────────────────────────────────────────────────────────────────────────
 
-def run_pocket_pivot_b7(symbol: str) -> StrategyRunResponse:
+def run_pocket_pivot_b7(symbol: str, as_of: Optional[Any] = None) -> StrategyRunResponse:
     """Pocket Pivot — early institutional entry signal before base breakout.
 
     A pocket pivot occurs when:
@@ -307,7 +307,7 @@ def run_pocket_pivot_b7(symbol: str) -> StrategyRunResponse:
     3. Stock is in a basing pattern (within 20% of 52W high)
     """
     norm = normalize_symbol(symbol)
-    hist = _get_price_data(norm)
+    hist = _get_price_data(norm, as_of=as_of) if as_of is not None else _get_price_data(norm)
 
     if hist is None:
         return _insufficient("B7", "Pocket Pivot Volume Accumulation", norm, f"Need ≥{_MIN_BARS} bars of price data")
@@ -406,7 +406,7 @@ def run_pocket_pivot_b7(symbol: str) -> StrategyRunResponse:
 # D17 — Mean Reversion + Weinstein Stage Analysis
 # ─────────────────────────────────────────────────────────────────────────────
 
-def run_mean_reversion_d17(symbol: str) -> StrategyRunResponse:
+def run_mean_reversion_d17(symbol: str, as_of: Optional[Any] = None) -> StrategyRunResponse:
     """Mean Reversion + Weinstein Stage Classification.
 
     Stage analysis (Weinstein/Mansfield):
@@ -418,7 +418,7 @@ def run_mean_reversion_d17(symbol: str) -> StrategyRunResponse:
     Mean reversion signal: RSI oversold in Stage 1/2 = buy opportunity.
     """
     norm = normalize_symbol(symbol)
-    hist = _get_price_data(norm, "2y")  # Need more data for 30-week MA
+    hist = _get_price_data(norm, "2y", as_of=as_of) if as_of is not None else _get_price_data(norm, "2y")
 
     if hist is None:
         return _insufficient("D17", "Mean Reversion + Stage Analysis", norm, "Need ≥120 bars for stage analysis")

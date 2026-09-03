@@ -519,7 +519,7 @@ def get_market_quote(symbol: str, as_of: Optional[datetime.datetime] = None) -> 
 def get_quote(symbol: str, as_of: Optional[datetime.datetime] = None) -> Quote:
     return get_market_quote(symbol, as_of=as_of)
 
-def get_history(symbol: str, period: str = "3y", interval: str = "1d", allow_simulated: bool = True, as_of: Optional[Any] = None):
+def get_history(symbol: str, period: str = "3y", interval: str = "1d", allow_simulated: bool = False, as_of: Optional[Any] = None):
     import pandas as pd
     import numpy as np
 
@@ -578,7 +578,9 @@ def get_history(symbol: str, period: str = "3y", interval: str = "1d", allow_sim
     except Exception:
         pass
 
-    if not allow_simulated:
+    import os
+    is_offline = os.getenv("OFFLINE_TEST_MODE", "false").lower() == "true"
+    if not (allow_simulated or is_offline):
         empty_df = pd.DataFrame()
         empty_df.attrs["is_mock"] = False
         empty_df.attrs["data_mode"] = "DATA_UNAVAILABLE"

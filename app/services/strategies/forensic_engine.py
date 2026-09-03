@@ -382,6 +382,7 @@ def run_forensic_engine(
     symbol: str,
     store: Optional[ResearchDataStore] = None,
     strategy_id: str = "FORENSIC",
+    as_of: Optional[Any] = None,
 ) -> StrategyRunResponse:
     """Run all three forensic models and combine into a single StrategyRunResponse."""
     norm = normalize_symbol(symbol)
@@ -390,7 +391,7 @@ def run_forensic_engine(
     governance_flags = []
 
     try:
-        _, financials, _, _, _, _ = data_store.get_timeline(norm)
+        _, financials, _, _, _, _ = data_store.get_timeline(norm, as_of=as_of)
     except Exception as e:
         return StrategyRunResponse(
             strategy_id=strategy_id,
@@ -398,11 +399,26 @@ def run_forensic_engine(
             status="data_insufficient",
             executed_at=get_ist_now_str(),
             symbol=norm,
-            passed_gates=True,  # Benefit of the doubt when no data
+            passed_gates=False,
             results={"status": "data_insufficient", "reason": str(e)},
             metrics={},
             risk_warnings=["No financial data — forensic models cannot run"],
             disclaimer="Cannot compute forensic scores without financial data.",
+            meta=create_meta_header(source=f"IERL Forensic Engine ({norm})"),
+        )
+
+    if not financials:
+        return StrategyRunResponse(
+            strategy_id=strategy_id,
+            strategy_name="Forensic & Governance Engine (Beneish + Altman + Piotroski)",
+            status="data_insufficient",
+            executed_at=get_ist_now_str(),
+            symbol=norm,
+            passed_gates=False,
+            results={"status": "data_insufficient", "reason": "No financial timeline records found for symbol"},
+            metrics={},
+            risk_warnings=["No financial records observed in point-in-time timeline."],
+            disclaimer="Cannot compute forensic scores without observed financial data.",
             meta=create_meta_header(source=f"IERL Forensic Engine ({norm})"),
         )
 

@@ -1,3 +1,4 @@
+from __future__ import annotations
 """Strategy Module C9: Reverse DCF Intrinsic Growth Engine.
 
 Calculates market-implied Free Cash Flow (FCF) and earnings growth rates required to justify
@@ -10,7 +11,7 @@ and terminal growth assumptions (3%, 4%, 5%), comparing implied growth against h
 - Does not replace a full forward 3-statement financial model.
 """
 
-from typing import Dict, Any, List
+from typing import Dict, Any, List, Optional
 from app.models.schemas import StrategyRunResponse
 from app.services.market_data import get_quote, create_meta_header, normalize_symbol, get_ist_now_str
 
@@ -31,7 +32,8 @@ def _safe_float(val: Any, default: float = 0.0) -> float:
 def run_reverse_dcf_c9(
     symbol: str,
     discount_rate: float = 0.12,
-    terminal_growth: float = 0.04
+    terminal_growth: float = 0.04,
+    as_of: Optional[Any] = None,
 ) -> StrategyRunResponse:
     """Execute C9 Reverse DCF Intrinsic Growth Check.
     
@@ -39,9 +41,10 @@ def run_reverse_dcf_c9(
         symbol: Target equity symbol.
         discount_rate: Baseline cost of equity discount rate (default: 12%).
         terminal_growth: Perpetual terminal growth rate (default: 4%).
+        as_of: Historical point-in-time reference boundary.
     """
     norm_symbol = normalize_symbol(symbol)
-    quote = get_quote(norm_symbol)
+    quote = get_quote(norm_symbol, as_of=as_of)
 
     spot = _safe_float(quote.get("price") if isinstance(quote, dict) else getattr(quote, "price", 0.0), 0.0)
     pe_raw = quote.get("pe_ratio") if isinstance(quote, dict) else getattr(quote, "pe_ratio", 0.0)

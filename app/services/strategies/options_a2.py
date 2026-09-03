@@ -1,16 +1,17 @@
+from __future__ import annotations
 """Strategy Module A2: Zero-DTE / Short Strangle Range Option Selling Engine.
 
 Calculates option premium credit, payoff curve, breakeven points, empirical win probability, expected value (EV), margin required, and risk-controlled position sizing.
 """
 
-from typing import List, Dict, Any
+from typing import List, Dict, Any, Optional
 from fastapi import HTTPException, status
 import numpy as np
 from app.models.schemas import OptionsA2Request, OptionsA2Response
 from app.services.market_data import normalize_symbol, get_quote, get_history, create_meta_header
 
 
-def calculate_a2_payoff(req: OptionsA2Request) -> OptionsA2Response:
+def calculate_a2_payoff(req: OptionsA2Request, as_of: Optional[Any] = None) -> OptionsA2Response:
     """Calculates A2 0-DTE Range Option Selling payoff metrics."""
     symbol = normalize_symbol(req.underlying)
     
@@ -18,7 +19,7 @@ def calculate_a2_payoff(req: OptionsA2Request) -> OptionsA2Response:
     spot = req.spot_price
     if spot is None or spot <= 0:
         try:
-            quote = get_quote(symbol)
+            quote = get_quote(symbol, as_of=as_of)
             if isinstance(quote, dict):
                 spot = float(quote.get("price") or 0.0)
             else:

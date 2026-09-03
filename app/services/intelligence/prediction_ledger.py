@@ -17,7 +17,7 @@ class PredictionLedgerStore:
     def __init__(self, db_path: Optional[str] = None):
         if db_path is None:
             from app.core.config import settings
-            db_path = getattr(settings, "DB_PATH", "data/equity_lab.sqlite")
+            db_path = getattr(settings, "DATA_STORE_PATH", "data/ierl_equity.sqlite3")
         self.db_path = db_path
         self._ledger: Dict[str, Dict[str, Any]] = {}
         if self.db_path:

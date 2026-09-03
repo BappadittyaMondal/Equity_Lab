@@ -1,3 +1,4 @@
+from __future__ import annotations
 """Strategy Module B8: SEPA (Specific Earnings Characteristics) Growth Engine.
 
 Quant fundamental model based on Mark Minervini's SEPA methodology. Evaluates specific
@@ -10,7 +11,7 @@ and market leadership trends.
 - High momentum growth stocks carry sharp drawdown risk during broad market pullbacks.
 """
 
-from typing import Dict, Any
+from typing import Dict, Any, Optional
 from app.models.schemas import StrategyRunResponse
 from app.services.market_data import get_quote, get_history, create_meta_header, normalize_symbol, get_ist_now_str
 
@@ -28,11 +29,11 @@ def _safe_float(val: Any, default: float = 0.0) -> float:
         return default
 
 
-def run_sepa_b8(symbol: str) -> StrategyRunResponse:
+def run_sepa_b8(symbol: str, as_of: Optional[Any] = None) -> StrategyRunResponse:
     """Execute B8 SEPA Fundamental Growth Screening Engine."""
     norm_symbol = normalize_symbol(symbol)
-    quote = get_quote(norm_symbol)
-    hist = get_history(norm_symbol, period="1y")
+    quote = get_quote(norm_symbol, as_of=as_of)
+    hist = get_history(norm_symbol, period="1y", as_of=as_of)
 
     spot = _safe_float(quote.get("price") if isinstance(quote, dict) else getattr(quote, "price", 1000.0), 1000.0)
     pe_raw = quote.get("pe_ratio") if isinstance(quote, dict) else getattr(quote, "pe_ratio", 25.0)

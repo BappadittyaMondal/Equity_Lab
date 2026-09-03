@@ -173,10 +173,7 @@ def db_session():
     conn = get_connection()
     try:
         yield conn
-        try:
-            conn.commit()
-        except Exception:
-            pass
+        conn.commit()
     except Exception:
         try:
             conn.rollback()

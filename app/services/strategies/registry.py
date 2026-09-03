@@ -8,7 +8,7 @@ from datetime import datetime
 from typing import Dict, List, Optional
 from fastapi import HTTPException, status
 from app.models.schemas import StrategyModule, StrategyRunResponse
-from app.services.market_data import get_quote, create_meta_header, normalize_symbol, get_ist_now_str
+from app.services.market_data import get_quote, get_history, create_meta_header, normalize_symbol, get_ist_now_str
 
 from app.services.strategies.saatvik_d18 import run_saatvik_d18
 from app.services.strategies.vcp_b5 import run_vcp_b5
@@ -20,7 +20,6 @@ from app.services.strategies.technical_engines import (
     run_vpa_b4, run_rs_rating_b6, run_pocket_pivot_b7, run_mean_reversion_d17
 )
 from app.services.strategies.forensic_engine import run_forensic_engine
-from app.services.strategies.dcf_forward import run_dcf_forward
 from app.services.strategies.options_a1_a3 import evaluate_option_arbitrage, evaluate_iron_condor
 from app.services.strategies.owner_earnings_c10 import evaluate_owner_earnings
 from app.services.strategies.dual_momentum_d16 import evaluate_dual_momentum
@@ -990,7 +989,7 @@ def run_strategy_module(strategy_id: str, symbol: str = "RELIANCE", as_of: Optio
         else:
             from app.services.strategies.options_a2 import calculate_a2_payoff
             from app.models.schemas import OptionsA2Request
-            a2_res = calculate_a2_payoff(OptionsA2Request(underlying=symbol))
+            a2_res = calculate_a2_payoff(OptionsA2Request(underlying=symbol), as_of=as_of)
             warnings = list(a2_res.risk_warnings or [])
             return StrategyRunResponse(
                 strategy_id="A2",
@@ -1016,25 +1015,25 @@ def run_strategy_module(strategy_id: str, symbol: str = "RELIANCE", as_of: Optio
                 meta=a2_res.meta
             )
     elif module.id == "D18":
-        return run_saatvik_d18(symbol)
+        return run_saatvik_d18(symbol, as_of=as_of)
     elif module.id == "B4":
-        return run_vpa_b4(symbol)
+        return run_vpa_b4(symbol, as_of=as_of)
     elif module.id == "B5":
-        return run_vcp_b5(symbol)
+        return run_vcp_b5(symbol, as_of=as_of)
     elif module.id == "B6":
-        return run_rs_rating_b6(symbol)
+        return run_rs_rating_b6(symbol, as_of=as_of)
     elif module.id == "B7":
-        return run_pocket_pivot_b7(symbol)
+        return run_pocket_pivot_b7(symbol, as_of=as_of)
     elif module.id == "B8":
-        return run_sepa_b8(symbol)
+        return run_sepa_b8(symbol, as_of=as_of)
     elif module.id == "C9":
-        return run_reverse_dcf_c9(symbol)
+        return run_reverse_dcf_c9(symbol, as_of=as_of)
     elif module.id == "D15":
-        return run_ath_breakout_d15(symbol)
+        return run_ath_breakout_d15(symbol, as_of=as_of)
     elif module.id == "D17":
-        return run_mean_reversion_d17(symbol)
+        return run_mean_reversion_d17(symbol, as_of=as_of)
     elif module.id in ("C11", "C12", "C13", "FORENSIC"):
-        return run_forensic_engine(symbol, strategy_id=module.id)
+        return run_forensic_engine(symbol, strategy_id=module.id, as_of=as_of)
     elif module.id == "A1":
         res_a1 = evaluate_option_arbitrage(symbol, as_of=as_of)
         return StrategyRunResponse(
@@ -1111,20 +1110,20 @@ def run_strategy_module(strategy_id: str, symbol: str = "RELIANCE", as_of: Optio
         )
     elif module.id == "E18":
         import pandas as pd
-        import yfinance as yf
         from app.services.strategies.swing_predictive_engine import SwingPredictiveEngine
         norm_sym = normalize_symbol(symbol)
-        clean_sym = symbol.replace(".NS", "").replace(".BO", "").strip()
-        yf_sym = f"{clean_sym}.NS"
         try:
-            df_d = yf.download(yf_sym, period="6mo", interval="1d", progress=False)
-            df_w = yf.download(yf_sym, period="2y", interval="1wk", progress=False)
+            df_d = get_history(norm_sym, period="6mo", interval="1d", as_of=as_of)
+            df_w = get_history(norm_sym, period="2y", interval="1wk", as_of=as_of)
+            if df_d is None or df_w is None or df_d.empty or df_w.empty or len(df_d) < 20 or len(df_w) < 10:
+                raise ValueError("Insufficient historical price bars for swing prediction")
+
             if isinstance(df_d.columns, pd.MultiIndex):
-                df_d = df_d.xs(yf_sym, axis=1, level=1)
+                df_d = df_d.xs(norm_sym, axis=1, level=1) if norm_sym in df_d.columns.levels[1] else df_d
             df_d.columns = [str(c).lower() for c in df_d.columns]
 
             if isinstance(df_w.columns, pd.MultiIndex):
-                df_w = df_w.xs(yf_sym, axis=1, level=1)
+                df_w = df_w.xs(norm_sym, axis=1, level=1) if norm_sym in df_w.columns.levels[1] else df_w
             df_w.columns = [str(c).lower() for c in df_w.columns]
             
             res_e18 = SwingPredictiveEngine.predict_swing_30d(df_d, df_w)
@@ -1159,8 +1158,6 @@ def run_strategy_module(strategy_id: str, symbol: str = "RELIANCE", as_of: Optio
                 disclaimer="10-30 Day Swing Predictive Engine data error.",
                 meta=create_meta_header(source="E18 Swing Predictive Engine")
             )
-    elif module.id == "DCF_FWD":
-        return run_dcf_forward(symbol)
     elif module.id == "E21":
         from app.services.research.early_compounder_engine import run_early_compounder_engine
         return run_early_compounder_engine(symbol, as_of=as_of)

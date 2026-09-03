@@ -166,9 +166,7 @@ class Arbiter:
                         score_0_100 = min(100.0, max(0.0, val))
                         break
 
-            if score_0_100 is None and getattr(resp, "passed_gates", False) and getattr(resp, "status", None) != "data_insufficient":
-                score_0_100 = float(confidence) if confidence > 0 else 50.0
-            elif score_0_100 is None:
+            if score_0_100 is None:
                 score_0_100 = None
 
             verdict = "Buy" if (getattr(resp, "passed_gates", False) and (score_0_100 is None or score_0_100 >= 55.0)) else "Avoid"

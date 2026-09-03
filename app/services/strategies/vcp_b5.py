@@ -1,9 +1,10 @@
+from __future__ import annotations
 """Strategy Module B5: Volatility Contraction Pattern (VCP) Breakout Screen.
 
 Analyzes historical price series for narrowing volatility contractions (Mark Minervini VCP pattern) and volume dry-ups near 52-week highs.
 """
 
-from typing import Any
+from typing import Any, Optional
 import numpy as np
 from app.models.schemas import StrategyRunResponse
 from app.services.market_data import get_history, get_quote, create_meta_header, normalize_symbol, get_ist_now_str
@@ -22,10 +23,10 @@ def _safe_float(val: Any, default: float = 0.0) -> float:
         return default
 
 
-def run_vcp_b5(symbol: str) -> StrategyRunResponse:
+def run_vcp_b5(symbol: str, as_of: Optional[Any] = None) -> StrategyRunResponse:
     norm_symbol = normalize_symbol(symbol)
-    hist = get_history(norm_symbol, period="1y")
-    quote = get_quote(norm_symbol)
+    hist = get_history(norm_symbol, period="1y", as_of=as_of)
+    quote = get_quote(norm_symbol, as_of=as_of)
 
     spot = _safe_float(quote.get("price") if isinstance(quote, dict) else getattr(quote, "price", None), None)
     is_mock = getattr(quote, "data_mode", "") == "MOCK" if not isinstance(quote, dict) else quote.get("data_mode") == "MOCK"

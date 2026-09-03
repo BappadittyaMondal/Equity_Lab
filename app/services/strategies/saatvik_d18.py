@@ -1,3 +1,4 @@
+from __future__ import annotations
 """Strategy Module D18: Saatvik (Ethical / Sin-Free) Quant Screening Engine.
 
 Structural ESG and humanitarian ethical exclusion filter based on Jain and non-violent
@@ -10,7 +11,7 @@ financial hygiene ratios (Debt/Equity < 0.5, P/E sanity), and promoter pledge sa
 - Ethical suitability does not evaluate forward growth, momentum, or valuation upside.
 """
 
-from typing import Dict, Any, List
+from typing import Dict, Any, List, Optional
 from app.models.schemas import StrategyRunResponse
 from app.services.market_data import get_quote, create_meta_header, normalize_symbol, get_ist_now_str
 
@@ -28,10 +29,10 @@ def _safe_float(val: Any, default: float = 0.0) -> float:
         return default
 
 
-def run_saatvik_d18(symbol: str) -> StrategyRunResponse:
+def run_saatvik_d18(symbol: str, as_of: Optional[Any] = None) -> StrategyRunResponse:
     """Execute D18 Saatvik Ethical & Financial Hygiene Screening Gate."""
     norm_symbol = normalize_symbol(symbol)
-    quote = get_quote(norm_symbol)
+    quote = get_quote(norm_symbol, as_of=as_of)
 
     price = _safe_float(quote.get("price") if isinstance(quote, dict) else getattr(quote, "price", 1000.0), 1000.0)
     pe_raw = quote.get("pe_ratio") if isinstance(quote, dict) else getattr(quote, "pe_ratio", None)
@@ -67,7 +68,7 @@ def run_saatvik_d18(symbol: str) -> StrategyRunResponse:
     promoter_holding_pct = None
     
     try:
-        timeline = data_store.get_timeline(norm_symbol)
+        timeline = data_store.get_timeline(norm_symbol, as_of=as_of)
         financials = timeline[1] if isinstance(timeline, tuple) and len(timeline) > 1 else []
         ownership = timeline[4] if isinstance(timeline, tuple) and len(timeline) > 4 else []
         

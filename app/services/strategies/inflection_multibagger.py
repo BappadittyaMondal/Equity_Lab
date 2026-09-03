@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+from __future__ import annotations
 """Strategy Module E19: Multibagger Inflection Engine (M_Inflection).
 
 Evaluates high-conviction early-stage multibagger inflection candidates using:
@@ -9,7 +10,7 @@ Evaluates high-conviction early-stage multibagger inflection candidates using:
 5. Forensic Integrity Gate (Piotroski F-Score >= 6, Pledged <= 15%)
 """
 
-from typing import Any, Dict
+from typing import Any, Dict, Optional
 import numpy as np
 from app.models.schemas import StrategyRunResponse
 from app.services.market_data import get_history, get_quote, create_meta_header, normalize_symbol, get_ist_now_str
@@ -66,7 +67,7 @@ def run_inflection_multibagger(symbol: str, as_of: Optional[Any] = None) -> Stra
     financials = []
     ownership = []
     try:
-        _, financials, _, _, ownership, _ = data_store.get_timeline(norm_symbol)
+        _, financials, _, _, ownership, _ = data_store.get_timeline(norm_symbol, as_of=as_of)
     except Exception:
         pass
 
