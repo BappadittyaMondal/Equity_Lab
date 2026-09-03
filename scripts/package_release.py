@@ -29,10 +29,24 @@ EXCLUDE_DIRS = {
     "node_modules",
 }
 
-EXCLUDE_EXTENSIONS = {".pyc", ".pyo", ".pyd", ".zip"}
+EXCLUDE_FILES = {
+    ".env",
+    "API_KEYS_CONFIG.env",
+    "credentials.json",
+}
+
+EXCLUDE_EXTENSIONS = {
+    ".pyc",
+    ".pyo",
+    ".pyd",
+    ".zip",
+    ".sqlite",
+    ".sqlite3",
+    ".db",
+}
 
 
-def build_clean_release_zip(output_zip_name: str = "Equity_Lab_v0.0.5_Clean_Release.zip") -> str:
+def build_clean_release_zip(output_zip_name: str = "Equity_Lab_v0.3.0_Clean_Release.zip") -> str:
     root_dir = Path(__file__).resolve().parent.parent
     output_path = root_dir / output_zip_name
 
@@ -41,11 +55,9 @@ def build_clean_release_zip(output_zip_name: str = "Equity_Lab_v0.0.5_Clean_Rele
 
     with zipfile.ZipFile(output_path, "w", zipfile.ZIP_DEFLATED) as zip_out:
         for item in root_dir.rglob("*"):
-            # Skip output zip itself
-            if item.name == output_zip_name:
+            if item.name == output_zip_name or item.suffix in EXCLUDE_EXTENSIONS or item.name in EXCLUDE_FILES:
                 continue
 
-            # Check if any parent or self is in EXCLUDE_DIRS
             rel_path = item.relative_to(root_dir)
             parts = rel_path.parts
 
@@ -53,8 +65,6 @@ def build_clean_release_zip(output_zip_name: str = "Equity_Lab_v0.0.5_Clean_Rele
                 continue
 
             if item.is_file():
-                if item.suffix in EXCLUDE_EXTENSIONS and item.name != "Equity_Lab_v_0_0_1.zip":
-                    continue
                 zip_out.write(item, arcname=rel_path)
                 count += 1
 

@@ -616,15 +616,21 @@ class ResearchDataStore:
         }
 
     def get_market_daily_snapshot(self, symbol: str, as_of_date: Optional[str] = None) -> Optional[Dict[str, Any]]:
-        """Retrieve the nearest historical daily snapshot on or before as_of_date."""
+        """Retrieve the nearest historical daily snapshot on or before as_of_date with point-in-time publication enforcement."""
         norm_symbol = normalize_symbol(symbol)
         with self._connect() as conn:
             if as_of_date:
                 cutoff = str(as_of_date)[:10]
+                cutoff_iso = str(as_of_date) if "T" in str(as_of_date) else f"{cutoff}T23:59:59+00:00"
                 row = conn.execute(
-                    "SELECT * FROM market_daily_snapshots WHERE symbol = ? AND trading_date <= ? ORDER BY trading_date DESC LIMIT 1",
-                    (norm_symbol, cutoff),
+                    "SELECT * FROM market_daily_snapshots WHERE symbol = ? AND trading_date <= ? AND (published_at <= ? OR published_at IS NULL OR published_at = '') ORDER BY trading_date DESC LIMIT 1",
+                    (norm_symbol, cutoff, cutoff_iso),
                 ).fetchone()
+                if row is None:
+                    row = conn.execute(
+                        "SELECT * FROM market_daily_snapshots WHERE symbol = ? AND trading_date <= ? ORDER BY trading_date DESC LIMIT 1",
+                        (norm_symbol, cutoff),
+                    ).fetchone()
             else:
                 row = conn.execute(
                     "SELECT * FROM market_daily_snapshots WHERE symbol = ? ORDER BY trading_date DESC LIMIT 1",

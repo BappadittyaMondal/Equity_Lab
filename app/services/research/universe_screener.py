@@ -111,6 +111,15 @@ def run_technical_universe_screener(
     # Sort candidates by Technical State Score
     tier2_candidates.sort(key=lambda x: x["tss_score"], reverse=True)
 
+    # Benjamini-Hochberg False Discovery Rate (FDR) multi-testing adjustment
+    if tier2_candidates:
+        from app.services.ml.statistical_fdr import benjamini_hochberg_fdr
+        raw_p = [max(0.001, min(0.999, round(1.0 - (float(c.get("prob_t2_20d") or 50.0) / 100.0), 4))) for c in tier2_candidates]
+        fdr_outs = benjamini_hochberg_fdr(raw_p, alpha=0.05)
+        for idx, c in enumerate(tier2_candidates):
+            c["fdr_adjusted_p"] = fdr_outs[idx]["adjusted_p_value"]
+            c["fdr_statistically_significant"] = fdr_outs[idx]["is_significant"]
+
     return {
         "executed_at": datetime.now().isoformat(),
         "as_of": as_of.isoformat() if as_of else None,

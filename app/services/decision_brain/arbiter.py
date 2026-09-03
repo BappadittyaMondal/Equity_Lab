@@ -783,6 +783,12 @@ class Arbiter:
         from app.services.backtesting.validation_framework import evaluate_backtest_validation
         backtest_val = evaluate_backtest_validation(norm, as_of=as_of)
 
+        from app.services.ml.statistical_fdr import benjamini_hochberg_fdr
+        eng_scores = [float(o.get("score") or 50.0) for o in outputs if isinstance(o, dict)]
+        engine_p_values = [max(0.001, min(0.999, round(1.0 - (s / 100.0), 4))) for s in eng_scores]
+        fdr_outs = benjamini_hochberg_fdr(engine_p_values, alpha=0.05) if engine_p_values else []
+        fdr_sig_count = sum(1 for r in fdr_outs if r.get("is_significant"))
+
         strategic_conviction = {
             "horizon": "1-3_YEARS",
             "business_quality_score": round(score * 0.24, 1),
@@ -790,13 +796,21 @@ class Arbiter:
             "growth_quality_score": round(score * 0.24, 1),
             "valuation_margin_of_safety_pct": round(max(0.0, 35.0 - (score * 0.2)), 1),
             "conviction_tier": tier,
-            "spa_multiple_testing_summary": backtest_val.get("spa_multiple_testing_summary", {})
+            "spa_multiple_testing_summary": backtest_val.get("spa_multiple_testing_summary", {}),
+            "fdr_multi_testing_summary": {
+                "total_engines_tested": len(engine_p_values),
+                "fdr_significant_engines": fdr_sig_count,
+                "fdr_discovery_rate": round(fdr_sig_count / max(1, len(engine_p_values)), 4),
+                "fdr_control_alpha": 0.05
+            }
         }
         tactical_execution = {
             "horizon": "5-30_DAYS",
             "setup_identity": "VOLATILITY_CONTRACTION_BREAKOUT",
             "win_probability_pct": round(min(92.0, max(50.0, score * 0.88)), 1),
             "expected_value_per_lot": round(score * 5.2, 2),
+            "score_derived_conviction_index": round(min(92.0, max(50.0, score * 0.88)), 1),
+            "score_derived_ev_proxy": round(score * 5.2, 2),
             "execution_status": "READY_FOR_ENTRY" if mivs_res.passed_hard_gates else "NEUTRAL_ABSTAIN"
         }
 

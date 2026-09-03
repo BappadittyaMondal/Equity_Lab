@@ -5,7 +5,6 @@ import os
 from fastapi import APIRouter
 from app.core.config import settings
 from app.services.market_data import get_ist_now_str
-import yfinance as yf
 
 router = APIRouter(prefix="/api/v1", tags=["Health & Diagnostics"])
 
@@ -15,14 +14,17 @@ def get_health_status():
     """Runs actual connectivity verification across data feeds and LLM providers."""
     providers_status = {}
     
-    # 1. Live market data provider test
+    # 1. Live market data provider test (lazy-loaded to prevent module import failures)
     try:
+        import yfinance as yf
         t = yf.Ticker("^NSEI")
         hist = t.history(period="1d")
         if not hist.empty:
             providers_status["yfinance_nse"] = "ONLINE"
         else:
             providers_status["yfinance_nse"] = "DEGRADED (Empty Data)"
+    except ImportError:
+        providers_status["yfinance_nse"] = "DEGRADED (Optional provider uninstalled)"
     except Exception as e:
         providers_status["yfinance_nse"] = f"OFFLINE ({str(e)})"
         
@@ -53,7 +55,12 @@ def get_readiness_status():
     table_count = 0
     try:
         conn = get_connection()
-        rows = conn.execute("SELECT count(*) FROM sqlite_master WHERE type='table'").fetchone()
+        db_url = os.getenv("DATABASE_URL") or getattr(settings, "DATABASE_URL", "")
+        if "postgres" in str(db_url).lower():
+            query = "SELECT count(*) FROM information_schema.tables WHERE table_schema = 'public'"
+        else:
+            query = "SELECT count(*) FROM sqlite_master WHERE type = 'table'"
+        rows = conn.execute(query).fetchone()
         table_count = rows[0] if rows else 0
         conn.close()
         db_ready = True

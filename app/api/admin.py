@@ -8,10 +8,12 @@ import datetime
 
 router = APIRouter(prefix="/api/v1/admin", tags=["Admin"])
 
+import hmac
+
 def verify_admin_key(x_api_key: str = Header(...)):
     if not settings.ADMIN_API_KEY:
         raise HTTPException(status_code=401, detail="Admin API key not configured.")
-    if x_api_key != settings.ADMIN_API_KEY:
+    if not hmac.compare_digest(x_api_key, settings.ADMIN_API_KEY):
         raise HTTPException(status_code=401, detail="Invalid admin API key.")
     return True
 
