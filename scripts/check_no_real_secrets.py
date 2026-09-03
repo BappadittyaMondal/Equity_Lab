@@ -8,6 +8,7 @@ Exits with 0 if clean, or 1 if unscrubbed credentials are detected.
 import sys
 import os
 import re
+import zipfile
 
 PATTERNS = [
     (re.compile(r'AIzaSy[A-Za-z0-9_-]{33}'), "Google AI / Gemini API Key"),
@@ -22,6 +23,8 @@ PATTERNS = [
 
 EXCLUDE_DIRS = {'.git', '.venv', 'venv', '__pycache__', '.pytest_cache', '.pytest_temp', '.pytest_tmp', 'unnecessary_files_archive', 'Not_Required_Upload', 'scratch'}
 
+FORBIDDEN_ARCHIVE_EXTENSIONS = ('.env', '.db', '.sqlite', '.sqlite3', '.pem', '.key')
+
 def scan_repo():
     findings = []
     root_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
@@ -32,8 +35,32 @@ def scan_repo():
             filepath = os.path.join(current_root, file)
             relpath = os.path.relpath(filepath, root_dir)
             
-            # Skip binary or script checking itself
-            if file in ('check_no_real_secrets.py', 'scan_secrets.py') or file.endswith(('.png', '.jpg', '.jpeg', '.pyc', '.zip', '.exe', '.db', '.sqlite3')):
+            # Skip script checking itself or innocuous image binaries
+            if file in ('check_no_real_secrets.py', 'scan_secrets.py') or file.endswith(('.png', '.jpg', '.jpeg', '.pyc', '.exe')):
+                continue
+
+            # Recursive inspection of ZIP archives
+            if file.endswith('.zip'):
+                try:
+                    with zipfile.ZipFile(filepath, 'r') as zf:
+                        for info in zf.infolist():
+                            fname = info.filename.lower()
+                            if fname.endswith(FORBIDDEN_ARCHIVE_EXTENSIONS) or '.git/' in fname:
+                                findings.append((f"{relpath}::{info.filename}", "Forbidden Sensitive File in Archive", info.filename))
+                            if any(fname.endswith(ext) for ext in ('.py', '.env', '.json', '.txt', '.md', '.yml', '.yaml')):
+                                try:
+                                    with zf.open(info) as zf_file:
+                                        content = zf_file.read().decode('utf-8', errors='ignore')
+                                        for pattern, desc in PATTERNS:
+                                            matches = pattern.findall(content)
+                                            for match in matches:
+                                                match_str = match if isinstance(match, str) else str(match)
+                                                if "your_" not in match_str.lower() and "placeholder" not in match_str.lower():
+                                                    findings.append((f"{relpath}::{info.filename}", desc, match_str))
+                                except Exception:
+                                    pass
+                except Exception as ex:
+                    findings.append((relpath, f"Corrupted or Unreadable Archive: {ex}", file))
                 continue
                 
             try:

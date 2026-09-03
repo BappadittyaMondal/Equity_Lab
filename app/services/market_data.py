@@ -298,8 +298,8 @@ def _store_in_cache(symbol: str, quote: Quote) -> None:
         logger.warning("Failed to persist quote cache for %s: %s", symbol, e)
 
 
-def get_latest_db_delivery_pct(symbol: str) -> float:
-    """Queries local DB for the symbol's latest recorded delivery_pct before falling back to 40.0."""
+def get_latest_db_delivery_pct(symbol: str) -> Optional[float]:
+    """Queries local DB for the symbol's latest recorded delivery_pct before falling back to None."""
     try:
         norm_sym = normalize_symbol(symbol)
         conn = _get_connection()
@@ -316,7 +316,7 @@ def get_latest_db_delivery_pct(symbol: str) -> float:
             conn.close()
     except Exception:
         pass
-    return 40.0
+    return None
 
 def _load_from_cache(symbol: str, max_age_seconds: int = 259200) -> Optional[Quote]:
     """Load cached quote if fetched within max_age_seconds (default 72 hours / 3 days max gap)."""

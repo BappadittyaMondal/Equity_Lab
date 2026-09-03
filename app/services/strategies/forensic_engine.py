@@ -429,6 +429,7 @@ def run_forensic_engine(
     # Overall forensic verdict
     passed = len(governance_flags) == 0
     forensic_risk = "CRITICAL" if beneish_flag or altman_distress else ("HIGH" if piotroski_weak else "LOW")
+    gov_grade = "POOR" if beneish_flag else ("ADEQUATE" if piotroski_weak else "GOOD")
 
     return StrategyRunResponse(
         strategy_id=strategy_id,
@@ -443,6 +444,8 @@ def run_forensic_engine(
             "piotroski_f_score": piotroski,
             "governance_flags": governance_flags,
             "forensic_risk": forensic_risk,
+            "governance_grade": gov_grade,
+            "manipulation_flag": beneish_flag,
             "evidence": all_evidence,
         },
         metrics={
@@ -450,6 +453,7 @@ def run_forensic_engine(
             "z_score": altman.get("z_score"),
             "f_score": piotroski.get("f_score"),
             "forensic_risk": forensic_risk,
+            "governance_grade": gov_grade,
         },
         risk_warnings=[
             "Beneish M-Score uses approximated DSRI/DEPI/SGAI — improves with full accounting data.",

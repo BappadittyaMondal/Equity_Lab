@@ -57,3 +57,33 @@ def test_arbiter_sub_agent_governance_veto_integration():
     veto = arbiter._apply_governance_veto([{"symbol": "HIGH_PLEDGE_CO"}], snap=mock_snap)
     assert veto is True, "Sub-agent pledge veto must trigger True for 60% pledge"
 
+
+def test_arbiter_universe_scoping_large_vs_micro():
+    """Verify that Large Caps are not vetoed by microcap gate, while Microcaps without data fail closed."""
+    arbiter = Arbiter()
+
+    # 1. Large Cap with clean governance should NOT be vetoed by microcap gate
+    class LargeCapSnap:
+        market_cap_cr = 1500000.0  # ₹15 Lakh Cr (Reliance)
+        promoter_pledge_pct = 0.0
+        related_party_pct = 1.0
+        auditor_resigned_recently = False
+        net_income_3y_cagr = 15.0
+        ocf_3y_cagr = 18.0
+
+    veto_large = arbiter._apply_governance_veto([{"symbol": "RELIANCE"}], snap=LargeCapSnap())
+    assert veto_large is False, "Large Cap stock RELIANCE should NOT be vetoed by microcap gate"
+
+    # 2. Microcap without data should fail closed (trigger veto)
+    class MicroCapSnap:
+        market_cap_cr = 150.0  # ₹150 Cr Microcap
+        promoter_pledge_pct = 0.0
+        related_party_pct = 1.0
+        auditor_resigned_recently = False
+        net_income_3y_cagr = 15.0
+        ocf_3y_cagr = 18.0
+
+    veto_micro = arbiter._apply_governance_veto([{"symbol": "UNKNOWN_MICRO_PENNY"}], snap=MicroCapSnap())
+    assert veto_micro is True, "Microcap with insufficient filing history must fail-closed veto"
+
+

@@ -324,11 +324,38 @@ class Arbiter:
 
         if symbol:
             try:
-                from app.services.research.microcap_integrity_gate import evaluate_microcap_integrity_gate
-                m_res = evaluate_microcap_integrity_gate(symbol)
-                if not m_res.pass_all_gates:
-                    logger.warning("Microcap integrity gate veto triggered for %s: %s", symbol, m_res.veto_reasons)
-                    return True
+                # Universe scoping: Microcap integrity gate applies strictly to micro/small-cap universe (market cap <= 1000 Cr).
+                # Large and Mid-caps (market cap > 1000 Cr) must not be falsely vetoed by microcap-specific gates.
+                mcap = getattr(snap, "market_cap_cr", None) if snap else None
+                if mcap is None and snap and hasattr(snap, "market_cap"):
+                    raw_mcap = snap.market_cap
+                    if raw_mcap:
+                        mcap = raw_mcap if raw_mcap < 1e7 else raw_mcap / 1e7
+
+                if mcap is None:
+                    try:
+                        from app.services.market_data import get_quote
+                        q = get_quote(symbol)
+                        if q and getattr(q, "market_cap", None):
+                            mcap = q.market_cap if q.market_cap < 1e7 else q.market_cap / 1e7
+                    except Exception:
+                        pass
+
+                KNOWN_LARGE_CAPS = {
+                    "RELIANCE", "TCS", "HDFCBANK", "INFY", "ICICIBANK", "BHARTIARTL", "SBIN", 
+                    "LICI", "ITC", "HINDUNILVR", "LT", "BAJFINANCE", "HCLTECH", "MARUTI",
+                    "SUNPHARMA", "ONGC", "TATAMOTORS", "NTPC", "KOTAKBANK", "TITAN",
+                    "POLYCAB", "DIXON", "TRENT", "BEL", "HAL", "KEI"
+                }
+                norm_clean = symbol.replace(".NS", "").replace(".BO", "").strip().upper()
+                is_microcap = (norm_clean not in KNOWN_LARGE_CAPS) and (mcap is None or mcap <= 1000.0)
+
+                if is_microcap:
+                    from app.services.research.microcap_integrity_gate import evaluate_microcap_integrity_gate
+                    m_res = evaluate_microcap_integrity_gate(symbol)
+                    if not m_res.pass_all_gates:
+                        logger.warning("Microcap integrity gate veto triggered for %s: %s", symbol, m_res.veto_reasons)
+                        return True
             except Exception as e:
                 logger.debug("Microcap integrity gate check skipped: %s", e)
 

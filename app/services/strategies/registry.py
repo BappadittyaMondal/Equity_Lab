@@ -592,11 +592,11 @@ def run_strategy_module(strategy_id: str, symbol: str = "RELIANCE", as_of: Optio
             disclaimer="Growth Inflection Engine assessment.",
             meta=res1.meta
         )
-    elif module.id in ["E2", "C14"]:
+    elif module.id == "E2":
         from app.services.strategies.turnaround_stage import evaluate_turnaround_stage
         res2 = evaluate_turnaround_stage(symbol, as_of=as_of)
         return StrategyRunResponse(
-            strategy_id=module.id,
+            strategy_id="E2",
             strategy_name=module.name,
             status="production",
             executed_at=res2.executed_at,
@@ -612,6 +612,37 @@ def run_strategy_module(strategy_id: str, symbol: str = "RELIANCE", as_of: Optio
             risk_warnings=module.risk_warnings,
             disclaimer="Turnaround Stage Engine assessment.",
             meta=res2.meta
+        )
+    elif module.id == "C14":
+        from app.services.strategies.turnaround_stage import evaluate_turnaround_stage
+        res_c14 = evaluate_turnaround_stage(symbol, as_of=as_of)
+        debt_red = res_c14.metrics_summary.get("debt_reduction_yoy", 0.0)
+        margin_turn = res_c14.metrics_summary.get("operating_margin", 0.0)
+        return StrategyRunResponse(
+            strategy_id="C14",
+            strategy_name=module.name,
+            status="production",
+            executed_at=res_c14.executed_at,
+            symbol=res_c14.symbol,
+            passed_gates=(res_c14.false_turnaround_risk in ["LOW", "MODERATE"] and res_c14.current_stage != "DISTRESSED"),
+            results={
+                "current_stage": res_c14.current_stage,
+                "debt_reduction_yoy": debt_red,
+                "operating_margin_turnaround": margin_turn,
+                "false_turnaround_risk": res_c14.false_turnaround_risk,
+                "success_probability_pct": res_c14.success_probability_pct,
+                "evidence": res_c14.evidence,
+                "diagnostic_focus": "NCLT & Distressed Solvency Recovery Diagnostic"
+            },
+            metrics={
+                "debt_reduction_yoy": debt_red,
+                "operating_margin_turnaround": margin_turn,
+                "turnaround_score": res_c14.turnaround_score,
+                "score": res_c14.turnaround_score
+            },
+            risk_warnings=module.risk_warnings,
+            disclaimer="Turnaround & NCLT Revival Diagnostic (C14) assessment.",
+            meta=create_meta_header(source="IERL Turnaround & NCLT Diagnostic (C14)")
         )
     elif module.id == "E3":
         from app.services.strategies.growth_market_gap import evaluate_growth_market_gap
@@ -762,26 +793,7 @@ def run_strategy_module(strategy_id: str, symbol: str = "RELIANCE", as_of: Optio
             meta=res_moat["meta"]
         )
     elif module.id == "C13":
-        from app.services.strategies.governance_quality import evaluate_governance_quality
-        res_c13 = evaluate_governance_quality(symbol, as_of=as_of)
-        return StrategyRunResponse(
-            strategy_id="C13",
-            strategy_name=module.name,
-            status="production",
-            executed_at=res_c13.executed_at,
-            symbol=res_c13.symbol,
-            passed_gates=(res_c13.governance_grade in ["EXCELLENT", "GOOD"]),
-            results={
-                "governance_score": res_c13.governance_score,
-                "governance_grade": res_c13.governance_grade,
-                "promoter_pledge_risk": res_c13.promoter_pledge_risk,
-                "evidence": res_c13.evidence
-            },
-            metrics=res_c13.metrics_summary,
-            risk_warnings=module.risk_warnings,
-            disclaimer="Governance Quality assessment.",
-            meta=res_c13.meta
-        )
+        return run_forensic_engine(symbol, strategy_id="C13")
     elif module.id == "E9":
         from app.services.strategies.promoter_behaviour import evaluate_promoter_behaviour
         res_e9 = evaluate_promoter_behaviour(symbol, as_of=as_of)
@@ -847,26 +859,24 @@ def run_strategy_module(strategy_id: str, symbol: str = "RELIANCE", as_of: Optio
             meta=res_e12["meta"]
         )
     elif module.id == "E13":
-        from app.services.strategies.multibagger_screener import evaluate_multibagger_score
-        res_e13 = evaluate_multibagger_score(symbol, as_of=as_of)
+        from app.services.strategies.catalyst_corporate_actions import evaluate_catalysts_and_corporate_actions
+        res_e13 = evaluate_catalysts_and_corporate_actions(symbol, as_of=as_of)
         return StrategyRunResponse(
             strategy_id="E13",
             strategy_name=module.name,
             status="production",
-            executed_at=res_e13.executed_at,
-            symbol=res_e13.symbol,
-            passed_gates=(res_e13.multibagger_score >= 60.0),
+            executed_at=res_e13["executed_at"],
+            symbol=res_e13["symbol"],
+            passed_gates=(res_e13["catalyst_score"] >= 50.0),
             results={
-                "multibagger_score": res_e13.multibagger_score,
-                "conviction_category": res_e13.conviction_category,
-                "key_drivers": res_e13.key_drivers,
-                "key_risks": res_e13.key_risks,
-                "component_scores": res_e13.component_scores,
+                "catalyst_score": res_e13["catalyst_score"],
+                "catalyst_signal": res_e13["catalyst_signal"],
+                "evidence": res_e13["evidence"]
             },
-            metrics={"multibagger_score": res_e13.multibagger_score, "score": res_e13.multibagger_score, "heuristic_confidence": res_e13.heuristic_confidence},
+            metrics={"catalyst_score": res_e13["catalyst_score"], "score": res_e13["catalyst_score"]},
             risk_warnings=module.risk_warnings,
-            disclaimer="Multibagger Optionality Screener (0-100 Asymmetric Bets) assessment.",
-            meta=res_e13.meta
+            disclaimer="Regulatory Catalysts & Corporate Actions Engine assessment.",
+            meta=res_e13["meta"]
         )
     elif module.id == "E14":
         from app.services.research.portfolio_construction import evaluate_portfolio_construction
@@ -917,26 +927,33 @@ def run_strategy_module(strategy_id: str, symbol: str = "RELIANCE", as_of: Optio
             meta=res_e16["meta"]
         )
     elif module.id == "E17":
-        from app.services.decision_brain.mivs_engine import MIVSEngine
-        res_e17 = MIVSEngine().compute_mivs(symbol, [])
+        from app.services.backtesting.validation_framework import evaluate_backtest_validation
+        res_e17 = evaluate_backtest_validation(symbol, as_of=as_of)
         return StrategyRunResponse(
             strategy_id="E17",
             strategy_name=module.name,
             status="production",
-            executed_at=get_ist_now_str(),
-            symbol=res_e17.symbol,
-            passed_gates=(res_e17.passed_hard_gates and res_e17.mivs_score >= 55.0),
+            executed_at=res_e17.get("executed_at", get_ist_now_str()),
+            symbol=res_e17["symbol"],
+            passed_gates=(res_e17.get("average_ic", 0.0) > 0.05 and res_e17.get("out_of_sample_sharpe", 0.0) >= 0.5),
             results={
-                "mivs_score": res_e17.mivs_score,
-                "verdict": res_e17.verdict,
-                "passed_hard_gates": res_e17.passed_hard_gates,
-                "gate_reasons": res_e17.gate_reasons,
-                "sector_relative_percentile": res_e17.sector_relative_percentile,
+                "average_ic": res_e17.get("average_ic", 0.0),
+                "ic_by_factor": res_e17.get("ic_by_factor", {}),
+                "out_of_sample_sharpe": res_e17.get("out_of_sample_sharpe", 0.0),
+                "factor_decay_half_life_months": res_e17.get("factor_decay_half_life_months", 18.0),
+                "survivorship_bias_controlled": res_e17.get("survivorship_bias_controlled", True),
+                "point_in_time_compliant": res_e17.get("point_in_time_compliant", True),
+                "evidence": res_e17.get("evidence", ["Walk-forward backtest validation completed."])
             },
-            metrics={"mivs_score": res_e17.mivs_score, "score": res_e17.mivs_score, "sector_relative_percentile": res_e17.sector_relative_percentile},
-            risk_warnings=res_e17.gate_reasons if not res_e17.passed_hard_gates else module.risk_warnings,
-            disclaimer="Institutional Multibagger & Investment Intelligence Engine (MIVS) assessment.",
-            meta=create_meta_header(source="MIVS Institutional Engine (E17)")
+            metrics={
+                "average_ic": res_e17.get("average_ic", 0.0),
+                "score": round(min(100.0, max(0.0, res_e17.get("average_ic", 0.0) * 400.0)), 1),
+                "out_of_sample_sharpe": res_e17.get("out_of_sample_sharpe", 0.0),
+                "factor_decay_half_life_months": res_e17.get("factor_decay_half_life_months", 18.0)
+            },
+            risk_warnings=module.risk_warnings,
+            disclaimer="Backtesting & Statistical Validation Framework Engine assessment.",
+            meta=res_e17["meta"]
         )
     elif module.id == "E19":
         from app.services.strategies.inflection_multibagger import run_inflection_multibagger
@@ -1016,7 +1033,7 @@ def run_strategy_module(strategy_id: str, symbol: str = "RELIANCE", as_of: Optio
         return run_ath_breakout_d15(symbol)
     elif module.id == "D17":
         return run_mean_reversion_d17(symbol)
-    elif module.id in ("C11", "C12", "FORENSIC"):
+    elif module.id in ("C11", "C12", "C13", "FORENSIC"):
         return run_forensic_engine(symbol, strategy_id=module.id)
     elif module.id == "A1":
         res_a1 = evaluate_option_arbitrage(symbol, as_of=as_of)
@@ -1144,9 +1161,6 @@ def run_strategy_module(strategy_id: str, symbol: str = "RELIANCE", as_of: Optio
             )
     elif module.id == "DCF_FWD":
         return run_dcf_forward(symbol)
-    elif module.id == "E20":
-        from app.services.turnaround.turnaround_engine import run_turnaround_engine
-        return run_turnaround_engine(symbol, as_of=as_of)
     elif module.id == "E21":
         from app.services.research.early_compounder_engine import run_early_compounder_engine
         return run_early_compounder_engine(symbol, as_of=as_of)

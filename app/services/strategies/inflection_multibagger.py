@@ -113,14 +113,25 @@ def run_inflection_multibagger(symbol: str, as_of: Optional[Any] = None) -> Stra
     c_e = round((pat_growth_yoy - pat_growth_prev) / growth_std_12q, 2)
     convexity_pass = c_e >= 1.5
 
-    pe_ratio = round(_get(pe_s, -1) or 18.0, 2)
-    forward_growth = max(0.1, pat_growth_yoy * (1 + max(0.0, c_e / 10.0)))
-    peg_ratio = round(pe_ratio / forward_growth, 2) if forward_growth > 0 else 99.0
-    peg_pass = peg_ratio <= 0.50
+    raw_pe = _get(pe_s, -1)
+    if raw_pe is not None and raw_pe > 0:
+        pe_ratio = round(raw_pe, 2)
+        forward_growth = max(0.1, pat_growth_yoy * (1 + max(0.0, c_e / 10.0)))
+        peg_ratio = round(pe_ratio / forward_growth, 2) if forward_growth > 0 else 99.0
+        peg_pass = peg_ratio <= 0.50
+    else:
+        pe_ratio = None
+        peg_ratio = None
+        peg_pass = False
 
     piotroski_score = piotroski_res.get("f_score", 0)
-    pledged_pct = float(ownership[-1].promoter_pledge_pct) if len(ownership) > 0 and ownership[-1].promoter_pledge_pct is not None else 0.0
-    forensic_pass = piotroski_score >= 6 and pledged_pct <= 15.0
+    has_pledge_data = len(ownership) > 0 and ownership[-1].promoter_pledge_pct is not None
+    if has_pledge_data:
+        pledged_pct = float(ownership[-1].promoter_pledge_pct)
+        forensic_pass = piotroski_score >= 6 and pledged_pct <= 15.0
+    else:
+        pledged_pct = None
+        forensic_pass = False
 
     volumes = hist['Volume'].values if 'Volume' in hist else np.array([10000.0] * len(hist))
 
@@ -137,8 +148,13 @@ def run_inflection_multibagger(symbol: str, as_of: Optional[Any] = None) -> Stra
     else:
         from app.services.market_data import get_latest_db_delivery_pct
         delivery_pct = get_latest_db_delivery_pct(symbol)
-    dtr_5d = round((vol_5d_avg * (delivery_pct / 100.0)) / max(vol_mean_252 * 10, 1.0) * 100.0, 2)
-    dtr_pass = dtr_5d >= 2.0 or z_vol >= 3.5
+
+    if delivery_pct is not None:
+        dtr_5d = round((vol_5d_avg * (delivery_pct / 100.0)) / max(vol_mean_252 * 10, 1.0) * 100.0, 2)
+        dtr_pass = dtr_5d >= 2.0 or z_vol >= 3.5
+    else:
+        dtr_5d = None
+        dtr_pass = z_vol >= 3.5
 
     overall_pass = volume_z_pass and dtr_pass and convexity_pass and peg_pass and forensic_pass
 

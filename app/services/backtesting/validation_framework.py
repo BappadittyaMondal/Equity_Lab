@@ -37,9 +37,31 @@ def _compute_empirical_backtest_metrics(symbol: str) -> Dict[str, Any]:
         closes = None
         is_simulated = True
 
+    import os
+    is_offline = os.getenv("OFFLINE_TEST_MODE", "false").lower() == "true"
+
     if closes is None or len(closes) < 20:
+        if not is_offline:
+            # Production Fail-Closed: Never fabricate synthetic Brownian motion in live institutional execution
+            return {
+                "is_simulated": True,
+                "data_mode": "DATA_INSUFFICIENT",
+                "ic_by_factor": {
+                    "Fundamental Inflection (E1)": 0.0,
+                    "Incremental ROIC (E8)": 0.0,
+                    "Expectation Gap (E7)": 0.0,
+                    "Governance & Insider (C13)": 0.0,
+                    "Alt-Data & Scuttlebutt": 0.0
+                },
+                "out_of_sample_sharpe": 0.0,
+                "factor_decay_half_life_months": 0.0,
+                "survivorship_bias_controlled": False,
+                "point_in_time_compliant": False,
+                "wf_summary": {"status": "DATA_INSUFFICIENT", "reason": "Insufficient empirical price history"}
+            }
+
         is_simulated = True
-        # Fallback to deterministic pseudo-series derived from symbol hash to guarantee variance
+        # Offline test fallback: Deterministic pseudo-series derived from symbol hash to guarantee variance
         seed = int(hashlib.md5(norm_symbol.encode('utf-8')).hexdigest()[:8], 16)
         rng = np.random.RandomState(seed)
         closes = 100.0 * np.exp(np.cumsum(rng.normal(0.0005, 0.015, 250)))
@@ -97,6 +119,8 @@ def _compute_empirical_backtest_metrics(symbol: str) -> Dict[str, Any]:
     decay_months = round(float(np.clip(18.0 / vol_factor, 6.0, 36.0)), 1)
 
     return {
+        "is_simulated": is_simulated,
+        "data_mode": "SIMULATED_FALLBACK" if is_simulated else "COMPUTED_EMPIRICAL",
         "ic_by_factor": {
             "Fundamental Inflection (E1)": ic_inflection,
             "Incremental ROIC (E8)": ic_roic,
@@ -106,9 +130,8 @@ def _compute_empirical_backtest_metrics(symbol: str) -> Dict[str, Any]:
         },
         "out_of_sample_sharpe": sharpe,
         "factor_decay_half_life_months": decay_months,
-        "survivorship_bias_controlled": True,
-        "point_in_time_compliant": True,
-        "is_simulated": is_simulated,
+        "survivorship_bias_controlled": not is_simulated,
+        "point_in_time_compliant": not is_simulated,
         "wf_summary": wf_summary.model_dump() if hasattr(wf_summary, "model_dump") else wf_summary.dict()
     }
 
@@ -140,7 +163,7 @@ def evaluate_backtest_validation(
     else:
         emp_res = _compute_empirical_backtest_metrics(norm_symbol)
         is_simulated = emp_res.get("is_simulated", False)
-        data_mode = "SIMULATED_FALLBACK" if is_simulated else "COMPUTED_EMPIRICAL"
+        data_mode = emp_res.get("data_mode", "SIMULATED_FALLBACK" if is_simulated else "COMPUTED_EMPIRICAL")
         ic_by_factor = emp_res["ic_by_factor"]
         out_of_sample_sharpe = emp_res["out_of_sample_sharpe"]
         factor_decay_months = emp_res["factor_decay_half_life_months"]
@@ -152,7 +175,9 @@ def evaluate_backtest_validation(
     # Wire White's Reality Check / SPA multiple testing correction
     spa_res = compute_family_wise_significance_spa(ic_by_factor)
 
-    if is_simulated:
+    if data_mode == "DATA_INSUFFICIENT":
+        evidence.append("DATA MODE: DATA_INSUFFICIENT (Live empirical price history unavailable; backtest evaluation aborted)")
+    elif is_simulated:
         evidence.append("DATA MODE: SIMULATED_FALLBACK (Live price history unavailable; synthetic price walk used)")
     else:
         evidence.append("DATA MODE: COMPUTED_EMPIRICAL (Point-in-time live market price history used)")
