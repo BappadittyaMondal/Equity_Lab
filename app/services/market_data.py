@@ -486,6 +486,26 @@ def get_market_quote(symbol: str, as_of: Optional[datetime.datetime] = None) -> 
         except Exception as e:
             logger.debug("Historical PIT quote lookup skipped: %s", e)
 
+        # Historical as_of was requested but no local snapshot exists.
+        # Fail closed to prevent look-ahead bias: NEVER fall through to live real-time providers!
+        as_of_iso = as_of.isoformat() if hasattr(as_of, "isoformat") else str(as_of)
+        return {
+            "symbol": symbol,
+            "price": None,
+            "close_price": None,
+            "open": None,
+            "high": None,
+            "low": None,
+            "volume": 0,
+            "is_mock": False,
+            "active_provider": "NONE",
+            "meta": {
+                "source": "ResearchDataStore Market Daily Snapshot",
+                "as_of": as_of_iso,
+                "data_mode": "DATA_UNAVAILABLE",
+            }
+        }
+
     try:
         loop = asyncio.get_running_loop()
     except RuntimeError:
@@ -494,8 +514,6 @@ def get_market_quote(symbol: str, as_of: Optional[datetime.datetime] = None) -> 
         import concurrent.futures
         with concurrent.futures.ThreadPoolExecutor(max_workers=1) as pool:
             quote = pool.submit(lambda: asyncio.run(_async_get_market_quote(symbol))).result()
-    if as_of and isinstance(quote, dict) and "meta" in quote:
-        quote["meta"]["as_of"] = as_of.isoformat() if hasattr(as_of, "isoformat") else str(as_of)
     return quote
 
 def get_quote(symbol: str, as_of: Optional[datetime.datetime] = None) -> Quote:

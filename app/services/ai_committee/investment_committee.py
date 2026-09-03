@@ -23,7 +23,7 @@ from app.services.intelligence.sub_agents import (
     SupplyChainCatalystSubAgent,
     RedTeamBearCaseSubAgent,
 )
-from app.services.intelligence.arbiter import VirtualICArbiter
+from app.services.intelligence.committee_arbiter import VirtualICArbiter
 
 logger = logging.getLogger(__name__)
 

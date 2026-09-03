@@ -52,14 +52,21 @@ class ConformalPredictor:
         return q_val
 
     def save_calibration(self, filepath: Optional[str] = None) -> str:
-        """Persist calibrated residuals to JSON file."""
+        """Persist calibrated residuals to JSON file atomically."""
         target_path = filepath or getattr(settings, "CONFORMAL_CACHE_PATH", "conformal_calibration_cache.json")
         data = {strata: res.tolist() for strata, res in self.residuals_by_strata.items()}
+        tmp_path = f"{target_path}.tmp.{os.getpid()}"
         try:
-            with open(target_path, "w", encoding="utf-8") as f:
+            with open(tmp_path, "w", encoding="utf-8") as f:
                 json.dump(data, f, indent=2)
+            os.replace(tmp_path, target_path)
             return target_path
         except Exception:
+            if os.path.exists(tmp_path):
+                try:
+                    os.remove(tmp_path)
+                except OSError:
+                    pass
             return ""
 
     def load_calibration(self, filepath: Optional[str] = None) -> bool:

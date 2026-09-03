@@ -726,7 +726,7 @@ def _load_active_model_from_db() -> bool:
         return False
 
 
-def evaluate_and_retrain_model() -> Dict[str, Any]:
+def evaluate_and_retrain_model(human_approved_by: Optional[str] = None) -> Dict[str, Any]:
     """Evaluate current model vs candidate trained on full clean ledger data on a held-out test split."""
     train_test_split = numpy_train_test_split
     accuracy_score = numpy_accuracy_score
@@ -753,6 +753,7 @@ def evaluate_and_retrain_model() -> Dict[str, Any]:
           AND p.symbol NOT LIKE 'FILTX%'
           AND (p.symbol IS NULL OR UPPER(p.symbol) NOT LIKE '%TEST%')
           AND (p.thesis IS NULL OR (UPPER(p.thesis) NOT LIKE '%TEST%' AND UPPER(p.thesis) NOT LIKE '%DUMMY%'))
+        ORDER BY p.timestamp ASC, p.id ASC
         """
     ).fetchall()
     conn.close()
@@ -814,6 +815,10 @@ def evaluate_and_retrain_model() -> Dict[str, Any]:
     preds_candidate = candidate_clf.predict(X_test_scaled)
     candidate_acc = float(accuracy_score(y_test, preds_candidate))
 
+    candidate_probs = candidate_clf.predict_proba(X_test_scaled)
+    p_pos = candidate_probs[:, 1] if candidate_probs.ndim == 2 and candidate_probs.shape[1] > 1 else candidate_probs.ravel()
+    candidate_brier = float(np.mean((p_pos - y_test) ** 2))
+
     promoted = False
     new_version = f"v1.1.0-PROD-ML-ENSEMBLE-RETRAINED-{len(rows)}"
 
@@ -841,10 +846,11 @@ def evaluate_and_retrain_model() -> Dict[str, Any]:
                     "sample_count": len(rows),
                     "test_accuracy": candidate_acc,
                     "previous_accuracy": active_acc,
+                    "brier_score": round(candidate_brier, 4),
                     "validation_protocol": "walk_forward_chronological_split",
                 },
-                backtest_summary=f"Walk-forward validated NumPyEnsembleClassifier promoted. Out-of-sample Test Acc: {candidate_acc:.4f} vs Prev Acc: {active_acc:.4f} on {len(rows)} ledger outcomes.",
-                human_approved_by="automated_walkforward_gate"
+                backtest_summary=f"Walk-forward validated NumPyEnsembleClassifier promoted. Out-of-sample Test Acc: {candidate_acc:.4f} (Brier: {candidate_brier:.4f}) vs Prev Acc: {active_acc:.4f} on {len(rows)} ledger outcomes.",
+                human_approved_by=human_approved_by or "automated_walkforward_gate"
             )
         except Exception:
             pass

@@ -84,6 +84,11 @@ async def evaluate_champion_challenger_task(ctx: Dict[str, Any]) -> Dict[str, An
 class WorkerSettings:
     """ARQ Worker Settings."""
     functions = [refresh_market_data_task, retrain_ml_model_task]
-    redis_settings = settings.REDIS_URL if hasattr(settings, "REDIS_URL") and settings.REDIS_URL else "redis://localhost:6379/0"
+    try:
+        from arq.connections import RedisSettings
+        _redis_url = getattr(settings, "REDIS_URL", None) or "redis://localhost:6379/0"
+        redis_settings = RedisSettings.from_dsn(_redis_url)
+    except Exception:
+        redis_settings = getattr(settings, "REDIS_URL", None) or "redis://localhost:6379/0"
     max_jobs = 10
     poll_delay = 0.5

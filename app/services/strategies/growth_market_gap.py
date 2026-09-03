@@ -92,43 +92,51 @@ def evaluate_growth_market_gap(
 
     evidence: List[str] = []
 
-    # Calculate Business Growth Score (0-100)
+    # Calculate Business Growth Score (0-100) and Market Recognition Score (0-100)
     valid_cagrs = [c for c in [sales_cagr, pat_cagr, eps_cagr, fcf_cagr] if c is not None]
-    if valid_cagrs:
-        avg_fundamental_growth = sum(valid_cagrs) / len(valid_cagrs)
-        biz_score = min(100.0, max(0.0, avg_fundamental_growth * 2.5 + 20.0))
-        evidence.append(f"Average fundamental growth CAGR is {round(avg_fundamental_growth, 1)}%.")
-    else:
-        biz_score = 40.0
-        evidence.append("Limited fundamental CAGR history; default baseline score applied.")
-
-    # Calculate Market Recognition Score (0-100)
-    if price_cagr is not None:
-        mkt_score = min(100.0, max(0.0, price_cagr * 2.0 + 30.0))
-        evidence.append(f"Stock price 3Y CAGR is {round(price_cagr, 1)}%.")
-    else:
+    
+    if not valid_cagrs and price_cagr is None:
+        biz_score = 50.0
         mkt_score = 50.0
-        evidence.append("Stock price CAGR unavailable.")
-
-    # Growth Recognition Gap = Business Score - Market Score
-    gap = round(biz_score - mkt_score, 1)
-
-    if gap >= 25.0:
-        classification = "HIGH_ARBITRAGE"
-        rerating_score = min(95.0, 60.0 + gap)
-        evidence.append("HIGH GROWTH ARBITRAGE: Business fundamental growth significantly outstripping stock price performance.")
-    elif gap >= -10.0:
-        classification = "BALANCED"
-        rerating_score = 60.0
-        evidence.append("BALANCED RECOGNITION: Stock price performance reflects fundamental business growth.")
-    elif gap >= -25.0:
-        classification = "PRICED_IN"
-        rerating_score = 40.0
-        evidence.append("GROWTH PRICED IN: Market price has already anticipated business growth.")
+        gap = 0.0
+        classification = "INSUFFICIENT_DATA"
+        rerating_score = 50.0
+        evidence.append("INSUFFICIENT_DATA: Neither fundamental CAGR history nor stock price CAGR is observed.")
     else:
-        classification = "OVERVALUED"
-        rerating_score = 20.0
-        evidence.append("OVERVALUED / HIGH RECOGNITION: Stock price CAGR significantly higher than underlying earnings growth.")
+        if valid_cagrs:
+            avg_fundamental_growth = sum(valid_cagrs) / len(valid_cagrs)
+            biz_score = min(100.0, max(0.0, avg_fundamental_growth * 2.5 + 20.0))
+            evidence.append(f"Average fundamental growth CAGR is {round(avg_fundamental_growth, 1)}%.")
+        else:
+            biz_score = 40.0
+            evidence.append("Limited fundamental CAGR history; baseline score applied.")
+
+        if price_cagr is not None:
+            mkt_score = min(100.0, max(0.0, price_cagr * 2.0 + 30.0))
+            evidence.append(f"Stock price 3Y CAGR is {round(price_cagr, 1)}%.")
+        else:
+            mkt_score = 50.0
+            evidence.append("Stock price CAGR unavailable.")
+
+        # Growth Recognition Gap = Business Score - Market Score
+        gap = round(biz_score - mkt_score, 1)
+
+        if gap >= 25.0:
+            classification = "HIGH_ARBITRAGE"
+            rerating_score = min(95.0, 60.0 + gap)
+            evidence.append("HIGH GROWTH ARBITRAGE: Business fundamental growth significantly outstripping stock price performance.")
+        elif gap >= -10.0:
+            classification = "BALANCED"
+            rerating_score = 60.0
+            evidence.append("BALANCED RECOGNITION: Stock price performance reflects fundamental business growth.")
+        elif gap >= -25.0:
+            classification = "PRICED_IN"
+            rerating_score = 40.0
+            evidence.append("GROWTH PRICED IN: Market price has already anticipated business growth.")
+        else:
+            classification = "OVERVALUED"
+            rerating_score = 20.0
+            evidence.append("OVERVALUED / HIGH RECOGNITION: Stock price CAGR significantly higher than underlying earnings growth.")
 
     return GrowthMarketGapResponse(
         symbol=norm_symbol,

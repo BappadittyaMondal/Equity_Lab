@@ -83,9 +83,9 @@ class WalkForwardBacktester:
             # Dynamic Nifty 50 fetch or institutional Indian market benchmark
             fetched_bm = None
             try:
-                from app.services.market_data import get_history
+                from app.services.market_data import get_history, is_live_data
                 nifty_hist = get_history("^NSEI", period=f"{max(1, horizon_months // 12)}y", interval="1mo")
-                if nifty_hist is not None and not nifty_hist.empty and "Close" in nifty_hist.columns and len(nifty_hist) > 1:
+                if nifty_hist is not None and not nifty_hist.empty and "Close" in nifty_hist.columns and len(nifty_hist) > 1 and is_live_data(nifty_hist):
                     pct_changes = nifty_hist["Close"].pct_change().dropna().tolist()
                     if len(pct_changes) >= len(stock_returns):
                         fetched_bm = [r * 100.0 for r in pct_changes[-len(stock_returns):]]

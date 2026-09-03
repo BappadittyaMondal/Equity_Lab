@@ -166,16 +166,18 @@ class Arbiter:
                         score_0_100 = min(100.0, max(0.0, val))
                         break
 
-            if score_0_100 is None:
-                score_0_100 = float(confidence) if resp.passed_gates else max(10.0, float(confidence) * 0.3)
+            if score_0_100 is None and getattr(resp, "passed_gates", False) and getattr(resp, "status", None) != "data_insufficient":
+                score_0_100 = float(confidence) if confidence > 0 else 50.0
+            elif score_0_100 is None:
+                score_0_100 = None
 
-            verdict = "Buy" if (resp.passed_gates or (score_0_100 is not None and score_0_100 >= 55.0)) else "Avoid"
+            verdict = "Buy" if (getattr(resp, "passed_gates", False) and (score_0_100 is None or score_0_100 >= 55.0)) else "Avoid"
 
             outputs.append({
                 "engine_id":  engine_id,
                 "verdict":    verdict,
                 "confidence": confidence,
-                "score_0_100": round(score_0_100, 1),
+                "score_0_100": round(score_0_100, 1) if score_0_100 is not None else None,
                 "regime":     regime,
                 "raw":        resp,
                 "status":     getattr(resp, "status", "unknown"),
@@ -213,7 +215,10 @@ class Arbiter:
             if CATEGORY_WEIGHTS.get(category, 0) == 0:
                 continue
 
-            eng_score = out.get("score_0_100", float(out["confidence"]))
+            eng_score = out.get("score_0_100")
+            if eng_score is None:
+                eng_score = float(out.get("confidence", 50.0))
+
             if out["verdict"] == "Buy":
                 engine_score = (eng_score * (out["confidence"] / 100.0)) if out["confidence"] > 0 else eng_score
             else:
@@ -235,9 +240,8 @@ class Arbiter:
         if total_weight > 0:
             composite = weighted_sum / total_weight
         else:
-            # No categorised engines ran — fall back to simple average of Buy verdicts
-            buy_outputs = [o for o in outputs if o["verdict"] == "Buy" and o.get("status") != "data_insufficient"]
-            composite = (len(buy_outputs) / max(len(outputs), 1)) * 75.0
+            # No categorised engines ran with valid data — fail closed to 0.0 rather than fabricating a score
+            composite = 0.0
 
         return round(composite, 1), category_breakdown
 
@@ -549,6 +553,11 @@ class Arbiter:
             if buy_count < len(outputs) * 0.7:
                 return f"high market regime stress (regime={regime}, VIX={vix_level:.1f}) without strong consensus"
 
+        # 4. Zero valid scored engine outputs available
+        valid_scored = [o for o in outputs if o.get("score_0_100") is not None and o.get("status") != "data_insufficient"]
+        if not valid_scored:
+            return "zero valid scored engine outputs available (evidence insufficient)"
+
         return None
 
     # ──────────────────────────────────────────────────────────────────────
@@ -689,8 +698,8 @@ class Arbiter:
                 from app.services.market_data import get_quote
                 q = get_quote(normalized)
                 ref_price = float(getattr(q, "price", None) or (q.get("price") if isinstance(q, dict) else None) or 0.0) or None
-            except Exception:
-                pass
+            except Exception as exc:
+                logger.debug("Reference price quote lookup skipped for %s: %s", normalized, exc)
         self._log_to_prediction_ledger(call, ref_price, conviction_call_id=call_id)
 
         # Step 10: Build and persist full DecisionAuditTrail (Layer 14)
@@ -858,9 +867,10 @@ class Arbiter:
                 cand_co = rds.get_company(norm)
                 if cand_co and cand_co.sector:
                     candidate_sector = cand_co.sector
-            except Exception:
-                pass
-        except Exception:
+            except Exception as exc:
+                logger.debug("Candidate company lookup skipped for %s: %s", norm, exc)
+        except Exception as exc:
+            logger.warning("Active portfolio positions gathering failed for Gate 11: %s", exc)
             open_positions = {}
 
         heat_res = evaluate_portfolio_heat_and_risk(

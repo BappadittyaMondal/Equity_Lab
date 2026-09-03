@@ -14,7 +14,10 @@ import uuid
 class PredictionLedgerStore:
     """Persistent SQLite-backed store for prediction tracking and post-mortem auditing."""
 
-    def __init__(self, db_path: Optional[str] = ":memory:"):
+    def __init__(self, db_path: Optional[str] = None):
+        if db_path is None:
+            from app.core.config import settings
+            db_path = getattr(settings, "DB_PATH", "data/equity_lab.sqlite")
         self.db_path = db_path
         self._ledger: Dict[str, Dict[str, Any]] = {}
         if self.db_path:

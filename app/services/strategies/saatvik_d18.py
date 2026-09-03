@@ -62,9 +62,9 @@ def run_saatvik_d18(symbol: str) -> StrategyRunResponse:
 
     from app.services.research_data import ResearchDataStore
     data_store = ResearchDataStore()
-    debt_to_equity = 0.0
-    promoter_pledge_pct = 0.0
-    promoter_holding_pct = 50.0
+    debt_to_equity = None
+    promoter_pledge_pct = None
+    promoter_holding_pct = None
     
     try:
         timeline = data_store.get_timeline(norm_symbol)
@@ -77,10 +77,44 @@ def run_saatvik_d18(symbol: str) -> StrategyRunResponse:
             
         if ownership:
             latest_own = ownership[-1]
-            promoter_holding_pct = float(getattr(latest_own, "promoter_pct", 50.0))
-            promoter_pledge_pct = float(getattr(latest_own, "promoter_pledge_pct", 0.0) or 0.0)
+            if hasattr(latest_own, "promoter_pct") and latest_own.promoter_pct is not None:
+                promoter_holding_pct = float(latest_own.promoter_pct)
+            if hasattr(latest_own, "promoter_pledge_pct") and latest_own.promoter_pledge_pct is not None:
+                promoter_pledge_pct = float(latest_own.promoter_pledge_pct)
     except Exception:
         pass
+
+    # Secondary lookup from company_fundamentals database if timeline lacks fields
+    if debt_to_equity is None or promoter_pledge_pct is None:
+        try:
+            from app.services.db import get_connection
+            conn = get_connection()
+            sym_clean = norm_symbol.replace(".NS", "").replace(".BO", "")
+            row = conn.execute(
+                "SELECT debt_to_equity, pledged_pct, promoter_holding FROM company_fundamentals WHERE symbol = ? OR symbol = ?",
+                (norm_symbol, sym_clean)
+            ).fetchone()
+            conn.close()
+            if row:
+                if debt_to_equity is None and row[0] is not None:
+                    debt_to_equity = float(row[0])
+                if promoter_pledge_pct is None and row[1] is not None:
+                    promoter_pledge_pct = float(row[1])
+                if promoter_holding_pct is None and row[2] is not None:
+                    promoter_holding_pct = float(row[2])
+        except Exception:
+            pass
+
+    # If unobserved, conservatively default with explicit estimation flag so clean large-caps pass while tracking provenance
+    is_estimated = False
+    if debt_to_equity is None:
+        debt_to_equity = 0.0
+        is_estimated = True
+    if promoter_pledge_pct is None:
+        promoter_pledge_pct = 0.0
+        is_estimated = True
+    if promoter_holding_pct is None:
+        promoter_holding_pct = 50.0
 
     debt_hygiene_pass = (debt_to_equity <= 0.5)
     pledge_hygiene_pass = (promoter_pledge_pct <= 15.0)
@@ -106,8 +140,9 @@ def run_saatvik_d18(symbol: str) -> StrategyRunResponse:
         "flagged_categories": flagged_sin_categories if flagged_sin_categories else ["NONE (Clean Non-Sin Activity)"],
         "pe_sanity_check": "PASS (Valid P/E)" if pe_sane else "WARN (Negative or Elevated P/E > 100)",
         "debt_to_equity_check": f"PASS ({debt_to_equity} D/E <= 0.5)" if debt_hygiene_pass else f"FAIL ({debt_to_equity} High Debt)",
-        "promoter_pledge_check": f"PASS ({promoter_pledge_pct}% Pledge <= 15%)" if pledge_hygiene_pass else "FAIL (Excessive Pledge)",
-        "governance_ethical_score": f"{governance_score}/100"
+        "promoter_pledge_check": f"PASS ({promoter_pledge_pct}% Pledge <= 15%)" if pledge_hygiene_pass else f"FAIL ({promoter_pledge_pct}% Excessive Pledge)",
+        "governance_ethical_score": f"{governance_score}/100",
+        "data_estimated": is_estimated,
     }
 
     metrics = {

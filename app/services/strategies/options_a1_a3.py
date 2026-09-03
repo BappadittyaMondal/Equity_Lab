@@ -10,7 +10,8 @@ def evaluate_option_arbitrage(underlying: str = "NIFTY", as_of: Optional[datetim
     """Calculates synthetic parity spread, IV skew, and option calendar arbitrage for A1 module."""
     norm_symbol = normalize_symbol(underlying)
     quote = get_quote(norm_symbol, as_of=as_of)
-    spot = quote.get("price", 24500.0) if isinstance(quote, dict) else getattr(quote, "price", 24500.0)
+    raw_spot = quote.get("price") if isinstance(quote, dict) else getattr(quote, "price", None)
+    spot = float(raw_spot) if raw_spot is not None else 24500.0
 
     if as_of:
         # Point-in-time calculation adjustment based on historical timestamp
@@ -58,7 +59,8 @@ def evaluate_iron_condor(underlying: str = "NIFTY", as_of: Optional[datetime] = 
     """Calculates 4-leg defined-risk Iron Condor spread metrics for A3 module."""
     norm_symbol = normalize_symbol(underlying)
     quote = get_quote(norm_symbol, as_of=as_of)
-    spot = quote.get("price", 24500.0) if isinstance(quote, dict) else getattr(quote, "price", 24500.0)
+    raw_spot = quote.get("price") if isinstance(quote, dict) else getattr(quote, "price", None)
+    spot = float(raw_spot) if raw_spot is not None else 24500.0
 
     if as_of:
         now_dt = datetime.now()

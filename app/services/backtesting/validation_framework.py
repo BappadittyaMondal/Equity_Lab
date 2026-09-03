@@ -25,15 +25,18 @@ def _compute_empirical_backtest_metrics(symbol: str) -> Dict[str, Any]:
     
     # Fetch price history (1-year daily default)
     try:
+        from app.services.market_data import is_live_data
         hist = get_history(norm_symbol, period="1y", interval="1d")
-        if hist is not None and not hist.empty and len(hist) > 20:
+        if hist is not None and not hist.empty and len(hist) > 20 and is_live_data(hist):
             closes = hist['Close'].values
+            is_simulated = False
         else:
             closes = None
+            is_simulated = True
     except Exception:
         closes = None
+        is_simulated = True
 
-    is_simulated = False
     if closes is None or len(closes) < 20:
         is_simulated = True
         # Fallback to deterministic pseudo-series derived from symbol hash to guarantee variance

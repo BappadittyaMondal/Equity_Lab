@@ -14,6 +14,32 @@ from app.services.market_data import normalize_symbol, create_meta_header
 from app.models.schemas import PortfolioHeatRisk
 
 
+def normalize_sector(raw: Optional[str]) -> str:
+    """Normalize diverse sector taxonomy strings into canonical risk sectors."""
+    if not raw:
+        return "GENERAL"
+    s = str(raw).strip().upper().replace("_", " ").replace("-", " ")
+    if any(k in s for k in ("TECH", "IT", "SOFTWARE", "INFOTECH")):
+        return "TECHNOLOGY"
+    if any(k in s for k in ("AUTO", "AUTOMOBILE", "VEHICLE")):
+        return "AUTOMOBILE"
+    if any(k in s for k in ("PHARMA", "HEALTH", "DRUG", "BIO", "HOSPITAL")):
+        return "HEALTHCARE"
+    if any(k in s for k in ("BANK", "FINANC", "NBFC", "LENDING", "INSUR")):
+        return "FINANCIAL_SERVICES"
+    if any(k in s for k in ("OIL", "GAS", "ENERGY", "POWER", "PETRO")):
+        return "ENERGY"
+    if any(k in s for k in ("INFRA", "CONSTRUCT", "CEMENT", "REALTY", "REAL ESTATE", "ENGINEERING")):
+        return "INFRASTRUCTURE"
+    if any(k in s for k in ("FMCG", "CONSUMER", "RETAIL", "FOOD")):
+        return "CONSUMER_GOODS"
+    if any(k in s for k in ("METAL", "STEEL", "MINING", "COMMODIT")):
+        return "METALS_MINING"
+    if any(k in s for k in ("TELECOM", "COMMUNICAT")):
+        return "TELECOM"
+    return s.replace(" ", "_")
+
+
 def evaluate_portfolio_heat_and_risk(
     candidate_symbol: str,
     candidate_sector: str = "MANUFACTURING",
@@ -51,12 +77,14 @@ def evaluate_portfolio_heat_and_risk(
     positions = open_positions or {}
 
     # 2. Existing Heat & Position Count
-    current_heat = sum(float(p.get("risk_pct", 1.5)) for p in positions.values() if isinstance(p, dict))
+    # Invariant: If a position is missing risk_pct, conservatively apply standard 2.0% allocation cap
+    current_heat = sum(float(p.get("risk_pct", 2.0) if p.get("risk_pct") is not None else 2.0) for p in positions.values() if isinstance(p, dict))
     current_count = len(positions)
 
-    # 3. Sector Concentration
-    same_sector_count = sum(1 for p in positions.values() if isinstance(p, dict) and p.get("sector") == candidate_sector)
-    same_sector_heat = sum(float(p.get("risk_pct", 1.5)) for p in positions.values() if isinstance(p, dict) and p.get("sector") == candidate_sector)
+    # 3. Sector Concentration with Canonical Sector Normalization
+    cand_norm_sec = normalize_sector(candidate_sector)
+    same_sector_count = sum(1 for p in positions.values() if isinstance(p, dict) and normalize_sector(p.get("sector")) == cand_norm_sec)
+    same_sector_heat = sum(float(p.get("risk_pct", 2.0) if p.get("risk_pct") is not None else 2.0) for p in positions.values() if isinstance(p, dict) and normalize_sector(p.get("sector")) == cand_norm_sec)
 
     sector_concentration_pct = round(((same_sector_heat + candidate_risk_pct) / max(1.0, current_heat + candidate_risk_pct)) * 100.0, 1)
 
@@ -81,7 +109,7 @@ def evaluate_portfolio_heat_and_risk(
                 avg_corr = (corr_matrix.sum() - len(rets_list)) / max(1, num_pairs)
                 correlation_discount = round(float(max(0.50, min(1.00, 1.0 - (avg_corr * 0.40)))), 2)
         except Exception:
-            pass
+            logger.warning("Empirical covariance calculation failed; falling back to sector concentration discount.")
 
     # 5. Gate 11 Verification
     projected_heat = current_heat + candidate_risk_pct
