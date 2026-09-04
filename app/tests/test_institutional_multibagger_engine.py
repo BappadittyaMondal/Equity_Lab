@@ -115,3 +115,25 @@ def test_institutional_risk_penalty_detection():
     assert result["engine_breakdown"]["risk_penalties"] <= -20.0
     assert result["archetype"] == "Value Trap"
     assert len(result["risk_flags"]) >= 3
+
+
+def test_institutional_pledge_missing_fail_closed_in_production(monkeypatch):
+    """Verify that if pledged_pct is missing when OFFLINE_TEST_MODE is false (production), gate fails closed."""
+    monkeypatch.setenv("OFFLINE_TEST_MODE", "false")
+    item = {
+        "symbol": "PROD_AUDIT.NS",
+        "company_name": "Prod Audit Corp",
+        "market_cap": 5000.0,
+        "current_price": 500.0,
+        "debt_to_equity": 0.5,
+    }
+    # In production without pledged_pct: Hard gate must disqualify
+    gate = InstitutionalMultibaggerEngine.evaluate_hard_risk_gate(item)
+    assert not gate["passed"]
+    assert any("Promoter Pledge Data Missing" in d for d in gate["disqualifications"])
+
+    # In production without pledged_pct: Score evaluation must penalize and flag
+    eval_res = InstitutionalMultibaggerEngine.evaluate_company(item)
+    assert any("Promoter Pledge Data Missing" in f for f in eval_res["risk_flags"])
+    assert eval_res["engine_breakdown"]["risk_penalties"] <= -15.0
+

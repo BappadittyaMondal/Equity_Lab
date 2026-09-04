@@ -14,6 +14,13 @@ from app.services.market_data import normalize_symbol, get_quote, get_history, c
 def calculate_a2_payoff(req: OptionsA2Request, as_of: Optional[Any] = None) -> OptionsA2Response:
     """Calculates A2 0-DTE Range Option Selling payoff metrics."""
     symbol = normalize_symbol(req.underlying)
+    from app.services.risk.surveillance_gate import evaluate_surveillance_and_cost_gate
+    surv = evaluate_surveillance_and_cost_gate(symbol)
+    if surv.hard_gate_status == "FAIL" or surv.fo_ban_flag:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail=f"REGULATORY_RESTRICTION: Symbol '{symbol}' is subject to regulatory restriction ({surv.hard_gate_status}) / F&O Ban. Option selling prohibited."
+        )
     
     # Fetch live spot price if not provided
     spot = req.spot_price

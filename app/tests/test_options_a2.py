@@ -47,3 +47,39 @@ def test_options_a2_invalid_strikes():
             put_premium=10.0
         )
         options_a2.calculate_a2_payoff(req)
+
+
+def test_options_a2_regulatory_fo_ban_veto(monkeypatch):
+    """Verify that options A2 engine raises 403 HTTP exception if underlying is in F&O ban or ASM Stage III/IV."""
+    from fastapi import HTTPException
+    from app.services.risk import surveillance_gate
+    from app.models.schemas import SurveillanceRiskGate
+
+    mock_gate = SurveillanceRiskGate(
+        asm_stage="STAGE_III",
+        gsm_stage="CLEAN",
+        t2t_flag=False,
+        fo_ban_flag=True,
+        circuit_band_pct=20.0,
+        hard_gate_status="FAIL"
+    )
+    monkeypatch.setattr(
+        surveillance_gate,
+        "evaluate_surveillance_and_cost_gate",
+        lambda *args, **kwargs: mock_gate
+    )
+
+    req = OptionsA2Request(
+        underlying="BANNED_STOCK",
+        spot_price=500.0,
+        lower_strike=480.0,
+        upper_strike=520.0,
+        call_premium=10.0,
+        put_premium=10.0
+    )
+
+    with pytest.raises(HTTPException) as exc_info:
+        options_a2.calculate_a2_payoff(req)
+    assert exc_info.value.status_code == 403
+    assert "REGULATORY_RESTRICTION" in exc_info.value.detail
+

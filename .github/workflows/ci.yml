@@ -32,7 +32,7 @@ jobs:
         
       - name: Check security vulnerabilities with Safety
         run: safety check --full-report
-        continue-on-error: true
+        continue-on-error: false
 
       - name: Scan repository for real secrets and credentials
         run: python scripts/check_no_real_secrets.py

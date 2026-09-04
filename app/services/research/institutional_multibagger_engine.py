@@ -6,6 +6,7 @@ Confidence Calculator, and Automated Thesis Generator.
 """
 
 import logging
+import os
 from typing import Dict, Any, List, Optional
 from app.services.data_ingestion.screener_connector import ScreenerCloudConnector
 
@@ -61,7 +62,15 @@ class InstitutionalMultibaggerEngine:
 
         piotroski_score = item.get("piotroski_score", 0.0)
         promoter_holding = item.get("promoter_holding", 0.0)
-        pledged_pct = item.get("pledged_pct", 0.0)
+        is_offline = os.getenv("OFFLINE_TEST_MODE", "false").lower() == "true"
+        pledged_raw = item.get("pledged_pct")
+        if pledged_raw is not None:
+            try:
+                pledged_pct = float(pledged_raw)
+            except (ValueError, TypeError):
+                pledged_pct = 0.0 if is_offline else None
+        else:
+            pledged_pct = 0.0 if is_offline else None
         debt_to_equity = item.get("debt_to_equity", 0.0)
         interest_coverage = item.get("interest_coverage", 0.0)
         peg_ratio = item.get("peg_ratio", 0.0)
@@ -133,7 +142,7 @@ class InstitutionalMultibaggerEngine:
         ownership_score = 0.0
         if promoter_holding >= 40.0:
             ownership_score += 2.0
-        if pledged_pct <= 2.0:
+        if pledged_pct is not None and pledged_pct <= 2.0:
             ownership_score += 1.0
 
         # 9. Engine: Valuation Safety (Max: 4)
@@ -162,9 +171,13 @@ class InstitutionalMultibaggerEngine:
         # Risk Penalty Engine (Phase 2 Enhanced: FCF vs Capex Trap Differentiation)
         risk_penalties = 0.0
         risk_flags = []
-        if pledged_pct > 10.0:
+        if pledged_pct is not None:
+            if pledged_pct > 10.0:
+                risk_penalties -= 15.0
+                risk_flags.append(f"High Promoter Pledge ({pledged_pct:.1f}%)")
+        else:
             risk_penalties -= 15.0
-            risk_flags.append(f"High Promoter Pledge ({pledged_pct:.1f}%)")
+            risk_flags.append("Promoter Pledge Data Missing/Unverified")
         if debt_to_equity > 1.5:
             risk_penalties -= 10.0
             risk_flags.append(f"High Financial Leverage (D/E {debt_to_equity:.2f})")
@@ -308,13 +321,24 @@ class InstitutionalMultibaggerEngine:
     @classmethod
     def evaluate_hard_risk_gate(cls, item: Dict[str, Any]) -> Dict[str, Any]:
         """Hard Risk Gate: disqualifies high-risk candidates before scoring."""
-        pledged_pct = item.get("pledged_pct", 0.0)
+        is_offline = os.getenv("OFFLINE_TEST_MODE", "false").lower() == "true"
+        pledged_raw = item.get("pledged_pct")
+        if pledged_raw is not None:
+            try:
+                pledged_pct = float(pledged_raw)
+            except (ValueError, TypeError):
+                pledged_pct = 0.0 if is_offline else None
+        else:
+            pledged_pct = 0.0 if is_offline else None
+
         auditor_resigned = item.get("auditor_resignation", False)
         related_party_red_flag = item.get("related_party_flag", False)
         debt_to_equity = item.get("debt_to_equity", 0.0)
 
         disqualifications = []
-        if pledged_pct > 25.0:
+        if pledged_pct is None:
+            disqualifications.append("Promoter Pledge Data Missing/Unverified (Fail-Closed Risk Gate)")
+        elif pledged_pct > 25.0:
             disqualifications.append(f"Excessive Promoter Pledge ({pledged_pct:.1f}% > 25%)")
         if auditor_resigned:
             disqualifications.append("Auditor Resignation Flagged")

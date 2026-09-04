@@ -36,7 +36,7 @@ class Settings:
             res = subprocess.check_output(["git", "rev-parse", "--short", "HEAD"], stderr=subprocess.DEVNULL)
             return res.decode().strip()
         except Exception:
-            return "29489be"
+            return "UNKNOWN_UNVERSIONED"
 
 
     # Infrastructure & Distributed Cache/Limiter Settings
@@ -70,13 +70,10 @@ class Settings:
                 elif "PYTEST_CURRENT_TEST" in os.environ or os.getenv("OFFLINE_TEST_MODE", "false").lower() == "true":
                     os.environ["ALLOWED_ORIGIN"] = "http://localhost:3000,http://127.0.0.1:8000"
                 else:
-                    # Provide a local development fallback default instead of crashing startup
-                    import logging
-                    logging.getLogger("app.core.config").warning(
-                        "SECURITY WARNING: Running with IERL_ENVIRONMENT=production but ALLOWED_ORIGIN is not set. "
-                        "Falling back to localhost origins (http://localhost:3000, http://127.0.0.1:8000)."
+                    raise RuntimeError(
+                        "CRITICAL_SECURITY_ERROR: Running with IERL_ENVIRONMENT=production but ALLOWED_ORIGIN is not set. "
+                        "An explicit allow-list of origin URLs is required in production."
                     )
-                    os.environ["ALLOWED_ORIGIN"] = "http://localhost:3000,http://127.0.0.1:8000"
             elif "*" in [o.strip() for o in raw.split(",")]:
                 vercel_url = os.getenv("VERCEL_URL")
                 if vercel_url:

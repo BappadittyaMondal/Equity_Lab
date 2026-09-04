@@ -65,3 +65,37 @@ def test_portfolio_risk_malformed_state_fail_closed():
     assert res.gate11_status == "REJECTED_MALFORMED_STATE"
     assert res.current_portfolio_heat_pct == 0.0
 
+
+def test_surveillance_production_fail_closed(monkeypatch):
+    """Verify surveillance gate fails closed when surveillance data is missing in production."""
+    from app.services.risk.surveillance_gate import evaluate_surveillance_and_cost_gate
+    monkeypatch.setenv("OFFLINE_TEST_MODE", "false")
+    gate = evaluate_surveillance_and_cost_gate("TEST_SCRIP")
+    assert gate.asm_stage == "UNKNOWN"
+    assert gate.hard_gate_status == "DATA_INSUFFICIENT"
+    assert gate.circuit_lock_risk == "UNKNOWN"
+
+
+def test_microcap_circuit_band_veto(monkeypatch):
+    """Verify microcap gate vetos securities with circuit band <= 5%."""
+    from app.services.research import microcap_integrity_gate
+    import pandas as pd
+    
+    # Provide valid price history so liquidity check passes
+    mock_df = pd.DataFrame({
+        'Close': [100.0] * 25,
+        'Volume': [50000] * 25
+    })
+    monkeypatch.setattr(microcap_integrity_gate, "get_history", lambda *args, **kwargs: mock_df)
+    
+    res = evaluate_microcap_integrity_gate(
+        "TINY_CO",
+        promoter_pledge_pct=5.0,
+        cfo_ebitda_ratio=1.2,
+        asm_gsm_stage="CLEAN",
+        circuit_band_pct=5.0
+    )
+    assert not res.pass_all_gates
+    assert any("narrow circuit band restriction" in r for r in res.veto_reasons)
+
+

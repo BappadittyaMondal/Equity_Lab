@@ -113,3 +113,38 @@ def test_score_calibration():
     assert len(report.false_positives) == 1
     assert len(report.false_negatives) == 1
     assert report.score_monotonicity_verified is True
+
+
+def test_spa_stationary_block_bootstrap_and_pit_forwarding():
+    """Verify White's SPA runs stationary block bootstrap and evaluate_backtest_validation forwards as_of."""
+    import numpy as np
+    from app.services.backtesting.validation_framework import (
+        compute_family_wise_significance_spa,
+        evaluate_backtest_validation
+    )
+
+    # 1. Test SPA with actual observed return distribution
+    ic_map = {
+        "Factor_A": 0.18,
+        "Factor_B": 0.05,
+        "Factor_C": -0.02,
+        "Factor_D": 0.12,
+    }
+    dummy_returns = np.sin(np.linspace(0, 20, 100)) * 0.02
+    spa_res = compute_family_wise_significance_spa(
+        ic_map,
+        num_bootstrap_draws=100,
+        observed_returns=dummy_returns
+    )
+    assert spa_res["total_modules_tested"] == 4
+    assert spa_res["bootstrap_draws_executed"] == 100
+    assert "spa_critical_value" in spa_res
+    assert isinstance(spa_res["adjusted_ic_by_module"], dict)
+
+    # 2. Test Point-in-Time as_of parameter acceptance
+    as_of = datetime(2025, 6, 1, 10, 0, 0, tzinfo=timezone.utc)
+    res = evaluate_backtest_validation("TCS", as_of=as_of)
+    assert res["symbol"] == "TCS.NS"
+    assert "ic_by_factor" in res
+    assert res["average_ic"] > 0.0
+

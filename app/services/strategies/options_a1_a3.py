@@ -9,9 +9,30 @@ from app.services.market_data import get_quote, normalize_symbol, create_meta_he
 def evaluate_option_arbitrage(underlying: str = "NIFTY", as_of: Optional[datetime] = None) -> Dict[str, Any]:
     """Calculates synthetic parity spread, IV skew, and option calendar arbitrage for A1 module."""
     norm_symbol = normalize_symbol(underlying)
+    from app.services.risk.surveillance_gate import evaluate_surveillance_and_cost_gate
+    surv = evaluate_surveillance_and_cost_gate(norm_symbol)
     quote = get_quote(norm_symbol, as_of=as_of)
     raw_spot = quote.get("price") if isinstance(quote, dict) else getattr(quote, "price", None)
     spot = float(raw_spot) if raw_spot is not None else 24500.0
+
+    if surv.hard_gate_status == "FAIL" or surv.fo_ban_flag:
+        meta = create_meta_header(source="A1 Option Arbitrage Engine")
+        meta["data_mode"] = "REGULATORY_RESTRICTION"
+        return {
+            "strategy_id": "A1",
+            "symbol": norm_symbol,
+            "executed_at": get_ist_now_str(),
+            "spot_price": spot,
+            "synthetic_futures_price": spot,
+            "parity_gap": 0.0,
+            "parity_gap_pct": 0.0,
+            "implied_volatility_skew": 1.0,
+            "theta_decay_daily": 0.0,
+            "arbitrage_opportunity": False,
+            "recommendation": "REGULATORY_BAN_PROHIBITED",
+            "risk_warnings": [f"Derivative trade prohibited: {norm_symbol} under regulatory surveillance ({surv.hard_gate_status}) / F&O ban"],
+            "meta": meta
+        }
 
     if as_of:
         if isinstance(as_of, str):
@@ -65,9 +86,32 @@ def evaluate_option_arbitrage(underlying: str = "NIFTY", as_of: Optional[datetim
 def evaluate_iron_condor(underlying: str = "NIFTY", as_of: Optional[datetime] = None) -> Dict[str, Any]:
     """Calculates 4-leg defined-risk Iron Condor spread metrics for A3 module."""
     norm_symbol = normalize_symbol(underlying)
+    from app.services.risk.surveillance_gate import evaluate_surveillance_and_cost_gate
+    surv = evaluate_surveillance_and_cost_gate(norm_symbol)
     quote = get_quote(norm_symbol, as_of=as_of)
     raw_spot = quote.get("price") if isinstance(quote, dict) else getattr(quote, "price", None)
     spot = float(raw_spot) if raw_spot is not None else 24500.0
+
+    if surv.hard_gate_status == "FAIL" or surv.fo_ban_flag:
+        meta = create_meta_header(source="A3 Iron Condor Engine")
+        meta["data_mode"] = "REGULATORY_RESTRICTION"
+        return {
+            "strategy_id": "A3",
+            "symbol": norm_symbol,
+            "executed_at": get_ist_now_str(),
+            "spot_price": spot,
+            "strikes": {"long_put": 0.0, "short_put": 0.0, "short_call": 0.0, "long_call": 0.0},
+            "max_profit": 0.0,
+            "max_risk": 0.0,
+            "probability_of_profit": 0.0,
+            "reward_to_risk_ratio": 0.0,
+            "breakeven_lower": 0.0,
+            "breakeven_upper": 0.0,
+            "status": "REGULATORY_RESTRICTION",
+            "passed_gates": False,
+            "risk_warnings": [f"Iron Condor prohibited: {norm_symbol} under regulatory surveillance ({surv.hard_gate_status}) / F&O ban"],
+            "meta": meta
+        }
 
     if as_of:
         if isinstance(as_of, str):

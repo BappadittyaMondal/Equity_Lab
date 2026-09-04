@@ -31,7 +31,8 @@ def evaluate_microcap_integrity_gate(
     target_portfolio_value_inr: float = 10_000_000.0,
     promoter_pledge_pct: Optional[float] = None,
     cfo_ebitda_ratio: Optional[float] = None,
-    asm_gsm_stage: Optional[str] = None
+    asm_gsm_stage: Optional[str] = None,
+    circuit_band_pct: Optional[float] = None
 ) -> MicroCapGateResult:
     """Evaluate micro/small-cap liquidity, governance, and surveillance gates for an equity."""
     clean_sym = normalize_symbol(symbol)
@@ -69,7 +70,7 @@ def evaluate_microcap_integrity_gate(
         pledge = 0.0
         missing_evidence.append("Promoter pledge data unverified/missing for microcap security.")
 
-    # 3. Surveillance Gate (ASM/GSM stage check)
+    # 3. Surveillance Gate (ASM/GSM stage and Circuit Band check)
     if asm_gsm_stage is not None:
         surv_stage = str(asm_gsm_stage)
         if surv_stage not in ["CLEAN", "ASM_STAGE_1"]:
@@ -77,6 +78,11 @@ def evaluate_microcap_integrity_gate(
     else:
         surv_stage = "UNKNOWN"
         missing_evidence.append("SEBI/BSE surveillance verification unverified/missing for microcap security.")
+
+    if circuit_band_pct is not None:
+        c_band = float(circuit_band_pct)
+        if c_band <= 5.0:
+            veto_reasons.append(f"Security is under narrow circuit band restriction ({c_band:.1f}% <= 5.0%), creating unacceptable liquidity lock risk.")
 
     # 4. Cash Flow Quality (CFO / EBITDA ratio < 0.70)
     if cfo_ebitda_ratio is not None:

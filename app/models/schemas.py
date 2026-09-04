@@ -1123,14 +1123,15 @@ class CalibratedProbabilityLadder(BaseModel):
 
 
 class SurveillanceRiskGate(BaseModel):
-    asm_stage: str = "CLEAN"  # CLEAN, STAGE_I, STAGE_II, STAGE_III, STAGE_IV
+    asm_stage: str = "CLEAN"  # CLEAN, STAGE_I, STAGE_II, STAGE_III, STAGE_IV, UNKNOWN
     gsm_stage: str = "CLEAN"
     t2t_flag: bool = False
+    fo_ban_flag: bool = False
     circuit_band_pct: float = 20.0
     circuit_lock_risk: str = "LOW"
     slippage_ceiling_pct: float = 0.35
     total_roundtrip_cost_pct: float = 0.42
-    hard_gate_status: str = "PASS"
+    hard_gate_status: str = "PASS"  # PASS, AMBER, FAIL, DATA_INSUFFICIENT
 
 
 class PortfolioHeatRisk(BaseModel):

@@ -58,11 +58,13 @@ class YFinanceProvider(MarketDataProvider):
             if not price:
                 raise ValueError("Price not found in YFinance info")
             raw_pe = info.get("trailingPE")
+            hi = info.get("fiftyTwoWeekHigh")
+            lo = info.get("fiftyTwoWeekLow")
             return {
                 "symbol": symbol,
                 "price": float(price),
-                "fifty_two_week_high": float(info.get("fiftyTwoWeekHigh") or price * 1.2),
-                "fifty_two_week_low": float(info.get("fiftyTwoWeekLow") or price * 0.8),
+                "fifty_two_week_high": float(hi) if hi is not None else None,
+                "fifty_two_week_low": float(lo) if lo is not None else None,
                 "pe_ratio": float(raw_pe) if raw_pe is not None else None,
                 "change_percent": float(info.get("regularMarketChangePercent") or 0.0),
                 "timestamp": int(datetime.datetime.now(timezone.utc).timestamp()),
@@ -97,11 +99,13 @@ class YahooDirectJSONProvider(MarketDataProvider):
             prev_close = meta.get("chartPreviousClose") or price
             change_pct = ((price - prev_close) / prev_close * 100.0) if prev_close else 0.0
             raw_pe = meta.get("trailingPE")
+            hi = meta.get("fiftyTwoWeekHigh")
+            lo = meta.get("fiftyTwoWeekLow")
             return {
                 "symbol": clean_sym,
                 "price": float(price),
-                "fifty_two_week_high": float(meta.get("fiftyTwoWeekHigh") or price * 1.2),
-                "fifty_two_week_low": float(meta.get("fiftyTwoWeekLow") or price * 0.8),
+                "fifty_two_week_high": float(hi) if hi is not None else None,
+                "fifty_two_week_low": float(lo) if lo is not None else None,
                 "pe_ratio": float(raw_pe) if raw_pe is not None else None,
                 "change_percent": float(change_pct),
                 "timestamp": int(datetime.datetime.now(timezone.utc).timestamp()),
@@ -139,11 +143,20 @@ class NSEIndiaProvider(MarketDataProvider):
             if not price:
                 raise ValueError("Price missing in NSE public API response")
             raw_pe = data.get("metadata", {}).get("pdSectorPe")
+            week_hl = price_info.get("weekHighLow", {})
+            raw_hi = week_hl.get("max") if isinstance(week_hl, dict) else None
+            raw_lo = week_hl.get("min") if isinstance(week_hl, dict) else None
+            if raw_hi is None:
+                raw_hi = price_info.get("upperCP")
+            if raw_lo is None:
+                raw_lo = price_info.get("lowerCP")
+            hi = float(raw_hi) if raw_hi is not None else None
+            lo = float(raw_lo) if raw_lo is not None else None
             return {
                 "symbol": f"{clean_sym}.NS",
                 "price": float(price),
-                "fifty_two_week_high": float(price_info.get("upperCP") or price * 1.2),
-                "fifty_two_week_low": float(price_info.get("lowerCP") or price * 0.8),
+                "fifty_two_week_high": hi,
+                "fifty_two_week_low": lo,
                 "pe_ratio": float(raw_pe) if raw_pe is not None else None,
                 "change_percent": float(price_info.get("pChange") or 0.0),
                 "timestamp": int(datetime.datetime.now(timezone.utc).timestamp()),
@@ -276,8 +289,10 @@ def _store_in_cache(symbol: str, quote: Quote, as_of: Optional[Any] = None) -> N
             )
             # Append-Only Ledger Insertion: Align with MarketDailySnapshot schema (Zero deletion)
             price = float(quote.get("price", 0.0) or 0.0)
-            high = float(quote.get("fifty_two_week_high", price * 1.02) or price)
-            low = float(quote.get("fifty_two_week_low", price * 0.98) or price)
+            high_val = quote.get("fifty_two_week_high")
+            low_val = quote.get("fifty_two_week_low")
+            high = float(high_val) if high_val is not None else price
+            low = float(low_val) if low_val is not None else price
             vol = int(quote.get("volume", 100000) or 0)
             provider_name = str(quote.get("provider", quote.get("active_provider", "MarketDataProvider")))
             

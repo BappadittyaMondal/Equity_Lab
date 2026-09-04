@@ -1,6 +1,7 @@
 """Integration tests for security headers, CORS allowed origins, and rate limiting.
 """
 
+import pytest
 from fastapi.testclient import TestClient
 from app.main import app
 from app.core.config import settings
@@ -109,3 +110,43 @@ def test_research_data_writes_require_separate_key(monkeypatch, tmp_path):
     assert unauthenticated.status_code == 401
     assert authenticated.status_code == 200
     assert authenticated.json()["symbol"] == "DEMO.NS"
+
+
+def test_production_cors_fail_closed(monkeypatch):
+    """Verify that in production without explicit ALLOWED_ORIGIN, _validate_cors_settings raises RuntimeError."""
+    monkeypatch.setenv("IERL_ENVIRONMENT", "production")
+    monkeypatch.delenv("ALLOWED_ORIGIN", raising=False)
+    monkeypatch.delenv("VERCEL_URL", raising=False)
+    monkeypatch.delenv("PYTEST_CURRENT_TEST", raising=False)
+    monkeypatch.setenv("OFFLINE_TEST_MODE", "false")
+
+    with pytest.raises(RuntimeError) as exc_info:
+        settings._validate_cors_settings()
+    assert "CRITICAL_SECURITY_ERROR" in str(exc_info.value)
+
+
+def test_git_commit_sha_truthful_fallback(monkeypatch):
+    """Verify that get_git_commit_sha returns UNKNOWN_UNVERSIONED if environment and git resolution fail."""
+    import subprocess
+    monkeypatch.delenv("VERCEL_GIT_COMMIT_SHA", raising=False)
+    monkeypatch.delenv("GIT_COMMIT_SHA", raising=False)
+    monkeypatch.delenv("GITHUB_SHA", raising=False)
+    monkeypatch.setattr(subprocess, "check_output", lambda *args, **kwargs: (_ for _ in ()).throw(FileNotFoundError("git not found")))
+
+    sha = settings.get_git_commit_sha()
+    assert sha == "UNKNOWN_UNVERSIONED"
+
+
+@pytest.mark.anyio
+async def test_production_offline_mode_boot_guard(monkeypatch):
+    """Verify that lifespan aborts boot if OFFLINE_TEST_MODE is true in production environment."""
+    from app.main import lifespan
+    monkeypatch.setenv("IERL_ENVIRONMENT", "production")
+    monkeypatch.setenv("OFFLINE_TEST_MODE", "true")
+
+    with pytest.raises(RuntimeError) as exc_info:
+        async with lifespan(app):
+            pass
+    assert "CRITICAL_CONFIGURATION_ERROR" in str(exc_info.value)
+
+

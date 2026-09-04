@@ -86,6 +86,14 @@ def run_turnaround_engine(symbol: str, as_of: Optional[str] = None) -> StrategyR
     t_score = model_output.get("turnaround_score", 0.0)
     passed = t_score >= 50.0 and model_output.get("p_recovery", 0.0) >= 0.5
 
+    from app.services.risk.surveillance_gate import evaluate_surveillance_and_cost_gate
+    surv = evaluate_surveillance_and_cost_gate(symbol)
+    if surv.circuit_band_pct <= 5.0 or surv.hard_gate_status == "FAIL":
+        passed = False
+        damage_info.setdefault("damage_reasons", []).append(
+            f"Regulatory / Circuit Lock Hazard: Circuit band {surv.circuit_band_pct}% <= 5% or surveillance status {surv.hard_gate_status}"
+        )
+
     meta = create_meta_header(source="Turnaround Prediction Engine (E20)")
 
     results_dict = {
