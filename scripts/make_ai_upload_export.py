@@ -57,10 +57,15 @@ EXCLUDED_FILE_PATTERNS = {
     ".DS_Store",
     "Thumbs.db",
     "API_KEYS_CONFIG.env",
+    ".env",
+    "credentials.json",
+    "equity_lab.sqlite",
+    "test_backtesting.sqlite",
 }
 
 EXCLUDED_EXTENSIONS = {
     ".db",
+    ".sqlite",
     ".sqlite3",
     ".pyc",
     ".pyo",
@@ -196,6 +201,8 @@ def verify_export() -> bool:
                 violations.append(f"Excluded directory found: {name}")
             if p.suffix.lower() in EXCLUDED_EXTENSIONS:
                 violations.append(f"Excluded extension found: {name}")
+            if p.name in EXCLUDED_FILE_PATTERNS or (p.name.startswith(".env") and p.name != ".env.example"):
+                violations.append(f"Forbidden credential file found in archive: {name}")
 
     if violations:
         print("VERIFICATION FAILED:")

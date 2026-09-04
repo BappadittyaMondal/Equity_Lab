@@ -13,6 +13,7 @@ Key changes from Phase 3:
   - Integrates prediction engine (Layer 10) for forward-looking context
 """
 
+import os
 import json
 import uuid
 import logging
@@ -203,6 +204,18 @@ class Arbiter:
         category_scores: Dict[str, List[float]] = {k: [] for k in CATEGORY_WEIGHTS}
         category_breakdown: Dict[str, float] = {}
 
+        # Signal de-duplication: detect engines that have valid scores
+        scored_engine_ids = {
+            out["engine_id"] for out in outputs
+            if out.get("status") != "data_insufficient" and out.get("score_0_100") is not None
+        }
+
+        # Parent-child dependency map for collinearity de-duplication
+        ENGINE_DEPENDENCIES = {
+            "E4": ["E1", "E2", "E3", "D18"],
+            "C14": ["E2"],
+        }
+
         for out in outputs:
             # Skip engines with no real data
             if out.get("status") == "data_insufficient":
@@ -215,7 +228,15 @@ class Arbiter:
 
             eng_score = out.get("score_0_100")
             if eng_score is None:
-                eng_score = float(out.get("confidence", 50.0))
+                continue  # Skip unscored engines to prevent artificial pseudo-score injection
+
+            # Collinearity De-duplication:
+            # If child engines are present and scored, de-duplicate the parent composite from additive category scoring
+            if eng_id in ENGINE_DEPENDENCIES:
+                children = ENGINE_DEPENDENCIES[eng_id]
+                if any(child in scored_engine_ids for child in children):
+                    logger.debug("De-duplicating collinear parent engine %s because child engines %s are present", eng_id, children)
+                    continue
 
             if out["verdict"] == "Buy":
                 engine_score = (eng_score * (out["confidence"] / 100.0)) if out["confidence"] > 0 else eng_score
@@ -293,13 +314,16 @@ class Arbiter:
             if not isinstance(metrics, dict):
                 metrics = {}
 
-            # C13: Governance grade — only veto on explicit POOR or UNKNOWN
+            # C13: Governance grade — veto on explicit POOR or UNKNOWN, and in production fail-closed if grade missing
             if out["engine_id"] == "C13":
                 if "governance_grade" in results:
                     grade = results["governance_grade"]
                     if grade in VETO_GRADES:
                         logger.warning("Governance veto triggered: grade=%s", grade)
                         return True
+                elif not os.getenv("OFFLINE_TEST_MODE", "false").lower() == "true":
+                    logger.warning("Governance veto triggered: C13 ran in production with missing governance_grade")
+                    return True
 
             # Forensic engine CRITICAL flag
             if out["engine_id"] in ("C11", "C12", "FORENSIC"):
@@ -668,6 +692,18 @@ class Arbiter:
             "data_backed": is_data_backed,
         }
 
+        # Check C13 Corporate Governance Verification status
+        import os
+        is_offline = os.getenv("OFFLINE_TEST_MODE", "false").lower() == "true"
+        c13_out = next((o for o in outputs if o.get("engine_id") == "C13"), None)
+        c13_results = getattr(c13_out.get("raw"), "results", {}) if (c13_out and c13_out.get("raw")) else {}
+        gov_grade = c13_results.get("governance_grade") if isinstance(c13_results, dict) else None
+        governance_verified = (gov_grade in ("EXCELLENT", "GOOD", "ADEQUATE"))
+        if is_offline and not c13_out:
+            governance_verified = True
+
+        decision_manifest["governance_status"] = "VERIFIED" if governance_verified else ("FAILED_VETO" if veto else "UNVERIFIED")
+
         if abstain_reason:
             final_verdict = "ABSTAIN"
             confidence_tier = "Contested"
@@ -675,7 +711,17 @@ class Arbiter:
         else:
             final_verdict = self._score_to_verdict(final_score_f, veto)
             confidence_tier = self._confidence_tier(final_score_f)
+            # Fail-closed guard: If corporate governance is unverified in production, cap conviction
+            if not governance_verified and not veto and not is_offline:
+                if final_verdict in ("Strong Buy", "Buy"):
+                    logger.warning("Down-grading verdict for %s from %s to Watch: Corporate governance unverified", normalized, final_verdict)
+                    final_verdict = "Watch"
+                    confidence_tier = "Contested"
+                elif final_verdict == "Accumulate":
+                    confidence_tier = "Contested"
             primary_thesis = self._generate_thesis(normalized, outputs, final_verdict, regime, snap=snap)
+            if not governance_verified and not veto and not is_offline:
+                primary_thesis = "[GOVERNANCE UNVERIFIED: C13 corporate governance audit pending] " + primary_thesis
 
         # Variant perception synthesis
         variant_view_str = f"Variant Perception ({confidence_tier}): {primary_thesis}"

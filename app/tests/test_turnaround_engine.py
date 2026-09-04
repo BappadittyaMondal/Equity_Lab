@@ -108,6 +108,13 @@ class TestTurnaroundRegistryDispatch(unittest.TestCase):
         self.assertEqual(resp.strategy_id, "E20")
         self.assertEqual(resp.status, "production")
 
+    def test_rank_turnaround_universe_dynamic(self):
+        from app.api.turnaround import rank_turnaround_universe
+        res = rank_turnaround_universe(min_score=30.0, universe="MEGA_CAP", limit=5)
+        self.assertIn("total_candidates", res)
+        self.assertEqual(res["universe"], "MEGA_CAP")
+        self.assertIsInstance(res["rankings"], list)
+
 
 if __name__ == "__main__":
     unittest.main()

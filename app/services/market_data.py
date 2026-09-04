@@ -437,9 +437,28 @@ async def _async_get_market_quote(symbol: str) -> Quote:
     providers = _ensure_providers()
     last_exc: Optional[Exception] = None
 
+    is_offline = os.getenv("OFFLINE_TEST_MODE", "false").lower() == "true"
     if _market_circuit_breaker.state == _market_circuit_breaker.state.OPEN:
-        logger.warning("MarketDataUpstream circuit breaker OPEN for %s. Serving fallback.", symbol)
-        return _get_mock_fallback_quote(symbol)
+        if is_offline:
+            logger.warning("MarketDataUpstream circuit breaker OPEN for %s. Serving offline fallback.", symbol)
+            return _get_mock_fallback_quote(symbol)
+        logger.error("MarketDataUpstream circuit breaker OPEN for %s in production. Failing closed.", symbol)
+        return {
+            "symbol": normalize_symbol(symbol),
+            "price": None,
+            "close_price": None,
+            "open": None,
+            "high": None,
+            "low": None,
+            "volume": 0,
+            "is_mock": False,
+            "active_provider": "NONE",
+            "meta": create_meta_header(
+                source="MarketDataUpstream Circuit Breaker",
+                data_mode="CIRCUIT_BREAKER_OPEN",
+                limitations=["Upstream provider failures exceeded circuit breaker threshold; live pricing halted."]
+            )
+        }
 
     for provider in providers:
         provider_name = provider.__class__.__name__
@@ -454,8 +473,27 @@ async def _async_get_market_quote(symbol: str) -> Quote:
             last_exc = exc
             continue
 
-    logger.warning("All primary/secondary market data providers failed for %s (%s). Falling back to offline mock quote.", symbol, last_exc)
-    return _get_mock_fallback_quote(symbol)
+    if is_offline:
+        logger.warning("All primary/secondary market data providers failed for %s (%s). Falling back to offline mock quote.", symbol, last_exc)
+        return _get_mock_fallback_quote(symbol)
+
+    logger.error("All primary/secondary market data providers failed for %s (%s) in production mode. Failing closed.", symbol, last_exc)
+    return {
+        "symbol": normalize_symbol(symbol),
+        "price": None,
+        "close_price": None,
+        "open": None,
+        "high": None,
+        "low": None,
+        "volume": 0,
+        "is_mock": False,
+        "active_provider": "NONE",
+        "meta": create_meta_header(
+            source="MarketData Providers Exhaustion",
+            data_mode="DATA_UNAVAILABLE",
+            limitations=[f"All upstream market data providers failed: {last_exc}"]
+        )
+    }
 
 
 def get_market_quote(symbol: str, as_of: Optional[datetime.datetime] = None) -> Quote:

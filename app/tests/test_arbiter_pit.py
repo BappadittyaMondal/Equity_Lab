@@ -87,3 +87,71 @@ def test_arbiter_universe_scoping_large_vs_micro():
     assert veto_micro is True, "Microcap with insufficient filing history must fail-closed veto"
 
 
+def test_collinearity_deduplication():
+    """Verify that E4 composite is de-duplicated from fundamental category when children are present."""
+    arbiter = Arbiter()
+    # Case A: Only E1 present with score 80
+    outputs_children = [
+        {"engine_id": "E1", "score_0_100": 80.0, "confidence": 100.0, "verdict": "Buy", "status": "ok"},
+    ]
+    score_children, breakdown_children = arbiter._compute_weighted_score(outputs_children)
+    assert breakdown_children["FUNDAMENTAL"] == 80.0
+
+    # Case B: E1 (80.0) AND E4 (95.0) both present. E4 should be de-duplicated to prevent double counting.
+    outputs_both = [
+        {"engine_id": "E1", "score_0_100": 80.0, "confidence": 100.0, "verdict": "Buy", "status": "ok"},
+        {"engine_id": "E4", "score_0_100": 95.0, "confidence": 100.0, "verdict": "Buy", "status": "ok"},
+    ]
+    score_both, breakdown_both = arbiter._compute_weighted_score(outputs_both)
+    # Fundamental category average should remain 80.0 because E4 was de-duplicated!
+    assert breakdown_both["FUNDAMENTAL"] == 80.0
+
+
+def test_unscored_engine_skipped_without_pseudo_score():
+    """Verify that an engine with score_0_100=None does not inject confidence or 50 as a pseudo score."""
+    arbiter = Arbiter()
+    outputs = [
+        {"engine_id": "E1", "score_0_100": 80.0, "confidence": 100.0, "verdict": "Buy", "status": "ok"},
+        {"engine_id": "E8", "score_0_100": None, "confidence": 40.0, "verdict": "Avoid", "status": "ok"},
+    ]
+    _, breakdown = arbiter._compute_weighted_score(outputs)
+    # E8 must be skipped entirely; FUNDAMENTAL should equal 80.0 (from E1 only), NOT diluted by pseudo-score
+    assert breakdown["FUNDAMENTAL"] == 80.0
+
+
+def test_production_unverified_governance_capped(monkeypatch):
+    """Verify that in production mode, missing/unverified C13 caps verdict to Watch."""
+    monkeypatch.setenv("OFFLINE_TEST_MODE", "false")
+    arbiter = Arbiter()
+
+    # Simulate strong bullish outputs with NO C13 governance engine evaluated
+    outputs = [
+        {"engine_id": "E1", "score_0_100": 90.0, "confidence": 95.0, "verdict": "Buy", "status": "ok"},
+        {"engine_id": "E7", "score_0_100": 88.0, "confidence": 95.0, "verdict": "Buy", "status": "ok"},
+        {"engine_id": "E15", "score_0_100": 85.0, "confidence": 90.0, "verdict": "Buy", "status": "ok"},
+        {"engine_id": "C10", "score_0_100": 85.0, "confidence": 90.0, "verdict": "Buy", "status": "ok"},
+        {"engine_id": "D18", "score_0_100": 85.0, "confidence": 90.0, "verdict": "Buy", "status": "ok"},
+    ]
+
+    # Mock arbitrate internals
+    class MockSnap:
+        symbol = "TEST_TICKER"
+        data_confidence_score = 0.85
+        consensus_price = 500.0
+
+    monkeypatch.setattr(arbiter.synthesizer, "synthesize", lambda *args, **kwargs: MockSnap())
+    monkeypatch.setattr(arbiter, "_collect_engine_outputs", lambda *args, **kwargs: outputs)
+    monkeypatch.setattr(arbiter, "_apply_governance_veto", lambda *args, **kwargs: False)
+    monkeypatch.setattr(arbiter, "_detect_contradictions", lambda *args, **kwargs: [])
+    monkeypatch.setattr(arbiter, "_persist", lambda *args, **kwargs: 1)
+    monkeypatch.setattr(arbiter, "_log_to_prediction_ledger", lambda *args, **kwargs: None)
+
+    call = arbiter.arbitrate("TEST_TICKER")
+    # In production without C13 verified, Buy/Strong Buy MUST be capped at Watch
+    assert call.verdict == "Watch"
+    assert call.confidence_tier == "Contested"
+    assert call.decision_manifest["governance_status"] == "UNVERIFIED"
+    assert "[GOVERNANCE UNVERIFIED" in call.primary_thesis
+
+
+

@@ -77,9 +77,14 @@ def get_turnaround_transitions(symbol: str):
 
 
 @router.get("/rank/universe", summary="Rank Universe for Turnaround Opportunities")
-def rank_turnaround_universe(min_score: float = Query(50.0)):
+def rank_turnaround_universe(
+    min_score: float = Query(50.0),
+    universe: str = Query("NIFTY50", description="Universe identifier: NIFTY50, MEGA_CAP, or ALL"),
+    limit: int = Query(50, ge=1, le=500)
+):
     """Ranks universe candidates for turnarounds using E20 engine."""
-    symbols = ["RELIANCE", "TATAMOTORS", "SUZLON", "INFY", "TCS"]
+    from app.services.ingestion.universe_discovery import get_universe_symbols
+    symbols = get_universe_symbols(universe)[:limit]
     rankings = []
     for sym in symbols:
         resp = run_turnaround_engine(sym)
@@ -89,6 +94,7 @@ def rank_turnaround_universe(min_score: float = Query(50.0)):
     return {
         "total_candidates": len(rankings),
         "min_score_filter": min_score,
+        "universe": universe,
         "rankings": sorted(rankings, key=lambda x: x.get("turnaround_score", 0.0), reverse=True)
     }
 

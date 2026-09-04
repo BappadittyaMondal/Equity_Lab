@@ -96,3 +96,35 @@ def test_batch_universe_analysis():
     assert res.symbols_evaluated == 2
     assert len(res.matrix) == 2
     assert res.matrix[0].conformal_confidence_score >= res.matrix[1].conformal_confidence_score
+
+
+def test_missing_pledge_in_production_penalized(monkeypatch):
+    monkeypatch.setenv("OFFLINE_TEST_MODE", "false")
+    data_with_zero_pledge = {
+        "symbol": "TEST1.NS",
+        "current_price": 500.0,
+        "eps_growth_3yr": 30.0,
+        "roce_latest": 25.0,
+        "cfo_pat_ratio": 1.1,
+        "debt_to_equity": 0.2,
+        "pledged_pct": 0.0,
+        "piotroski_score": 8,
+    }
+    data_missing_pledge = {
+        "symbol": "TEST2.NS",
+        "current_price": 500.0,
+        "eps_growth_3yr": 30.0,
+        "roce_latest": 25.0,
+        "cfo_pat_ratio": 1.1,
+        "debt_to_equity": 0.2,
+        # pledged_pct deliberately missing
+        "piotroski_score": 8,
+    }
+
+    item_clean = MultiHorizonMatrixEngine.calculate_single_symbol_matrix("TEST1.NS", data_with_zero_pledge)
+    item_missing = MultiHorizonMatrixEngine.calculate_single_symbol_matrix("TEST2.NS", data_missing_pledge)
+
+    # Missing pledge must be lower confidence due to -15 vs +5 difference (20 pts)
+    assert item_clean.conformal_confidence_score > item_missing.conformal_confidence_score
+    assert any("pledge filings" in rule for rule in item_missing.forensic_invalidation_rules)
+

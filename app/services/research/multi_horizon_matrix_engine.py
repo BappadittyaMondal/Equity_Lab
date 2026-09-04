@@ -120,7 +120,14 @@ class MultiHorizonMatrixEngine:
             cfo_pat = float(data["cfo_3yr"]) / float(data["net_profit_last_year"])
 
         de_ratio = float(data.get("debt_to_equity") or (0.1 if is_offline else 1.0))
-        pledge_pct = float(data.get("pledged_pct") or 0.0)
+        pledge_raw = data.get("pledged_pct")
+        if pledge_raw is not None:
+            try:
+                pledge_pct = float(pledge_raw)
+            except (ValueError, TypeError):
+                pledge_pct = 0.0 if is_offline else None
+        else:
+            pledge_pct = 0.0 if is_offline else None
         piotroski = int(data.get("piotroski_score") or (7 if is_offline else 0))
 
         # 1. Compute Conformal Confidence Score & Label
@@ -137,10 +144,13 @@ class MultiHorizonMatrixEngine:
         elif de_ratio > 0.8:
             conf_score -= 10.0
 
-        if pledge_pct == 0.0:
-            conf_score += 5.0
-        elif pledge_pct > 25.0:
-            conf_score -= 25.0
+        if pledge_pct is not None:
+            if pledge_pct == 0.0:
+                conf_score += 5.0
+            elif pledge_pct > 25.0:
+                conf_score -= 25.0
+        else:
+            conf_score -= 15.0  # Undisclosed/missing promoter pledge penalty in production
 
         if piotroski >= 8:
             conf_score += 10.0
@@ -235,6 +245,8 @@ class MultiHorizonMatrixEngine:
             "Promoter pledge exceeding 25% triggers immediate hard exit gate.",
             f"Share price closing below 200 DMA ({round(price * 0.82, 2)} INR) breaches technical support.",
         ]
+        if pledge_pct is None:
+            invalidation_rules.append("Undisclosed or missing promoter pledge filings requires mandatory forensic verification.")
 
         return MultiHorizonMatrixItem(
             symbol=norm_sym,

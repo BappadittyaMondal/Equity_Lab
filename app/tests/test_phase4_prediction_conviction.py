@@ -53,6 +53,7 @@ def _mock_engine_output(
     confidence: int = 75,
     status: str = "production",
     evidence: List[str] = None,
+    score_0_100: float = None,
 ) -> Dict[str, Any]:
     raw = MagicMock()
     raw.strategy_name = f"Mock Engine {engine_id}"
@@ -65,6 +66,7 @@ def _mock_engine_output(
         "engine_id": engine_id,
         "verdict": verdict,
         "confidence": confidence,
+        "score_0_100": score_0_100 if score_0_100 is not None else float(confidence),
         "regime": "CALM",
         "raw": raw,
         "status": status,

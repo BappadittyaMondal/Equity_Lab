@@ -56,6 +56,23 @@ def test_provider_fallback(monkeypatch, temp_db_path):
     assert quote["symbol"] == "TEST"
 
 
+def test_all_providers_failure_in_production_fails_closed(monkeypatch, temp_db_path):
+    class FailingProvider(market_data.MarketDataProvider):
+        async def get_quote(self, symbol: str):
+            raise RuntimeError("Upstream provider down")
+
+    monkeypatch.setattr(market_data, "_PROVIDER_MAP", {"fail1": FailingProvider, "fail2": FailingProvider})
+    monkeypatch.setenv("MARKET_DATA_PROVIDER_CHAIN", "fail1,fail2")
+    monkeypatch.setenv("OFFLINE_TEST_MODE", "false")
+    market_data._PROVIDERS = None
+
+    quote = asyncio.run(market_data._async_get_market_quote("TEST_PROD"))
+    assert quote is not None
+    assert quote["price"] is None
+    assert quote["is_mock"] is False
+    assert quote["meta"]["data_mode"] == "DATA_UNAVAILABLE"
+
+
 def test_get_latest_db_delivery_pct_retrieves_seeded_value(temp_db_path):
     # Ensure database schema is initialized
     conn = market_data._get_connection()
