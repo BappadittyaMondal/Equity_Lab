@@ -1133,6 +1133,16 @@ class SurveillanceRiskGate(BaseModel):
     total_roundtrip_cost_pct: float = 0.42
     hard_gate_status: str = "PASS"  # PASS, AMBER, FAIL, DATA_INSUFFICIENT
 
+    @property
+    def is_cleared_for_trading(self) -> bool:
+        """Strict institutional fail-closed trading clearance.
+        Only PASS (or AMBER if not in F&O ban) permits trading.
+        FAIL and DATA_INSUFFICIENT unconditionally prohibit trading.
+        """
+        if self.hard_gate_status in ("FAIL", "DATA_INSUFFICIENT") or self.fo_ban_flag:
+            return False
+        return self.hard_gate_status in ("PASS", "AMBER")
+
 
 class PortfolioHeatRisk(BaseModel):
     current_portfolio_heat_pct: float = 11.5

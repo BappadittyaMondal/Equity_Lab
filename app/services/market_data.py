@@ -637,8 +637,12 @@ def get_history(symbol: str, period: str = "3y", interval: str = "1d", allow_sim
                         else:
                             as_of_cmp = as_of_dt
                         df = df[df.index <= as_of_cmp]
-                    except Exception:
-                        pass
+                    except Exception as slice_err:
+                        empty_df = pd.DataFrame()
+                        empty_df.attrs["is_mock"] = False
+                        empty_df.attrs["data_mode"] = "DATA_INSUFFICIENT"
+                        empty_df.attrs["slice_error"] = str(slice_err)
+                        return empty_df
                     if df.empty or len(df) <= 5:
                         empty_df = pd.DataFrame()
                         empty_df.attrs["is_mock"] = False

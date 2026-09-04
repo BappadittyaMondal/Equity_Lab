@@ -99,3 +99,12 @@ def evaluate_surveillance_and_cost_gate(
         total_roundtrip_cost_pct=total_roundtrip_cost,
         hard_gate_status=hard_gate_status
     )
+
+
+def is_surveillance_cleared(gate: SurveillanceRiskGate) -> bool:
+    """Checks whether the surveillance gate permits trading execution (PASS or AMBER without F&O ban).
+    Strictly fails closed on FAIL or DATA_INSUFFICIENT.
+    """
+    if gate is None:
+        return False
+    return getattr(gate, "is_cleared_for_trading", gate.hard_gate_status in ("PASS", "AMBER") and not gate.fo_ban_flag)

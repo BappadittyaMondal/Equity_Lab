@@ -134,8 +134,13 @@ async def lifespan(app: FastAPI):
     refresh_task = None
     retrain_task = None
     if not is_serverless:
-        refresh_task = asyncio.create_task(_background_market_data_refresh_loop())
-        retrain_task = asyncio.create_task(_background_model_retrain_loop())
+        run_bg = os.getenv("RUN_BACKGROUND_TASKS", "true").lower() == "true"
+        is_primary_worker = os.getenv("WORKER_ID", "0") == "0"
+        if run_bg and is_primary_worker:
+            refresh_task = asyncio.create_task(_background_market_data_refresh_loop())
+            retrain_task = asyncio.create_task(_background_model_retrain_loop())
+        else:
+            logger.info("Non-primary worker or RUN_BACKGROUND_TASKS=false — skipping redundant background tasks.")
     else:
         logger.info("Serverless environment detected — skipping long-running background tasks.")
     yield

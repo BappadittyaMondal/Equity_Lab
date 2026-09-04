@@ -53,6 +53,20 @@ def _compute_empirical_backtest_metrics(symbol: str, as_of: Optional[datetime] =
                     "Governance & Insider (C13)": 0.0,
                     "Alt-Data & Scuttlebutt": 0.0
                 },
+                "factor_provenance_map": {
+                    "Fundamental Inflection (E1)": "Price Acceleration (Inflection Proxy)",
+                    "Incremental ROIC (E8)": "Inverse Volatility Quality (ROIC Proxy)",
+                    "Expectation Gap (E7)": "50-DMA Trend Extension (Expectation Proxy)",
+                    "Governance & Insider (C13)": "Drawdown Preservation (Governance Proxy)",
+                    "Alt-Data & Scuttlebutt": "Momentum Persistence (Alt-Data Proxy)"
+                },
+                "proxy_factor_ic": {
+                    "Price Acceleration (Inflection Proxy)": 0.0,
+                    "Inverse Volatility Quality (ROIC Proxy)": 0.0,
+                    "50-DMA Trend Extension (Expectation Proxy)": 0.0,
+                    "Drawdown Preservation (Governance Proxy)": 0.0,
+                    "Momentum Persistence (Alt-Data Proxy)": 0.0
+                },
                 "out_of_sample_sharpe": 0.0,
                 "factor_decay_half_life_months": 0.0,
                 "survivorship_bias_controlled": False,
@@ -165,6 +179,20 @@ def _compute_empirical_backtest_metrics(symbol: str, as_of: Optional[datetime] =
             "Governance & Insider (C13)": ic_governance,
             "Alt-Data & Scuttlebutt": ic_alt_data
         },
+        "factor_provenance_map": {
+            "Fundamental Inflection (E1)": "Price Acceleration (Inflection Proxy)",
+            "Incremental ROIC (E8)": "Inverse Volatility Quality (ROIC Proxy)",
+            "Expectation Gap (E7)": "50-DMA Trend Extension (Expectation Proxy)",
+            "Governance & Insider (C13)": "Drawdown Preservation (Governance Proxy)",
+            "Alt-Data & Scuttlebutt": "Momentum Persistence (Alt-Data Proxy)"
+        },
+        "proxy_factor_ic": {
+            "Price Acceleration (Inflection Proxy)": ic_inflection,
+            "Inverse Volatility Quality (ROIC Proxy)": ic_roic,
+            "50-DMA Trend Extension (Expectation Proxy)": ic_expectation,
+            "Drawdown Preservation (Governance Proxy)": ic_governance,
+            "Momentum Persistence (Alt-Data Proxy)": ic_alt_data
+        },
         "out_of_sample_sharpe": sharpe,
         "factor_decay_half_life_months": decay_months,
         "survivorship_bias_controlled": not is_simulated,
@@ -207,6 +235,8 @@ def evaluate_backtest_validation(
         survivorship_bias_controlled = emp_res["survivorship_bias_controlled"]
         point_in_time_compliant = emp_res["point_in_time_compliant"]
         daily_rets = emp_res.get("daily_rets")
+        factor_provenance_map = emp_res.get("factor_provenance_map", {})
+        proxy_factor_ic = emp_res.get("proxy_factor_ic", {})
 
     avg_ic = round(sum(ic_by_factor.values()) / max(1, len(ic_by_factor)), 3)
 
@@ -235,6 +265,8 @@ def evaluate_backtest_validation(
         "executed_at": datetime.now().isoformat(),
         "average_ic": avg_ic,
         "ic_by_factor": ic_by_factor,
+        "factor_provenance_map": factor_provenance_map,
+        "proxy_factor_ic": proxy_factor_ic,
         "out_of_sample_sharpe": out_of_sample_sharpe,
         "factor_decay_half_life_months": factor_decay_months,
         "point_in_time_compliant": point_in_time_compliant,

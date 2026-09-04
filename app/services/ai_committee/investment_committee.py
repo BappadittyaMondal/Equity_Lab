@@ -114,24 +114,37 @@ class VirtualInvestmentCommittee:
     @classmethod
     def growth_optimist_agent(cls, symbol: str, stock_data: Dict[str, Any]) -> AgentOpinion:
         """Evaluates revenue/PAT CAGR, CWIP capacity expansion, and growth momentum."""
-        sales_growth = stock_data.get("sales_growth_3yr", 20.0)
-        pat_growth = stock_data.get("pat_growth_3yr", 25.0)
-        roce = stock_data.get("roce_3yr", 22.0)
+        raw_sales = stock_data.get("sales_growth_3yr")
+        raw_pat = stock_data.get("pat_growth_3yr")
+        raw_roce = stock_data.get("roce_3yr")
+
+        sales_growth = float(raw_sales) if raw_sales is not None else None
+        pat_growth = float(raw_pat) if raw_pat is not None else None
+        roce = float(raw_roce) if raw_roce is not None else None
 
         findings = []
         concerns = []
 
-        if sales_growth > 25.0 and pat_growth > 25.0:
+        if sales_growth is None:
+            concerns.append("Unverified Revenue Growth: 3-Yr Sales CAGR is unobserved/missing.")
+        elif pat_growth is not None and sales_growth > 25.0 and pat_growth > 25.0:
             findings.append(f"High Growth Inflection: 3-Yr Sales CAGR {sales_growth:.1f}% & PAT CAGR {pat_growth:.1f}%.")
         elif sales_growth < 10.0:
             concerns.append(f"Slow Growth Trajectory: 3-Yr Sales CAGR is only {sales_growth:.1f}%.")
 
-        if roce > 20.0:
+        if roce is None:
+            concerns.append("Capital Efficiency Unverified: 3-Yr ROCE is unobserved/missing.")
+        elif roce > 20.0:
             findings.append(f"Exceptional Capital Efficiency: 3-Yr ROCE is {roce:.1f}%.")
         elif roce < 12.0:
             concerns.append(f"Subpar ROCE ({roce:.1f}%). Below institutional cost of capital threshold.")
 
-        vote = "REJECT" if sales_growth < 5.0 and roce < 10.0 else ("CAUTION" if concerns else "APPROVE")
+        if (sales_growth is not None and sales_growth < 5.0) and (roce is not None and roce < 10.0):
+            vote = "REJECT"
+        elif concerns:
+            vote = "CAUTION"
+        else:
+            vote = "APPROVE"
         weight = 95.0 if vote == "APPROVE" else (65.0 if vote == "CAUTION" else 40.0)
 
         return AgentOpinion(

@@ -91,7 +91,7 @@ def run_technical_universe_screener(
             rejection_risk=rejection_risk
         )
 
-        if tss_score >= min_tss_score and surv_res.hard_gate_status != "FAIL":
+        if tss_score >= min_tss_score and surv_res.hard_gate_status not in ("FAIL", "DATA_INSUFFICIENT"):
             if not setup_filter or setup_class == setup_filter:
                 tier2_candidates.append({
                     "symbol": norm,

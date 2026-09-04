@@ -107,6 +107,29 @@ class PostgresConnectionWrapper:
 
 _OPEN_CONNECTIONS = set()
 
+def _prune_dead_connections():
+    """Prunes closed or dead database connections from the global tracking set to prevent memory leaks."""
+    global _OPEN_CONNECTIONS
+    dead = set()
+    for conn in list(_OPEN_CONNECTIONS):
+        try:
+            conn.execute("SELECT 1")
+        except Exception:
+            dead.add(conn)
+    _OPEN_CONNECTIONS.difference_update(dead)
+
+def close_connection(conn):
+    """Safely untrack and close an open database connection."""
+    if conn is not None:
+        try:
+            _OPEN_CONNECTIONS.discard(conn)
+        except Exception:
+            pass
+        try:
+            conn.close()
+        except Exception:
+            pass
+
 def close_all_connections():
     global _OPEN_CONNECTIONS
     for conn in list(_OPEN_CONNECTIONS):
@@ -163,6 +186,8 @@ def get_connection():
         conn.execute("PRAGMA journal_mode = WAL")
     except Exception:
         pass
+    if len(_OPEN_CONNECTIONS) >= 30:
+        _prune_dead_connections()
     _OPEN_CONNECTIONS.add(conn)
     return conn
 
@@ -182,8 +207,11 @@ def db_session():
         raise
     finally:
         try:
-            conn.close()
             _OPEN_CONNECTIONS.discard(conn)
+        except Exception:
+            pass
+        try:
+            conn.close()
         except Exception:
             pass
 

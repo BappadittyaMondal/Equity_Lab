@@ -367,10 +367,15 @@ class Arbiter:
                     "RELIANCE", "TCS", "HDFCBANK", "INFY", "ICICIBANK", "BHARTIARTL", "SBIN", 
                     "LICI", "ITC", "HINDUNILVR", "LT", "BAJFINANCE", "HCLTECH", "MARUTI",
                     "SUNPHARMA", "ONGC", "TATAMOTORS", "NTPC", "KOTAKBANK", "TITAN",
-                    "POLYCAB", "DIXON", "TRENT", "BEL", "HAL", "KEI"
+                    "POLYCAB", "DIXON", "TRENT", "BEL", "HAL", "KEI",
+                    "WIPRO", "ADANIENT", "AXISBANK", "ASIANPAINT", "COALINDIA", "BAJAJFINSV",
+                    "POWERGRID", "NESTLEIND", "ULTRACEMCO", "JSWSTEEL", "GRASIM", "TECHM"
                 }
                 norm_clean = symbol.replace(".NS", "").replace(".BO", "").strip().upper()
-                is_microcap = (norm_clean not in KNOWN_LARGE_CAPS) and (mcap is None or mcap <= 1000.0)
+                if mcap is not None:
+                    is_microcap = (mcap <= 1000.0)
+                else:
+                    is_microcap = (norm_clean not in KNOWN_LARGE_CAPS)
 
                 if is_microcap:
                     from app.services.research.microcap_integrity_gate import evaluate_microcap_integrity_gate

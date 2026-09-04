@@ -88,7 +88,7 @@ def run_turnaround_engine(symbol: str, as_of: Optional[str] = None) -> StrategyR
 
     from app.services.risk.surveillance_gate import evaluate_surveillance_and_cost_gate
     surv = evaluate_surveillance_and_cost_gate(symbol)
-    if surv.circuit_band_pct <= 5.0 or surv.hard_gate_status == "FAIL":
+    if surv.circuit_band_pct <= 5.0 or surv.hard_gate_status in ("FAIL", "DATA_INSUFFICIENT") or not getattr(surv, "is_cleared_for_trading", True):
         passed = False
         damage_info.setdefault("damage_reasons", []).append(
             f"Regulatory / Circuit Lock Hazard: Circuit band {surv.circuit_band_pct}% <= 5% or surveillance status {surv.hard_gate_status}"

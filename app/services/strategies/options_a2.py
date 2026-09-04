@@ -16,7 +16,7 @@ def calculate_a2_payoff(req: OptionsA2Request, as_of: Optional[Any] = None) -> O
     symbol = normalize_symbol(req.underlying)
     from app.services.risk.surveillance_gate import evaluate_surveillance_and_cost_gate
     surv = evaluate_surveillance_and_cost_gate(symbol)
-    if surv.hard_gate_status == "FAIL" or surv.fo_ban_flag:
+    if not getattr(surv, "is_cleared_for_trading", True) or surv.hard_gate_status in ("FAIL", "DATA_INSUFFICIENT") or surv.fo_ban_flag:
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
             detail=f"REGULATORY_RESTRICTION: Symbol '{symbol}' is subject to regulatory restriction ({surv.hard_gate_status}) / F&O Ban. Option selling prohibited."

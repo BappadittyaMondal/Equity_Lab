@@ -15,7 +15,7 @@ def evaluate_option_arbitrage(underlying: str = "NIFTY", as_of: Optional[datetim
     raw_spot = quote.get("price") if isinstance(quote, dict) else getattr(quote, "price", None)
     spot = float(raw_spot) if raw_spot is not None else 24500.0
 
-    if surv.hard_gate_status == "FAIL" or surv.fo_ban_flag:
+    if not getattr(surv, "is_cleared_for_trading", True) or surv.hard_gate_status in ("FAIL", "DATA_INSUFFICIENT") or surv.fo_ban_flag:
         meta = create_meta_header(source="A1 Option Arbitrage Engine")
         meta["data_mode"] = "REGULATORY_RESTRICTION"
         return {
@@ -67,6 +67,10 @@ def evaluate_option_arbitrage(underlying: str = "NIFTY", as_of: Optional[datetim
     if as_of:
         meta["as_of"] = as_of.isoformat() if hasattr(as_of, "isoformat") else str(as_of)
 
+    rec = "EXECUTE_CALENDAR_ARBITRAGE" if arb_flag else "NO_ARBITRAGE_ALIGNMENT"
+    if arb_flag and meta.get("broker_feed_status") == "AWAITING_AUTHENTICATED_BROKER_KEY":
+        rec = "THEORETICAL_OPPORTUNITY_AWAITING_LIVE_CHAIN"
+
     return {
         "strategy_id": "A1",
         "symbol": norm_symbol,
@@ -78,7 +82,7 @@ def evaluate_option_arbitrage(underlying: str = "NIFTY", as_of: Optional[datetim
         "implied_volatility_skew": iv_skew,
         "theta_decay_daily": theta_decay_daily,
         "arbitrage_opportunity": arb_flag,
-        "recommendation": "EXECUTE_CALENDAR_ARBITRAGE" if arb_flag else "NO_ARBITRAGE_ALIGNMENT",
+        "recommendation": rec,
         "meta": meta
     }
 
@@ -92,7 +96,7 @@ def evaluate_iron_condor(underlying: str = "NIFTY", as_of: Optional[datetime] = 
     raw_spot = quote.get("price") if isinstance(quote, dict) else getattr(quote, "price", None)
     spot = float(raw_spot) if raw_spot is not None else 24500.0
 
-    if surv.hard_gate_status == "FAIL" or surv.fo_ban_flag:
+    if not getattr(surv, "is_cleared_for_trading", True) or surv.hard_gate_status in ("FAIL", "DATA_INSUFFICIENT") or surv.fo_ban_flag:
         meta = create_meta_header(source="A3 Iron Condor Engine")
         meta["data_mode"] = "REGULATORY_RESTRICTION"
         return {
@@ -162,5 +166,6 @@ def evaluate_iron_condor(underlying: str = "NIFTY", as_of: Optional[datetime] = 
         "reward_to_risk_ratio": reward_to_risk,
         "breakeven_lower": short_put - credit_collected,
         "breakeven_upper": short_call + credit_collected,
+        "status": "THEORETICAL_ESTIMATE_AWAITING_LIVE_CHAIN" if meta.get("broker_feed_status") == "AWAITING_AUTHENTICATED_BROKER_KEY" else "READY_FOR_EXECUTION",
         "meta": meta
     }

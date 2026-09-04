@@ -195,6 +195,20 @@ class InstitutionalMultibaggerEngine:
 
         overall_score = max(0.0, min(100.0, raw_score + risk_penalties))
 
+        # Data Completeness Tracking (§Institutional Epistemic Separation)
+        observed_fields = [
+            item.get("market_cap") is not None,
+            item.get("current_price") is not None,
+            item.get("sales_growth_3yr") is not None,
+            item.get("pat_growth_3yr") is not None,
+            item.get("roce_latest") is not None,
+            item.get("roe_latest") is not None,
+            item.get("cfo_last_year") is not None,
+            item.get("net_block") is not None,
+            item.get("promoter_holding") is not None
+        ]
+        data_completeness_pct = round(sum(100.0 / len(observed_fields) for obs in observed_fields if obs), 1)
+
         # Confidence Score (0-100)
         data_points = [
             market_cap > 0, current_price > 0, sales_growth_3yr > 0,
@@ -293,6 +307,7 @@ class InstitutionalMultibaggerEngine:
             "company_name": name,
             "overall_score": round(overall_score, 1),
             "confidence_score": confidence_score,
+            "data_completeness_pct": data_completeness_pct,
             "archetype": archetype,
             "hard_risk_gate": hard_gate_res,
             "early_stage_inflection": inflection_res,
