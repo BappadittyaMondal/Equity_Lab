@@ -4,7 +4,7 @@
 
 ## 1. Summary Metrics
 
-- **Total Backend Endpoints**: 92
+- **Total Backend Endpoints**: 93
 - **API Spec Contract File**: `docs/api_contract.json`
 
 ---
@@ -90,6 +90,7 @@
 | `/api/v1/technical/regime` | GET | Institutional Technical Framework | Get Market Regime |
 | `/api/v1/technical/report/{symbol}` | GET | Institutional Technical Framework | Get Technical Report |
 | `/api/v1/technical/screener` | GET | Institutional Technical Framework | Run Screener |
+| `/api/v1/technical/short-term-prediction/{symbol}` | GET | Institutional Technical Framework | Get Short Term Prediction |
 | `/api/v1/technical/surveillance/{symbol}` | GET | Institutional Technical Framework | Get Surveillance Gate |
 | `/api/v1/technical/trade_manager/{symbol}` | GET | Institutional Technical Framework | Get Trade Management |
 | `/api/v1/ticker-strip` | GET | Market Data | Fetch Ticker Strip |

@@ -2373,6 +2373,7 @@
           "Point-in-Time Research Data"
         ],
         "summary": "Run Custom Screen",
+        "description": "Execute custom Screener.in query or preset, with optional 27-factor Multibagger Brain ranking.",
         "operationId": "run_custom_screen_api_v1_data_custom_screen_post",
         "parameters": [
           {
@@ -2393,7 +2394,7 @@
               "schema": {
                 "type": "object",
                 "additionalProperties": true,
-                "title": "Query"
+                "title": "Payload"
               }
             }
           }
@@ -4120,6 +4121,61 @@
         }
       }
     },
+    "/api/v1/technical/short-term-prediction/{symbol}": {
+      "get": {
+        "tags": [
+          "Institutional Technical Framework"
+        ],
+        "summary": "Get Short Term Prediction",
+        "description": "Retrieves high-precision short-term multi-horizon prediction, AVWAPs, Stoch RSI exhaustion, and Conformal Cones.",
+        "operationId": "get_short_term_prediction_api_v1_technical_short_term_prediction__symbol__get",
+        "parameters": [
+          {
+            "name": "symbol",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Symbol"
+            }
+          },
+          {
+            "name": "x-api-key",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "default": "",
+              "title": "X-Api-Key"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": true,
+                  "title": "Response Get Short Term Prediction Api V1 Technical Short Term Prediction  Symbol  Get"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/v1/research/user-feedback": {
       "post": {
         "tags": [
@@ -5078,6 +5134,30 @@
               "type": "number",
               "default": 50.0,
               "title": "Min Score"
+            }
+          },
+          {
+            "name": "universe",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "description": "Universe identifier: NIFTY50, MEGA_CAP, or ALL",
+              "default": "NIFTY50",
+              "title": "Universe"
+            },
+            "description": "Universe identifier: NIFTY50, MEGA_CAP, or ALL"
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "maximum": 500,
+              "minimum": 1,
+              "default": 50,
+              "title": "Limit"
             }
           },
           {
@@ -8563,15 +8643,29 @@
             "title": "Promoter Pct"
           },
           "fii_pct": {
-            "type": "number",
-            "maximum": 100.0,
-            "minimum": 0.0,
+            "anyOf": [
+              {
+                "type": "number",
+                "maximum": 100.0,
+                "minimum": 0.0
+              },
+              {
+                "type": "null"
+              }
+            ],
             "title": "Fii Pct"
           },
           "dii_pct": {
-            "type": "number",
-            "maximum": 100.0,
-            "minimum": 0.0,
+            "anyOf": [
+              {
+                "type": "number",
+                "maximum": 100.0,
+                "minimum": 0.0
+              },
+              {
+                "type": "null"
+              }
+            ],
             "title": "Dii Pct"
           },
           "mutual_fund_pct": {
@@ -8601,9 +8695,16 @@
             "title": "Insurance Pct"
           },
           "public_pct": {
-            "type": "number",
-            "maximum": 100.0,
-            "minimum": 0.0,
+            "anyOf": [
+              {
+                "type": "number",
+                "maximum": 100.0,
+                "minimum": 0.0
+              },
+              {
+                "type": "null"
+              }
+            ],
             "title": "Public Pct"
           },
           "aif_pct": {
@@ -8664,9 +8765,6 @@
           "symbol",
           "period_end",
           "promoter_pct",
-          "fii_pct",
-          "dii_pct",
-          "public_pct",
           "published_at",
           "source_name",
           "source_url"
@@ -8694,15 +8792,29 @@
             "title": "Promoter Pct"
           },
           "fii_pct": {
-            "type": "number",
-            "maximum": 100.0,
-            "minimum": 0.0,
+            "anyOf": [
+              {
+                "type": "number",
+                "maximum": 100.0,
+                "minimum": 0.0
+              },
+              {
+                "type": "null"
+              }
+            ],
             "title": "Fii Pct"
           },
           "dii_pct": {
-            "type": "number",
-            "maximum": 100.0,
-            "minimum": 0.0,
+            "anyOf": [
+              {
+                "type": "number",
+                "maximum": 100.0,
+                "minimum": 0.0
+              },
+              {
+                "type": "null"
+              }
+            ],
             "title": "Dii Pct"
           },
           "mutual_fund_pct": {
@@ -8732,9 +8844,16 @@
             "title": "Insurance Pct"
           },
           "public_pct": {
-            "type": "number",
-            "maximum": 100.0,
-            "minimum": 0.0,
+            "anyOf": [
+              {
+                "type": "number",
+                "maximum": 100.0,
+                "minimum": 0.0
+              },
+              {
+                "type": "null"
+              }
+            ],
             "title": "Public Pct"
           },
           "aif_pct": {
@@ -8804,9 +8923,6 @@
           "symbol",
           "period_end",
           "promoter_pct",
-          "fii_pct",
-          "dii_pct",
-          "public_pct",
           "published_at",
           "source_name",
           "source_url",

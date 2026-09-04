@@ -97,3 +97,13 @@ def get_surveillance_gate(symbol: str) -> Dict[str, Any]:
         return gate.model_dump()
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Failed to evaluate surveillance gate for {symbol}: {str(e)}")
+
+
+@router.get("/short-term-prediction/{symbol}")
+def get_short_term_prediction(symbol: str) -> Dict[str, Any]:
+    """Retrieves high-precision short-term multi-horizon prediction, AVWAPs, Stoch RSI exhaustion, and Conformal Cones."""
+    try:
+        from app.services.strategies.short_term_prediction_engine import ShortTermPredictionEngine
+        return ShortTermPredictionEngine.evaluate_short_term_prediction(symbol)
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Failed to generate short-term prediction for {symbol}: {str(e)}")
