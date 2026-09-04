@@ -14,11 +14,18 @@ def evaluate_option_arbitrage(underlying: str = "NIFTY", as_of: Optional[datetim
     spot = float(raw_spot) if raw_spot is not None else 24500.0
 
     if as_of:
+        if isinstance(as_of, str):
+            try:
+                import pandas as pd
+                as_of = pd.to_datetime(as_of).to_pydatetime()
+            except Exception:
+                pass
         # Point-in-time calculation adjustment based on historical timestamp
         now_dt = datetime.now()
         as_of_naive = as_of.replace(tzinfo=None) if hasattr(as_of, "tzinfo") and as_of.tzinfo else as_of
-        days_diff = max(1, (now_dt - as_of_naive).days)
-        spot = round(spot * (1.0 - (days_diff * 0.001)), 2)
+        if isinstance(as_of_naive, datetime):
+            days_diff = max(1, (now_dt - as_of_naive).days)
+            spot = round(spot * (1.0 - (days_diff * 0.001)), 2)
 
     # Parity check parameters
     call_strike = round(spot, -2)
@@ -63,10 +70,17 @@ def evaluate_iron_condor(underlying: str = "NIFTY", as_of: Optional[datetime] = 
     spot = float(raw_spot) if raw_spot is not None else 24500.0
 
     if as_of:
+        if isinstance(as_of, str):
+            try:
+                import pandas as pd
+                as_of = pd.to_datetime(as_of).to_pydatetime()
+            except Exception:
+                pass
         now_dt = datetime.now()
         as_of_naive = as_of.replace(tzinfo=None) if hasattr(as_of, "tzinfo") and as_of.tzinfo else as_of
-        days_diff = max(1, (now_dt - as_of_naive).days)
-        spot = round(spot * (1.0 - (days_diff * 0.001)), 2)
+        if isinstance(as_of_naive, datetime):
+            days_diff = max(1, (now_dt - as_of_naive).days)
+            spot = round(spot * (1.0 - (days_diff * 0.001)), 2)
 
     # 4-leg strikes
     short_put = round(spot * 0.97, -2)

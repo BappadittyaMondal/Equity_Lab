@@ -126,3 +126,39 @@ def test_options_engines_respect_as_of():
     assert res_a3_rec.meta.as_of == as_of_recent.isoformat()
     assert res_a3_hist.results["spot_price"] != res_a3_rec.results["spot_price"], "A3 spot price should vary across distinct historical as_of dates"
 
+
+def test_engines_accept_iso_string_as_of():
+    """Verify that passing string as_of (e.g. '2024-01-01') does NOT raise TypeError or AttributeError in A1, A3, E6."""
+    from app.services.strategies.registry import run_strategy_module
+
+    str_as_of = "2024-01-01"
+
+    # A1 Option Arbitrage
+    res_a1 = run_strategy_module("A1", symbol="NIFTY", as_of=str_as_of)
+    assert res_a1 is not None
+    assert res_a1.status == "production"
+
+    # A3 Iron Condor
+    res_a3 = run_strategy_module("A3", symbol="NIFTY", as_of=str_as_of)
+    assert res_a3 is not None
+    assert res_a3.status == "production"
+
+    # E6 Quality Growth Screener
+    res_e6 = run_strategy_module("E6", symbol="RELIANCE", as_of=str_as_of)
+    assert res_e6 is not None
+    assert res_e6.status == "production"
+
+
+def test_all_canonical_engines_dispatch_with_string_as_of():
+    """Verify all 40 canonical engines can be dispatched with string as_of without crashing."""
+    from app.services.strategies.registry import list_strategy_modules, run_strategy_module
+
+    str_as_of = "2024-01-01"
+    modules = list_strategy_modules()
+    assert len(modules) == 40, f"Expected 40 canonical engines, found {len(modules)}"
+
+    for mod in modules:
+        res = run_strategy_module(mod.id, symbol="RELIANCE", as_of=str_as_of)
+        assert res is not None
+        assert res.strategy_id == mod.id
+

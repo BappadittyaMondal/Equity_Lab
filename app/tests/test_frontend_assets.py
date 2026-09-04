@@ -135,3 +135,18 @@ def test_api_auth_and_http_integration():
     finally:
         settings.REQUIRE_AUTH = orig_req_auth
         settings.API_KEY_SECRET = orig_key_secret
+
+
+def test_conviction_panel_governance_veto_banner_prominence():
+    """Verify conviction_panel.js contains the high-visibility un-dismissible governance veto alert banner."""
+    panel_path = os.path.join(FRONTEND_DIR, "js", "conviction_panel.js")
+    assert os.path.exists(panel_path)
+    with open(panel_path, "r", encoding="utf-8") as f:
+        code = f.read()
+
+    assert "ACTION_BLOCK" in code
+    assert "vetoBanner" in code
+    assert "GOVERNANCE HARD VETO ACTIVE" in code
+    assert "INSTITUTIONAL CAPITAL REFUSED" in code
+    assert "animate-pulse" in code
+

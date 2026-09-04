@@ -52,9 +52,14 @@ export async function renderConvictionPanel(symbol) {
     const stale = data.stale || false;
 
     // Determine Gauge & Verdict Color — matches backend ConvictionCall verdicts
+    const isVeto = verdict === "ACTION_BLOCK" || verdict === "VETO" || data.veto_applied || false;
+
     let gaugeColor = "#eab308"; // Gold/Yellow
     let verdictBg = "bg-yellow-500/20 text-yellow-400 border-yellow-500/30";
-    if (conviction_score >= 70 || verdict === "Strong Buy" || verdict === "Buy" || verdict === "Accumulate") {
+    if (isVeto) {
+      gaugeColor = "#ef4444"; // Red
+      verdictBg = "bg-red-600/30 text-red-300 border-red-500 font-black tracking-wider animate-pulse";
+    } else if (conviction_score >= 70 || verdict === "Strong Buy" || verdict === "Buy" || verdict === "Accumulate") {
       gaugeColor = "#22c55e"; // Green
       verdictBg = "bg-green-500/20 text-green-400 border-green-500/30";
     } else if (conviction_score <= 40 || verdict === "Avoid") {
@@ -75,6 +80,16 @@ export async function renderConvictionPanel(symbol) {
         ⚠ ${e}
       </span>`).join(' ') || '<span class="text-xs text-muted">None</span>';
 
+    // Governance Hard Veto Banner State
+    const vetoBanner = isVeto ? `
+      <div class="mb-4 px-4 py-3 bg-red-950/90 border-2 border-red-500 text-red-100 text-sm font-bold rounded-lg flex items-center gap-3 shadow-lg ring-1 ring-red-500/50">
+        <span class="material-symbols-outlined text-2xl text-red-400">gavel</span>
+        <div>
+          <div class="text-sm font-black tracking-wide text-red-300 uppercase">GOVERNANCE HARD VETO ACTIVE — INSTITUTIONAL CAPITAL REFUSED</div>
+          <div class="text-xs font-normal text-red-200/90 mt-0.5">${data.veto_reason || primary_thesis || "Forensic or governance violation triggered an unconditional institutional capital block."}</div>
+        </div>
+      </div>` : '';
+
     // Stale Data Banner State
     const staleBanner = stale ? `
       <div class="mb-3 px-3 py-1.5 bg-yellow-950/60 border border-yellow-600/50 text-yellow-200 text-xs rounded-md flex items-center gap-2">
@@ -84,6 +99,7 @@ export async function renderConvictionPanel(symbol) {
 
     const panelHTML = `
       <div class="p-6 bg-surface-lowest rounded-xl border border-surface-border">
+        ${vetoBanner}
         ${staleBanner}
         <div class="flex flex-col md:flex-row items-start md:items-center justify-between gap-4 mb-4">
           <div>

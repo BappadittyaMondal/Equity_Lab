@@ -89,3 +89,32 @@ def test_get_latest_db_delivery_pct_retrieves_seeded_value(temp_db_path):
 
     deliv_pct = market_data.get_latest_db_delivery_pct("DELIV_TEST.NS")
     assert deliv_pct == 58.5
+
+
+def test_point_in_time_quote_cache_partitioning(temp_db_path):
+    """Assert that historical and live quote cache entries are temporally partitioned."""
+    live_quote = {"symbol": "INFY", "price": 1800.0, "data_mode": "LIVE"}
+    hist_quote = {"symbol": "INFY", "price": 1400.0, "data_mode": "PIT_HISTORICAL"}
+
+    # Store live quote (as_of=None)
+    market_data._store_in_cache("INFY", live_quote, as_of=None)
+
+    # Store historical quote (as_of="2023-01-01")
+    market_data._store_in_cache("INFY", hist_quote, as_of="2023-01-01")
+
+    # Load live: must return live quote, NOT historical quote
+    cached_live = market_data._load_from_cache("INFY", as_of=None)
+    assert cached_live is not None
+    assert cached_live["price"] == 1800.0
+    assert cached_live["data_mode"] == "LIVE"
+
+    # Load historical: must return historical quote, NOT live quote
+    cached_hist = market_data._load_from_cache("INFY", as_of="2023-01-01")
+    assert cached_hist is not None
+    assert cached_hist["price"] == 1400.0
+    assert cached_hist["data_mode"] == "PIT_HISTORICAL"
+
+    # Load different date: must return None (fail closed, no cross-contamination)
+    cached_diff = market_data._load_from_cache("INFY", as_of="2024-05-15")
+    assert cached_diff is None
+

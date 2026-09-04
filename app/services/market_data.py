@@ -252,22 +252,33 @@ def _get_connection():
     )
     return conn
 
-def _store_in_cache(symbol: str, quote: Quote) -> None:
+def _make_cache_key(symbol: str, as_of: Optional[Any] = None) -> str:
+    sym = symbol.upper().strip()
+    if as_of:
+        as_of_str = as_of.strftime("%Y-%m-%d") if hasattr(as_of, "strftime") else str(as_of)[:10]
+        return f"{sym}:{as_of_str}"
+    return sym
+
+def _store_in_cache(symbol: str, quote: Quote, as_of: Optional[Any] = None) -> None:
     try:
         conn = _get_connection()
         now_ts = int(datetime.datetime.now(timezone.utc).timestamp())
         now_iso = datetime.datetime.now(timezone.utc).isoformat()
-        now_date = datetime.datetime.now(timezone.utc).strftime("%Y-%m-%d")
+        if as_of:
+            now_date = as_of.strftime("%Y-%m-%d") if hasattr(as_of, "strftime") else str(as_of)[:10]
+        else:
+            now_date = datetime.datetime.now(timezone.utc).strftime("%Y-%m-%d")
+        cache_key = _make_cache_key(symbol, as_of)
         try:
             conn.execute(
                 "INSERT OR REPLACE INTO market_cache VALUES (?, ?, ?)",
-                (symbol.upper(), json.dumps(quote), now_ts),
+                (cache_key, json.dumps(quote), now_ts),
             )
             # Append-Only Ledger Insertion: Align with MarketDailySnapshot schema (Zero deletion)
-            price = float(quote.get("price", 0.0))
-            high = float(quote.get("fifty_two_week_high", price * 1.02))
-            low = float(quote.get("fifty_two_week_low", price * 0.98))
-            vol = int(quote.get("volume", 100000))
+            price = float(quote.get("price", 0.0) or 0.0)
+            high = float(quote.get("fifty_two_week_high", price * 1.02) or price)
+            low = float(quote.get("fifty_two_week_low", price * 0.98) or price)
+            vol = int(quote.get("volume", 100000) or 0)
             provider_name = str(quote.get("provider", quote.get("active_provider", "MarketDataProvider")))
             
             conn.execute(
@@ -318,22 +329,28 @@ def get_latest_db_delivery_pct(symbol: str) -> Optional[float]:
         pass
     return None
 
-def _load_from_cache(symbol: str, max_age_seconds: int = 259200) -> Optional[Quote]:
-    """Load cached quote if fetched within max_age_seconds (default 72 hours / 3 days max gap)."""
+
+def _load_from_cache(symbol: str, max_age_seconds: int = 259200, as_of: Optional[Any] = None) -> Optional[Quote]:
+    """Load cached quote if fetched within max_age_seconds (default 72 hours / 3 days max gap).
+    If as_of is specified, queries the point-in-time partitioned cache key (symbol:as_of)."""
     try:
         conn = _get_connection()
+        cache_key = _make_cache_key(symbol, as_of)
         try:
             row = conn.execute(
                 "SELECT json_blob, fetched_at FROM market_cache WHERE symbol = ?",
-                (symbol.upper(),),
+                (cache_key,),
             ).fetchone()
             if row:
                 blob, fetched_at = row
+                if as_of is not None:
+                    # Point-in-time historical data is immutable; bypass TTL
+                    return json.loads(blob)
                 now_ts = int(datetime.datetime.now(timezone.utc).timestamp())
                 if now_ts - fetched_at <= max_age_seconds:
                     return json.loads(blob)
                 else:
-                    logger.info("Cache entry for %s expired (age: %ds > max: %ds)", symbol, now_ts - fetched_at, max_age_seconds)
+                    logger.info("Cache entry for %s expired (age: %ds > max: %ds)", cache_key, now_ts - fetched_at, max_age_seconds)
             return None
         finally:
             conn.close()
@@ -498,6 +515,11 @@ async def _async_get_market_quote(symbol: str) -> Quote:
 
 def get_market_quote(symbol: str, as_of: Optional[datetime.datetime] = None) -> Quote:
     if as_of:
+        # Check partitioned PIT cache first
+        cached_pit = _load_from_cache(symbol, as_of=as_of)
+        if cached_pit:
+            return cached_pit
+
         try:
             from app.services.research_data import ResearchDataStore
             as_of_str = as_of.strftime("%Y-%m-%d") if hasattr(as_of, "strftime") else str(as_of)[:10]
@@ -520,6 +542,7 @@ def get_market_quote(symbol: str, as_of: Optional[datetime.datetime] = None) -> 
                         "data_mode": "PIT_HISTORICAL",
                     }
                 }
+                _store_in_cache(symbol, quote, as_of=as_of)
                 return quote
         except Exception as e:
             logger.debug("Historical PIT quote lookup skipped: %s", e)

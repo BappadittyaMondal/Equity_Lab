@@ -36,6 +36,12 @@ def run_quality_growth_screener(
     as_of: Optional[datetime] = None,
     store: Optional[ResearchDataStore] = None
 ) -> QualityGrowthScreenResponse:
+    if isinstance(as_of, str):
+        try:
+            import pandas as pd
+            as_of = pd.to_datetime(as_of).to_pydatetime()
+        except Exception:
+            pass
     norm_symbol = normalize_symbol(symbol)
     data_store = store or ResearchDataStore()
     
@@ -199,7 +205,7 @@ def run_quality_growth_screener(
             threshold=thresh_str,
             actual_value=val,
             status=status,
-            as_of_date=as_of.isoformat() if as_of else datetime.now().isoformat(),
+            as_of_date=as_of.isoformat() if hasattr(as_of, "isoformat") else (str(as_of) if as_of else datetime.now().isoformat()),
             source="ResearchDataStore",
             notes=notes
         )

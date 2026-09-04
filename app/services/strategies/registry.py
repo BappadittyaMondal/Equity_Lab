@@ -544,6 +544,12 @@ def get_strategy_module(strategy_id: str) -> StrategyModule:
 
 
 def run_strategy_module(strategy_id: str, symbol: str = "RELIANCE", as_of: Optional[datetime] = None) -> StrategyRunResponse:
+    if isinstance(as_of, str):
+        try:
+            import pandas as pd
+            as_of = pd.to_datetime(as_of).to_pydatetime()
+        except Exception:
+            pass
 
     module = get_strategy_module(strategy_id)
     
