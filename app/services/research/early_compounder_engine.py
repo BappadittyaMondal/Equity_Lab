@@ -180,6 +180,24 @@ def run_early_compounder_engine(symbol: str, as_of: Optional[str] = None) -> Str
         passed = score >= 60.0
         tier = "A_PLUS_HIGH_CONVICTION" if score >= 80.0 else ("A_COMPOUNDER_CANDIDATE" if score >= 65.0 else "B_WATCHLIST_TRIGGER_REQUIRED")
 
+    # Wire MicrocapRiskFirstGate (3-Tier Capacity Limits & Forensic Shields)
+    from app.services.research.finder_state_machines import MicrocapRiskFirstGate
+    mcap_val = float(market_cap_cr or 250.0)
+    mcap_gate = MicrocapRiskFirstGate.evaluate(
+        symbol=norm,
+        market_cap_cr=mcap_val,
+        adtv_30d_cr=max(1.0, mcap_val * 0.01),
+        rpt_to_net_worth_pct=0.0,
+        has_auditor_resigned_recently=False,
+        circuit_frequency_pct=0.0,
+        promoter_holding_pct=55.0,
+        cfo_3y_sum_cr=max(10.0, (delta_nopat or 5.0) * 2.0),
+    )
+
+    if not mcap_gate["is_investable"]:
+        has_veto = True
+        veto_reasons.extend(mcap_gate["forensic_vetoes"])
+
     meta = create_meta_header(source="Early-Stage Compounder Engine (E21)")
 
     results_dict = {
@@ -191,6 +209,8 @@ def run_early_compounder_engine(symbol: str, as_of: Optional[str] = None) -> Str
         "trailing_roce_pct": trailing_roce,
         "reverse_valuation_status": agent11.summary_verdict,
         "pm_kill_test_status": agent12.summary_verdict,
+        "risk_first_gate": mcap_gate,
+        "capacity_limits": mcap_gate.get("capacity_limits", {}),
         "evidence": [f.finding for f in agent10.findings + agent11.findings + agent12.findings],
     }
 

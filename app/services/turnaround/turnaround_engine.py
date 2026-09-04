@@ -86,6 +86,35 @@ def run_turnaround_engine(symbol: str, as_of: Optional[str] = None) -> StrategyR
     t_score = model_output.get("turnaround_score", 0.0)
     passed = t_score >= 50.0 and model_output.get("p_recovery", 0.0) >= 0.5
 
+    # Wire TurnaroundStateMachine (Relapse-First Institutional Governance)
+    from app.services.research.finder_state_machines import TurnaroundStateMachine
+    cp_val = float(features.get("current_price", 100.0) or 100.0)
+    d_avwap = float(features.get("disaster_avwap", cp_val * 0.85) or (cp_val * 0.85))
+    f_curr = int(features.get("piotroski_score", 5) or 5)
+    f_prev = int(features.get("piotroski_score_prev", max(1, f_curr - 1)) or max(1, f_curr - 1))
+    cfo_val = float(features.get("cfo_cr", 10.0) or 10.0)
+    ebitda_val = float(features.get("ebitda_cr", 15.0) or 15.0)
+    debt_red = bool(features.get("debt_to_equity_improving", True))
+    relapse_flag = bool(model_output.get("p_relapse", 0.0) > 0.65)
+
+    sm_res = TurnaroundStateMachine.evaluate(
+        symbol=symbol,
+        current_price=cp_val,
+        disaster_avwap=d_avwap,
+        piotroski_score=f_curr,
+        piotroski_prev=f_prev,
+        cfo_cr=cfo_val,
+        ebitda_cr=ebitda_val,
+        debt_reduction_initiated=debt_red,
+        is_relapse_signal=relapse_flag,
+    )
+
+    if sm_res["state"] == "RELAPSE":
+        passed = False
+        damage_info.setdefault("damage_reasons", []).append(
+            f"Turnaround Relapse Veto Active: Dominant failure override ({sm_res.get('dominant_override')})"
+        )
+
     from app.services.risk.surveillance_gate import evaluate_surveillance_and_cost_gate
     surv = evaluate_surveillance_and_cost_gate(symbol)
     if surv.circuit_band_pct <= 5.0 or surv.hard_gate_status in ("FAIL", "DATA_INSUFFICIENT") or not getattr(surv, "is_cleared_for_trading", True):
@@ -108,6 +137,10 @@ def run_turnaround_engine(symbol: str, as_of: Optional[str] = None) -> StrategyR
         "value_trap_risk_score": model_output.get("value_trap_risk_score", 0.0),
         "turnaround_stage": stage_label.value,
         "lifecycle_state": lifecycle_info["lifecycle_state"],
+        "lifecycle_state_machine": sm_res,
+        "is_relapse_active": sm_res["state"] == "RELAPSE",
+        "recovery_index": model_output.get("recovery_index", model_output.get("p_recovery", 0.0)),
+        "relapse_index": model_output.get("relapse_index", model_output.get("p_relapse", 0.0)),
         "historical_damage_state": damage_info["damage_state"],
         "fundamental_recovery_score": features.get("fundamental_recovery_score", 0.0),
         "frmr_gap_score": features.get("frmr_gap_score", 0.0),

@@ -539,9 +539,29 @@ class SwingPredictiveEngine:
         edge_3d_str = f"{int(base_edge)}-{int(base_edge + 4)}%"
         edge_10d_str = f"{int(base_edge + 3)}-{int(base_edge + 8)}%"
         edge_30d_str = f"{int(base_edge + 8)}-{int(min(85, base_edge + 18))}%"
-
         data_mode_val = daily_df.attrs.get("data_mode", "LIVE") if hasattr(daily_df, "attrs") else "LIVE"
         is_synthetic_val = bool(daily_df.attrs.get("is_mock", False) or data_mode_val == "MOCK") if hasattr(daily_df, "attrs") else False
+
+        # Wire MTFContextEngine & SwingTradeFeasibilityEngine (Institutional Control Plane)
+        from app.services.strategies.mtf_context_engine import MTFContextEngine
+        from app.services.research.finder_state_machines import SwingTradeFeasibilityEngine
+
+        sym_name = str(daily_df.attrs.get("symbol", "SWING_CANDIDATE")) if hasattr(daily_df, "attrs") else "SWING_CANDIDATE"
+        mtf_res = MTFContextEngine.evaluate_mtf_context(
+            symbol=sym_name,
+            daily_df=daily_df,
+            weekly_df=weekly_df,
+        )
+
+        adtv_val = float(adtv_res.get("adtv_cr", 10.0))
+        feasibility_res = SwingTradeFeasibilityEngine.evaluate(
+            symbol=sym_name,
+            technical_confluence_score=confluence_score,
+            mtf_verdict=mtf_res.get("verdict", "NO_CONFLUENCE"),
+            adtv_cr=adtv_val,
+            order_size_cr=round(min(0.25, 0.04 * adtv_val), 3) if adtv_val >= 5.0 else 0.25,
+            is_circuit_locked=False,
+        )
 
         return {
             "current_price": round(cp, 2),
@@ -549,6 +569,8 @@ class SwingPredictiveEngine:
             "model_bias": bias,
             "data_mode": data_mode_val,
             "is_synthetic": is_synthetic_val,
+            "mtf_context": mtf_res,
+            "feasibility": feasibility_res,
             "horizon": "3 to 30 Days",
             "model_estimated_target": target_price,
             "target_upside_pct": target_upside_pct,

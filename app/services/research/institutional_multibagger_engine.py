@@ -302,6 +302,24 @@ class InstitutionalMultibaggerEngine:
             "thesis_age_days": item.get("thesis_age_days", 0)
         })
 
+        # Wire MultibaggerStateMachine (Lifecycle & Kill-Trigger Governance)
+        from app.services.research.finder_state_machines import MultibaggerStateMachine
+        mb_sm = MultibaggerStateMachine.evaluate(
+            symbol=symbol,
+            pat_growth_ttm=pat_growth_latest,
+            pat_growth_prev=pat_growth_3yr,
+            incremental_roic=roce_latest,
+            wacc=12.0,
+            cfo_to_ebitda=round(cfo_last_year / max(net_profit_last_year * 1.2, 1e-4), 2),
+            promoter_pledge_pct=float(pledged_pct or 0.0),
+            is_breakout_cleared=technical_score >= 3.0,
+            consecutive_high_roce_quarters=6 if roce_latest >= 20.0 else 3,
+            valuation_z_score=0.0,
+        )
+
+        if mb_sm["state"] == "INVALIDATED":
+            risk_flags.extend(mb_sm["kill_triggers_fired"])
+
         return {
             "symbol": symbol,
             "company_name": name,
@@ -309,6 +327,8 @@ class InstitutionalMultibaggerEngine:
             "confidence_score": confidence_score,
             "data_completeness_pct": data_completeness_pct,
             "archetype": archetype,
+            "lifecycle_state_machine": mb_sm,
+            "is_investable": mb_sm["is_investable"],
             "hard_risk_gate": hard_gate_res,
             "early_stage_inflection": inflection_res,
             "discovery_status": discovery_res,

@@ -128,35 +128,38 @@ class TurnaroundStateMachine:
     ) -> Dict[str, Any]:
         """Evaluates Turnaround lifecycle state."""
         # Hard Rule: If price breaks below Disaster AVWAP floor or relapse fired -> RELAPSE
-        price_below_disaster_floor = current_price < (disaster_avwap * 0.97)
+        price_below_disaster_floor = (disaster_avwap > 0) and (current_price < (disaster_avwap * 0.97))
         if is_relapse_signal or price_below_disaster_floor or (piotroski_score <= 2 and cfo_cr < 0):
+            floor_pct = round(((current_price - disaster_avwap) / disaster_avwap) * 100.0, 2) if disaster_avwap and disaster_avwap > 0 else None
             return {
                 "symbol": symbol.upper(),
                 "state": TurnaroundState.RELAPSE.value,
                 "is_turnaround_confirmed": False,
                 "dominant_override": "RELAPSE_VETO_ACTIVE",
-                "price_to_disaster_floor_pct": round(((current_price - disaster_avwap) / disaster_avwap) * 100.0, 2),
+                "price_to_disaster_floor_pct": floor_pct,
                 "action": "AVOID_VALUE_TRAP_OR_EXIT",
             }
 
         f_score_delta = piotroski_score - piotroski_prev
+        above_floor = (current_price >= disaster_avwap) if disaster_avwap and disaster_avwap > 0 else True
 
-        if piotroski_score >= 7 and cfo_cr > 0 and (cfo_cr >= 0.7 * max(1e-4, ebitda_cr)) and current_price >= disaster_avwap:
+        if piotroski_score >= 7 and cfo_cr > 0 and (cfo_cr >= 0.7 * max(1e-4, ebitda_cr)) and above_floor:
             state = TurnaroundState.SUSTAINED_RECOVERY
-        elif cfo_cr > 0 and current_price >= disaster_avwap:
+        elif cfo_cr > 0 and above_floor:
             state = TurnaroundState.CASH_FLOW_CONFIRMED
-        elif f_score_delta >= 2 and current_price >= disaster_avwap:
+        elif f_score_delta >= 2 and above_floor:
             state = TurnaroundState.EARLY_RECOVERY
         elif debt_reduction_initiated or f_score_delta >= 1:
             state = TurnaroundState.STABILIZATION
         else:
             state = TurnaroundState.DISTRESS
 
+        floor_pct = round(((current_price - disaster_avwap) / disaster_avwap) * 100.0, 2) if disaster_avwap and disaster_avwap > 0 else None
         return {
             "symbol": symbol.upper(),
             "state": state.value,
             "is_turnaround_confirmed": state in (TurnaroundState.EARLY_RECOVERY, TurnaroundState.CASH_FLOW_CONFIRMED, TurnaroundState.SUSTAINED_RECOVERY),
-            "price_to_disaster_floor_pct": round(((current_price - disaster_avwap) / disaster_avwap) * 100.0, 2),
+            "price_to_disaster_floor_pct": floor_pct,
             "piotroski_delta": f_score_delta,
             "action": "ALLOCATE_TURNAROUND" if state in (TurnaroundState.CASH_FLOW_CONFIRMED, TurnaroundState.SUSTAINED_RECOVERY) else "MONITOR_STABILIZATION",
         }
@@ -176,10 +179,10 @@ class SwingTradeFeasibilityEngine:
         technical_confluence_score: float,
         mtf_verdict: str,
         adtv_cr: float,
-        order_size_cr: float = 0.25,
+        order_size_cr: Optional[float] = None,
         is_circuit_locked: bool = False,
     ) -> Dict[str, Any]:
-        """Evaluates swing trade execution feasibility."""
+        """Evaluates swing trade execution feasibility without silent capacity assumptions."""
         # 1. Circuit Lockout Check
         if is_circuit_locked:
             return {
@@ -199,13 +202,30 @@ class SwingTradeFeasibilityEngine:
             }
 
         # 3. Liquidity Capacity Floor
-        max_order_allowed = 0.05 * adtv_cr  # Max 5% ADV participation
-        if adtv_cr < 5.0 or order_size_cr > max_order_allowed:
+        max_order_allowed = round(0.05 * adtv_cr, 3)  # Max 5% ADV participation
+        if adtv_cr < 5.0:
             return {
                 "symbol": symbol.upper(),
                 "feasibility_status": "HIGH_SCORE_NOT_TRADABLE",
                 "is_tradable": False,
-                "reason": f"ADTV ₹{adtv_cr:.2f}Cr below institutional ₹5.0Cr floor or order size exceeds 5% ADV.",
+                "reason": f"ADTV ₹{adtv_cr:.2f}Cr below institutional ₹5.0Cr floor.",
+            }
+
+        if order_size_cr is None:
+            # Capacity unverified: Do not assume a favorable token order size
+            return {
+                "symbol": symbol.upper(),
+                "feasibility_status": "CAPACITY_UNVERIFIED_DATA_INSUFFICIENT",
+                "is_tradable": False,
+                "reason": "order_size_cr not provided; capacity cannot be verified against 5% ADV limit.",
+            }
+
+        if order_size_cr > max_order_allowed:
+            return {
+                "symbol": symbol.upper(),
+                "feasibility_status": "HIGH_SCORE_NOT_TRADABLE",
+                "is_tradable": False,
+                "reason": f"Order size ₹{order_size_cr:.2f}Cr exceeds 5% ADV capacity limit of ₹{max_order_allowed:.2f}Cr.",
             }
 
         # 4. Final Feasibility Check

@@ -1636,6 +1636,57 @@
         }
       }
     },
+    "/api/v1/research/sip-policy/{symbol}": {
+      "get": {
+        "tags": [
+          "Expert Strategy & Research Engines"
+        ],
+        "summary": "Get Valuation-Responsive Dynamic SIP Allocation Policy",
+        "description": "Executes Institutional SIP Policy Engine: Evaluates 10-year ROCE, Debt/Equity, and Valuation Z-score dynamic multipliers.",
+        "operationId": "get_sip_policy_api_v1_research_sip_policy__symbol__get",
+        "parameters": [
+          {
+            "name": "symbol",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Symbol"
+            }
+          },
+          {
+            "name": "x-api-key",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "default": "",
+              "title": "X-Api-Key"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/v1/query": {
       "post": {
         "tags": [

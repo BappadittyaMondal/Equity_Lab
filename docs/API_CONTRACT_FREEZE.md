@@ -4,7 +4,7 @@
 
 ## 1. Summary Metrics
 
-- **Total Backend Endpoints**: 93
+- **Total Backend Endpoints**: 94
 - **API Spec Contract File**: `docs/api_contract.json`
 
 ---
@@ -77,6 +77,7 @@
 | `/api/v1/research/multibagger-screener` | GET | Expert Strategy & Research Engines | Run Multibagger Screener |
 | `/api/v1/research/scorecard` | GET | Expert Strategy & Research Engines | Fetch Symbol Scorecard |
 | `/api/v1/research/scorecard-matrix` | POST | Expert Strategy & Research Engines | Fetch Scorecard Matrix |
+| `/api/v1/research/sip-policy/{symbol}` | GET | Expert Strategy & Research Engines | Get Valuation-Responsive Dynamic SIP Allocation Policy |
 | `/api/v1/research/swing-predictive` | GET | Expert Strategy & Research Engines | Run Swing Predictive Endpoint |
 | `/api/v1/research/turnaround-stage` | GET | Expert Strategy & Research Engines | Run Turnaround Stage |
 | `/api/v1/research/user-feedback` | POST | Phase 2 User Feedback | Submit Counter Question |

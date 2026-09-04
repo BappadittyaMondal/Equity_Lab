@@ -193,6 +193,22 @@ def test_turnaround_confirmed_recovery():
     assert res["is_turnaround_confirmed"] is True
 
 
+def test_turnaround_zero_division_guard():
+    """Test that disaster_avwap=0.0 does not raise ZeroDivisionError and safely returns None."""
+    res = TurnaroundStateMachine.evaluate(
+        symbol="ZERO_AVWAP_CO",
+        current_price=50.0,
+        disaster_avwap=0.0,  # Edge case: zero/untraded disaster floor
+        piotroski_score=5,
+        piotroski_prev=3,
+        cfo_cr=10.0,
+        ebitda_cr=15.0,
+        debt_reduction_initiated=True,
+    )
+    assert res["price_to_disaster_floor_pct"] is None
+    assert res["state"] == TurnaroundState.CASH_FLOW_CONFIRMED.value
+
+
 # ==============================================================================
 # 5. SWING TRADE FEASIBILITY TESTS
 # ==============================================================================
@@ -204,8 +220,22 @@ def test_swing_trade_feasibility_illiquid_rejection():
         technical_confluence_score=90.0,
         mtf_verdict="STRONG_BULLISH_EXECUTION_READY",
         adtv_cr=1.5,  # Below 5.0 Cr floor
+        order_size_cr=0.25,
     )
     assert res["feasibility_status"] == "HIGH_SCORE_NOT_TRADABLE"
+    assert res["is_tradable"] is False
+
+
+def test_swing_trade_feasibility_capacity_unverified():
+    """Test omitting order_size_cr returns CAPACITY_UNVERIFIED_DATA_INSUFFICIENT."""
+    res = SwingTradeFeasibilityEngine.evaluate(
+        symbol="LIQUID_STOCK",
+        technical_confluence_score=85.0,
+        mtf_verdict="STRONG_BULLISH_EXECUTION_READY",
+        adtv_cr=25.0,
+        order_size_cr=None,  # No silent favorable default allowed
+    )
+    assert res["feasibility_status"] == "CAPACITY_UNVERIFIED_DATA_INSUFFICIENT"
     assert res["is_tradable"] is False
 
 
@@ -216,10 +246,25 @@ def test_swing_trade_feasibility_circuit_lockout():
         technical_confluence_score=85.0,
         mtf_verdict="STRONG_BULLISH_EXECUTION_READY",
         adtv_cr=25.0,
+        order_size_cr=0.50,
         is_circuit_locked=True,
     )
     assert res["feasibility_status"] == "CIRCUIT_LOCKED_TRADING_HALTED"
     assert res["is_tradable"] is False
+
+
+def test_swing_trade_feasibility_valid_cleared():
+    """Test valid order size within 5% ADV on liquid stock clears entry."""
+    res = SwingTradeFeasibilityEngine.evaluate(
+        symbol="CLEARED_SWING",
+        technical_confluence_score=85.0,
+        mtf_verdict="STRONG_BULLISH_EXECUTION_READY",
+        adtv_cr=20.0,  # 5% ADV = 1.0 Cr
+        order_size_cr=0.50,  # Well within capacity
+        is_circuit_locked=False,
+    )
+    assert res["feasibility_status"] == "FEASIBLE_READY_FOR_ENTRY"
+    assert res["is_tradable"] is True
 
 
 # ==============================================================================
@@ -285,3 +330,86 @@ def test_sip_policy_dynamic_valuation_multipliers():
     res_decay = SIPPolicyEngine.evaluate("DECLINING_CO", roce_10y_avg=10.0, debt_to_equity=1.5, valuation_z_score=-2.0, thesis_intact=False, is_price_below_200sma=True)
     assert res_decay["allocation_multiplier"] == 0.0
     assert res_decay["policy_action"] == "PAUSE_SIP_OR_EXIT_REVIEW"
+
+
+# ==============================================================================
+# 8. LIVE PRODUCTION CALLER INTEGRATION VERIFICATION
+# ==============================================================================
+
+def test_live_production_callers_integrated():
+    """Programmatically verifies all 5 state machines & MTF engine have active production callers."""
+    # 1. Turnaround Engine (E20) live call
+    from app.services.turnaround.turnaround_engine import run_turnaround_engine
+    t_res = run_turnaround_engine("TATAMOTORS")
+    assert "lifecycle_state_machine" in t_res.results, "TurnaroundStateMachine must be wired in E20 results"
+    assert "is_relapse_active" in t_res.results
+
+    # 2. Early Compounder Engine (E21) live call
+    from app.services.research.early_compounder_engine import run_early_compounder_engine
+    c_res = run_early_compounder_engine("SHILCHAR")
+    assert "risk_first_gate" in c_res.results, "MicrocapRiskFirstGate must be wired in E21 results"
+    assert "capacity_limits" in c_res.results
+
+    # 3. Swing Predictive Engine (E18) live call
+    from app.services.strategies.swing_predictive_engine import SwingPredictiveEngine
+    fake_df = pd.DataFrame({
+        "open": [100.0 + i for i in range(35)],
+        "close": [100.0 + i for i in range(35)],
+        "high": [102.0 + i for i in range(35)],
+        "low": [99.0 + i for i in range(35)],
+        "volume": [100000 for _ in range(35)],
+        "open_interest": [50000 for _ in range(35)],
+    })
+    s_res = SwingPredictiveEngine.predict_swing_30d(fake_df)
+    assert "mtf_context" in s_res, "MTFContextEngine must be wired in SwingPredictiveEngine output"
+    assert "feasibility" in s_res, "SwingTradeFeasibilityEngine must be wired in SwingPredictiveEngine output"
+
+    # 4. Institutional Multibagger Engine live call
+    from app.services.research.institutional_multibagger_engine import InstitutionalMultibaggerEngine
+    dummy_company = {
+        "symbol": "TESTCO.NS",
+        "company_name": "Test Co Ltd",
+        "market_cap": 5000.0,
+        "current_price": 250.0,
+        "high_52w": 300.0,
+        "low_52w": 180.0,
+        "volume": 200000,
+        "vol_1w_avg": 180000,
+        "vol_1y_avg": 150000,
+        "roe_3yr": 22.0,
+        "roe_latest": 24.0,
+        "roce_3yr": 25.0,
+        "roce_latest": 26.0,
+        "opm_5yr": 18.0,
+        "opm_latest": 21.0,
+        "op_growth": 25.0,
+        "pat_growth_3yr": 28.0,
+        "pat_growth_latest": 30.0,
+        "sales_growth_3yr": 22.0,
+        "sales_growth_latest": 24.0,
+        "eps_growth_3yr": 25.0,
+        "eps_latest": 27.0,
+        "cfo_3yr": 350.0,
+        "cfo_last_year": 120.0,
+        "net_profit_last_year": 100.0,
+        "net_block": 400.0,
+        "net_block_3yr_back": 250.0,
+        "net_block_preceding_year": 320.0,
+        "cwip": 80.0,
+        "cwip_preceding_year": 40.0,
+        "piotroski_score": 8.0,
+        "promoter_holding": 62.0,
+        "pledged_pct": 0.0,
+        "debt_to_equity": 0.20,
+        "interest_coverage": 15.0,
+        "peg_ratio": 0.95
+    }
+    mb_res = InstitutionalMultibaggerEngine.evaluate_company(dummy_company)
+    assert "lifecycle_state_machine" in mb_res, "MultibaggerStateMachine must be wired in multibagger scorecard"
+    assert "is_investable" in mb_res
+
+    # 5. SIP Policy endpoint call
+    from app.api.strategies import get_sip_policy
+    sip_res = get_sip_policy("RELIANCE")
+    assert "policy_action" in sip_res, "SIPPolicyEngine must be callable from API route"
+    assert "allocation_multiplier" in sip_res
