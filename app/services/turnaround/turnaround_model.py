@@ -70,4 +70,8 @@ def predict_turnaround_probabilities(features: Dict[str, Any]) -> Dict[str, Any]
         "p_outperformance": p_outperformance,
         "value_trap_risk_score": value_trap_risk,
         "confidence_tier": "HIGH" if p_recovery >= 0.7 else ("MEDIUM" if p_recovery >= 0.4 else "LOW"),
+        "is_empirically_calibrated": False,
+        "probability_type": "SCENARIO_FORMULAIC",
+        "recovery_index": p_recovery,
+        "relapse_index": p_relapse,
     }

@@ -127,13 +127,15 @@ class WalkForwardBacktester:
         sharpe = (mean_stock - rf_period) / std_dev if std_dev > 0 else 0.0
         sortino = (mean_stock - rf_period) / downside_std if downside_std > 0 else 0.0
 
-        # Peak to trough max drawdown calculation
-        peak = stock_returns[0]
+        # Cumulative NAV wealth curve: NAV_0 = 1.0, NAV_t = NAV_{t-1} * (1 + r_t / 100.0)
+        nav = 1.0
+        peak_nav = 1.0
         max_dd = 0.0
         for r in stock_returns:
-            if r > peak:
-                peak = r
-            dd = (peak - r) / abs(peak) if peak != 0 else 0.0
+            nav = max(0.0, nav * (1.0 + (r / 100.0)))
+            if nav > peak_nav:
+                peak_nav = nav
+            dd = (peak_nav - nav) / peak_nav if peak_nav > 0 else 0.0
             if dd > max_dd:
                 max_dd = dd
 
