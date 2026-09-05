@@ -89,19 +89,37 @@ class GenAIRedTeamService:
                         f"3. Summarize key takeaways in 2 concise sentences.\n\n"
                         f"TRANSCRIPT:\n{clean_transcript[:2000]}"
                     )
+                    candidate_models = ["gemini-3.6-flash", "gemini-flash-latest", "gemini-2.5-flash", "gemini-1.5-flash"]
+                    gen_text = None
                     try:
                         from google import genai
                         client = genai.Client(api_key=gemini_key)
-                        resp = client.models.generate_content(model="gemini-1.5-flash", contents=prompt)
-                        if resp.text:
-                            llm_analysis_note = f" [Gemini AI Analysis: {resp.text.strip()[:200]}...]"
+                        for m in candidate_models:
+                            try:
+                                resp = client.models.generate_content(model=m, contents=prompt)
+                                if resp.text:
+                                    gen_text = resp.text
+                                    break
+                            except Exception:
+                                continue
                     except Exception:
+                        pass
+
+                    if not gen_text:
                         import google.generativeai as genai
                         genai.configure(api_key=gemini_key)
-                        model = genai.GenerativeModel("gemini-1.5-flash")
-                        resp = model.generate_content(prompt)
-                        if resp.text:
-                            llm_analysis_note = f" [Gemini AI Analysis: {resp.text.strip()[:200]}...]"
+                        for m in candidate_models:
+                            try:
+                                model = genai.GenerativeModel(m)
+                                resp = model.generate_content(prompt)
+                                if resp.text:
+                                    gen_text = resp.text
+                                    break
+                            except Exception:
+                                continue
+
+                    if gen_text:
+                        llm_analysis_note = f" [Gemini AI Analysis: {gen_text.strip()[:200]}...]"
                 except Exception as e:
                     logger.warning("Gemini concall analysis failed: %s", e)
 

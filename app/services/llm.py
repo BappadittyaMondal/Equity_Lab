@@ -243,33 +243,47 @@ def process_llm_query(req: QueryRequest) -> QueryResponse:
     gemini_key = settings.GEMINI_API_KEY
     if gemini_key and "your_" not in gemini_key.lower() and not fallback:
         try:
+            candidate_models = ["gemini-3.6-flash", "gemini-flash-latest", "gemini-2.5-flash", "gemini-1.5-flash"]
+            initial_analysis = None
+            challenge_section = ""
+
             try:
                 from google import genai
                 client = genai.Client(api_key=gemini_key)
                 analysis_prompt = _build_analysis_prompt(query_text, symbol, mode, research_context)
-                resp1 = client.models.generate_content(model="gemini-1.5-flash", contents=analysis_prompt)
-                initial_analysis = resp1.text
-                challenge_section = ""
-                if mode.lower() in ("research", "deep", "full"):
-                    challenge_prompt = _build_challenge_prompt(initial_analysis, symbol)
-                    resp2 = client.models.generate_content(model="gemini-1.5-flash", contents=challenge_prompt)
-                    challenge_section = f"\n\n━━━ DEVIL'S ADVOCATE (Challenge Mode) ━━━\n{resp2.text}"
+                for m in candidate_models:
+                    try:
+                        resp1 = client.models.generate_content(model=m, contents=analysis_prompt)
+                        initial_analysis = resp1.text
+                        if mode.lower() in ("research", "deep", "full"):
+                            challenge_prompt = _build_challenge_prompt(initial_analysis, symbol)
+                            resp2 = client.models.generate_content(model=m, contents=challenge_prompt)
+                            challenge_section = f"\n\n━━━ DEVIL'S ADVOCATE (Challenge Mode) ━━━\n{resp2.text}"
+                        break
+                    except Exception:
+                        continue
             except Exception:
+                pass
+
+            if initial_analysis is None:
                 import google.generativeai as genai
                 genai.configure(api_key=gemini_key)
-                model = genai.GenerativeModel("gemini-1.5-flash")
-
-                # Primary analysis prompt
                 analysis_prompt = _build_analysis_prompt(query_text, symbol, mode, research_context)
-                response1 = model.generate_content(analysis_prompt)
-                initial_analysis = response1.text
+                for m in candidate_models:
+                    try:
+                        model = genai.GenerativeModel(m)
+                        response1 = model.generate_content(analysis_prompt)
+                        initial_analysis = response1.text
+                        if mode.lower() in ("research", "deep", "full"):
+                            challenge_prompt = _build_challenge_prompt(initial_analysis, symbol)
+                            response2 = model.generate_content(challenge_prompt)
+                            challenge_section = f"\n\n━━━ DEVIL'S ADVOCATE (Challenge Mode) ━━━\n{response2.text}"
+                        break
+                    except Exception:
+                        continue
 
-                # Challenge mode (only in Research/Deep modes, not Quick)
-                challenge_section = ""
-                if mode.lower() in ("research", "deep", "full"):
-                    challenge_prompt = _build_challenge_prompt(initial_analysis, symbol)
-                    response2 = model.generate_content(challenge_prompt)
-                    challenge_section = f"\n\n━━━ DEVIL'S ADVOCATE (Challenge Mode) ━━━\n{response2.text}"
+            if initial_analysis is None:
+                raise RuntimeError("Failed to generate content across candidate Gemini models")
 
             final_reply = initial_analysis + challenge_section
 
