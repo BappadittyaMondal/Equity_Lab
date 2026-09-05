@@ -304,6 +304,28 @@ class InstitutionalMultibaggerEngine:
 
         # Wire MultibaggerStateMachine (Lifecycle & Kill-Trigger Governance)
         from app.services.research.finder_state_machines import MultibaggerStateMachine
+
+        # Pledge fail-closed handling
+        if pledged_pct is not None:
+            pledge_val = float(pledged_pct)
+        elif is_offline:
+            pledge_val = 0.0
+        else:
+            pledge_val = 50.0
+
+        # Multi-period ROCE persistence tracking
+        if roce_latest >= 20.0 and roce_3yr >= 20.0:
+            consec_roce_q = 6
+        elif roce_latest >= 20.0:
+            consec_roce_q = 2
+        elif roce_latest >= 15.0:
+            consec_roce_q = 1
+        else:
+            consec_roce_q = 0
+
+        # Valuation Z-score relative to fair value PEG benchmark (1.0)
+        val_z = round((peg_ratio - 1.0) / 0.5, 2) if peg_ratio > 0 else 0.0
+
         mb_sm = MultibaggerStateMachine.evaluate(
             symbol=symbol,
             pat_growth_ttm=pat_growth_latest,
@@ -311,10 +333,10 @@ class InstitutionalMultibaggerEngine:
             incremental_roic=roce_latest,
             wacc=12.0,
             cfo_to_ebitda=round(cfo_last_year / max(net_profit_last_year * 1.2, 1e-4), 2),
-            promoter_pledge_pct=float(pledged_pct or 0.0),
+            promoter_pledge_pct=pledge_val,
             is_breakout_cleared=technical_score >= 3.0,
-            consecutive_high_roce_quarters=6 if roce_latest >= 20.0 else 3,
-            valuation_z_score=0.0,
+            consecutive_high_roce_quarters=consec_roce_q,
+            valuation_z_score=val_z,
         )
 
         if mb_sm["state"] == "INVALIDATED":

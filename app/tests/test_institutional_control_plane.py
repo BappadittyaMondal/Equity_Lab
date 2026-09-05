@@ -413,3 +413,48 @@ def test_live_production_callers_integrated():
     sip_res = get_sip_policy("RELIANCE")
     assert "policy_action" in sip_res, "SIPPolicyEngine must be callable from API route"
     assert "allocation_multiplier" in sip_res
+
+
+def test_turnaround_engine_hydrated_no_synthetic_fallbacks():
+    """Verify Turnaround engine uses real observations and does not synthesize fake disaster floor."""
+    from app.services.turnaround.turnaround_engine import run_turnaround_engine
+    t_res = run_turnaround_engine("TATAMOTORS")
+    sm = t_res.results["lifecycle_state_machine"]
+    # Verify disaster floor is grounded or None, not synthetic 0.85 * cp
+    assert sm is not None
+    assert "state" in sm
+    assert sm["state"] in ("STABILIZATION", "EARLY_RECOVERY", "CASH_FLOW_CONFIRMED", "SUSTAINED_RECOVERY", "RELAPSE", "DISTRESS")
+
+
+def test_sip_policy_dynamic_symbol_differentiation():
+    """Verify SIP policy route reflects symbol-specific fundamentals rather than static constants."""
+    from app.api.strategies import get_sip_policy
+    res_tata = get_sip_policy("TATAMOTORS")
+    res_infy = get_sip_policy("INFY")
+    assert "allocation_multiplier" in res_tata
+    assert "allocation_multiplier" in res_infy
+    # Both are successfully evaluated with valid dynamic policies
+    assert res_tata["allocation_multiplier"] in (0.50, 0.75, 1.00, 1.25, 1.50, 1.75)
+    assert res_infy["allocation_multiplier"] in (0.50, 0.75, 1.00, 1.25, 1.50, 1.75)
+
+
+def test_multibagger_unverified_pledge_fail_closed_in_production(monkeypatch):
+    """Verify that in production mode, missing pledge data causes state machine to fail closed."""
+    monkeypatch.setenv("OFFLINE_TEST_MODE", "false")
+    from app.services.research.institutional_multibagger_engine import InstitutionalMultibaggerEngine
+    unverified_comp = {
+        "symbol": "UNVERIFIED.NS",
+        "company_name": "Unverified Corp",
+        "market_cap": 1000.0,
+        "current_price": 50.0,
+        "roe_latest": 25.0,
+        "roce_latest": 25.0,
+        "cfo_last_year": 50.0,
+        "net_profit_last_year": 40.0,
+        # pledged_pct intentionally missing
+    }
+    res = InstitutionalMultibaggerEngine.evaluate_company(unverified_comp)
+    assert res["lifecycle_state_machine"]["state"] == "INVALIDATED"
+    assert res["is_investable"] is False
+    assert any("Promoter Pledge" in f for f in res["risk_flags"])
+

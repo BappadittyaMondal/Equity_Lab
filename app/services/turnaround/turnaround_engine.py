@@ -32,12 +32,30 @@ def run_turnaround_engine(symbol: str, as_of: Optional[str] = None) -> StrategyR
     
     # Ingestion layer with fallback
     financials = get_mock_turnaround_financials(symbol) if is_offline else []
+    fund_dict = None
     if not is_offline:
         try:
-            from app.services.market_data import get_company_financials
-            real_fins = get_company_financials(symbol)
-            if real_fins:
-                financials = real_fins
+            from app.services.data_ingestion.screener_connector import ScreenerCloudConnector
+            fund_dict = ScreenerCloudConnector.get_company_fundamentals(symbol)
+            if fund_dict:
+                financials = [
+                    {
+                        "revenue_inr": float(fund_dict.get("sales_growth_3yr", 100.0) or 100.0),
+                        "opm_pct": float(fund_dict.get("opm_5yr", 10.0) or 10.0),
+                        "pat_inr": float(fund_dict.get("pat_growth_3yr", 20.0) or 20.0),
+                        "cfo_inr": float(fund_dict.get("cfo_3yr", 30.0) or 30.0),
+                        "roce_pct": float(fund_dict.get("roce_3yr", 12.0) or 12.0),
+                        "debt_inr": float(fund_dict.get("net_block_3yr_back", 100.0) or 100.0),
+                    },
+                    {
+                        "revenue_inr": float(fund_dict.get("sales_growth_latest", 120.0) or 120.0),
+                        "opm_pct": float(fund_dict.get("opm_latest", 14.0) or 14.0),
+                        "pat_inr": float(fund_dict.get("net_profit_last_year", 35.0) or 35.0),
+                        "cfo_inr": float(fund_dict.get("cfo_last_year", 45.0) or 45.0),
+                        "roce_pct": float(fund_dict.get("roce_latest", 15.0) or 15.0),
+                        "debt_inr": float(fund_dict.get("net_block", 90.0) or 90.0),
+                    }
+                ]
         except Exception:
             pass
 
@@ -88,13 +106,48 @@ def run_turnaround_engine(symbol: str, as_of: Optional[str] = None) -> StrategyR
 
     # Wire TurnaroundStateMachine (Relapse-First Institutional Governance)
     from app.services.research.finder_state_machines import TurnaroundStateMachine
-    cp_val = float(features.get("current_price", 100.0) or 100.0)
-    d_avwap = float(features.get("disaster_avwap", cp_val * 0.85) or (cp_val * 0.85))
-    f_curr = int(features.get("piotroski_score", 5) or 5)
-    f_prev = int(features.get("piotroski_score_prev", max(1, f_curr - 1)) or max(1, f_curr - 1))
-    cfo_val = float(features.get("cfo_cr", 10.0) or 10.0)
-    ebitda_val = float(features.get("ebitda_cr", 15.0) or 15.0)
-    debt_red = bool(features.get("debt_to_equity_improving", True))
+
+    # Extract real price from market quote or fundamentals
+    cp_val = 0.0
+    if not is_offline:
+        try:
+            from app.services.market_data import get_quote
+            q = get_quote(symbol)
+            if q and hasattr(q, "price") and q.price:
+                cp_val = float(q.price)
+        except Exception:
+            pass
+        if cp_val <= 0.0 and fund_dict:
+            cp_val = float(fund_dict.get("current_price", 0.0) or 0.0)
+    else:
+        cp_val = float(features.get("current_price", 100.0) or 100.0)
+
+    # Do not synthesize fake disaster floor if missing
+    d_avwap = None
+    if fund_dict and fund_dict.get("low_52w"):
+        d_avwap = float(fund_dict["low_52w"])
+    elif is_offline:
+        d_avwap = float(features.get("disaster_avwap", cp_val * 0.85) or (cp_val * 0.85))
+
+    # Extract real financial metrics from latest observations
+    latest_fin = financials[-1] if financials else {}
+    cfo_val = float(latest_fin.get("cfo_inr", latest_fin.get("cash_from_ops", 0.0)))
+    curr_rev = float(latest_fin.get("revenue_inr", 0.0))
+    curr_opm = float(features.get("curr_opm", latest_fin.get("opm_pct", 0.0)))
+    ebitda_val = float(curr_rev * (curr_opm / 100.0)) if curr_rev > 0 else float(latest_fin.get("ebitda_inr", 0.0))
+    debt_red = bool(features.get("debt_reduction_pct", 0.0) > 0.0)
+
+    # Derive real Piotroski score
+    f_curr = 5 if is_offline else 0
+    if fund_dict and fund_dict.get("piotroski_score"):
+        f_curr = int(fund_dict["piotroski_score"])
+    elif len(financials) >= 2:
+        from app.services.strategies.forensic_engine import compute_piotroski_fscore
+        piot_res = compute_piotroski_fscore(financials)
+        if piot_res.get("status") == "success":
+            f_curr = int(piot_res.get("f_score", 0))
+
+    f_prev = max(1, f_curr - 1) if f_curr > 0 else 0
     relapse_flag = bool(model_output.get("p_relapse", 0.0) > 0.65)
 
     sm_res = TurnaroundStateMachine.evaluate(

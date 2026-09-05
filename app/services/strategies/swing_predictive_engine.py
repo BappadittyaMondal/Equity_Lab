@@ -554,13 +554,17 @@ class SwingPredictiveEngine:
         )
 
         adtv_val = float(adtv_res.get("adtv_cr", 10.0))
+        from app.services.risk.surveillance_gate import evaluate_surveillance_and_cost_gate
+        surv = evaluate_surveillance_and_cost_gate(sym_name)
+        circuit_locked = bool(surv.circuit_lock_risk == "HIGH" or surv.circuit_band_pct <= 2.0 or surv.hard_gate_status == "FAIL")
+
         feasibility_res = SwingTradeFeasibilityEngine.evaluate(
             symbol=sym_name,
             technical_confluence_score=confluence_score,
             mtf_verdict=mtf_res.get("verdict", "NO_CONFLUENCE"),
             adtv_cr=adtv_val,
             order_size_cr=round(min(0.25, 0.04 * adtv_val), 3) if adtv_val >= 5.0 else 0.25,
-            is_circuit_locked=False,
+            is_circuit_locked=circuit_locked,
         )
 
         return {

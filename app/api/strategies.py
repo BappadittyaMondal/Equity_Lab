@@ -197,21 +197,56 @@ def run_early_compounder_endpoint(symbol: str = Query(..., description="Stock sy
 @router.get("/research/sip-policy/{symbol}", summary="Get Valuation-Responsive Dynamic SIP Allocation Policy")
 def get_sip_policy(symbol: str):
     """Executes Institutional SIP Policy Engine: Evaluates 10-year ROCE, Debt/Equity, and Valuation Z-score dynamic multipliers."""
+    import os
     from app.services.research.finder_state_machines import SIPPolicyEngine
+    from app.services.data_ingestion.screener_connector import ScreenerCloudConnector
+
+    is_offline = os.getenv("OFFLINE_TEST_MODE", "false").lower() == "true"
+    fund = ScreenerCloudConnector.get_company_fundamentals(symbol)
+
+    cp = 0.0
     try:
         from app.services.market_data import get_quote
         q = get_quote(symbol)
-        cp = float(getattr(q, "price", 100.0) or 100.0)
+        if q and hasattr(q, "price") and q.price:
+            cp = float(q.price)
     except Exception:
-        cp = 100.0
+        pass
+
+    if cp <= 0.0 and fund:
+        cp = float(fund.get("current_price", 0.0) or 0.0)
+
+    dma_200 = float(fund.get("dma_200", 0.0) or 0.0) if fund else 0.0
+    is_below_200 = bool(cp < dma_200) if (cp > 0.0 and dma_200 > 0.0) else False
+
+    if fund:
+        roce_val = float(fund.get("roce_3yr") or fund.get("roce_latest") or 0.0)
+        de_val = float(fund.get("debt_to_equity") or 0.0)
+        peg_val = float(fund.get("peg_ratio") or 1.0)
+        val_z = round((peg_val - 1.0) / 0.5, 2) if peg_val > 0 else 0.0
+        thesis_ok = bool(roce_val >= 15.0 and de_val <= 1.0)
+    else:
+        if not is_offline:
+            return {
+                "symbol": symbol,
+                "policy_status": "DATA_INSUFFICIENT",
+                "recommended_tranche_multiplier": 1.0,
+                "allocation_bucket": "UNVERIFIED_DATA_INSUFFICIENT",
+                "action_advice": "Abstain from automated SIP capital scaling until 3-year fundamental history is verified.",
+                "warnings": [f"No verified fundamental records found for {symbol}."]
+            }
+        roce_val = 22.0
+        de_val = 0.20
+        val_z = 0.10
+        thesis_ok = True
 
     return SIPPolicyEngine.evaluate(
         symbol=symbol,
-        roce_10y_avg=22.0,
-        debt_to_equity=0.20,
-        valuation_z_score=0.10,
-        thesis_intact=True,
-        is_price_below_200sma=False,
+        roce_10y_avg=roce_val,
+        debt_to_equity=de_val,
+        valuation_z_score=val_z,
+        thesis_intact=thesis_ok,
+        is_price_below_200sma=is_below_200,
     )
 
 

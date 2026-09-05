@@ -182,16 +182,52 @@ def run_early_compounder_engine(symbol: str, as_of: Optional[str] = None) -> Str
 
     # Wire MicrocapRiskFirstGate (3-Tier Capacity Limits & Forensic Shields)
     from app.services.research.finder_state_machines import MicrocapRiskFirstGate
+    from app.services.data_ingestion.screener_connector import ScreenerCloudConnector
+    from app.services.strategies.promoter_behaviour import evaluate_promoter_behaviour
+    from app.services.risk.surveillance_gate import evaluate_surveillance_and_cost_gate
+
     mcap_val = float(market_cap_cr or 250.0)
+    fund_mcap = ScreenerCloudConnector.get_company_fundamentals(norm)
+
+    promoter_res = evaluate_promoter_behaviour(norm)
+    prom_rf = promoter_res.get("red_flags", [])
+    has_auditor_resigned = any("Auditor" in rf or "CFO" in rf for rf in prom_rf)
+    rpt_pct = 16.0 if any("Related Party" in rf for rf in prom_rf) else 0.0
+
+    if fund_mcap and fund_mcap.get("promoter_holding"):
+        prom_holding = float(fund_mcap["promoter_holding"])
+    elif is_offline:
+        prom_holding = 55.0
+    else:
+        prom_holding = 0.0
+
+    if fund_mcap and fund_mcap.get("cfo_3yr"):
+        cfo_3y = float(fund_mcap["cfo_3yr"])
+    else:
+        cfo_3y = max(10.0, (delta_nopat or 5.0) * 2.0) if is_offline else 0.0
+
+    surv = evaluate_surveillance_and_cost_gate(norm)
+    circuit_freq = 20.0 if surv.circuit_lock_risk == "HIGH" else (10.0 if surv.circuit_lock_risk == "MODERATE" else 0.0)
+
+    adtv_val = max(1.0, mcap_val * 0.01)
+    if not is_offline:
+        try:
+            from app.services.market_data import get_history
+            df_hist = get_history(norm, period="3mo")
+            if df_hist is not None and not df_hist.empty and "Volume" in df_hist.columns and "Close" in df_hist.columns:
+                adtv_val = round(float((df_hist["Close"] * df_hist["Volume"]).tail(30).mean()) / 1e7, 2)
+        except Exception:
+            pass
+
     mcap_gate = MicrocapRiskFirstGate.evaluate(
         symbol=norm,
         market_cap_cr=mcap_val,
-        adtv_30d_cr=max(1.0, mcap_val * 0.01),
-        rpt_to_net_worth_pct=0.0,
-        has_auditor_resigned_recently=False,
-        circuit_frequency_pct=0.0,
-        promoter_holding_pct=55.0,
-        cfo_3y_sum_cr=max(10.0, (delta_nopat or 5.0) * 2.0),
+        adtv_30d_cr=adtv_val,
+        rpt_to_net_worth_pct=rpt_pct,
+        has_auditor_resigned_recently=has_auditor_resigned,
+        circuit_frequency_pct=circuit_freq,
+        promoter_holding_pct=prom_holding,
+        cfo_3y_sum_cr=cfo_3y,
     )
 
     if not mcap_gate["is_investable"]:
