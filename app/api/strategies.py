@@ -219,8 +219,21 @@ def get_sip_policy(symbol: str):
     dma_200 = float(fund.get("dma_200", 0.0) or 0.0) if fund else 0.0
     is_below_200 = bool(cp < dma_200) if (cp > 0.0 and dma_200 > 0.0) else False
 
+    roce_horizon = "10Y_HISTORICAL"
     if fund:
-        roce_val = float(fund.get("roce_3yr") or fund.get("roce_latest") or 0.0)
+        # Check if 10-year ROCE exists or fallback to 3-year with explicit horizon disclosure (DEF-F)
+        if fund.get("roce_10yr"):
+            roce_val = float(fund["roce_10yr"])
+            roce_horizon = "10Y_VERIFIED"
+        elif fund.get("roce_3yr"):
+            roce_val = float(fund["roce_3yr"])
+            roce_horizon = "3Y_INTERIM_FALLBACK"
+        elif fund.get("roce_latest"):
+            roce_val = float(fund["roce_latest"])
+            roce_horizon = "1Y_LATEST_FALLBACK"
+        else:
+            roce_val = 0.0
+            roce_horizon = "DATA_INSUFFICIENT"
         de_val = float(fund.get("debt_to_equity") or 0.0)
         peg_val = float(fund.get("peg_ratio") or 1.0)
         val_z = round((peg_val - 1.0) / 0.5, 2) if peg_val > 0 else 0.0
@@ -239,8 +252,9 @@ def get_sip_policy(symbol: str):
         de_val = 0.20
         val_z = 0.10
         thesis_ok = True
+        roce_horizon = "OFFLINE_BENCHMARK"
 
-    return SIPPolicyEngine.evaluate(
+    res = SIPPolicyEngine.evaluate(
         symbol=symbol,
         roce_10y_avg=roce_val,
         debt_to_equity=de_val,
@@ -248,6 +262,10 @@ def get_sip_policy(symbol: str):
         thesis_intact=thesis_ok,
         is_price_below_200sma=is_below_200,
     )
+    res["roce_evaluated_horizon"] = roce_horizon
+    if roce_horizon in ["3Y_INTERIM_FALLBACK", "1Y_LATEST_FALLBACK"]:
+        res["warnings"] = res.get("warnings", []) + [f"ROCE evaluated on {roce_horizon} horizon. True 10Y decade average unverified."]
+    return res
 
 
 

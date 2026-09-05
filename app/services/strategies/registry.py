@@ -856,7 +856,7 @@ def run_strategy_module(strategy_id: str, symbol: str = "RELIANCE", as_of: Optio
             status="production",
             executed_at=res_e12["executed_at"],
             symbol=res_e12["symbol"],
-            passed_gates=(res_e12["commentary_confidence_score"] >= 65.0),
+            passed_gates=(res_e12["commentary_confidence_score"] >= 65.0 and not res_e12.get("is_synthetic", False)),
             results=res_e12,
             metrics={"commentary_confidence_score": res_e12["commentary_confidence_score"]},
             risk_warnings=module.risk_warnings,
@@ -872,7 +872,7 @@ def run_strategy_module(strategy_id: str, symbol: str = "RELIANCE", as_of: Optio
             status="production",
             executed_at=res_e13["executed_at"],
             symbol=res_e13["symbol"],
-            passed_gates=(res_e13["catalyst_score"] >= 50.0),
+            passed_gates=(res_e13["catalyst_score"] >= 50.0 and not res_e13.get("is_synthetic", False)),
             results={
                 "catalyst_score": res_e13["catalyst_score"],
                 "catalyst_signal": res_e13["catalyst_signal"],

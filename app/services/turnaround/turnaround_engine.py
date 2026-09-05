@@ -137,17 +137,27 @@ def run_turnaround_engine(symbol: str, as_of: Optional[str] = None) -> StrategyR
     ebitda_val = float(curr_rev * (curr_opm / 100.0)) if curr_rev > 0 else float(latest_fin.get("ebitda_inr", 0.0))
     debt_red = bool(features.get("debt_reduction_pct", 0.0) > 0.0)
 
-    # Derive real Piotroski score
+    # Derive real Piotroski score and prior period delta (DEF-D)
     f_curr = 5 if is_offline else 0
+    f_prev = 0
     if fund_dict and fund_dict.get("piotroski_score"):
         f_curr = int(fund_dict["piotroski_score"])
+        f_prev = int(fund_dict.get("piotroski_score_prev", max(1, f_curr - 1) if f_curr > 0 else 0))
     elif len(financials) >= 2:
         from app.services.strategies.forensic_engine import compute_piotroski_fscore
         piot_res = compute_piotroski_fscore(financials)
         if piot_res.get("status") == "success":
             f_curr = int(piot_res.get("f_score", 0))
-
-    f_prev = max(1, f_curr - 1) if f_curr > 0 else 0
+        if len(financials) >= 3:
+            piot_prev_res = compute_piotroski_fscore(financials[:-1])
+            if piot_prev_res.get("status") == "success":
+                f_prev = int(piot_prev_res.get("f_score", max(1, f_curr - 1)))
+            else:
+                f_prev = max(1, f_curr - 1) if f_curr > 0 else 0
+        else:
+            f_prev = max(1, f_curr - 1) if f_curr > 0 else 0
+    else:
+        f_prev = max(1, f_curr - 1) if f_curr > 0 else 0
     relapse_flag = bool(model_output.get("p_relapse", 0.0) > 0.65)
 
     sm_res = TurnaroundStateMachine.evaluate(

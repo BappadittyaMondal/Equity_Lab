@@ -329,7 +329,8 @@ class InstitutionalMultibaggerEngine:
         # Valuation Z-score relative to fair value PEG benchmark (1.0)
         val_z = round((peg_ratio - 1.0) / 0.5, 2) if peg_ratio > 0 else 0.0
 
-        # Real EBITDA derivation (DEF-005): Prefer real operating_profit over synthetic proxies
+        # Real EBITDA derivation (DEF-005 & DEF-C): Track proxy flags honestly
+        cfo_is_proxy = False
         if operating_profit > 0.0:
             cfo_ebitda_val = round(cfo_last_year / operating_profit, 2)
         elif not is_offline:
@@ -339,10 +340,12 @@ class InstitutionalMultibaggerEngine:
                 cfo_ebitda_val = round(cfo_last_year / op_prof_db, 2)
             elif net_profit_last_year > 0:
                 cfo_ebitda_val = round(cfo_last_year / (net_profit_last_year * 1.2), 2)
+                cfo_is_proxy = True
             else:
                 cfo_ebitda_val = 0.0
         else:
             cfo_ebitda_val = round(cfo_last_year / max(net_profit_last_year * 1.2, 1e-4), 2)
+            cfo_is_proxy = True
 
         mb_sm = MultibaggerStateMachine.evaluate(
             symbol=symbol,

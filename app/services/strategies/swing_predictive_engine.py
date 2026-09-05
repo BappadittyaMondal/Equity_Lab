@@ -426,7 +426,12 @@ class SwingPredictiveEngine:
         }
 
     @classmethod
-    def predict_swing_30d(cls, daily_df: pd.DataFrame, weekly_df: Optional[pd.DataFrame] = None) -> Dict[str, Any]:
+    def predict_swing_30d(
+        cls,
+        daily_df: pd.DataFrame,
+        weekly_df: Optional[pd.DataFrame] = None,
+        order_size_cr: Optional[float] = None
+    ) -> Dict[str, Any]:
         """
         Calculates Model-Estimated Technical Confluence Targets (10-30 Day Horizon).
         Returns Weighted Confluence Score (0-100), Model Bias, Dynamic ATR Target, Stop Loss, and Metrics.
@@ -558,12 +563,14 @@ class SwingPredictiveEngine:
         surv = evaluate_surveillance_and_cost_gate(sym_name)
         circuit_locked = bool(surv.circuit_lock_risk == "HIGH" or surv.circuit_band_pct <= 2.0 or surv.hard_gate_status == "FAIL")
 
+        order_size_val = order_size_cr if order_size_cr is not None else (0.25 if adtv_val >= 5.0 else None)
+
         feasibility_res = SwingTradeFeasibilityEngine.evaluate(
             symbol=sym_name,
             technical_confluence_score=confluence_score,
             mtf_verdict=mtf_res.get("verdict", "NO_CONFLUENCE"),
             adtv_cr=adtv_val,
-            order_size_cr=round(min(0.25, 0.04 * adtv_val), 3) if adtv_val >= 5.0 else 0.25,
+            order_size_cr=order_size_val,
             is_circuit_locked=circuit_locked,
         )
 

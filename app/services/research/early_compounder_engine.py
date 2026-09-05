@@ -203,8 +203,14 @@ def run_early_compounder_engine(symbol: str, as_of: Optional[str] = None) -> Str
     prom_rf = promoter_res.get("red_flags", [])
     has_auditor_resigned = any("Auditor" in rf or "CFO" in rf for rf in prom_rf)
     
-    # Real RPT derivation (DEF-006): Read structured percentage directly, eliminating magic number 16.0
-    rpt_pct = float(promoter_res.get("related_party_pct") if promoter_res.get("related_party_pct") is not None else 0.0)
+    # Real RPT derivation (DEF-006 & DEF-A): Fail-closed if RPT missing in production
+    raw_rpt_pct = promoter_res.get("related_party_pct")
+    if raw_rpt_pct is not None:
+        rpt_pct = float(raw_rpt_pct)
+    elif is_offline:
+        rpt_pct = 0.0
+    else:
+        rpt_pct = None
 
     if fund_mcap and fund_mcap.get("promoter_holding"):
         prom_holding = float(fund_mcap["promoter_holding"])

@@ -143,7 +143,7 @@ class TurnaroundStateMachine:
         f_score_delta = piotroski_score - piotroski_prev
         above_floor = (current_price >= disaster_avwap) if disaster_avwap and disaster_avwap > 0 else True
 
-        if piotroski_score >= 7 and cfo_cr > 0 and (cfo_cr >= 0.7 * max(1e-4, ebitda_cr)) and above_floor:
+        if piotroski_score >= 7 and cfo_cr > 0 and ebitda_cr > 0 and (cfo_cr >= 0.7 * ebitda_cr) and above_floor:
             state = TurnaroundState.SUSTAINED_RECOVERY
         elif cfo_cr > 0 and above_floor:
             state = TurnaroundState.CASH_FLOW_CONFIRMED
@@ -253,7 +253,7 @@ class MicrocapRiskFirstGate:
         symbol: str,
         market_cap_cr: Optional[float] = None,
         adtv_30d_cr: Optional[float] = None,
-        rpt_to_net_worth_pct: float = 0.0,
+        rpt_to_net_worth_pct: Optional[float] = 0.0,
         has_auditor_resigned_recently: bool = False,
         circuit_frequency_pct: float = 0.0,
         promoter_holding_pct: float = 0.0,
@@ -283,7 +283,9 @@ class MicrocapRiskFirstGate:
         # 1. Forensic Red-Flags
         if has_auditor_resigned_recently:
             forensic_vetoes.append("Statutory auditor mid-term resignation detected.")
-        if rpt_to_net_worth_pct > 5.0:
+        if rpt_to_net_worth_pct is None:
+            forensic_vetoes.append("Related-party transaction ratio missing or unverified (Fail-closed forensic shield).")
+        elif rpt_to_net_worth_pct > 5.0:
             forensic_vetoes.append(f"Excessive Related-Party Transactions ({rpt_to_net_worth_pct:.1f}% > 5.0%).")
         if circuit_frequency_pct > 15.0:
             forensic_vetoes.append(f"Manipulated order book: circuit frequency ({circuit_frequency_pct:.1f}% > 15.0%).")
