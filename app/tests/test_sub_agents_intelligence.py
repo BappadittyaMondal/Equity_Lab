@@ -23,6 +23,18 @@ def test_forensic_auditor_sub_agent():
     rep_crit = agent.evaluate("HIGH_PLEDGE", ownership_snapshot={"promoter_pledge_pct": 45.0})
     assert rep_crit.findings[0].severity == FindingSeverity.CRITICAL_RED_FLAG
 
+    # Test verified clean (<25.0%) returns Clean Governance Track Record
+    rep_clean = agent.evaluate("CLEAN_CO", ownership_snapshot={"promoter_pledge_pct": 5.0})
+    assert rep_clean.findings[0].severity == FindingSeverity.NEUTRAL_OBSERVATION
+    assert "Clean Governance Track Record" in rep_clean.findings[0].finding
+
+    # Test DEF-003: Missing ownership snapshot must return DATA_INSUFFICIENT, not Clean Governance
+    rep_missing = agent.evaluate("UNKNOWN_CO", ownership_snapshot=None)
+    assert rep_missing.findings[0].severity == FindingSeverity.DATA_INSUFFICIENT
+    assert "Unverified Promoter Pledge" in rep_missing.findings[0].finding
+    assert rep_missing.findings[0].confidence == 0.0
+    assert "DATA_INSUFFICIENT" in rep_missing.summary_verdict
+
 
 def test_supply_chain_catalyst_sub_agent():
     agent = SupplyChainCatalystSubAgent()

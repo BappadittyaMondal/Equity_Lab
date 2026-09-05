@@ -305,6 +305,30 @@ def test_microcap_gate_approved_with_capacity_limits():
     assert res["capacity_limits"]["portfolio_risk_budget_pct"] == 15.0
 
 
+def test_microcap_gate_unverified_adtv_and_mcap_fail_closed():
+    """Test MicrocapRiskFirstGate fails closed when ADTV or market cap is unverified (DEF-007, DEF-008)."""
+    # 1. Unverified ADTV (None)
+    res_no_adtv = MicrocapRiskFirstGate.evaluate(
+        symbol="UNVERIFIED_ADTV",
+        market_cap_cr=250.0,
+        adtv_30d_cr=None,
+    )
+    assert res_no_adtv["is_investable"] is False
+    assert res_no_adtv["status"] == "CAPACITY_UNVERIFIED_DATA_INSUFFICIENT"
+    assert "ADTV (30-day average daily traded volume) missing or unverified." in res_no_adtv["forensic_vetoes"]
+
+    # 2. Unverified Market Cap (None)
+    res_no_mcap = MicrocapRiskFirstGate.evaluate(
+        symbol="UNVERIFIED_MCAP",
+        market_cap_cr=None,
+        adtv_30d_cr=2.0,
+    )
+    assert res_no_mcap["is_investable"] is False
+    assert res_no_mcap["status"] == "CAPACITY_UNVERIFIED_DATA_INSUFFICIENT"
+    assert "Market capitalization missing or unverified." in res_no_mcap["forensic_vetoes"]
+
+
+
 # ==============================================================================
 # 7. SIP POLICY ENGINE TESTS
 # ==============================================================================

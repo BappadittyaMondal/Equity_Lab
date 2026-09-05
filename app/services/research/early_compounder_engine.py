@@ -186,13 +186,25 @@ def run_early_compounder_engine(symbol: str, as_of: Optional[str] = None) -> Str
     from app.services.strategies.promoter_behaviour import evaluate_promoter_behaviour
     from app.services.risk.surveillance_gate import evaluate_surveillance_and_cost_gate
 
-    mcap_val = float(market_cap_cr or 250.0)
+    is_offline = os.getenv("OFFLINE_TEST_MODE", "false").lower() == "true"
     fund_mcap = ScreenerCloudConnector.get_company_fundamentals(norm)
+
+    # Market Cap resolution (DEF-008): Fail-closed if missing in production
+    if market_cap_cr is not None:
+        mcap_val = float(market_cap_cr)
+    elif fund_mcap and fund_mcap.get("market_cap"):
+        mcap_val = float(fund_mcap["market_cap"])
+    elif is_offline:
+        mcap_val = 250.0
+    else:
+        mcap_val = None
 
     promoter_res = evaluate_promoter_behaviour(norm)
     prom_rf = promoter_res.get("red_flags", [])
     has_auditor_resigned = any("Auditor" in rf or "CFO" in rf for rf in prom_rf)
-    rpt_pct = 16.0 if any("Related Party" in rf for rf in prom_rf) else 0.0
+    
+    # Real RPT derivation (DEF-006): Read structured percentage directly, eliminating magic number 16.0
+    rpt_pct = float(promoter_res.get("related_party_pct") if promoter_res.get("related_party_pct") is not None else 0.0)
 
     if fund_mcap and fund_mcap.get("promoter_holding"):
         prom_holding = float(fund_mcap["promoter_holding"])
@@ -209,15 +221,18 @@ def run_early_compounder_engine(symbol: str, as_of: Optional[str] = None) -> Str
     surv = evaluate_surveillance_and_cost_gate(norm)
     circuit_freq = 20.0 if surv.circuit_lock_risk == "HIGH" else (10.0 if surv.circuit_lock_risk == "MODERATE" else 0.0)
 
-    adtv_val = max(1.0, mcap_val * 0.01)
+    # Real ADTV derivation (DEF-007): In production, do not silently seed with 1% Mcap
     if not is_offline:
+        adtv_val = None
         try:
             from app.services.market_data import get_history
             df_hist = get_history(norm, period="3mo")
             if df_hist is not None and not df_hist.empty and "Volume" in df_hist.columns and "Close" in df_hist.columns:
                 adtv_val = round(float((df_hist["Close"] * df_hist["Volume"]).tail(30).mean()) / 1e7, 2)
         except Exception:
-            pass
+            adtv_val = None
+    else:
+        adtv_val = max(1.0, (mcap_val or 250.0) * 0.01)
 
     mcap_gate = MicrocapRiskFirstGate.evaluate(
         symbol=norm,

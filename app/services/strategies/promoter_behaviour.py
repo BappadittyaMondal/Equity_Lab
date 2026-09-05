@@ -97,6 +97,8 @@ def evaluate_promoter_behaviour(
         "executed_at": datetime.now().isoformat(),
         "insider_conviction_score": insider_conviction_score,
         "hard_gate_status": hard_gate_status,
+        "related_party_pct": related_party_pct,
+        "promoter_pledge_pct": pledge_pct,
         "red_flags": red_flags,
         "insider_signal": insider_signal.model_dump(),
         "governance_checklist": governance_checklist.model_dump(),

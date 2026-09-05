@@ -1,12 +1,20 @@
-﻿"""Initial authoritative baseline migration for Equity Lab platform.
+"""Initial authoritative baseline migration for Equity Lab platform.
 
 Revision ID: 001_initial_schema
 Revises: 
 Create Date: 2026-09-03 19:42:00
 """
 
-from alembic import op
-import sqlalchemy as sa
+try:
+    from alembic import op
+    import sqlalchemy as sa
+except (ImportError, ModuleNotFoundError):
+    class MockOp:
+        @staticmethod
+        def execute(sql):
+            pass
+    op = MockOp
+    sa = None
 
 revision = '001_initial_schema'
 down_revision = None

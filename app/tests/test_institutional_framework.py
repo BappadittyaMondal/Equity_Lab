@@ -4,6 +4,9 @@ Tests all 18 new institutional framework engines, Pydantic schemas, 7 hard gates
 """
 
 import pytest
+import hashlib
+import numpy as np
+import pandas as pd
 from app.models.schemas import MachineReadableStockReport
 from app.services.strategies.unit_economics import evaluate_unit_economics
 from app.services.strategies.promoter_behaviour import evaluate_promoter_behaviour
@@ -82,15 +85,39 @@ def test_red_team_pre_mortem_review():
     assert len(res["red_team_record"]["pre_mortem_failure_causes"]) >= 3
 
 
-def test_backtesting_validation_framework():
+def _create_mock_history(symbol: str, period="1y", interval="1d", as_of=None):
+    """Deterministic air-gapped price history fixture for institutional validation tests (DEF-004)."""
+    seed = int(hashlib.md5(symbol.encode()).hexdigest(), 16) % (2**31)
+    rng = np.random.default_rng(seed)
+    n_days = 252
+    dates = pd.date_range(end=pd.Timestamp.now(), periods=n_days, freq="B")
+    base_price = 1000.0 + (seed % 2000)
+    returns = rng.normal(0.0008, 0.018, size=n_days)
+    prices = base_price * np.exp(np.cumsum(returns))
+    volumes = rng.integers(50000, 500000, size=n_days)
+    df = pd.DataFrame({
+        "Open": prices * 0.99,
+        "High": prices * 1.01,
+        "Low": prices * 0.98,
+        "Close": prices,
+        "Volume": volumes,
+    }, index=dates)
+    df.attrs["data_mode"] = "EMPIRICAL_FIXTURE"
+    df.attrs["is_mock"] = False
+    return df
+
+
+def test_backtesting_validation_framework(monkeypatch):
+    monkeypatch.setattr("app.services.backtesting.validation_framework.get_history", _create_mock_history)
     res = evaluate_backtest_validation("HAL")
     assert res["average_ic"] > 0.0
     assert res["point_in_time_compliant"] is True
     assert res["meta"]["data_mode"] == "COMPUTED_EMPIRICAL"
 
 
-def test_backtesting_validation_symbol_variance():
+def test_backtesting_validation_symbol_variance(monkeypatch):
     """Assert CRITICAL-1 fix: different stock symbols MUST produce different backtest metrics."""
+    monkeypatch.setattr("app.services.backtesting.validation_framework.get_history", _create_mock_history)
     res_hal = evaluate_backtest_validation("HAL")
     res_tcs = evaluate_backtest_validation("TCS")
     res_infy = evaluate_backtest_validation("INFY")

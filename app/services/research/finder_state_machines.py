@@ -251,15 +251,33 @@ class MicrocapRiskFirstGate:
     def evaluate(
         cls,
         symbol: str,
-        market_cap_cr: float,
-        adtv_30d_cr: float,
-        rpt_to_net_worth_pct: float,
-        has_auditor_resigned_recently: bool,
-        circuit_frequency_pct: float,
-        promoter_holding_pct: float,
-        cfo_3y_sum_cr: float,
+        market_cap_cr: Optional[float] = None,
+        adtv_30d_cr: Optional[float] = None,
+        rpt_to_net_worth_pct: float = 0.0,
+        has_auditor_resigned_recently: bool = False,
+        circuit_frequency_pct: float = 0.0,
+        promoter_holding_pct: float = 0.0,
+        cfo_3y_sum_cr: float = 0.0,
     ) -> Dict[str, Any]:
         """Evaluates microcap eligibility with strict forensic vetoes."""
+        if market_cap_cr is None:
+            return {
+                "symbol": symbol.upper(),
+                "is_investable": False,
+                "status": "CAPACITY_UNVERIFIED_DATA_INSUFFICIENT",
+                "forensic_vetoes": ["Market capitalization missing or unverified."],
+                "allowed_market_impact_order_cr": 0.0,
+            }
+
+        if adtv_30d_cr is None:
+            return {
+                "symbol": symbol.upper(),
+                "is_investable": False,
+                "status": "CAPACITY_UNVERIFIED_DATA_INSUFFICIENT",
+                "forensic_vetoes": ["ADTV (30-day average daily traded volume) missing or unverified."],
+                "allowed_market_impact_order_cr": 0.0,
+            }
+
         forensic_vetoes: List[str] = []
 
         # 1. Forensic Red-Flags

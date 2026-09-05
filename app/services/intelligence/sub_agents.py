@@ -23,8 +23,8 @@ class ForensicAuditorSubAgent:
         findings = []
         now_str = datetime.now(timezone.utc).isoformat()
 
-        if ownership_snapshot:
-            pledge = float(ownership_snapshot.get("promoter_pledge_pct") or 0.0)
+        if ownership_snapshot and "promoter_pledge_pct" in ownership_snapshot and ownership_snapshot["promoter_pledge_pct"] is not None:
+            pledge = float(ownership_snapshot["promoter_pledge_pct"])
             if pledge > 40.0:
                 findings.append(
                     QualitativeEvidenceFinding(
@@ -47,17 +47,37 @@ class ForensicAuditorSubAgent:
                         thesis_invalidation_trigger="Promoter pledge ratio increases above 35.0%",
                     )
                 )
-
-        if not findings:
+            else:
+                findings.append(
+                    QualitativeEvidenceFinding(
+                        finding="Clean Governance Track Record",
+                        evidence=f"Verified promoter pledge is safe at {pledge:.1f}% with no governance red flags.",
+                        severity=FindingSeverity.NEUTRAL_OBSERVATION,
+                        confidence=0.90,
+                        source="BSE/NSE Shareholding Pattern Filing",
+                    )
+                )
+        else:
+            # Absence of Evidence is NOT Evidence of Absence (DEF-003)
             findings.append(
                 QualitativeEvidenceFinding(
-                    finding="Clean Governance Track Record",
-                    evidence="No major related-party transaction alarms or promoter pledge red flags detected.",
-                    severity=FindingSeverity.NEUTRAL_OBSERVATION,
-                    confidence=0.85,
-                    source="ResearchDataStore Filings Audit",
+                    finding="Unverified Promoter Pledge",
+                    evidence="Promoter pledge data missing or unverified in shareholding filings.",
+                    severity=FindingSeverity.DATA_INSUFFICIENT,
+                    confidence=0.0,
+                    source="BSE/NSE Shareholding Pattern Filing",
+                    thesis_invalidation_trigger="Promoter pledge ratio cannot be verified.",
                 )
             )
+
+        if any(f.severity == FindingSeverity.DATA_INSUFFICIENT for f in findings):
+            verdict = "DATA_INSUFFICIENT: Governance and pledge unverified."
+        elif any(f.severity == FindingSeverity.CRITICAL_RED_FLAG for f in findings):
+            verdict = "CRITICAL_RED_FLAG: Governance risk detected."
+        elif any(f.severity == FindingSeverity.HIGH_PENALTY for f in findings):
+            verdict = "HIGH_PENALTY: Elevated pledge risk."
+        else:
+            verdict = "Audited governance & pledge structure."
 
         return SubAgentAuditReport(
             symbol=symbol,
@@ -65,7 +85,7 @@ class ForensicAuditorSubAgent:
             agent_name="Forensic Accounting & Governance Auditor",
             executed_at=now_str,
             findings=findings,
-            summary_verdict="Audited governance & pledge structure.",
+            summary_verdict=verdict,
         )
 
 

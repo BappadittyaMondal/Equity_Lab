@@ -138,3 +138,30 @@ def test_db_health_render_and_production_checks(monkeypatch):
     h3 = check_db_health()
     assert h3["is_postgres"] is True
     assert h3["status"] == "HEALTHY"
+
+
+def test_alembic_consolidated_migration_upgrade(monkeypatch):
+    """Verify Alembic migration 002 successfully parses and executes against canonical DB (DEF-002)."""
+    import importlib.util
+    import os
+    spec = importlib.util.spec_from_file_location("migration_002", os.path.join("alembic", "versions", "002_consolidate_all_tables.py"))
+    mod = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(mod)
+
+    executed_statements = []
+    class MockOp:
+        @staticmethod
+        def execute(sql):
+            executed_statements.append(sql)
+            # Verify SQL statement executes against canonical SQLite connection
+            conn = get_connection()
+            conn.execute(sql)
+            conn.close()
+
+    monkeypatch.setattr(mod, "op", MockOp)
+    mod.upgrade()
+
+    assert len(executed_statements) >= 15
+    assert any("company_fundamentals" in s for s in executed_statements)
+    assert any("quarterly_financials" in s for s in executed_statements)
+

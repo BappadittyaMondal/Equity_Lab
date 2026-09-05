@@ -12,6 +12,7 @@ class FindingSeverity(str, Enum):
     MODERATE_RISK = "MODERATE_RISK"
     NEUTRAL_OBSERVATION = "NEUTRAL_OBSERVATION"
     POSITIVE_CATALYST = "POSITIVE_CATALYST"
+    DATA_INSUFFICIENT = "DATA_INSUFFICIENT"
 
 
 class QualitativeEvidenceFinding(BaseModel):

@@ -175,6 +175,7 @@ app.add_middleware(
 # Health check endpoints stay unauthenticated for infrastructure monitoring / readiness probes
 app.include_router(health.router)
 
+@app.get("/health", include_in_schema=False)
 @app.get("/api/health", include_in_schema=False)
 def get_root_health_status():
     return health.get_health_status()

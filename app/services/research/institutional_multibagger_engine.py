@@ -38,6 +38,7 @@ class InstitutionalMultibaggerEngine:
         opm_5yr = item.get("opm_5yr", 0.0)
         opm_latest = item.get("opm_latest", 0.0)
 
+        operating_profit = float(item.get("operating_profit") or 0.0)
         op_growth = item.get("op_growth", 0.0)
         pat_growth_3yr = item.get("pat_growth_3yr", 0.0)
         pat_growth_latest = item.get("pat_growth_latest", 0.0)
@@ -305,6 +306,8 @@ class InstitutionalMultibaggerEngine:
         # Wire MultibaggerStateMachine (Lifecycle & Kill-Trigger Governance)
         from app.services.research.finder_state_machines import MultibaggerStateMachine
 
+        is_offline = os.getenv("OFFLINE_TEST_MODE", "false").lower() == "true"
+
         # Pledge fail-closed handling
         if pledged_pct is not None:
             pledge_val = float(pledged_pct)
@@ -326,13 +329,28 @@ class InstitutionalMultibaggerEngine:
         # Valuation Z-score relative to fair value PEG benchmark (1.0)
         val_z = round((peg_ratio - 1.0) / 0.5, 2) if peg_ratio > 0 else 0.0
 
+        # Real EBITDA derivation (DEF-005): Prefer real operating_profit over synthetic proxies
+        if operating_profit > 0.0:
+            cfo_ebitda_val = round(cfo_last_year / operating_profit, 2)
+        elif not is_offline:
+            fund_data = ScreenerCloudConnector.get_company_fundamentals(symbol)
+            op_prof_db = float(fund_data.get("operating_profit") or 0.0) if fund_data else 0.0
+            if op_prof_db > 0.0:
+                cfo_ebitda_val = round(cfo_last_year / op_prof_db, 2)
+            elif net_profit_last_year > 0:
+                cfo_ebitda_val = round(cfo_last_year / (net_profit_last_year * 1.2), 2)
+            else:
+                cfo_ebitda_val = 0.0
+        else:
+            cfo_ebitda_val = round(cfo_last_year / max(net_profit_last_year * 1.2, 1e-4), 2)
+
         mb_sm = MultibaggerStateMachine.evaluate(
             symbol=symbol,
             pat_growth_ttm=pat_growth_latest,
             pat_growth_prev=pat_growth_3yr,
             incremental_roic=roce_latest,
             wacc=12.0,
-            cfo_to_ebitda=round(cfo_last_year / max(net_profit_last_year * 1.2, 1e-4), 2),
+            cfo_to_ebitda=cfo_ebitda_val,
             promoter_pledge_pct=pledge_val,
             is_breakout_cleared=technical_score >= 3.0,
             consecutive_high_roce_quarters=consec_roce_q,
