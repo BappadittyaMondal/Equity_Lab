@@ -95,4 +95,8 @@ def build_clean_release_zip(output_zip_name: str = "Equity_Lab_v0.3.0_Clean_Rele
 
 
 if __name__ == "__main__":
-    build_clean_release_zip()
+    import argparse
+    parser = argparse.ArgumentParser(description="Equity Lab Clean Release Packaging Tool")
+    parser.add_argument("--output", default="Equity_Lab_v0.1.0_Clean_Release.zip", help="Output ZIP filename")
+    args = parser.parse_args()
+    build_clean_release_zip(output_zip_name=args.output)

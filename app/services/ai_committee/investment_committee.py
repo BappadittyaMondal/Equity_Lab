@@ -47,7 +47,7 @@ class VirtualInvestmentCommittee:
         cfo = stock_data.get("cfo_last_year", 0.0)
         pat = stock_data.get("net_profit_last_year", 0.0)
         fcf = stock_data.get("fcf_last_year", cfo - stock_data.get("capex_last_year", 0.0))
-        piotroski = stock_data.get("piotroski_score", 6)
+        piotroski = stock_data.get("piotroski_score")
 
         findings = []
         concerns = []
@@ -62,12 +62,15 @@ class VirtualInvestmentCommittee:
         elif fcf > 0.0:
             findings.append(f"Positive FCF Generation: FCF is +₹{fcf:.1f} Cr.")
 
-        if piotroski >= 7:
-            findings.append(f"High Financial Strength: Piotroski F-Score is {piotroski}/9.")
-        elif piotroski <= 4:
-            concerns.append(f"Weak Piotroski F-Score ({piotroski}/9). Balance sheet stress.")
+        if piotroski is not None:
+            if piotroski >= 7:
+                findings.append(f"High Financial Strength: Piotroski F-Score is {piotroski}/9.")
+            elif piotroski <= 4:
+                concerns.append(f"Weak Piotroski F-Score ({piotroski}/9). Balance sheet stress.")
+        else:
+            concerns.append("Piotroski F-Score unverified in corporate filings.")
 
-        vote = "REJECT" if fcf < -1000.0 or piotroski <= 3 else ("CAUTION" if concerns else "APPROVE")
+        vote = "REJECT" if (fcf < -1000.0 or (piotroski is not None and piotroski <= 3)) else ("CAUTION" if concerns else "APPROVE")
         weight = 85.0 if vote == "APPROVE" else (60.0 if vote == "CAUTION" else 30.0)
 
         return AgentOpinion(
@@ -82,24 +85,34 @@ class VirtualInvestmentCommittee:
     @classmethod
     def valuation_skeptic_agent(cls, symbol: str, stock_data: Dict[str, Any]) -> AgentOpinion:
         """Evaluates valuation safety margin, PEG ratio, and downside risk."""
-        pe = stock_data.get("pe_ratio", 25.0)
-        peg = stock_data.get("peg_ratio", 1.0)
-        debt_to_equity = stock_data.get("debt_to_equity", 0.2)
+        from app.services.utils.safe_extractor import SafeDataExtractor
+        pe = SafeDataExtractor.get_numeric(stock_data, "pe_ratio")
+        peg = SafeDataExtractor.get_numeric(stock_data, "peg_ratio")
+        debt_to_equity = SafeDataExtractor.get_numeric(stock_data, "debt_to_equity")
 
         findings = []
         concerns = []
 
-        if peg < 1.0 and peg > 0.0:
+        if peg is None:
+            concerns.append("Valuation Safety Unverified: PEG ratio missing.")
+        elif peg < 1.0 and peg > 0.0:
             findings.append(f"Attractive Valuation Safety: PEG ratio is {peg:.2f} (< 1.0 growth at reasonable price).")
         elif peg > 2.0:
             concerns.append(f"Valuation Stretch: PEG ratio is {peg:.2f} (> 2.0 premium valuation).")
 
-        if debt_to_equity < 0.3:
+        if debt_to_equity is None:
+            concerns.append("Solvency Unverified: Debt-to-Equity ratio missing.")
+        elif debt_to_equity < 0.3:
             findings.append(f"Low Solvency Risk: Debt-to-Equity is {debt_to_equity:.2f}x (Conservative balance sheet).")
         elif debt_to_equity > 1.0:
             concerns.append(f"High Leverage: Debt-to-Equity is {debt_to_equity:.2f}x.")
 
-        vote = "REJECT" if debt_to_equity > 1.5 or peg > 3.0 else ("CAUTION" if concerns else "APPROVE")
+        if (debt_to_equity is not None and debt_to_equity > 1.5) or (peg is not None and peg > 3.0):
+            vote = "REJECT"
+        elif concerns:
+            vote = "CAUTION"
+        else:
+            vote = "APPROVE"
         weight = 90.0 if vote == "APPROVE" else (65.0 if vote == "CAUTION" else 35.0)
 
         return AgentOpinion(
@@ -193,23 +206,44 @@ class VirtualInvestmentCommittee:
         stock_data: Optional[Dict[str, Any]] = None
     ) -> Dict[str, Any]:
         """Runs the multi-agent IC debate and produces a consensus conviction score & IC Memo."""
+        import os
+        is_offline = os.getenv("OFFLINE_TEST_MODE", "false").lower() == "true"
         norm_sym = normalize_symbol(symbol)
         clean_sym = norm_sym.replace(".NS", "").replace(".BO", "").upper()
 
-        data = stock_data or {
-            "symbol": clean_sym,
-            "sales_growth_3yr": 35.0,
-            "pat_growth_3yr": 45.0,
-            "roce_3yr": 28.0,
-            "cfo_last_year": 250.0,
-            "net_profit_last_year": 180.0,
-            "capex_last_year": 40.0,
-            "fcf_last_year": 210.0,
-            "debt_to_equity": 0.05,
-            "pe_ratio": 22.0,
-            "peg_ratio": 0.8,
-            "piotroski_score": 8
-        }
+        data = stock_data
+        if not data:
+            try:
+                from app.services.data_ingestion.screener_connector import ScreenerCloudConnector
+                data = ScreenerCloudConnector.get_company_fundamentals(clean_sym)
+            except Exception:
+                data = None
+
+        if not data:
+            if is_offline:
+                data = {
+                    "symbol": clean_sym,
+                    "sales_growth_3yr": 35.0,
+                    "pat_growth_3yr": 45.0,
+                    "roce_3yr": 28.0,
+                    "cfo_last_year": 250.0,
+                    "net_profit_last_year": 180.0,
+                    "capex_last_year": 40.0,
+                    "fcf_last_year": 210.0,
+                    "debt_to_equity": 0.05,
+                    "pe_ratio": 22.0,
+                    "peg_ratio": 0.8,
+                    "piotroski_score": 8
+                }
+            else:
+                return {
+                    "symbol": clean_sym,
+                    "committee_decision": "ABSTAIN_DATA_INSUFFICIENT",
+                    "consensus_conviction_score": 0.0,
+                    "agent_opinions": [],
+                    "ic_memo": f"=== INSTITUTIONAL INVESTMENT COMMITTEE (IC) MEMO: {clean_sym} ===\nFINAL COMMITTEE DECISION: ABSTAIN_DATA_INSUFFICIENT (Consensus Weight: 0.0/100)\n\nEXECUTIVE REASONING:\nAbstaining due to unverified fundamental observations in production.",
+                    "meta": create_meta_header(source="Virtual Investment Committee")
+                }
 
         # 1. Execute all 4 Agent Opinions
         forensic = cls.forensic_auditor_agent(clean_sym, data)

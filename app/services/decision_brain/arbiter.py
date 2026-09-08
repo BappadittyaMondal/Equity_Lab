@@ -45,47 +45,54 @@ CATEGORY_WEIGHTS: Dict[str, float] = {
 MODEL_VERSION = "0.4.0"
 
 
+_TABLES_ENSURED = False
+
+
 def _ensure_table():
-    from app.services.db import db_session
-    with db_session() as conn:
-        conn.execute("""
-            CREATE TABLE IF NOT EXISTS conviction_calls (
-                id INTEGER PRIMARY KEY AUTOINCREMENT,
-                symbol TEXT NOT NULL,
-                verdict TEXT NOT NULL,
-                conviction_score INTEGER NOT NULL,
-                primary_thesis TEXT,
-                contributing_engines TEXT,
-                contradicting_engines TEXT,
-                confidence_tier TEXT,
-                created_at TEXT NOT NULL,
-                data_backed BOOLEAN DEFAULT 0
-            )
-        """)
-        # Auto-migration: ensure data_backed column exists and backfill 0
-        try:
-            from app.services.db import get_table_columns
-            cols = get_table_columns(conn, "conviction_calls")
-            if "data_backed" not in cols:
-                conn.execute("ALTER TABLE conviction_calls ADD COLUMN data_backed BOOLEAN DEFAULT 0")
-                conn.execute("UPDATE conviction_calls SET data_backed = 0 WHERE data_backed IS NULL")
-        except Exception:
-            pass
-        conn.execute("""
-            CREATE TABLE IF NOT EXISTS thesis_drift_events (
-                id INTEGER PRIMARY KEY AUTOINCREMENT,
-                symbol TEXT NOT NULL,
-                old_score INTEGER NOT NULL,
-                new_score INTEGER NOT NULL,
-                old_verdict TEXT NOT NULL,
-                new_verdict TEXT NOT NULL,
-                delta INTEGER NOT NULL,
-                timestamp TEXT NOT NULL
-            )
-        """)
-
-
-_ensure_table()
+    global _TABLES_ENSURED
+    if _TABLES_ENSURED:
+        return
+    try:
+        from app.services.db import db_session
+        with db_session() as conn:
+            conn.execute("""
+                CREATE TABLE IF NOT EXISTS conviction_calls (
+                    id INTEGER PRIMARY KEY AUTOINCREMENT,
+                    symbol TEXT NOT NULL,
+                    verdict TEXT NOT NULL,
+                    conviction_score INTEGER NOT NULL,
+                    primary_thesis TEXT,
+                    contributing_engines TEXT,
+                    contradicting_engines TEXT,
+                    confidence_tier TEXT,
+                    created_at TEXT NOT NULL,
+                    data_backed BOOLEAN DEFAULT 0
+                )
+            """)
+            # Auto-migration: ensure data_backed column exists and backfill 0
+            try:
+                from app.services.db import get_table_columns
+                cols = get_table_columns(conn, "conviction_calls")
+                if "data_backed" not in cols:
+                    conn.execute("ALTER TABLE conviction_calls ADD COLUMN data_backed BOOLEAN DEFAULT 0")
+                    conn.execute("UPDATE conviction_calls SET data_backed = 0 WHERE data_backed IS NULL")
+            except Exception:
+                pass
+            conn.execute("""
+                CREATE TABLE IF NOT EXISTS thesis_drift_events (
+                    id INTEGER PRIMARY KEY AUTOINCREMENT,
+                    symbol TEXT NOT NULL,
+                    old_score INTEGER NOT NULL,
+                    new_score INTEGER NOT NULL,
+                    old_verdict TEXT NOT NULL,
+                    new_verdict TEXT NOT NULL,
+                    delta INTEGER NOT NULL,
+                    timestamp TEXT NOT NULL
+                )
+            """)
+        _TABLES_ENSURED = True
+    except Exception as e:
+        logger.debug("Database table check deferred: %s", e)
 
 
 class Arbiter:
@@ -173,6 +180,7 @@ class Arbiter:
             verdict = "Buy" if (getattr(resp, "passed_gates", False) and (score_0_100 is None or score_0_100 >= 55.0)) else "Avoid"
 
             outputs.append({
+                "symbol":     symbol,
                 "engine_id":  engine_id,
                 "verdict":    verdict,
                 "confidence": confidence,
@@ -214,6 +222,7 @@ class Arbiter:
         ENGINE_DEPENDENCIES = {
             "E4": ["E1", "E2", "E3", "D18"],
             "C14": ["E2"],
+            "E19": ["B4", "B7"],
         }
 
         for out in outputs:
@@ -241,7 +250,7 @@ class Arbiter:
             if out["verdict"] == "Buy":
                 engine_score = (eng_score * (out["confidence"] / 100.0)) if out["confidence"] > 0 else eng_score
             else:
-                engine_score = max(0.0, 50.0 - eng_score * 0.5)
+                engine_score = round(eng_score * 0.25, 1)
 
             category_scores[category].append(engine_score)
 
@@ -338,11 +347,12 @@ class Arbiter:
                 return True
 
         # Check Micro/Small-Cap Integrity & Forensic Audit Gates
-        symbol = None
-        for out in outputs:
-            if out.get("symbol"):
-                symbol = out["symbol"]
-                break
+        symbol = getattr(snap, "symbol", None) if snap else None
+        if not symbol:
+            for out in outputs:
+                if out.get("symbol"):
+                    symbol = out["symbol"]
+                    break
 
         if symbol:
             try:
@@ -530,6 +540,7 @@ class Arbiter:
     # 9. Persist conviction call
     # ──────────────────────────────────────────────────────────────────────
     def _persist(self, call: ConvictionCall) -> Optional[int]:
+        _ensure_table()
         from app.services.db import db_session
         with db_session() as conn:
             cursor = conn.execute(

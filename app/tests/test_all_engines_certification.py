@@ -1,7 +1,7 @@
 """
 Hardened Institutional Certification Test Suite.
 
-Certifies all 37 registered IERL modules (18 Strategy Modules A1-D18 + 19 Research Engines E1-E19).
+Certifies all 40 canonical registered IERL modules (18 Strategy Modules A1-D18 + 21 Research Engines E1-E21 + OBV_ACC).
 Enforces strict mathematical bounds, non-null metadata headers, valid output schemas,
 and separates production engines from coming_soon / data_insufficient fallback statuses.
 """
@@ -22,10 +22,10 @@ class TestHardenedEnginesCertification(unittest.TestCase):
     def setUpClass(cls):
         os.environ["OFFLINE_TEST_MODE"] = "true"
 
-    def test_certify_all_37_engines(self):
-        """Rigorous audit across all registered strategy & research engines (38 total)."""
+    def test_certify_all_40_canonical_engines(self):
+        """Rigorous audit across all 40 registered canonical strategy & research engines."""
         all_modules = list(STRATEGY_MODULES.keys()) + list(RESEARCH_ENGINES.keys())
-        self.assertGreaterEqual(len(all_modules), 37, f"Expected >= 37 registered modules, found {len(all_modules)}")
+        self.assertEqual(len(all_modules), 40, f"Expected exactly 40 registered canonical modules, found {len(all_modules)}")
         
         production_passed = []
         coming_soon = []

@@ -1,10 +1,11 @@
 """Multi-Factor Multibagger Intelligence & Screening Engine (Strategy E4).
 
-Combines:
-- Growth Inflection (E1) - 30%
-- Turnaround Stage (E2) - 25%
-- Growth vs Market Recognition Gap (E3) - 20%
-- Governance & Management Quality - 15%
+Combines 6 Institutional Core Pillars:
+- Growth Inflection (E1) - 25%
+- Incremental ROIC Capital Productivity - 20%
+- Turnaround Stage (E2) - 20%
+- Growth vs Market Recognition Gap (E3) - 15%
+- Governance & Economic Moat Quality - 10%
 - Saatvik Ethical Screen Filter (D18) - 10%
 
 Outputs composite Multibagger Score (0-100), Conviction Category, Key Drivers, and Key Risks.

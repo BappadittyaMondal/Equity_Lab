@@ -23,3 +23,50 @@ def test_strategy_production_vs_coming_soon():
         assert m.status in ["production", "coming_soon", "suspended"]
 
 
+def test_c10_owner_earnings_execution():
+    from app.services.strategies.registry import run_strategy_module
+    from app.services.strategies.owner_earnings_c10 import evaluate_owner_earnings
+
+    # 1. Direct engine invocation
+    res = evaluate_owner_earnings("RELIANCE")
+    assert res["strategy_id"] == "C10"
+    assert "owner_earnings_inr" in res
+    assert "fcf_yield_pct" in res
+    assert "maintenance_capex" in res
+    assert "depreciation" in res
+    assert "owner_earnings_to_pat_ratio" in res
+    assert "is_mock" in res
+    assert "accounting_components_observed" in res
+    assert "is_pure_accounting_observation" in res
+    assert "accounting_integrity" in res
+    assert res["status"] in ["production", "data_insufficient"]
+
+    # 2. Registry dispatch invocation
+    dispatch_res = run_strategy_module("C10", "RELIANCE")
+    assert dispatch_res.strategy_id == "C10"
+    assert dispatch_res.status in ["production", "data_insufficient"]
+    assert "fcf_yield_pct" in dispatch_res.metrics
+    assert "owner_earnings_inr" in dispatch_res.metrics
+
+
+def test_d16_dual_momentum_execution():
+    from app.services.strategies.registry import run_strategy_module
+    from app.services.strategies.dual_momentum_d16 import evaluate_dual_momentum
+
+    # 1. Direct engine invocation
+    res = evaluate_dual_momentum("RELIANCE", benchmark="NIFTY 50")
+    assert res["strategy_id"] == "D16"
+    assert "absolute_momentum_12m_pct" in res
+    assert "benchmark_return_12m_pct" in res
+    assert "relative_momentum_spread_pct" in res
+    assert "dual_momentum_signal" in res
+    assert res["dual_momentum_signal"] in ["STRONG_BUY", "HOLD_CASH", "BENCHMARK_PREFERRED", "NO_SIGNAL"]
+
+    # 2. Registry dispatch invocation
+    dispatch_res = run_strategy_module("D16", "RELIANCE")
+    assert dispatch_res.strategy_id == "D16"
+    assert dispatch_res.status in ["production", "data_insufficient"]
+
+
+
+

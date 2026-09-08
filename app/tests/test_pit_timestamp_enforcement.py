@@ -129,3 +129,25 @@ def test_arbiter_abstain_trigger_on_high_variance():
 
     assert reason is not None
     assert "engine score variance" in reason.lower()
+
+
+def test_pit_strategy_run_api_propagation():
+    """Test that as_of parameter is accepted and executed cleanly across strategy run endpoints."""
+    from fastapi.testclient import TestClient
+    from app.main import app
+
+    client = TestClient(app)
+    # 1. POST /api/v1/strategies/{strategy_id}/run with as_of in body
+    res = client.post(
+        "/api/v1/strategies/C9/run",
+        json={"symbol": "RELIANCE", "as_of": "2025-01-01T00:00:00Z"}
+    )
+    assert res.status_code == 200
+    data = res.json()
+    assert data["strategy_id"] == "C9"
+    assert data["status"] == "production"
+
+    # 2. GET /api/v1/research/swing-predictive with as_of in query
+    res2 = client.get("/api/v1/research/swing-predictive?symbol=RELIANCE&as_of=2025-01-01T00:00:00Z")
+    assert res2.status_code == 200
+

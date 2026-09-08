@@ -148,13 +148,13 @@ def calculate_return_probability(req: ReturnProbabilityRequest) -> ReturnProbabi
     assumptions = [
         f"Analysis based on {sample_size} empirical {horizon}-day holding periods between {start_date} and {end_date}.",
         "Reinvestment of dividends and transaction costs are excluded.",
-        "Methodology uses distribution-free Split Conformal Prediction (90% finite-sample coverage guarantee)."
+        "Methodology uses distribution-free empirical dispersion interval (target 90% in-sample empirical coverage; financial time-series violate exchangeability/i.i.d. prerequisites for strict finite-sample conformal guarantee)."
     ]
 
     warnings = [
         "Historical return frequencies do NOT guarantee future market outcomes.",
         "Financial markets exhibit regime shifts, volatility clustering, and fat-tail risk.",
-        "Conformal prediction intervals reflect non-parametric empirical dispersion, NOT a directional forecast."
+        "Conformal prediction intervals reflect non-parametric empirical dispersion, NOT a directional forecast or held-out finite-sample guarantee."
     ]
 
     return ReturnProbabilityResponse(
@@ -177,8 +177,12 @@ def calculate_return_probability(req: ReturnProbabilityRequest) -> ReturnProbabi
             "upper_bound_pct": conf_upper,
             "conformal_score_q90": q90_score
         },
+        target_coverage_pct=90.0,
+        coverage_guarantee=False,
         conformal_coverage_guarantee_pct=90.0,
         conformal_risk_tier=risk_tier,
+        coverage_nature="EMPIRICAL_IN_SAMPLE_DISPERSION",
+        is_finite_sample_guaranteed=False,
         sample_size=sample_size,
         observation_window={
             "start_date": start_date,

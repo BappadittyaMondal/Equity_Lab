@@ -81,8 +81,12 @@ class ReturnProbabilityResponse(BaseModel):
     median_return_pct: float
     percentiles: Dict[str, float]  # P5, P25, P50, P75, P95
     conformal_prediction_interval_90: Optional[Dict[str, float]] = Field(default=None, description="Non-parametric 90% conformal prediction interval bounds [lower_bound_pct, upper_bound_pct]")
-    conformal_coverage_guarantee_pct: float = Field(default=90.0, description="Target empirical coverage rate for distribution-free interval")
+    target_coverage_pct: float = Field(default=90.0, description="Target coverage rate for distribution-free empirical dispersion interval")
+    coverage_guarantee: bool = Field(default=False, description="Whether finite-sample conformal guarantee holds under exchangeability")
+    conformal_coverage_guarantee_pct: float = Field(default=90.0, description="[DEPRECATED ALIAS] Preserved for backward compatibility")
     conformal_risk_tier: Optional[Dict[str, Any]] = Field(default=None, description="Certified confidence tier based on numeric conformal interval width")
+    coverage_nature: Optional[str] = Field(default="EMPIRICAL_IN_SAMPLE_DISPERSION", description="Nature of coverage: empirical in-sample dispersion or finite-sample holdout calibration")
+    is_finite_sample_guaranteed: Optional[bool] = Field(default=False, description="True only if verified against an exchangeable holdout calibration dataset under i.i.d.")
     sample_size: int
     observation_window: Dict[str, str]  # start_date, end_date
     assumptions: List[str]
@@ -151,6 +155,7 @@ class StrategyRunRequest(BaseModel):
     symbol: Optional[str] = Field(default="RELIANCE", description="Ticker symbol if running single-stock diagnostic")
     universe: Optional[str] = Field(default="NSE500", description="Universe identifier")
     parameters: Optional[Dict[str, Any]] = Field(default_factory=dict)
+    as_of: Optional[datetime] = Field(default=None, description="Point-in-time evaluation timestamp for historical backtesting")
 
 
 class StrategyRunResponse(BaseModel):
@@ -1109,7 +1114,8 @@ class CalibratedProbabilityLadder(BaseModel):
     event_t1_prob_5pct_10d: float = 0.68  # P(+5% before -3% in 10d)
     event_t2_prob_10pct_20d: float = 0.58  # P(+10% before -5% in 20d)
     event_t3_prob_20pct_60d: float = 0.44  # P(+20% before -8% in 60d)
-    historical_brier_score: float = 0.14
+    historical_brier_score: Optional[float] = None
+    reference_benchmark_brier: float = 0.14
     calibration_confidence: str = "HIGH"
     expected_value_pct: float = 6.45
     risk_adjusted_ev: float = 2.15

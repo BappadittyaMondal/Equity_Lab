@@ -38,7 +38,7 @@ def mock_market_data(monkeypatch):
     import pandas as pd
     import numpy as np
 
-    def _mock_get_history(symbol: str, period: str = "1y", interval: str = "1d"):
+    def _mock_get_history(symbol: str, period: str = "1y", interval: str = "1d", *args, **kwargs):
         np.random.seed(42)
         dates = pd.date_range(end=pd.Timestamp.now(), periods=252, freq="B")
         n_len = len(dates)

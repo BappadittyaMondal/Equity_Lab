@@ -1,7 +1,8 @@
-"""Immutable Prediction Ledger Service.
+"""Conformal Prediction Evaluation Ledger Service.
 
-Records generated predictions, thesis invalidation triggers, and performs
-post-mortem accuracy evaluation at 7d, 30d, and 90d horizons with SQLite backing persistence.
+Specialized ledger recording generated conformal intervals, thesis invalidation triggers, and
+performing post-mortem accuracy evaluation at 7d, 30d, and 90d horizons on prediction_ledger_conformal.
+Works alongside app.services.monitoring.prediction_ledger (the primary live decision ledger).
 """
 
 from datetime import datetime, timezone

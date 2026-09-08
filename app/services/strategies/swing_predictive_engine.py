@@ -410,7 +410,7 @@ class SwingPredictiveEngine:
         volumes = cls._clean_series(df['volume'])
         
         if min(len(closes), len(volumes)) < 20:
-            return {"adtv_cr": 0.0, "is_liquid_enough": True, "impact_cost_risk": "LOW"}
+            return {"adtv_cr": 0.0, "is_liquid_enough": False, "impact_cost_risk": "INSUFFICIENT_HISTORY"}
             
         daily_val = closes.tail(20) * volumes.tail(20)
         adtv_rupees = float(daily_val.mean())
@@ -461,12 +461,18 @@ class SwingPredictiveEngine:
         ema_20_d = float(closes_d.ewm(span=20).mean().iloc[-1])
         daily_trend_up = cp > ema_20_d
         
-        weekly_trend_up = True
+        weekly_trend_up = False
         if weekly_df is not None:
             closes_w = cls._clean_series(weekly_df['close'])
             if len(closes_w) >= 10:
                 ema_20_w = float(closes_w.ewm(span=20).mean().iloc[-1])
                 weekly_trend_up = float(closes_w.iloc[-1]) > ema_20_w
+        else:
+            # Fallback to multi-week proxy from daily series (50-day EMA)
+            if len(closes_d) >= 30:
+                span_w = min(len(closes_d), 50)
+                ema_higher = float(closes_d.ewm(span=span_w).mean().iloc[-1])
+                weekly_trend_up = cp > ema_higher
         
         # 6. ADX Trend-Strength Filter & Delivery Conviction Filter
         adx_res = cls.calculate_adx(daily_df)
@@ -499,6 +505,9 @@ class SwingPredictiveEngine:
         if gmma_res["is_aligned_bullish"]: confluence_score += 10.0
         if m_rs_res["is_outperforming_sector"]: confluence_score += 10.0
         if fo_res["is_bullish_buildup"]: confluence_score += 10.0
+
+        # Normalization: Cap raw score to 100.0 max
+        confluence_score = min(100.0, confluence_score)
         
         # ADX Veto Gate: If ADX < 20 (chop/non-trending), cap confluence score at 50 max
         if not has_adx_trend and confluence_score > 50.0:
@@ -532,8 +541,12 @@ class SwingPredictiveEngine:
             stop_loss = round(cp - (1.2 * atr), 2)
 
         # Enforce strict mathematical bound: stop_loss < cp < target_price for long setups
+        is_forced_fallback = False
+        target_status = "SUPPORTED"
         if target_price <= cp:
             target_price = round(cp + (1.0 * atr), 2)
+            is_forced_fallback = True
+            target_status = "TARGET_UNSUPPORTED"
         if stop_loss >= cp:
             stop_loss = round(cp - (1.0 * atr), 2)
             
@@ -585,6 +598,10 @@ class SwingPredictiveEngine:
             "horizon": "3 to 30 Days",
             "model_estimated_target": target_price,
             "target_upside_pct": target_upside_pct,
+            "target_status": target_status,
+            "is_forced_fallback": is_forced_fallback,
+            "target_construction_model": "FIXED_RATIO_TAUTOLOGY_3_TO_1",
+            "target_construction_disclosure": "30D target price is scaled to 4.5*ATR vs 1.5*ATR stop to enforce a 3:1 R risk-hurdle geometry rather than an unconstrained price distribution forecast.",
             "stop_loss": stop_loss,
             "atr_14": round(atr, 2),
             "reward_risk_ratio": round((target_price - cp) / max(cp - stop_loss, 0.01), 2),
@@ -599,9 +616,27 @@ class SwingPredictiveEngine:
             ),
             "disclaimer": "Model-Estimated Pivot Target derived from multi-pillar technical confluence. Not a guaranteed forecast.",
             "multi_horizon_targets": {
-                "horizon_3d": {"target_price": target_3d, "upside_pct": round(((target_3d - cp)/cp)*100, 2), "expected_edge": edge_3d_str},
-                "horizon_10d": {"target_price": target_10d, "upside_pct": round(((target_10d - cp)/cp)*100, 2), "expected_edge": edge_10d_str},
-                "horizon_30d": {"target_price": target_30d, "upside_pct": round(((target_30d - cp)/cp)*100, 2), "expected_edge": edge_30d_str}
+                "horizon_3d": {
+                    "target_price": target_3d,
+                    "upside_pct": round(((target_3d - cp)/cp)*100, 2),
+                    "expected_edge": edge_3d_str,
+                    "edge_nature": "HEURISTIC_CONFLUENCE_BAND",
+                    "is_empirically_calibrated": False,
+                },
+                "horizon_10d": {
+                    "target_price": target_10d,
+                    "upside_pct": round(((target_10d - cp)/cp)*100, 2),
+                    "expected_edge": edge_10d_str,
+                    "edge_nature": "HEURISTIC_CONFLUENCE_BAND",
+                    "is_empirically_calibrated": False,
+                },
+                "horizon_30d": {
+                    "target_price": target_30d,
+                    "upside_pct": round(((target_30d - cp)/cp)*100, 2),
+                    "expected_edge": edge_30d_str,
+                    "edge_nature": "HEURISTIC_CONFLUENCE_BAND",
+                    "is_empirically_calibrated": False,
+                }
             },
             "pillar_metrics": {
                 "anchored_vwap": round(avwap, 2),

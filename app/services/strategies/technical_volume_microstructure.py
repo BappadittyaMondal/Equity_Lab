@@ -24,7 +24,10 @@ def evaluate_volume_and_microstructure(
     norm_symbol = normalize_symbol(symbol)
     evidence = []
 
-    stock_hist = get_history(norm_symbol, period="1y", interval="1d")
+    if as_of is not None:
+        stock_hist = get_history(norm_symbol, period="1y", interval="1d", as_of=as_of)
+    else:
+        stock_hist = get_history(norm_symbol, period="1y", interval="1d")
 
     if stock_hist is None or stock_hist.empty or len(stock_hist) < 30:
         return {
@@ -96,6 +99,9 @@ def evaluate_volume_and_microstructure(
         "rvol": rvol,
         "udvr": udvr,
         "delivery_pct": round(delivery_proxy_pct, 1),
+        "delivery_proxy_pct": round(delivery_proxy_pct, 1),
+        "delivery_source": "PRICE_RANGE_ACCUMULATION_PROXY",
+        "is_exchange_reported_delivery": False,
         "anchored_vwap_status": vwap_status,
         "anchored_vwap_price": round(float(anchored_vwap), 2),
         "volume_dry_up_near_resistance": dry_up_signal,

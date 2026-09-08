@@ -25,5 +25,9 @@ def test_return_probability_historical(monkeypatch):
     assert 0.0 <= res.probability_above_threshold_pct <= 100.0
     assert 0.0 <= res.probability_negative_return_pct <= 100.0
     assert "P50" in res.percentiles
+    assert res.coverage_nature == "EMPIRICAL_IN_SAMPLE_DISPERSION"
+    assert res.is_finite_sample_guaranteed is False
+    assert res.target_coverage_pct == 90.0
+    assert res.coverage_guarantee is False
     assert res.sample_size > 0
     assert len(res.warnings) > 0

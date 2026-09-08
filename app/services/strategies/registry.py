@@ -1,6 +1,6 @@
 """Strategy Module Registry.
 
-Maintains metadata and execution routing for all 35 IERL Modules (18 Expert Strategy Modules A1–D18 + 17 Core Research Engines E1–E17).
+Maintains metadata and execution routing for the canonical 40 Analytical Engine IDs (18 Expert Strategy Modules A1–D18 + 21 Core Research Engines E1–E21 + OBV_ACC).
 Strictly distinguishes production modules from coming-soon modules.
 """
 
@@ -1072,15 +1072,30 @@ def run_strategy_module(strategy_id: str, symbol: str = "RELIANCE", as_of: Optio
         )
     elif module.id == "C10":
         res_c10 = evaluate_owner_earnings(symbol, as_of=as_of)
+        c10_status = res_c10.get("status", "production")
+        if c10_status != "production":
+            return StrategyRunResponse(
+                strategy_id="C10",
+                strategy_name=module.name,
+                status="data_insufficient",
+                executed_at=res_c10.get("executed_at", get_ist_now_str()),
+                symbol=res_c10.get("symbol", normalize_symbol(symbol)),
+                passed_gates=False,
+                results=res_c10,
+                metrics={"fcf_yield_pct": res_c10.get("fcf_yield_pct", 0.0), "owner_earnings_inr": res_c10.get("owner_earnings_inr", 0.0)},
+                risk_warnings=module.risk_warnings,
+                disclaimer="Owner Earnings & Free Cash Flow Yield Engine assessment.",
+                meta=res_c10.get("meta", create_meta_header(source="C10 Owner Earnings Engine (Data Insufficient)"))
+            )
         return StrategyRunResponse(
             strategy_id="C10",
             strategy_name=module.name,
             status="production",
             executed_at=res_c10["executed_at"],
             symbol=res_c10["symbol"],
-            passed_gates=(res_c10["fcf_yield_pct"] >= 2.5),
+            passed_gates=(res_c10.get("fcf_yield_pct", 0.0) >= 2.5),
             results=res_c10,
-            metrics={"fcf_yield_pct": res_c10["fcf_yield_pct"], "owner_earnings_inr": res_c10["owner_earnings_inr"]},
+            metrics={"fcf_yield_pct": res_c10.get("fcf_yield_pct", 0.0), "owner_earnings_inr": res_c10.get("owner_earnings_inr", 0.0)},
             risk_warnings=module.risk_warnings,
             disclaimer="Owner Earnings & Free Cash Flow Yield Engine assessment.",
             meta=res_c10["meta"]

@@ -20,6 +20,21 @@ from app.services.intelligence.sub_agents import (
 )
 
 
+def _get_offline_test_mock_fundamentals() -> Dict[str, Any]:
+    """Provides isolated fixture metrics strictly for hermetic offline test suites."""
+    return {
+        "financials": [{"cfo_inr": 120.0, "pat_inr": 100.0}, {"cfo_inr": 150.0, "pat_inr": 120.0}],
+        "market_cap_cr": 250.0,
+        "current_rev_cr": 120.0,
+        "trailing_roce": 14.5,
+        "capex_cr": 35.0,
+        "delta_nopat": 18.0,
+        "delta_ic": 60.0,
+        "delta_ebitda": 12.0,
+        "de_ratio": 0.35,
+    }
+
+
 def run_early_compounder_engine(symbol: str, as_of: Optional[str] = None) -> StrategyRunResponse:
     """Run E21 Early-Stage Compounder Incubator Engine."""
     norm = symbol.upper()
@@ -81,15 +96,16 @@ def run_early_compounder_engine(symbol: str, as_of: Optional[str] = None) -> Str
             pass
 
     if is_offline:
-        financials = financials or [{"cfo_inr": 120.0, "pat_inr": 100.0}, {"cfo_inr": 150.0, "pat_inr": 120.0}]
-        market_cap_cr = market_cap_cr or 250.0
-        current_rev_cr = current_rev_cr or 120.0
-        trailing_roce = trailing_roce or 14.5
-        capex_cr = capex_cr or 35.0
-        delta_nopat = delta_nopat or 18.0
-        delta_ic = delta_ic or 60.0
-        delta_ebitda = delta_ebitda or 12.0
-        de_ratio = de_ratio or 0.35
+        mock_data = _get_offline_test_mock_fundamentals()
+        financials = financials if financials else mock_data["financials"]
+        market_cap_cr = market_cap_cr if market_cap_cr is not None else mock_data["market_cap_cr"]
+        current_rev_cr = current_rev_cr if current_rev_cr is not None else mock_data["current_rev_cr"]
+        trailing_roce = trailing_roce if trailing_roce is not None else mock_data["trailing_roce"]
+        capex_cr = capex_cr if capex_cr is not None else mock_data["capex_cr"]
+        delta_nopat = delta_nopat if delta_nopat is not None else mock_data["delta_nopat"]
+        delta_ic = delta_ic if delta_ic is not None else mock_data["delta_ic"]
+        delta_ebitda = delta_ebitda if delta_ebitda is not None else mock_data["delta_ebitda"]
+        de_ratio = de_ratio if de_ratio is not None else mock_data["de_ratio"]
 
     # Fail closed on missing required fundamentals in production
     if any(v is None for v in [market_cap_cr, current_rev_cr, trailing_roce, capex_cr, delta_nopat, delta_ic, delta_ebitda, de_ratio]):

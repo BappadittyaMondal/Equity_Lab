@@ -9,6 +9,8 @@ def test_reverse_dcf_pass():
     assert isinstance(res, StrategyRunResponse)
     assert res.strategy_id == "C9"
     assert "implied_10y_cagr" in res.results
+    assert res.results.get("model_type") == "PE_IMPLIED_GROWTH_HEURISTIC"
+    assert res.metrics.get("model_type") == "PE_IMPLIED_GROWTH_HEURISTIC"
     assert "fcf_yield_pct" in res.metrics
 
 

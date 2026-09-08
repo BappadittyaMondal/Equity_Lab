@@ -72,6 +72,11 @@ def predict_turnaround_probabilities(features: Dict[str, Any]) -> Dict[str, Any]
         "confidence_tier": "HIGH" if p_recovery >= 0.7 else ("MEDIUM" if p_recovery >= 0.4 else "LOW"),
         "is_empirically_calibrated": False,
         "probability_type": "SCENARIO_FORMULAIC",
+        "model_type": "FORMULAIC_SCENARIO_LOGIT",
+        "statistical_nature": "UNCALIBRATED_SCENARIO_INDEX",
         "recovery_index": p_recovery,
         "relapse_index": p_relapse,
+        "scenario_index_4q": p_recovery_4q,
+        "scenario_index_8q": p_recovery_8q,
+        "scenario_index_12q": p_recovery_12q,
     }

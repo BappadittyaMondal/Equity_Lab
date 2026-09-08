@@ -82,7 +82,10 @@ class ShortTermPredictionEngine:
                 "horizon_days": h,
                 "projected_center_price": round(center_price, 2),
                 "conformal_80_pct": {"lower_bound": lower_80, "upper_bound": upper_80, "spread_pct": round(((upper_80 - lower_80) / current_price) * 100, 2)},
-                "conformal_95_pct": {"lower_bound": lower_95, "upper_bound": upper_95, "spread_pct": round(((upper_95 - lower_95) / current_price) * 100, 2)}
+                "conformal_95_pct": {"lower_bound": lower_95, "upper_bound": upper_95, "spread_pct": round(((upper_95 - lower_95) / current_price) * 100, 2)},
+                "volatility_cone_80_pct": {"lower_bound": lower_80, "upper_bound": upper_80, "spread_pct": round(((upper_80 - lower_80) / current_price) * 100, 2), "z_multiplier": 1.28},
+                "volatility_cone_95_pct": {"lower_bound": lower_95, "upper_bound": upper_95, "spread_pct": round(((upper_95 - lower_95) / current_price) * 100, 2), "z_multiplier": 1.96},
+                "cone_methodology": "GAUSSIAN_PARAMETRIC_ATR_CONE"
             }
 
         return cones

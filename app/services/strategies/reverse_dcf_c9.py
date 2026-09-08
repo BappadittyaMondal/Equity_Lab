@@ -85,6 +85,8 @@ def run_reverse_dcf_c9(
         verdict = "BUBBLE_PRICED_IN (Perfection Required)"
 
     results = {
+        "model_type": "PE_IMPLIED_GROWTH_HEURISTIC",
+        "methodology_disclosure": "One-stage Gordon Growth heuristic on trailing P/E: ((r * PE - 1) / (PE + 1)). For multi-stage FCF DCF, use full financial statement projections.",
         "implied_10y_cagr": f"{implied_cagr_pct}%",
         "market_expectations_verdict": verdict,
         "discount_rate_assumed": f"{int(discount_rate * 100)}%",
@@ -95,6 +97,7 @@ def run_reverse_dcf_c9(
     }
 
     metrics = {
+        "model_type": "PE_IMPLIED_GROWTH_HEURISTIC",
         "price": spot,
         "pe_ratio": pe,
         "implied_growth_rate_pct": implied_cagr_pct,
@@ -105,6 +108,7 @@ def run_reverse_dcf_c9(
     }
 
     risk_warnings = [
+        "Gordon Growth P/E inverse heuristic does not model multi-stage terminal phase transitions or reinvestment dynamics.",
         "Reverse DCF relies on assumed discount rate (12% cost of equity).",
         "P/E distortion can occur if recent TTM earnings contain non-operating extraordinary items.",
         f"Compare implied growth ({implied_cagr_pct}%) against actual historical 3-year PAT CAGR."
@@ -122,6 +126,6 @@ def run_reverse_dcf_c9(
         results=results,
         metrics=metrics,
         risk_warnings=risk_warnings,
-        disclaimer="Reverse DCF quantitative model. Implied growth rate is an analytical benchmark, not guaranteed.",
+        disclaimer="Reverse DCF quantitative model (Gordon Growth P/E inverse heuristic). Implied growth rate is an analytical benchmark, not guaranteed.",
         meta=create_meta_header(source=f"IERL Reverse DCF Engine ({norm_symbol})")
     )

@@ -15,6 +15,7 @@ from app.services.market_data import (
 
 def test_yfinance_provider_raises_on_invalid_data(monkeypatch):
     """Simulate yfinance returning empty or invalid price data."""
+    yf = pytest.importorskip("yfinance")
     provider = YFinanceProvider()
 
     class MockTicker:

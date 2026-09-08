@@ -33,7 +33,10 @@ def evaluate_technical_structure_and_setups(
     norm_symbol = normalize_symbol(symbol)
     evidence = []
 
-    stock_hist = get_history(norm_symbol, period="1y", interval="1d")
+    if as_of is not None:
+        stock_hist = get_history(norm_symbol, period="1y", interval="1d", as_of=as_of)
+    else:
+        stock_hist = get_history(norm_symbol, period="1y", interval="1d")
 
     if stock_hist is None or stock_hist.empty or len(stock_hist) < 60:
         return {

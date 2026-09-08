@@ -32,7 +32,7 @@ from app.services.db import db_session, _OPEN_CONNECTIONS, get_connection, _prun
 
 def test_pit_slice_fail_closed_on_error(monkeypatch):
     """Verify that if timezone or index alignment fails during PIT slicing, get_history fails closed."""
-    import yfinance as yf
+    yf = pytest.importorskip("yfinance")
 
     # Create dummy dataframe with invalid index type that raises error upon comparison
     mock_df = pd.DataFrame(

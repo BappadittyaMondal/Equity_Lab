@@ -98,7 +98,7 @@ def build_research_context(symbol: str, max_context_tokens: int = 8000) -> str:
             context_lines += [
                 "── OWNERSHIP (latest from ResearchDataStore) ──",
                 f"Promoter: {latest_own.promoter_pct}% | FII: {latest_own.fii_pct}% | DII: {latest_own.dii_pct}%",
-                f"Pledge: {latest_own.promoter_pledge_pct or 0}%",
+                f"Pledge: {f'{latest_own.promoter_pledge_pct}%' if latest_own.promoter_pledge_pct is not None else 'Unverified'}",
                 "",
             ]
 

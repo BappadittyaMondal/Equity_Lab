@@ -18,12 +18,16 @@ def evaluate_portfolio_construction(
     free_float_mcap_cr: float = 3500.0,
     archetype: str = "EARLY_GROWTH",
     portfolio_inputs: Optional[Dict[str, Any]] = None,
+    fund_aum_cr: float = 500.0,
     as_of: Optional[datetime] = None
 ) -> Dict[str, Any]:
     """Calculates position sizing, liquidity caps, exit triggers, and drawdown tolerance."""
     norm_symbol = normalize_symbol(symbol)
     data = portfolio_inputs or {}
     evidence = []
+
+    # Dynamic Fund AUM configuration (default 500 Cr)
+    aum = float(data.get("fund_aum_cr") or fund_aum_cr or 500.0)
 
     # 1. Fractional-Kelly Sizing (§35)
     win_prob = min(0.80, max(0.20, (mivs_score / 100.0) * (evidence_confidence_pct / 100.0)))
@@ -33,7 +37,7 @@ def evaluate_portfolio_construction(
     conviction_weight_pct = round(fractional_kelly * 100.0, 1)
 
     # 2. Liquidity, Thesis Maturity & Discovery Status Caps
-    liquidity_cap_pct = round(min(8.0, max(1.0, (adtv_cr * 5.0 * 0.05 / 500.0) * 100.0)), 1)
+    liquidity_cap_pct = round(min(8.0, max(1.0, (adtv_cr * 5.0 * 0.05 / max(aum, 1.0)) * 100.0)), 1)
     
     confirmed_quarters = data.get("confirmed_quarters", data.get("thesis_maturity", {}).get("confirmed_quarters", 0))
     if confirmed_quarters == 0:

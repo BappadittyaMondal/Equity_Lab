@@ -54,25 +54,32 @@ def evaluate_governance_quality(
         sorted_own = sorted(ownership, key=lambda x: x.period_end)
         latest_own = sorted_own[-1]
         latest_promoter_pct = latest_own.promoter_pct
-        latest_pledge_pct = latest_own.promoter_pledge_pct or 0.0
-        
-        summary["promoter_holding_pct"] = latest_promoter_pct
-        summary["promoter_pledge_pct"] = latest_pledge_pct
-
-        if latest_pledge_pct > PLEDGE_VETO_THRESHOLD:
-            pledge_risk = "CRITICAL"
-            score -= 50.0
-            evidence.append(f"CRITICAL PROMOTER PLEDGE RISK: {latest_pledge_pct}% of promoter shares are pledged (> {PLEDGE_VETO_THRESHOLD}% threshold).")
-        elif latest_pledge_pct > 15.0:
-            pledge_risk = "HIGH"
-            score -= 30.0
-            evidence.append(f"HIGH PROMOTER PLEDGE WARNING: {latest_pledge_pct}% of promoter shares are pledged.")
-        elif latest_pledge_pct > 0.0:
-            pledge_risk = "MODERATE"
-            score -= 10.0
-            evidence.append(f"Moderate promoter pledge at {latest_pledge_pct}%.")
+        raw_pledge = latest_own.promoter_pledge_pct
+        if raw_pledge is None:
+            latest_pledge_pct = None
+            summary["promoter_holding_pct"] = latest_promoter_pct
+            summary["promoter_pledge_pct"] = None
+            pledge_risk = "UNVERIFIED"
+            evidence.append("Promoter pledge unverified in official shareholding filings.")
         else:
-            evidence.append("Zero promoter share pledge.")
+            latest_pledge_pct = float(raw_pledge)
+            summary["promoter_holding_pct"] = latest_promoter_pct
+            summary["promoter_pledge_pct"] = latest_pledge_pct
+
+            if latest_pledge_pct > PLEDGE_VETO_THRESHOLD:
+                pledge_risk = "CRITICAL"
+                score -= 50.0
+                evidence.append(f"CRITICAL PROMOTER PLEDGE RISK: {latest_pledge_pct}% of promoter shares are pledged (> {PLEDGE_VETO_THRESHOLD}% threshold).")
+            elif latest_pledge_pct > 15.0:
+                pledge_risk = "HIGH"
+                score -= 30.0
+                evidence.append(f"HIGH PROMOTER PLEDGE WARNING: {latest_pledge_pct}% of promoter shares are pledged.")
+            elif latest_pledge_pct > 0.0:
+                pledge_risk = "MODERATE"
+                score -= 10.0
+                evidence.append(f"Moderate promoter pledge at {latest_pledge_pct}%.")
+            else:
+                evidence.append("Zero promoter share pledge.")
 
         # Promoter trend check
         if len(sorted_own) >= 2:

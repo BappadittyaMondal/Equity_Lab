@@ -338,6 +338,7 @@ class SIPPolicyEngine:
         valuation_z_score: float,
         thesis_intact: bool,
         is_price_below_200sma: bool,
+        prev_multiplier: Optional[float] = None,
     ) -> Dict[str, Any]:
         """Evaluates SIP contribution allocation multiplier and thesis preservation."""
         # Hard Invalidation: If thesis broken or ROCE decaying below 15% -> PAUSE
@@ -348,10 +349,19 @@ class SIPPolicyEngine:
                 "allocation_multiplier": 0.0,
                 "reason": "Secular moat decay: ROCE < 15%, excessive debt, or thesis invalidation.",
                 "accumulate_dry_powder": False,
+                "hysteresis_active": prev_multiplier is not None,
             }
 
-        # Valuation-Responsive Allocation Multiplier
-        if valuation_z_score > 1.5:
+        # Valuation-Responsive Allocation Multiplier (with hysteresis deadband when prev_multiplier supplied)
+        if prev_multiplier == 0.50 and valuation_z_score > 1.30:
+            multiplier = 0.50
+            action = "REDUCED_SIP_ACCUMULATE_DRY_POWDER"
+            desc = "Valuation extended (> +1.3σ hysteresis hold); deploy half capital and preserve cash buffer."
+        elif prev_multiplier == 1.75 and valuation_z_score < -1.30 and is_price_below_200sma:
+            multiplier = 1.75
+            action = "EXPANDED_SIP_DEPLOY_BUFFER"
+            desc = "Severe valuation discount (< -1.3σ hysteresis hold) at support; deploy dry powder."
+        elif valuation_z_score > 1.5:
             multiplier = 0.50
             action = "REDUCED_SIP_ACCUMULATE_DRY_POWDER"
             desc = "Valuation extended (> +1.5σ); deploy half capital and preserve cash buffer."
@@ -378,5 +388,6 @@ class SIPPolicyEngine:
             "allocation_multiplier": multiplier,
             "description": desc,
             "roce_10y_avg": round(roce_10y_avg, 2),
+            "hysteresis_active": prev_multiplier is not None,
             "valuation_z_score": round(valuation_z_score, 2),
         }

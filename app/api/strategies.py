@@ -50,10 +50,11 @@ def fetch_strategy_detail(strategy_id: str):
 
 
 @router.post("/strategies/{strategy_id}/run", response_model=StrategyRunResponse)
-def run_strategy(strategy_id: str, req: StrategyRunRequest):
+def run_strategy(strategy_id: str, req: StrategyRunRequest, as_of: Optional[datetime] = None):
     """Runs screening or diagnostic analysis for a specific strategy module."""
     symbol = req.symbol or "RELIANCE"
-    return run_strategy_module(strategy_id, symbol=symbol)
+    target_as_of = req.as_of or as_of
+    return run_strategy_module(strategy_id, symbol=symbol, as_of=target_as_of)
 
 
 @router.get("/research/growth-inflection", response_model=GrowthInflectionResponse)
@@ -176,22 +177,31 @@ def run_walk_forward_backtest(
 
 
 @router.get("/research/swing-predictive", response_model=StrategyRunResponse)
-def run_swing_predictive_endpoint(symbol: str = Query(..., description="Stock symbol (e.g. PTCIL or RELIANCE)")):
+def run_swing_predictive_endpoint(
+    symbol: str = Query(..., description="Stock symbol (e.g. PTCIL or RELIANCE)"),
+    as_of: Optional[datetime] = None
+):
     """Executes Strategy E18: 10-30 Day Swing Predictive Engine (Volume Profile POC, Anchored VWAP, Choppiness Index, BOP)."""
-    return run_strategy_module("E18", symbol=symbol)
+    return run_strategy_module("E18", symbol=symbol, as_of=as_of)
 
 
 @router.get("/research/inflection-multibagger", response_model=StrategyRunResponse)
-def run_inflection_multibagger_endpoint(symbol: str = Query(..., description="Stock symbol (e.g. RELIANCE)")):
+def run_inflection_multibagger_endpoint(
+    symbol: str = Query(..., description="Stock symbol (e.g. RELIANCE)"),
+    as_of: Optional[datetime] = None
+):
     """Executes Strategy E19: Multibagger Inflection Engine (Volume Z-Score, Delivery Turnover, Earnings Convexity, PEG Mispricing)."""
     from app.services.strategies.inflection_multibagger import run_inflection_multibagger
-    return run_inflection_multibagger(symbol=symbol)
+    return run_inflection_multibagger(symbol=symbol, as_of=as_of)
 
 
 @router.get("/research/early-compounder", response_model=StrategyRunResponse)
-def run_early_compounder_endpoint(symbol: str = Query(..., description="Stock symbol (e.g. SHILCHAR or RELIANCE)")):
+def run_early_compounder_endpoint(
+    symbol: str = Query(..., description="Stock symbol (e.g. SHILCHAR or RELIANCE)"),
+    as_of: Optional[datetime] = None
+):
     """Executes Strategy E21: Early-Stage ₹100Cr+ Microcap Compounder Engine (Incremental ROIC, Reverse Valuation, PM Kill-Test)."""
-    return run_strategy_module("E21", symbol=symbol)
+    return run_strategy_module("E21", symbol=symbol, as_of=as_of)
 
 
 @router.get("/research/sip-policy/{symbol}", summary="Get Valuation-Responsive Dynamic SIP Allocation Policy")
@@ -234,7 +244,17 @@ def get_sip_policy(symbol: str):
         else:
             roce_val = 0.0
             roce_horizon = "DATA_INSUFFICIENT"
-        de_val = float(fund.get("debt_to_equity") or 0.0)
+        raw_de = fund.get("debt_to_equity")
+        if raw_de is None and not is_offline:
+            return {
+                "symbol": symbol,
+                "policy_status": "DATA_INSUFFICIENT",
+                "recommended_tranche_multiplier": 1.0,
+                "allocation_bucket": "UNVERIFIED_DATA_INSUFFICIENT",
+                "action_advice": "Abstain from automated SIP capital scaling until debt-to-equity and balance sheet solvency are verified.",
+                "warnings": [f"Solvency data (Debt/Equity) unverified for {symbol}."]
+            }
+        de_val = float(raw_de if raw_de is not None else 0.20)
         peg_val = float(fund.get("peg_ratio") or 1.0)
         val_z = round((peg_val - 1.0) / 0.5, 2) if peg_val > 0 else 0.0
         thesis_ok = bool(roce_val >= 15.0 and de_val <= 1.0)
