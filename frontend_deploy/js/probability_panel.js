@@ -12,10 +12,20 @@ export async function renderProbabilityPanel() {
   const rawSample = (res && res.sample_size != null) ? res.sample_size : (res && res.sample_count != null ? res.sample_count : null);
   const sampleSize = (typeof rawSample === "number" && rawSample > 0) ? rawSample : null;
 
-  const calibrationText = "Calibrated via Logistic + GBDT Ensemble";
+  const isEmpirical = res ? res.is_empirical_probability !== false : false;
+  const calibStatus = res?.calibration_status || (isEmpirical ? "EMPIRICALLY_CALIBRATED" : "MODEL_DERIVED_PROXY");
+  const calibrationText = calibStatus === "EMPIRICALLY_CALIBRATED"
+    ? "Calibrated via Logistic + GBDT Ensemble"
+    : "Model-Derived Heuristic Proxy (Pre-Empirical)";
   const sampleText = sampleSize 
     ? `Trained on ${sampleSize.toLocaleString()} validated ledger outcomes`
-    : (hasData ? `Model recalibrating on verified market outcomes` : `Data unavailable — retrying calibration engine`);
+    : (hasData ? `Heuristic proxy based on multi-factor conviction index` : `Data unavailable — retrying calibration engine`);
+
+  const calibBadge = hasData 
+    ? (calibStatus === "EMPIRICALLY_CALIBRATED" 
+        ? `<span class="px-2 py-0.5 text-xs font-mono rounded bg-green/10 text-green border border-green/20">EMPIRICAL</span>`
+        : `<span class="px-2 py-0.5 text-xs font-mono rounded bg-amber-500/10 text-amber-300 border border-amber-500/20">HEURISTIC PROXY</span>`)
+    : `<span class="px-2 py-0.5 text-xs font-mono rounded bg-red/10 text-red border border-red/20">DATA_UNAVAILABLE</span>`;
 
   container.innerHTML = `
     <div class="p-6 bg-surface-lowest rounded-xl border border-surface-border/50 shadow-lg">
@@ -27,7 +37,7 @@ export async function renderProbabilityPanel() {
           </h3>
           <p class="text-xs text-muted mt-0.5 font-mono">Calibrated Empirical Outperformance Projections</p>
         </div>
-        ${!hasData ? `<span class="px-2 py-0.5 text-xs font-mono rounded bg-red/10 text-red border border-red/20">DATA_UNAVAILABLE</span>` : ''}
+        ${calibBadge}
       </div>
       <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
         <div class="p-4 bg-surface-low rounded-lg border border-surface-border/40">

@@ -697,7 +697,7 @@ class Arbiter:
         prediction_summary: Optional[Dict[str, Any]] = None
         try:
             from app.services.decision_brain.prediction_engine import generate_prediction_summary
-            prediction_summary = generate_prediction_summary(normalized)
+            prediction_summary = generate_prediction_summary(normalized, as_of=as_of)
         except Exception as e:
             logger.warning("Prediction engine failed for %s: %s", normalized, e)
 
@@ -945,6 +945,8 @@ class Arbiter:
             "expected_value_per_lot": round(score * 5.2, 2),
             "score_derived_conviction_index": round(min(92.0, max(50.0, score * 0.88)), 1),
             "score_derived_ev_proxy": round(score * 5.2, 2),
+            "is_empirical_probability": False,
+            "calibration_disclosure": "Model-derived conviction index proxy, not empirical frequentist probability",
             "execution_status": "READY_FOR_ENTRY" if mivs_res.passed_hard_gates else "NEUTRAL_ABSTAIN"
         }
 
@@ -962,14 +964,14 @@ class Arbiter:
             mivs_breakdown={k: v.model_dump() for k, v in mivs_res.dimension_scores.items()},
             strategic_conviction=strategic_conviction,
             tactical_execution=tactical_execution,
-            governance_signal=GovernanceRedFlagChecklist(**e9_res["governance_checklist"]),
-            insider_signal=InsiderConvictionSignal(**e9_res["insider_signal"]),
-            shareholding_signal=ShareholdingPatternIntelligence(**e10_res["pattern_intelligence"]),
-            alt_data_signal=ScuttlebuttAltDataSignal(**e11_res["alt_data_signal"]),
-            concall_nlp_signal=ManagementNLPCommentarySignal(**e12_res["nlp_signal"]),
-            policy_catalyst_signal=PolicyCatalystCorporateActionSignal(**e13_res["catalyst_signal"]),
-            position_sizing_signal=PortfolioPositionSizingSignal(**e14_res["portfolio_signal"]),
-            red_team_record=RedTeamReviewRecord(**e16_res["red_team_record"]),
+            governance_signal=GovernanceRedFlagChecklist(**e9_res["governance_checklist"]) if e9_res.get("governance_checklist") else None,
+            insider_signal=InsiderConvictionSignal(**e9_res["insider_signal"]) if e9_res.get("insider_signal") else None,
+            shareholding_signal=ShareholdingPatternIntelligence(**e10_res["pattern_intelligence"]) if e10_res.get("pattern_intelligence") else None,
+            alt_data_signal=ScuttlebuttAltDataSignal(**e11_res["alt_data_signal"]) if e11_res.get("alt_data_signal") else None,
+            concall_nlp_signal=ManagementNLPCommentarySignal(**e12_res["nlp_signal"]) if e12_res.get("nlp_signal") else None,
+            policy_catalyst_signal=PolicyCatalystCorporateActionSignal(**e13_res["catalyst_signal"]) if e13_res.get("catalyst_signal") else None,
+            position_sizing_signal=PortfolioPositionSizingSignal(**e14_res["portfolio_signal"]) if e14_res.get("portfolio_signal") else None,
+            red_team_record=RedTeamReviewRecord(**e16_res["red_team_record"]) if e16_res.get("red_team_record") else None,
             evidence_log=evidence_log[:25]
         )
 

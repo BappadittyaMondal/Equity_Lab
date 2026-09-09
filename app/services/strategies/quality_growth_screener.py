@@ -57,7 +57,7 @@ def run_quality_growth_screener(
     is_sme: bool = False
     
     try:
-        quote = get_quote(norm_symbol)
+        quote = get_quote(norm_symbol, as_of=as_of)
         if quote:
             market_cap = quote.market_cap  # in Cr
             pe_ratio = quote.pe_ratio
@@ -65,7 +65,7 @@ def run_quality_growth_screener(
             high_52w = quote.fifty_two_week_high
             is_sme = getattr(quote, "is_sme", False)
             
-        hist = get_history(norm_symbol, period="1y")
+        hist = get_history(norm_symbol, period="1y", as_of=as_of)
         if hist is not None and not hist.empty:
             if "Volume" in hist.columns:
                 vol_1y_avg = float(hist["Volume"].mean())

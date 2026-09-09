@@ -55,12 +55,64 @@ def run_reverse_dcf_c9(
     pe_raw = quote.get("pe_ratio") if isinstance(quote, dict) else getattr(quote, "pe_ratio", 0.0)
     pe = _safe_float(pe_raw, 0.0)
 
+    # If P/E is zero or missing in quote, try deriving from observed company_fundamentals
+    if pe <= 0:
+        try:
+            from app.services.db import get_connection
+            conn = get_connection()
+            sym_clean = norm_symbol.replace(".NS", "").replace(".BO", "")
+            row = conn.execute(
+                "SELECT current_price, eps_latest FROM company_fundamentals WHERE symbol = ? OR symbol = ?",
+                (norm_symbol, sym_clean)
+            ).fetchone()
+            conn.close()
+            if row and row[0] is not None and row[1] is not None and float(row[1]) > 0:
+                pe = round(float(row[0]) / float(row[1]), 2)
+        except Exception:
+            pass
+
+    # Fail closed if P/E remains <= 0 (reverse DCF mathematically undefined)
+    if pe <= 0:
+        return StrategyRunResponse(
+            strategy_id="C9",
+            strategy_name="C9 Reverse DCF Intrinsic Growth Engine",
+            status="data_insufficient",
+            executed_at=get_ist_now_str(),
+            symbol=norm_symbol,
+            passed_gates=False,
+            results={
+                "model_type": "PE_IMPLIED_GROWTH_HEURISTIC",
+                "methodology_disclosure": "One-stage Gordon Growth heuristic on trailing P/E: ((r * PE - 1) / (PE + 1)). For multi-stage FCF DCF, use full financial statement projections.",
+                "implied_10y_cagr": "N/A",
+                "market_expectations_verdict": "DATA_INSUFFICIENT (P/E <= 0 or unobserved - reverse DCF mathematically undefined)",
+                "discount_rate_assumed": f"{int(discount_rate * 100)}%",
+                "terminal_growth_assumed": f"{int(terminal_growth * 100)}%",
+                "fcf_yield": "N/A",
+                "equity_risk_premium_vs_gsec": "N/A",
+                "sensitivity_matrix": {},
+                "data_status": "DATA_INSUFFICIENT",
+            },
+            metrics={
+                "model_type": "PE_IMPLIED_GROWTH_HEURISTIC",
+                "price": spot,
+                "pe_ratio": pe,
+                "implied_growth_rate_pct": None,
+                "fcf_yield_pct": None,
+                "equity_risk_premium_pct": None,
+                "discount_rate": discount_rate,
+                "terminal_growth": terminal_growth,
+            },
+            risk_warnings=[
+                "Reverse DCF model requires positive trailing earnings (P/E > 0).",
+                "Currently unobserved, negative, or zero earnings - valuation gate failed closed."
+            ],
+            disclaimer="Reverse DCF quantitative model (Gordon Growth P/E inverse heuristic).",
+            meta=create_meta_header(source=f"IERL Reverse DCF Engine ({norm_symbol})")
+        )
+
     # 1. Market-Implied CAGR Calculation (Gordon Growth / DCF Approximation)
-    if pe > 0:
-        raw_implied = ((discount_rate * pe - 1.0) / (pe + 1.0)) * 100.0
-        implied_cagr_pct = round(max(-10.0, min(raw_implied, 55.0)), 2)
-    else:
-        implied_cagr_pct = 0.0
+    raw_implied = ((discount_rate * pe - 1.0) / (pe + 1.0)) * 100.0
+    implied_cagr_pct = round(max(-10.0, min(raw_implied, 55.0)), 2)
 
     # 2. Multi-Scenario Discount & Growth Sensitivity Matrix
     discount_scenarios = [0.10, 0.12, 0.15]

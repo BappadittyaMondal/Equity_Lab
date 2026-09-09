@@ -27,7 +27,7 @@ def evaluate_concall_nlp(
     try:
         from app.services.research_data import ResearchDataStore
         store = ResearchDataStore()
-        _, _, events, _, _, _ = store.get_timeline(norm_symbol)
+        _, _, events, _, _, _ = store.get_timeline(norm_symbol, as_of=as_of)
         for ev in events:
             h_low = (ev.headline or "").lower()
             if any(k in h_low for k in ["concall", "transcript", "earnings call", "management commentary"]):

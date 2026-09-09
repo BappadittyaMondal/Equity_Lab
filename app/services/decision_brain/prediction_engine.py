@@ -144,10 +144,13 @@ def _valuation_reversion_return(margin_of_safety_pct: Optional[float], horizon_y
 # 4. Catalyst Timeline
 # ─────────────────────────────────────────────────────────────────────────────
 
-def _extract_catalyst_timeline(events: List[Any]) -> List[Dict[str, Any]]:
+def _extract_catalyst_timeline(events: List[Any], as_of: Optional[datetime] = None) -> List[Dict[str, Any]]:
     """Extract upcoming catalysts from business_events with impact estimates."""
     catalysts = []
-    now = datetime.now(timezone.utc).date()
+    if as_of is not None:
+        now = as_of.date() if hasattr(as_of, "date") else as_of
+    else:
+        now = datetime.now(timezone.utc).date()
 
     for evt in events:
         event_date_raw = getattr(evt, "event_date", None)
@@ -387,6 +390,7 @@ def generate_prediction_summary(
     store=None,
     margin_of_safety_pct: Optional[float] = None,
     composite_score: float = 60.0,
+    as_of: Optional[datetime] = None,
 ) -> Dict[str, Any]:
     """Generate full multi-horizon prediction summary for a symbol.
 
@@ -398,6 +402,7 @@ def generate_prediction_summary(
         store: Optional ResearchDataStore instance (created if None).
         margin_of_safety_pct: From Forward DCF (if already computed).
         composite_score: Scorecard composite score (dynamically resolved if default).
+        as_of: Optional point-in-time historical cutoff timestamp.
 
     Returns:
         Dict with: horizon_predictions, catalyst_timeline, confidence_decomposition,
@@ -424,7 +429,7 @@ def generate_prediction_summary(
     try:
         from app.services.research_data import ResearchDataStore
         data_store = store or ResearchDataStore()
-        _, financials, events, _, _, _ = data_store.get_timeline(norm)
+        _, financials, events, _, _, _ = data_store.get_timeline(norm, as_of=as_of)
         evidence.append(f"Financial observations: {len(financials)} records from ResearchDataStore")
     except Exception as e:
         evidence.append(f"ResearchDataStore unavailable: {e}")
@@ -436,7 +441,7 @@ def generate_prediction_summary(
     current_pe = None
 
     try:
-        hist = get_history(norm, period="5y", interval="1d")
+        hist = get_history(norm, period="5y", interval="1d", as_of=as_of)
         if hist is not None and not hist.empty:
             closes = hist["Close"].values
             price_history_days = len(closes)
@@ -445,16 +450,29 @@ def generate_prediction_summary(
     except Exception as e:
         evidence.append(f"Price history unavailable: {e}")
 
-    try:
-        quote = get_quote(norm)
-        p_val = getattr(quote, "price", None) or (quote.get("price") if isinstance(quote, dict) else None)
-        if p_val and float(p_val) > 0:
-            current_price = float(p_val)
-        pe_val = getattr(quote, "pe_ratio", None) or (quote.get("pe_ratio") if isinstance(quote, dict) else None)
-        if pe_val and float(pe_val) > 0:
-            current_pe = float(pe_val)
-    except Exception:
-        pass
+    if as_of is None:
+        try:
+            quote = get_quote(norm)
+            p_val = getattr(quote, "price", None) or (quote.get("price") if isinstance(quote, dict) else None)
+            if p_val and float(p_val) > 0:
+                current_price = float(p_val)
+            pe_val = getattr(quote, "pe_ratio", None) or (quote.get("pe_ratio") if isinstance(quote, dict) else None)
+            if pe_val and float(pe_val) > 0:
+                current_pe = float(pe_val)
+        except Exception:
+            pass
+    else:
+        # In historical PIT mode, derive current_price strictly from historical closes, and quote with as_of
+        try:
+            quote = get_quote(norm, as_of=as_of)
+            p_val = getattr(quote, "price", None) or (quote.get("price") if isinstance(quote, dict) else None)
+            if p_val and float(p_val) > 0:
+                current_price = float(p_val)
+            pe_val = getattr(quote, "pe_ratio", None) or (quote.get("pe_ratio") if isinstance(quote, dict) else None)
+            if pe_val and float(pe_val) > 0:
+                current_pe = float(pe_val)
+        except Exception:
+            pass
 
     # ── Per-horizon predictions ───────────────────────────────────────────
     horizon_predictions = {}
@@ -519,7 +537,7 @@ def generate_prediction_summary(
         }
 
     # ── Catalyst timeline ─────────────────────────────────────────────────
-    catalysts = _extract_catalyst_timeline(events)
+    catalysts = _extract_catalyst_timeline(events, as_of=as_of)
     if catalysts:
         evidence.append(f"Upcoming catalysts: {len(catalysts)} events identified")
     else:

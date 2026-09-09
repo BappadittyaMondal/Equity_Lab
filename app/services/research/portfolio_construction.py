@@ -12,8 +12,8 @@ from app.models.schemas import PortfolioPositionSizingSignal
 
 def evaluate_portfolio_construction(
     symbol: str,
-    mivs_score: float = 75.0,
-    evidence_confidence_pct: float = 80.0,
+    mivs_score: Optional[float] = None,
+    evidence_confidence_pct: Optional[float] = None,
     adtv_cr: float = 12.5,
     free_float_mcap_cr: float = 3500.0,
     archetype: str = "EARLY_GROWTH",
@@ -26,11 +26,28 @@ def evaluate_portfolio_construction(
     data = portfolio_inputs or {}
     evidence = []
 
+    if mivs_score is None:
+        mivs_score = data.get("mivs_score")
+
+    if mivs_score is None:
+        return {
+            "symbol": norm_symbol,
+            "status": "data_insufficient",
+            "executed_at": datetime.now().isoformat(),
+            "recommended_position_pct": 0.0,
+            "drawdown_tolerance_band_pct": 0.0,
+            "portfolio_signal": None,
+            "evidence": ["Cannot size position: MIVS conviction score or evidence confidence unobserved."],
+            "meta": create_meta_header(source="Portfolio Construction & Sizing Engine (§35, §36, §37)")
+        }
+
+    conf_pct = float(evidence_confidence_pct if evidence_confidence_pct is not None else data.get("evidence_confidence_pct", 80.0))
+
     # Dynamic Fund AUM configuration (default 500 Cr)
     aum = float(data.get("fund_aum_cr") or fund_aum_cr or 500.0)
 
     # 1. Fractional-Kelly Sizing (§35)
-    win_prob = min(0.80, max(0.20, (mivs_score / 100.0) * (evidence_confidence_pct / 100.0)))
+    win_prob = min(0.80, max(0.20, (mivs_score / 100.0) * (conf_pct / 100.0)))
     payoff_ratio = 3.0  # 3:1 reward-to-risk benchmark for early multibaggers
     full_kelly = (win_prob * payoff_ratio - (1.0 - win_prob)) / payoff_ratio
     fractional_kelly = max(0.01, full_kelly * 0.25)  # Quarter-Kelly safety factor

@@ -106,21 +106,31 @@ def run_saatvik_d18(symbol: str, as_of: Optional[Any] = None) -> StrategyRunResp
         except Exception:
             pass
 
-    # If unobserved, conservatively default with explicit estimation flag so clean large-caps pass while tracking provenance
-    is_estimated = False
-    if debt_to_equity is None:
-        debt_to_equity = 0.0
-        is_estimated = True
-    if promoter_pledge_pct is None:
+    # If professionally managed entity (0% promoter holding, e.g. ICICIBANK, ITC, HDFCBANK), pledge is inherently 0.0
+    if promoter_holding_pct is not None and promoter_holding_pct == 0.0:
         promoter_pledge_pct = 0.0
-        is_estimated = True
-    if promoter_holding_pct is None:
-        promoter_holding_pct = 50.0
 
-    debt_hygiene_pass = (debt_to_equity <= 0.5)
-    pledge_hygiene_pass = (promoter_pledge_pct <= 15.0)
+    # Fail closed if debt or pledge unobserved:
+    data_insufficient = False
+    if debt_to_equity is None:
+        debt_hygiene_pass = False
+        debt_check_str = "FAIL (D/E unobserved - fail-closed)"
+        data_insufficient = True
+    else:
+        debt_hygiene_pass = (debt_to_equity <= 0.5)
+        debt_check_str = f"PASS ({debt_to_equity} D/E <= 0.5)" if debt_hygiene_pass else f"FAIL ({debt_to_equity} High Debt)"
+
+    if promoter_pledge_pct is None:
+        pledge_hygiene_pass = False
+        pledge_check_str = "FAIL (Promoter pledge unobserved - fail-closed)"
+        data_insufficient = True
+    else:
+        pledge_hygiene_pass = (promoter_pledge_pct <= 15.0)
+        pledge_check_str = f"PASS ({promoter_pledge_pct}% Pledge <= 15%)" if pledge_hygiene_pass else f"FAIL ({promoter_pledge_pct}% Excessive Pledge)"
 
     if sin_business_flag:
+        governance_score = 0
+    elif data_insufficient:
         governance_score = 0
     else:
         base_score = 70
@@ -136,14 +146,15 @@ def run_saatvik_d18(symbol: str, as_of: Optional[Any] = None) -> StrategyRunResp
 
     results = {
         "company_symbol": norm_symbol,
-        "ethical_gate_verdict": "PASSED_SAATVIK_FILTER" if passed else "REJECTED_ETHICAL_OR_HYGIENE_GATE",
+        "ethical_gate_verdict": "PASSED_SAATVIK_FILTER" if passed else ("REJECTED_INSUFFICIENT_DATA" if data_insufficient else "REJECTED_ETHICAL_OR_HYGIENE_GATE"),
         "sin_business_activity_flag": sin_business_flag,
         "flagged_categories": flagged_sin_categories if flagged_sin_categories else ["NONE (Clean Non-Sin Activity)"],
         "pe_sanity_check": "PASS (Valid P/E)" if pe_sane else "WARN (Negative or Elevated P/E > 100)",
-        "debt_to_equity_check": f"PASS ({debt_to_equity} D/E <= 0.5)" if debt_hygiene_pass else f"FAIL ({debt_to_equity} High Debt)",
-        "promoter_pledge_check": f"PASS ({promoter_pledge_pct}% Pledge <= 15%)" if pledge_hygiene_pass else f"FAIL ({promoter_pledge_pct}% Excessive Pledge)",
+        "debt_to_equity_check": debt_check_str,
+        "promoter_pledge_check": pledge_check_str,
         "governance_ethical_score": f"{governance_score}/100",
-        "data_estimated": is_estimated,
+        "data_estimated": False,
+        "data_status": "DATA_INSUFFICIENT" if data_insufficient else "OBSERVED",
     }
 
     metrics = {
@@ -167,7 +178,7 @@ def run_saatvik_d18(symbol: str, as_of: Optional[Any] = None) -> StrategyRunResp
     return StrategyRunResponse(
         strategy_id="D18",
         strategy_name="D18 Saatvik Ethical & Financial Hygiene Screen",
-        status="production",
+        status="production" if not data_insufficient else "data_insufficient",
         executed_at=retrieved_at,
         symbol=norm_symbol,
         passed_gates=passed,

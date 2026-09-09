@@ -17,7 +17,19 @@ def evaluate_alternative_data(
 ) -> Dict[str, Any]:
     """Evaluates Indian alternative data indicators and primary scuttlebutt channel checks."""
     norm_symbol = normalize_symbol(symbol)
-    data = alt_data_inputs or {}
+    if not alt_data_inputs:
+        return {
+            "symbol": norm_symbol,
+            "status": "data_insufficient",
+            "executed_at": datetime.now().isoformat(),
+            "alt_data_score": None,
+            "external_confirmation_score": "LOW",
+            "alt_data_signal": None,
+            "evidence": ["No primary alternative data or scuttlebutt filings observed for ticker."],
+            "meta": create_meta_header(source="Primary Scuttlebutt & Indian Alt-Data Engine (§26, §27)")
+        }
+
+    data = alt_data_inputs
     evidence = []
 
     # 1. Alt-Data Indicators (§27)

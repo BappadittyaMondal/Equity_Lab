@@ -105,7 +105,8 @@ def evaluate_growth_arbitrage(
 
     # 2. Reverse DCF: Market Implied Growth Rate (Engine C9)
     c9_res = run_reverse_dcf_c9(norm_symbol)
-    market_implied_growth = float(c9_res.metrics.get("implied_growth_rate_pct", 0.0))
+    c9_growth = c9_res.metrics.get("implied_growth_rate_pct") if c9_res and c9_res.metrics else None
+    market_implied_growth = float(c9_growth) if c9_growth is not None else 0.0
 
     # 3. Historical fundamental growth extraction from ResearchDataStore
     rev_obs = [f for f in financials if str(getattr(f, "metric", "")).lower() in ("revenue", "sales", "total_revenue", "operating_revenue")]

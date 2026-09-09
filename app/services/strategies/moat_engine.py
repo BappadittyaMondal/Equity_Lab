@@ -23,7 +23,48 @@ def evaluate_moat_score(
     """Evaluate multidimensional Moat Score (0-100) and Trajectory."""
     norm_symbol = normalize_symbol(symbol)
     
-    # Default benchmark inputs (scale 1 to 5) if custom inputs not provided
+    if not inputs:
+        # Check if empirical fundamentals exist for symbol to ground moat assessment
+        try:
+            from app.services.db import get_connection
+            conn = get_connection()
+            sym_clean = norm_symbol.replace(".NS", "").replace(".BO", "")
+            row = conn.execute(
+                "SELECT roce_latest, roe_latest, opm_latest FROM company_fundamentals WHERE symbol = ? OR symbol = ?",
+                (norm_symbol, sym_clean)
+            ).fetchone()
+            conn.close()
+            if row and row[0] is not None:
+                roce = float(row[0])
+                opm = float(row[2]) if row[2] is not None else 15.0
+                pricing = 4 if opm >= 20.0 else (3 if opm >= 12.0 else 2)
+                cost_adv = 4 if roce >= 25.0 else (3 if roce >= 15.0 else 2)
+                barriers = 4 if roce >= 20.0 else 3
+                inputs = {
+                    "pricing_power": pricing,
+                    "switching_costs": 3,
+                    "brand_moat": 3,
+                    "network_effects": 2,
+                    "cost_advantage": cost_adv,
+                    "regulatory_barriers": barriers
+                }
+        except Exception:
+            pass
+
+    if not inputs:
+        return {
+            "symbol": norm_symbol,
+            "status": "data_insufficient",
+            "executed_at": datetime.now().isoformat(),
+            "moat_score": None,
+            "moat_classification": "UNASSESSED",
+            "moat_trajectory": "UNKNOWN",
+            "dimensions": {},
+            "evidence": ["Moat qualitative inputs unobserved."],
+            "meta": create_meta_header(source="Competitive Advantage Engine (E7)")
+        }
+    
+    # Benchmark inputs (scale 1 to 5)
     defaults = {
         "pricing_power": 3,
         "switching_costs": 3,

@@ -136,7 +136,28 @@ class FinancialForensicsEngine:
     def analyze_company_forensics(cls, financials_data: Optional[Dict[str, Any]] = None) -> Dict[str, Any]:
         """Comprehensive multi-dimensional balance sheet forensic quality assessment."""
         if not financials_data:
-            financials_data = {}
+            return {
+                "cwip_analysis": {
+                    "cwip_ratio_pct": 0.0,
+                    "cwip_acceleration_pct": 0.0,
+                    "capacity_expansion_signal": "DATA_UNAVAILABLE",
+                },
+                "cash_conversion_cycle": {
+                    "current_ccc_days": 0.0,
+                    "delta_dso_days": 0.0,
+                    "delta_dio_days": 0.0,
+                    "delta_dpo_days": 0.0,
+                    "delta_ccc_days": 0.0,
+                    "working_capital_drag_flag": False,
+                    "quality_tier": "DATA_UNAVAILABLE",
+                },
+                "cash_pat_divergence": {
+                    "consecutive_divergence_years": 0,
+                    "persistent_divergence_flag": False,
+                    "forensic_risk_severity": "DATA_UNAVAILABLE",
+                },
+                "forensic_risk_level": "DATA_UNAVAILABLE",
+            }
 
         cwip = float(financials_data.get("cwip", 15.0))
         gross_block = float(financials_data.get("gross_block", 100.0))

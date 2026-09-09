@@ -779,22 +779,25 @@ def run_strategy_module(strategy_id: str, symbol: str = "RELIANCE", as_of: Optio
         from app.services.strategies.unit_economics import evaluate_unit_economics
         res_moat = evaluate_moat_score(symbol, as_of=as_of)
         res_unit = evaluate_unit_economics(symbol, as_of=as_of)
+        m_score = res_moat.get("moat_score")
+        u_score = res_unit.get("unit_economics_score")
+        is_observed = (m_score is not None or u_score is not None)
         return StrategyRunResponse(
             strategy_id="E8",
             strategy_name=module.name,
-            status="production",
+            status="production" if is_observed else "data_insufficient",
             executed_at=res_moat["executed_at"],
             symbol=res_moat["symbol"],
-            passed_gates=(res_moat["moat_score"] >= 55.0),
+            passed_gates=bool(m_score is not None and m_score >= 55.0),
             results={
-                "moat_score": res_moat["moat_score"],
-                "moat_classification": res_moat["moat_classification"],
-                "moat_trajectory": res_moat["moat_trajectory"],
-                "unit_economics_score": res_unit["unit_economics_score"],
-                "unit_trend": res_unit["unit_trend"],
-                "evidence": res_moat["evidence"] + res_unit["evidence"]
+                "moat_score": m_score,
+                "moat_classification": res_moat.get("moat_classification", "UNASSESSED"),
+                "moat_trajectory": res_moat.get("moat_trajectory", "UNKNOWN"),
+                "unit_economics_score": u_score,
+                "unit_trend": res_unit.get("unit_trend", "UNASSESSED"),
+                "evidence": res_moat.get("evidence", []) + res_unit.get("evidence", [])
             },
-            metrics={**res_moat["dimensions"], **res_unit["metrics"]},
+            metrics={**res_moat.get("dimensions", {}), **res_unit.get("metrics", {})},
             risk_warnings=module.risk_warnings,
             disclaimer="Moat Strength & Unit Economics Engine assessment.",
             meta=res_moat["meta"]
@@ -824,15 +827,16 @@ def run_strategy_module(strategy_id: str, symbol: str = "RELIANCE", as_of: Optio
     elif module.id == "E10":
         from app.services.strategies.shareholding_pattern import evaluate_shareholding_pattern
         res_e10 = evaluate_shareholding_pattern(symbol, as_of=as_of)
+        is_obs = (res_e10.get("institutional_flow_score") is not None)
         return StrategyRunResponse(
             strategy_id="E10",
             strategy_name=module.name,
-            status="production",
+            status="production" if is_obs else "data_insufficient",
             executed_at=res_e10["executed_at"],
             symbol=res_e10["symbol"],
-            passed_gates=(res_e10["institutional_flow_score"] >= 60.0),
+            passed_gates=bool(is_obs and res_e10["institutional_flow_score"] >= 60.0),
             results=res_e10,
-            metrics={"institutional_flow_score": res_e10["institutional_flow_score"]},
+            metrics={"institutional_flow_score": res_e10.get("institutional_flow_score") or 0.0},
             risk_warnings=module.risk_warnings,
             disclaimer="Shareholding-Pattern Intelligence assessment.",
             meta=res_e10["meta"]
@@ -843,10 +847,10 @@ def run_strategy_module(strategy_id: str, symbol: str = "RELIANCE", as_of: Optio
         return StrategyRunResponse(
             strategy_id="E11",
             strategy_name=module.name,
-            status="production",
+            status="production" if res_e11.get("status") != "data_insufficient" else "data_insufficient",
             executed_at=res_e11["executed_at"],
             symbol=res_e11["symbol"],
-            passed_gates=(res_e11["external_confirmation_score"] in ["HIGH", "MEDIUM"]),
+            passed_gates=bool(res_e11.get("external_confirmation_score") in ["HIGH", "MEDIUM"]),
             results=res_e11,
             metrics={"alt_data_score": res_e11["alt_data_score"]},
             risk_warnings=module.risk_warnings,
@@ -892,15 +896,16 @@ def run_strategy_module(strategy_id: str, symbol: str = "RELIANCE", as_of: Optio
     elif module.id == "E14":
         from app.services.research.portfolio_construction import evaluate_portfolio_construction
         res_e14 = evaluate_portfolio_construction(symbol, as_of=as_of)
+        is_obs = (res_e14.get("status") != "data_insufficient")
         return StrategyRunResponse(
             strategy_id="E14",
             strategy_name=module.name,
-            status="production",
+            status="production" if is_obs else "data_insufficient",
             executed_at=res_e14["executed_at"],
             symbol=res_e14["symbol"],
-            passed_gates=(res_e14["recommended_position_pct"] > 0.0),
+            passed_gates=bool(is_obs and res_e14.get("recommended_position_pct", 0.0) > 0.0),
             results=res_e14,
-            metrics={"recommended_position_pct": res_e14["recommended_position_pct"]},
+            metrics={"recommended_position_pct": res_e14.get("recommended_position_pct") or 0.0},
             risk_warnings=module.risk_warnings,
             disclaimer="Portfolio Position Sizing Engine assessment.",
             meta=res_e14["meta"]

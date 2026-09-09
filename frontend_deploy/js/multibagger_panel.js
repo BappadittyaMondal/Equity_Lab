@@ -292,58 +292,22 @@ export async function executeFinderQuery(finderType = "multibagger") {
     }
   } catch (_) {}
 
-  // Fallback curated data per strategy for demo / offline resilience
   if (!candidates.length) {
-    isFallbackMode = true;
-    if (finderType === "multibagger") {
-      candidates = [
-        { symbol: "POLYCAB", name: "Polycab India Ltd", price: 6850, score: 94, tag: "CAGR 28.5% | ROCE 24.2% | D/E 0.08" },
-        { symbol: "KEI", name: "KEI Industries Ltd", price: 4220, score: 91, tag: "CAGR 24.1% | ROCE 22.8% | D/E 0.12" },
-        { symbol: "TRENT", name: "Trent Ltd", price: 7100, score: 89, tag: "CAGR 35.2% | ROCE 19.5% | D/E 0.45" },
-        { symbol: "DIXON", name: "Dixon Technologies", price: 12400, score: 87, tag: "CAGR 31.0% | ROCE 26.4% | D/E 0.32" },
-      ];
-    } else if (finderType === "e21") {
-      candidates = [
-        { symbol: "SHILCHAR", name: "Shilchar Technologies (₹420Cr Cap)", price: 6150, score: 95, tag: "Incr. ROIC: 38.4% | Capex Prod: 2.1x | [Feasible]" },
-        { symbol: "KAYNES", name: "Kaynes Technology India", price: 5410, score: 93, tag: "Incr. ROIC: 32.1% | Capex Prod: 1.8x | [Feasible]" },
-        { symbol: "DATAPATTNS", name: "Data Patterns India", price: 3120, score: 89, tag: "Incr. ROIC: 27.5% | Capex Prod: 1.5x | [Feasible]" },
-      ];
-    } else if (finderType === "sip") {
-      candidates = [
-        { symbol: "TCS", name: "Tata Consultancy Services", price: 4250, score: 96, tag: "10Y CAGR: 14.2% | Div Yield: 2.3% | P/E: 27.5" },
-        { symbol: "HDFCBANK", name: "HDFC Bank Ltd", price: 1640, score: 95, tag: "10Y CAGR: 18.0% | Div Yield: 1.2% | P/E: 18.5" },
-        { symbol: "INFY", name: "Infosys Ltd", price: 1860, score: 92, tag: "10Y CAGR: 12.5% | Div Yield: 2.5% | P/E: 24.1" },
-        { symbol: "TITAN", name: "Titan Company Ltd", price: 3450, score: 90, tag: "10Y CAGR: 20.1% | Div Yield: 0.8% | P/E: 78.2" },
-      ];
-    } else if (finderType === "swing") {
-      candidates = [
-        { symbol: "HAL", name: "Hindustan Aeronautics (30D Target)", price: 4680, score: 94, tag: "Target: ₹5,382 (+15.0%) | 3.2:1 R:R | ATR: 156" },
-        { symbol: "BEL", name: "Bharat Electronics (10D Swing)", price: 310, score: 91, tag: "Target: ₹341 (+10.0%) | 3.0:1 R:R | ATR: 10.4" },
-        { symbol: "BHEL", name: "Bharat Heavy Electricals", price: 295, score: 88, tag: "Target: ₹318 (+7.8%) | 2.8:1 R:R | ATR: 11.2" },
-      ];
-    } else if (finderType === "turnaround") {
-      candidates = [
-        { symbol: "SUZLON", name: "Suzlon Energy Ltd (Stage 3 Rec)", price: 78, score: 88, tag: "P(4Q Rec): 74% | Relapse: 14% | CFO: +₹1,240Cr" },
-        { symbol: "YESBANK", name: "Yes Bank Ltd (Stage 2 Damage)", price: 24, score: 76, tag: "P(4Q Rec): 52% | Relapse: 24% | CFO: +₹410Cr" },
-      ];
-    } else if (finderType === "compare") {
-      candidates = [
-        { symbol: "RELIANCE vs TCS", name: "Energy/Retail Titan vs IT Services Giant", price: 2950, score: 91, tag: "RELIANCE: Score 92/100 (Alpha: +6.4%) | TCS: Score 96/100 (Alpha: +8.1%)" },
-      ];
-    } else if (finderType === "sector") {
-      candidates = [
-        { symbol: "CAP_GOODS", name: "Capital Goods & Defense Sector", price: 0, score: 95, tag: "Sector Z-Score: +2.4σ | Relative Momentum: Bullish Accumulation" },
-        { symbol: "ENERGY", name: "Power & Renewable Energy", price: 0, score: 90, tag: "Sector Z-Score: +1.8σ | Relative Momentum: Expanding" },
-        { symbol: "IT", name: "Information Technology", price: 0, score: 82, tag: "Sector Z-Score: +0.6σ | Relative Momentum: Neutral / Selective" },
-      ];
-    } else {
-      candidates = [
-        { symbol: "TCS", name: "Tata Consultancy Services (Rank #1)", price: 4250, score: 96, tag: "Arbiter Verdict: STRONG_BUY (Pledge: 0.0% | Forensic: CLEAN)" },
-        { symbol: "HDFCBANK", name: "HDFC Bank Ltd (Rank #2)", price: 1640, score: 95, tag: "Arbiter Verdict: STRONG_BUY (Pledge: 0.0% | Forensic: CLEAN)" },
-        { symbol: "POLYCAB", name: "Polycab India Ltd (Rank #3)", price: 6850, score: 94, tag: "Arbiter Verdict: STRONG_BUY (Pledge: 0.0% | Forensic: CLEAN)" },
-        { symbol: "INFY", name: "Infosys Ltd (Rank #4)", price: 1860, score: 92, tag: "Arbiter Verdict: BUY (Pledge: 0.0% | Forensic: CLEAN)" },
-      ];
-    }
+    container.innerHTML = `
+      <div class="p-8 text-center bg-surface-lowest border border-surface-border rounded-lg space-y-3">
+        <div class="text-3xl">🔍</div>
+        <div class="text-sm font-bold text-white font-mono">NO CANDIDATES OBSERVED OR DATA UNAVAILABLE</div>
+        <div class="text-xs text-muted max-w-md mx-auto">
+          No live screening candidates match the active thresholds for <strong>${finderType.toUpperCase()}</strong>, or backend market data has not been ingested yet.
+        </div>
+        <div class="pt-2 flex justify-center gap-2">
+          <button onclick="window.executeFinderQuery('${finderType}')" class="btn-secondary text-xs px-3 py-1">
+            <span class="material-symbols-outlined text-xs">refresh</span> Retry Query
+          </button>
+        </div>
+      </div>
+    `;
+    return;
   }
 
   const rows = candidates.map(c => `
@@ -366,18 +330,7 @@ export async function executeFinderQuery(finderType = "multibagger") {
     </tr>
   `).join("");
 
-  const fallbackBanner = isFallbackMode ? `
-    <div class="p-2 mb-2.5 bg-amber-950/60 border border-amber-500/50 rounded-lg text-amber-200 text-xs flex items-center justify-between font-mono shadow-inner">
-      <span class="flex items-center gap-1.5">
-        <span class="text-amber-400">⚠️</span>
-        <strong>DEMO DATA MODE</strong>: Displaying curated candidate presets (Backend unauthenticated or offline).
-      </span>
-      <span class="text-[10px] text-amber-300/70 bg-amber-900/50 px-1.5 py-0.5 rounded">Set X-API-Key for Live Engine Results</span>
-    </div>
-  ` : '';
-
   container.innerHTML = `
-    ${fallbackBanner}
     <table class="data-table">
       <thead>
         <tr>

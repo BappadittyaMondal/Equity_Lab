@@ -61,7 +61,8 @@ def evaluate_multibagger_score(
     score_e1 = res_e1.growth_inflection_score
     score_e2 = res_e2.turnaround_score
     score_e3 = res_e3.potential_rerating_score
-    score_gov = (res_gov.governance_score + res_moat["moat_score"]) / 2.0
+    moat_score_val = res_moat.get("moat_score")
+    score_gov = (res_gov.governance_score + moat_score_val) / 2.0 if moat_score_val is not None else float(res_gov.governance_score)
     score_d18 = 100.0 if saatvik_passed else 0.0
 
     raw_score = (

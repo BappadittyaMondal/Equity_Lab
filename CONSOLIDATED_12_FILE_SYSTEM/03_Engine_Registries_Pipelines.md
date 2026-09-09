@@ -1,8 +1,8 @@
 # 03_Engine_Registries_Pipelines
 
 > **IERL AI Equity OS — curated upload artifact**  
-> Project Version: `0.0.0` · Bundle Version: `2.0` · Source Commit: `5087cb8`  
-> Generated At: `2026-09-09T09:03:24.883619+00:00` · Source Hash: `ffdea5225bfdfcb6` · Compiler: `consolidate_project.py` v2.0
+> Project Version: `0.0.0` · Bundle Version: `2.0` · Source Commit: `2a7984e`  
+> Generated At: `2026-09-09T17:58:21.867104+00:00` · Source Hash: `7d5db7044cc42a15` · Compiler: `consolidate_project.py` v2.0
 
 ## Operating contract
 

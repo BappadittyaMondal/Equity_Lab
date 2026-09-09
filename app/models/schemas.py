@@ -440,7 +440,9 @@ class TurnaroundStageResponse(BaseModel):
     executed_at: str
     turnaround_score: float = Field(..., ge=0.0, le=100.0)
     current_stage: str
-    success_probability_pct: float = Field(..., ge=0.0, le=100.0)
+    turnaround_stage_score_pct: float = Field(default=0.0, ge=0.0, le=100.0, description="Deterministic multi-stage turnaround progression index score")
+    success_probability_pct: float = Field(..., ge=0.0, le=100.0, description="Legacy alias for turnaround_stage_score_pct")
+    calibration_status: str = Field(default="HEURISTIC_SCORE_NOT_EMPIRICALLY_CALIBRATED", description="Calibration disclosure")
     probability_type: Optional[ProbabilityType] = Field(default=ProbabilityType.SCENARIO_INDEX, description="Classification: diagnostic scenario index")
     false_turnaround_risk: Literal["LOW", "MODERATE", "HIGH", "CRITICAL", "UNKNOWN"]
     evidence: List[str]

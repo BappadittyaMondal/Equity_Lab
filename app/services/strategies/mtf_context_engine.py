@@ -39,20 +39,22 @@ class MTFContextEngine:
         if weekly_df is None or len(weekly_df) < 15:
             return {
                 "tide_state": "NEUTRAL_INSUFFICIENT_DATA",
-                "is_bullish_tide": True,  # Permissive fallback when weekly unavailable
+                "is_bullish_tide": False,
                 "is_bearish_tide": False,
                 "weekly_ema_10": None,
                 "weekly_ema_30": None,
-                "confidence": 0.50,
+                "confidence": 0.0,
             }
 
         closes = cls._clean_series(weekly_df["close"] if "close" in weekly_df.columns else weekly_df.iloc[:, -1])
         if len(closes) < 15:
             return {
                 "tide_state": "NEUTRAL_INSUFFICIENT_DATA",
-                "is_bullish_tide": True,
+                "is_bullish_tide": False,
                 "is_bearish_tide": False,
-                "confidence": 0.50,
+                "weekly_ema_10": None,
+                "weekly_ema_30": None,
+                "confidence": 0.0,
             }
 
         ema_10 = float(closes.ewm(span=10, adjust=False).mean().iloc[-1])
