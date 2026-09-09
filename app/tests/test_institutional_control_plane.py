@@ -554,4 +554,38 @@ def test_sip_policy_dynamic_5y_harmonic_roce():
     assert res["roce_10y_avg"] >= 26.0  # Harmonic effective ROCE
 
 
+def test_sip_policy_cyclical_commodity_blocked_without_10y():
+    """Verify that commodity cyclical stocks cannot bypass 10Y requirement using 3Y/5Y harmonic shortcuts."""
+    res = SIPPolicyEngine.evaluate(
+        symbol="TATASTEEL",
+        roce_10y_avg=None,
+        roce_5y_avg=24.0,
+        roce_3y_avg=28.0,
+        debt_to_equity=0.60,
+        valuation_z_score=-1.2,
+        thesis_intact=True,
+        sector="METALS_MINING",
+    )
+    assert res["policy_action"] == "PAUSE_SIP_OR_EXIT_REVIEW"
+    assert res["allocation_multiplier"] == 0.0
+    assert "Commodity cyclical sector" in res["reason"]
+
+
+def test_swing_engine_corporate_action_split_hold():
+    """Verify that a stock experiencing an unadjusted 25%+ split dislocation triggers corporate action hold."""
+    from app.services.strategies.swing_predictive_engine import SwingPredictiveEngine
+    # Build dataframe where last candle drops 50% (1:1 split)
+    fake_df = pd.DataFrame({
+        "open": [100.0 for _ in range(34)] + [50.0],
+        "close": [100.0 for _ in range(34)] + [50.0],
+        "high": [102.0 for _ in range(34)] + [51.0],
+        "low": [98.0 for _ in range(34)] + [49.0],
+        "volume": [100000 for _ in range(35)],
+        "open_interest": [50000 for _ in range(35)],
+    })
+    s_res = SwingPredictiveEngine.predict_swing_30d(fake_df)
+    assert "CORPORATE_ACTION_SPLIT_HOLD" in s_res["model_bias"]
+    assert s_res["confluence_score"] <= 45.0
+
+
 

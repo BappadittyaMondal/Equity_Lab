@@ -799,6 +799,10 @@ def run_strategy_module(strategy_id: str, symbol: str = "RELIANCE", as_of: Optio
             disclaimer="Moat Strength & Unit Economics Engine assessment.",
             meta=res_moat["meta"]
         )
+    elif module.id == "C11":
+        return run_forensic_engine(symbol, strategy_id="C11", as_of=as_of)
+    elif module.id == "C12":
+        return run_forensic_engine(symbol, strategy_id="C12", as_of=as_of)
     elif module.id == "C13":
         return run_forensic_engine(symbol, strategy_id="C13", as_of=as_of)
     elif module.id == "E9":

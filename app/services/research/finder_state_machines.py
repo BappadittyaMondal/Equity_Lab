@@ -355,8 +355,25 @@ class SIPPolicyEngine:
         prev_multiplier: Optional[float] = None,
         roce_5y_avg: Optional[float] = None,
         roce_3y_avg: Optional[float] = None,
+        sector: Optional[str] = None,
     ) -> Dict[str, Any]:
         """Evaluates SIP contribution allocation multiplier and thesis preservation."""
+        # Cyclical Commodity Peak-Earnings Protection:
+        # Cyclical commodities (metals, mining, commodity chemicals, sugar, shipping) must NOT
+        # rely on 3Y/5Y harmonic shortcuts that capture peak-cycle super-profits.
+        is_cyclical = str(sector or "").upper() in (
+            "METALS", "MINING", "METALS_MINING", "COMMODITIES", "COMMODITY_CHEMICALS", "SUGAR", "SHIPPING", "FERTILIZERS"
+        )
+        if is_cyclical and (roce_10y_avg is None or roce_10y_avg <= 0):
+            return {
+                "symbol": symbol.upper(),
+                "policy_action": "PAUSE_SIP_OR_EXIT_REVIEW",
+                "allocation_multiplier": 0.0,
+                "reason": "Commodity cyclical sector requires full 10Y economic cycle ROCE validation; 3Y/5Y harmonic shortcut blocked to prevent peak-earnings trap.",
+                "accumulate_dry_powder": True,
+                "hysteresis_active": prev_multiplier is not None,
+            }
+
         # Available-History Harmonic ROCE calculation
         if roce_10y_avg is not None and roce_10y_avg > 0:
             effective_roce = float(roce_10y_avg)

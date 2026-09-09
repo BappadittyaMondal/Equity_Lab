@@ -3,7 +3,7 @@
 
 from typing import List, Optional
 from datetime import datetime
-from fastapi import APIRouter, Query
+from fastapi import APIRouter, Query, HTTPException, status
 
 from app.models.schemas import (
     GovernanceQualityResponse,
@@ -158,13 +158,10 @@ def run_walk_forward_backtest(
         pass
 
     if not entry_scores_and_returns:
-        quote = get_market_quote(symbol)
-        change_pct = float(quote.get("change_percent", 12.0))
-        entry_scores_and_returns = [
-            {"stock_return": round(change_pct * 1.5, 2), "score": 82},
-            {"stock_return": round(change_pct * 0.8, 2), "score": 75},
-            {"stock_return": round(change_pct * 1.1, 2), "score": 80},
-        ]
+        raise HTTPException(
+            status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+            detail=f"Insufficient historical trading data for {symbol} to perform empirical walk-forward backtesting (minimum 20 bars required). No synthetic data permitted."
+        )
 
     summary = tester.evaluate_horizon(
         symbol=symbol,

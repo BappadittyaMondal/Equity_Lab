@@ -983,15 +983,16 @@ class GovernanceRedFlagChecklist(BaseModel):
     audit_integrity: str = "CLEAN"
     related_party_risk: str = "ARM_LENGTH"
     regulatory_litigation_risk: str = "LOW"
-    beneish_m_score: float = -2.45
-    altman_z_score: float = 3.82
-    piotroski_f_score: int = 8
-    mohanram_g_score: int = 7
+    beneish_m_score: Optional[float] = -2.45
+    altman_z_score: Optional[float] = 3.82
+    piotroski_f_score: Optional[int] = 8
+    mohanram_g_score: Optional[int] = 7
     hard_gate_status: Literal["PASS", "AMBER", "FAIL"] = "PASS"
 
 
 class InsiderConvictionSignal(BaseModel):
     promoter_net_transaction_30d: float = 0.0
+    promoter_pledge_pct: Optional[float] = None
     promoter_pledge_trend: str = "DECREASING"
     bulk_block_deal_conviction: str = "ACCUMULATION"
     esop_alignment_grade: str = "ALIGNED"

@@ -459,13 +459,22 @@ def run_forensic_engine(
         governance_flags.append("PIOTROSKI_WEAK_FUNDAMENTALS")
 
     # Overall forensic verdict
-    passed = len(governance_flags) == 0
+    if strategy_id == "C11":
+        strat_name = "Piotroski F-Score Diagnostic"
+        passed = not piotroski_weak
+    elif strategy_id == "C12":
+        strat_name = "Altman Z-Score Distress Diagnostic"
+        passed = not altman_distress
+    else:
+        strat_name = "Forensic & Governance Engine"
+        passed = len(governance_flags) == 0
+
     forensic_risk = "CRITICAL" if beneish_flag or altman_distress else ("HIGH" if piotroski_weak else "LOW")
     gov_grade = "POOR" if beneish_flag else ("ADEQUATE" if piotroski_weak else "GOOD")
 
     return StrategyRunResponse(
         strategy_id=strategy_id,
-        strategy_name="Forensic & Governance Engine",
+        strategy_name=strat_name,
         status="production",
         executed_at=get_ist_now_str(),
         symbol=norm,

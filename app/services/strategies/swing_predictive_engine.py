@@ -516,6 +516,16 @@ class SwingPredictiveEngine:
         # ADTV Liquidity Veto Gate: If ADTV < 5 Crore (illiquid), cap confluence score at 50 max
         if not adtv_res["is_liquid_enough"] and confluence_score > 50.0:
             confluence_score = 50.0
+
+        # Corporate Action & Split-Adjustment Protection:
+        # Detect unadjusted split / bonus price dislocation (> 25% single-day step collapse)
+        is_corporate_action_gap = False
+        if len(closes_d) >= 5:
+            last_pct_change = float((closes_d.iloc[-1] - closes_d.iloc[-2]) / max(0.01, closes_d.iloc[-2]))
+            if last_pct_change <= -0.25:
+                is_corporate_action_gap = True
+                if confluence_score > 45.0:
+                    confluence_score = 45.0
         
         # Volatility & ATR-based Dynamic Model Targets across Multi-Horizons (3D, 10D, 30D)
         # 30D Target calibrated to 4.5 * ATR vs 1.5 * ATR Stop-Loss to enforce strict 3:1 Reward-to-Risk ratio
@@ -523,7 +533,11 @@ class SwingPredictiveEngine:
         target_10d = round(cp + (1.8 * atr), 2) if confluence_score >= 60.0 else round(cp + (0.5 * atr), 2)
         target_30d = round(cp + (4.5 * atr), 2) if confluence_score >= 60.0 else round(cp, 2)
         
-        if confluence_score >= 80.0:
+        if is_corporate_action_gap:
+            bias = "CORPORATE_ACTION_SPLIT_HOLD (Unadjusted gap detected; wait for 3-day baseline stabilization)"
+            target_price = round(cp + (0.5 * atr), 2)
+            stop_loss = round(cp - (1.0 * atr), 2)
+        elif confluence_score >= 80.0:
             bias = "BULLISH TECHNICAL CONFLUENCE (3D/10D/30D)"
             target_price = target_30d
             stop_loss = round(max(cp - (1.5 * atr), min(avwap, ema_20_d) * 0.98), 2)

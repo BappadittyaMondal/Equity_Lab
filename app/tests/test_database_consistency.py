@@ -192,3 +192,28 @@ def test_alembic_remaining_tables_migration_003(monkeypatch):
     assert any("investment_theses" in s for s in executed_statements)
     assert any("prediction_ledger_conformal" in s for s in executed_statements)
 
+
+def test_alembic_reconcile_foreign_keys_migration_004(monkeypatch):
+    """Verify Alembic migration 004 successfully creates foreign key index on prediction_ledger."""
+    import importlib.util
+    import os
+    spec = importlib.util.spec_from_file_location("migration_004", os.path.join("alembic", "versions", "004_reconcile_foreign_keys.py"))
+    mod = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(mod)
+
+    executed = []
+    class MockOp:
+        @staticmethod
+        def execute(sql):
+            executed.append(sql)
+            conn = get_connection()
+            conn.execute(sql)
+            conn.close()
+
+    monkeypatch.setattr(mod, "op", MockOp)
+    mod.upgrade()
+
+    assert len(executed) >= 2
+    assert any("idx_prediction_ledger_conviction_id" in s for s in executed)
+    assert any("idx_decision_audit_symbol_timestamp" in s for s in executed)
+

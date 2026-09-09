@@ -1,8 +1,8 @@
 # 01_Master_System_Core_Instructions_Architecture
 
 > **IERL AI Equity OS — curated upload artifact**  
-> Project Version: `0.0.0` · Bundle Version: `2.0` · Source Commit: `fb826ad`  
-> Generated At: `2026-09-09T06:28:53.135679+00:00` · Source Hash: `064c2b545c97b2cb` · Compiler: `consolidate_project.py` v2.0
+> Project Version: `0.0.0` · Bundle Version: `2.0` · Source Commit: `5087cb8`  
+> Generated At: `2026-09-09T09:03:24.883619+00:00` · Source Hash: `ffdea5225bfdfcb6` · Compiler: `consolidate_project.py` v2.0
 
 ## Operating contract
 
