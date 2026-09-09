@@ -482,3 +482,76 @@ def test_multibagger_unverified_pledge_fail_closed_in_production(monkeypatch):
     assert res["is_investable"] is False
     assert any("Promoter Pledge" in f for f in res["risk_flags"])
 
+
+def test_multibagger_professionally_managed_clean_pledge(monkeypatch):
+    """Verify that professionally managed companies (0% promoter) do not fail closed when pledge is None."""
+    monkeypatch.setenv("OFFLINE_TEST_MODE", "false")
+    from app.services.research.institutional_multibagger_engine import InstitutionalMultibaggerEngine
+    prof_comp = {
+        "symbol": "ITC.NS",
+        "company_name": "ITC Limited",
+        "market_cap": 500000.0,
+        "current_price": 450.0,
+        "roe_latest": 28.0,
+        "roce_latest": 35.0,
+        "cfo_last_year": 18000.0,
+        "net_profit_last_year": 15000.0,
+        "promoter_holding": 0.0,  # Professionally managed
+        # pledged_pct is None
+    }
+    res = InstitutionalMultibaggerEngine.evaluate_company(prof_comp)
+    assert res["lifecycle_state_machine"]["state"] != "INVALIDATED"
+    assert not any("Promoter Pledge" in f for f in res["risk_flags"])
+
+
+def test_microcap_gate_unverified_rpt_provisional():
+    """Verify that unverified RPT grants provisional status with halved capacity rather than hard veto."""
+    res = MicrocapRiskFirstGate.evaluate(
+        symbol="PROVISIONAL_MICRO",
+        market_cap_cr=200.0,
+        adtv_30d_cr=3.0,
+        rpt_to_net_worth_pct=None,  # Unobserved in digital feed
+        has_auditor_resigned_recently=False,
+        circuit_frequency_pct=2.0,
+        promoter_holding_pct=55.0,
+        cfo_3y_sum_cr=15.0,
+    )
+    assert res["is_investable"] is True
+    assert res["status"] == "APPROVED_MICROCAP_PROVISIONAL"
+    assert res["risk_tier"] == "INCUBATOR_MICROCAP_AMBER_PROVISIONAL"
+    assert res["capacity_limits"]["strategy_position_limit_cr"] == 0.75  # Capped at ₹75L
+
+
+def test_swing_trade_feasibility_tactical_swing_tier():
+    """Verify that mid-cap stocks with 1.0-5.0 Cr ADTV clear entry under tactical alpha swing tier."""
+    res = SwingTradeFeasibilityEngine.evaluate(
+        symbol="TACTICAL_MIDCAP",
+        technical_confluence_score=80.0,
+        mtf_verdict="STRONG_BULLISH_EXECUTION_READY",
+        adtv_cr=2.5,  # Tier B (1.0 - 5.0 Cr)
+        order_size_cr=0.05,  # Within 2.5% ADV limit (0.0625 Cr)
+        is_circuit_locked=False,
+    )
+    assert res["is_tradable"] is True
+    assert res["feasibility_status"] == "FEASIBLE_TACTICAL_SWING"
+    assert res["liquidity_tier"] == "TACTICAL_ALPHA_SWING"
+
+
+def test_sip_policy_dynamic_5y_harmonic_roce():
+    """Verify that modern secular compounders with 5Y/3Y data evaluate cleanly without 10Y penalty."""
+    res = SIPPolicyEngine.evaluate(
+        symbol="MODERN_COMPOUNDER",
+        roce_10y_avg=None,  # Not listed for 10 years
+        roce_5y_avg=28.0,
+        roce_3y_avg=26.0,
+        debt_to_equity=0.10,
+        valuation_z_score=0.2,
+        thesis_intact=True,
+        is_price_below_200sma=False,
+    )
+    assert res["policy_action"] == "STANDARD_SIP_EXECUTION"
+    assert res["allocation_multiplier"] == 1.00
+    assert res["roce_10y_avg"] >= 26.0  # Harmonic effective ROCE
+
+
+

@@ -42,12 +42,13 @@ def generate_scorecard_for_symbol(symbol: str, rank: Optional[int] = None) -> Sc
     call = arb.arbitrate(norm)
     
     # 2. Multibagger evaluation
+    mb_score: Optional[float] = None
     try:
         mb = evaluate_multibagger_score(norm)
         mb_score = mb.multibagger_score
     except Exception as e:
-        logger.warning("Multibagger score fallback for %s: %s", norm, e)
-        mb_score = call.conviction_score * 0.9
+        logger.warning("Multibagger score dependency failed for %s: %s", norm, e)
+        mb_score = None
 
     # 3. Independent Empirical Probability Matrix (No heuristic offset formulas)
     prob_1y = "N/A"
@@ -93,8 +94,12 @@ def generate_scorecard_for_symbol(symbol: str, rank: Optional[int] = None) -> Sc
 
     # Convert scores to /10 ratings
     bq_val = min(10.0, round(call.conviction_score * 0.1, 1))
-    gp_val = min(10.0, round((call.conviction_score * 0.5 + mb_score * 0.5) * 0.1, 1))
-    op_val = min(10.0, round(mb_score * 0.1, 1))
+    if mb_score is not None:
+        gp_val = min(10.0, round((call.conviction_score * 0.5 + mb_score * 0.5) * 0.1, 1))
+        op_val = f"{min(10.0, round(mb_score * 0.1, 1))}/10"
+    else:
+        gp_val = min(10.0, round(call.conviction_score * 0.1, 1))
+        op_val = "N/A"
 
     # Empirical Risk Calculation (Independent from conviction score)
     downside_risk_pts = 2.0
@@ -131,7 +136,7 @@ def generate_scorecard_for_symbol(symbol: str, rank: Optional[int] = None) -> Sc
         scores=ScorecardScores(
             business_quality=f"{bq_val}/10",
             growth_potential=f"{gp_val}/10",
-            optionality_15x=f"{op_val}/10",
+            optionality_15x=op_val,
             risk_score=f"{rk_val}/10",
             overall_score=call.conviction_score,
         ),

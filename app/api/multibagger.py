@@ -38,8 +38,12 @@ def get_mivs_score(symbol: str, sector: str = Query("MANUFACTURING")):
     try:
         arbiter = Arbiter()
         outputs = arbiter._collect_engine_outputs(symbol)
-        mivs_res = MIVSEngine().compute_mivs(symbol, outputs, sector=sector)
+        from app.services.intelligence.concall_evidence_extractor import build_qualitative_payload
+        qual_payload = build_qualitative_payload(symbol)
+        mivs_res = MIVSEngine().compute_mivs(symbol, outputs, sector=sector, qualitative_payload=qual_payload)
         return mivs_res.model_dump()
+    except TimeoutError as te:
+        raise HTTPException(status_code=status.HTTP_504_GATEWAY_TIMEOUT, detail=f"Upstream gateway timeout: {str(te)}")
     except Exception as e:
         raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=f"MIVS calculation failed: {str(e)}")
 

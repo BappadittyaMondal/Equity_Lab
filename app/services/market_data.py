@@ -724,11 +724,11 @@ def get_market_regime():
         }
     except Exception:
         return {
-            "vix_level": 14.5,
-            "regime": "R1_BULL_TREND",
-            "score": 70,
-            "a2_suitability": "MODERATE",
-            "observation": "Market volatility regime within normal institutional operating parameters.",
+            "vix_level": None,
+            "regime": "DATA_UNAVAILABLE",
+            "score": 50,
+            "a2_suitability": "UNKNOWN",
+            "observation": "Market volatility regime data unreachable or unobserved; default neutral fail-closed stance applied.",
             "nifty_spot": None,
             "meta": create_meta_header(source="Market Regime Engine (§6, §7)")
         }

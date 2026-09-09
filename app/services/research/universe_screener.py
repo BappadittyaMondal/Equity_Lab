@@ -51,9 +51,46 @@ def run_technical_universe_screener(
     tier2_candidates = []
 
     # 1. Tier 0 Vectorized Liquidity & Price Floor Gate (§0)
+    import os
+    from app.services.data_ingestion.screener_connector import ScreenerCloudConnector
+    from app.services.market_data import get_quote
+    is_offline = os.getenv("OFFLINE_TEST_MODE", "false").lower() == "true"
+
     for sym in symbols:
         norm = normalize_symbol(sym)
-        # Mock liquidity check for tradeable universe
+        price = None
+        turnover = None
+        try:
+            fund = ScreenerCloudConnector.get_company_fundamentals(norm)
+            if fund and isinstance(fund, dict):
+                price = fund.get("current_price") or fund.get("price")
+                vol = fund.get("volume") or fund.get("vol_1m_avg")
+                if price is not None and vol is not None:
+                    turnover = float(price) * float(vol)
+        except Exception:
+            pass
+
+        if price is None:
+            try:
+                q = get_quote(norm, as_of=as_of)
+                if q:
+                    price = q.get("price") if isinstance(q, dict) else getattr(q, "price", None)
+                    vol = q.get("volume") if isinstance(q, dict) else getattr(q, "volume", None)
+                    if price is not None and vol is not None:
+                        turnover = float(price) * float(vol)
+            except Exception:
+                pass
+
+        if price is not None:
+            try:
+                price_f = float(price)
+                if price_f < 20.0:
+                    continue  # Exclude sub-₹20 penny stock
+                if turnover is not None and turnover < 10000000.0 and not is_offline:
+                    continue  # Exclude sub-₹1 Cr turnover illiquid stock
+            except (ValueError, TypeError):
+                pass
+
         tier0_survivors.append(norm)
 
     # 2. Tier 1 Trend & RS Filtering (§0)
@@ -70,7 +107,7 @@ def run_technical_universe_screener(
     # 3. Tier 2 Deep 26-Layer Technical Engine (§0)
     for norm, trend_res, struct_res in tier1_survivors:
         vol_res = evaluate_volume_and_microstructure(norm, as_of=as_of)
-        surv_res = evaluate_surveillance_and_cost_gate(norm)
+        surv_res = evaluate_surveillance_and_cost_gate(norm, as_of=as_of)
 
         trend_score = trend_res.get("trend_score", 50.0)
         rs_score = trend_res.get("rs_score", 50.0)

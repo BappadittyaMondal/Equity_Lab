@@ -165,3 +165,30 @@ def test_alembic_consolidated_migration_upgrade(monkeypatch):
     assert any("company_fundamentals" in s for s in executed_statements)
     assert any("quarterly_financials" in s for s in executed_statements)
 
+
+def test_alembic_remaining_tables_migration_003(monkeypatch):
+    """Verify Alembic migration 003 successfully parses and creates the 8 remaining platform tables."""
+    import importlib.util
+    import os
+    spec = importlib.util.spec_from_file_location("migration_003", os.path.join("alembic", "versions", "003_consolidate_remaining_tables.py"))
+    mod = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(mod)
+
+    executed_statements = []
+    class MockOp:
+        @staticmethod
+        def execute(sql):
+            executed_statements.append(sql)
+            conn = get_connection()
+            conn.execute(sql)
+            conn.close()
+
+    monkeypatch.setattr(mod, "op", MockOp)
+    mod.upgrade()
+
+    assert len(executed_statements) >= 8
+    assert any("decision_audit_trail" in s for s in executed_statements)
+    assert any("filing_documents" in s for s in executed_statements)
+    assert any("investment_theses" in s for s in executed_statements)
+    assert any("prediction_ledger_conformal" in s for s in executed_statements)
+

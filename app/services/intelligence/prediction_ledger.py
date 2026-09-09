@@ -24,9 +24,18 @@ class PredictionLedgerStore:
         if self.db_path:
             self._init_sqlite()
 
+    def _get_connection(self):
+        from app.core.config import settings
+        if self.db_path != getattr(settings, "DATA_STORE_PATH", "data/ierl_equity.sqlite3"):
+            conn = sqlite3.connect(self.db_path)
+            conn.row_factory = sqlite3.Row
+            return conn
+        from app.services.db import get_connection
+        return get_connection()
+
     def _init_sqlite(self):
         try:
-            conn = sqlite3.connect(self.db_path)
+            conn = self._get_connection()
             cursor = conn.cursor()
             cursor.execute("""
                 CREATE TABLE IF NOT EXISTS prediction_ledger_conformal (
@@ -78,7 +87,7 @@ class PredictionLedgerStore:
 
         if self.db_path:
             try:
-                conn = sqlite3.connect(self.db_path)
+                conn = self._get_connection()
                 cursor = conn.cursor()
                 cursor.execute("""
                     INSERT OR REPLACE INTO prediction_ledger_conformal 
@@ -102,7 +111,7 @@ class PredictionLedgerStore:
 
         if self.db_path:
             try:
-                conn = sqlite3.connect(self.db_path)
+                conn = self._get_connection()
                 cursor = conn.cursor()
                 cursor.execute("SELECT * FROM prediction_ledger_conformal WHERE prediction_id = ?", (prediction_id,))
                 row = cursor.fetchone()
@@ -153,7 +162,7 @@ class PredictionLedgerStore:
 
         if self.db_path:
             try:
-                conn = sqlite3.connect(self.db_path)
+                conn = self._get_connection()
                 cursor = conn.cursor()
                 cursor.execute(
                     "UPDATE prediction_ledger_conformal SET evaluations = ? WHERE prediction_id = ?",
@@ -191,4 +200,8 @@ class PredictionLedgerStore:
                     resolved.append({"prediction_id": pred_id, "horizon": h_key, "result": res})
 
         return resolved
+
+
+# Canonical alias disambiguating conformal interval evaluation from monitoring.prediction_ledger (LiveDecisionLedger)
+ConformalPredictionLedgerStore = PredictionLedgerStore
 

@@ -222,8 +222,9 @@ def run_rs_rating_b6(symbol: str, benchmark: str = "^NSEI", as_of: Optional[Any]
         end_price = df["Close"].iloc[e - 1]
         return ((end_price - start_price) / start_price) * 100.0 if start_price > 0 else 0.0
 
-    # Quarterly returns (oldest Q first)
-    weights = [0.40, 0.20, 0.20, 0.20]
+    # Quarterly returns (chronological: Q1, Q2, Q3, and Q4 most recent)
+    # Canonical William O'Neil / IBD Relative Strength: 40% on most recent quarter, 20% on prior 3
+    weights = [0.20, 0.20, 0.20, 0.40]
     quarters = [(0.0, 0.25), (0.25, 0.50), (0.50, 0.75), (0.75, 1.0)]
 
     stock_weighted = sum(

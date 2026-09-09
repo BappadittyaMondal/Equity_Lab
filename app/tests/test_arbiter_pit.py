@@ -154,4 +154,44 @@ def test_production_unverified_governance_capped(monkeypatch):
     assert "[GOVERNANCE UNVERIFIED" in call.primary_thesis
 
 
+def test_arbiter_3tier_pledge_matrix():
+    """Verify Context-Aware 3-Tier Pledge Matrix:
+    1. Professionally managed (promoter < 5%) -> pledge is N/A -> PASS
+    2. Significant promoter (>= 5%) with pledge > 40% -> HARD VETO
+    3. Significant promoter (>= 5%) with pledge=None -> AMBER_UNVERIFIED + Score cap 65
+    """
+    arbiter = Arbiter()
+
+    # Case 1: Professionally managed (ITC / L&T model)
+    class SnapProfManaged:
+        symbol = "ITC"
+        promoter_holding_pct = 0.0
+        promoter_pledge_pct = None
+
+    veto_prof = arbiter._apply_governance_veto([], snap=SnapProfManaged())
+    assert veto_prof is False
+    assert arbiter._pledge_audit_amber is False
+
+    # Case 2: High-pledge promoter (>= 5% holding, > 40% pledge)
+    class SnapHighPledge:
+        symbol = "HIGH_PLEDGE_CO"
+        promoter_holding_pct = 55.0
+        promoter_pledge_pct = 68.0
+
+    veto_high = arbiter._apply_governance_veto([], snap=SnapHighPledge())
+    assert veto_high is True
+
+    # Case 3: Promoter company with unobserved pledge data
+    class SnapMissingPledge:
+        symbol = "RELIANCE"
+        market_cap_cr = 1700000.0
+        promoter_holding_pct = 50.3
+        promoter_pledge_pct = None
+
+    veto_missing = arbiter._apply_governance_veto([], snap=SnapMissingPledge())
+    assert veto_missing is False  # Does not falsely liquidate
+    assert arbiter._pledge_audit_amber is True  # Flags amber for scoring cap and audit
+
+
+
 

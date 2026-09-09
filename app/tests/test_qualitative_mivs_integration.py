@@ -34,3 +34,18 @@ def test_mivs_with_qualitative_multiplier_boosting():
     
     assert res_boosted.mivs_score > res_base.mivs_score
     assert res_boosted.metadata["m_qual"] == 1.10
+
+
+def test_build_qualitative_payload_neutral_microcap_unbiased():
+    """Verify that build_qualitative_payload returns neutral 1.00x payload when transcripts are unobserved."""
+    from app.services.intelligence.concall_evidence_extractor import build_qualitative_payload
+    from app.services.intelligence.qualitative_multiplier_engine import QualitativeMultiplierEngine
+
+    payload = build_qualitative_payload("MICROCAP_UNLISTED_CONCALL")
+    assert payload.guidance_credibility_score == 0.5
+    assert payload.capacity_commitment_score == 0.5
+    assert payload.related_party_risk_flag is False
+
+    mult_res = QualitativeMultiplierEngine.compute_multiplier(payload)
+    assert mult_res["m_qual"] == 1.00  # Zero penalty on microcaps
+

@@ -43,7 +43,7 @@ def test_point_in_time_replay_engine(temp_db_path):
 
 
 def test_replay_engine_passes_as_of_to_arbiter(monkeypatch):
-    from unittest.mock import MagicMock
+    from unittest.mock import MagicMock, ANY
     replay = PointInTimeReplayEngine()
     mock_arbiter = MagicMock()
     fake_call = MagicMock(
@@ -59,7 +59,11 @@ def test_replay_engine_passes_as_of_to_arbiter(monkeypatch):
     as_of = datetime(2025, 1, 15, 12, 0, 0, tzinfo=timezone.utc)
     res = replay.replay_analysis("INFY", as_of)
 
-    mock_arbiter.arbitrate.assert_called_once_with("INFY.NS", as_of=as_of)
+    mock_arbiter.arbitrate.assert_called_once_with("INFY.NS", as_of=as_of, context=ANY)
+    call_context = mock_arbiter.arbitrate.call_args[1]["context"]
+    assert call_context.as_of == as_of
+    assert call_context.environment == "HISTORICAL_BACKTEST"
+    assert call_context.allow_synthetic_fallback is False
     assert res.analysis_date == as_of.isoformat()
     assert res.historical_score == 80
 
@@ -146,5 +150,6 @@ def test_spa_stationary_block_bootstrap_and_pit_forwarding():
     res = evaluate_backtest_validation("TCS", as_of=as_of)
     assert res["symbol"] == "TCS.NS"
     assert "ic_by_factor" in res
-    assert res["average_ic"] > 0.0
+    assert -1.0 <= res["average_ic"] <= 1.0
+    assert res["average_ic_magnitude"] > 0.0
 

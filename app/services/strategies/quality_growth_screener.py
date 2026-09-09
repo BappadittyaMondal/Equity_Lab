@@ -5,6 +5,7 @@ Pre-filters the investment universe before passing candidates to the full
 Fundamental + Forensic + Valuation + Decision pipeline.
 """
 
+import logging
 from datetime import datetime
 from typing import Optional, List, Dict, Any
 from app.models.schemas import (
@@ -12,6 +13,8 @@ from app.models.schemas import (
     QualityGrowthConditionResult,
     MetaHeader
 )
+
+logger = logging.getLogger(__name__)
 from app.services.market_data import normalize_symbol, create_meta_header, get_quote, get_history
 from app.services.research_data import ResearchDataStore
 from app.services.strategies.fundamental_metrics import (
@@ -143,15 +146,17 @@ def run_quality_growth_screener(
 
     # Ownership metrics
     promoter_holding: Optional[float] = None
-    pledged_pct: Optional[float] = 0.0
+    pledged_pct: Optional[float] = None
     for o in ownership:
         if getattr(o, "category", "") == "PROMOTER":
             promoter_holding = float(getattr(o, "holding_pct", 0.0))
             pledged_pct = float(getattr(o, "pledged_pct", 0.0))
 
     if promoter_holding is None:
-        # Default check from financial obs if ingested as metric
-        promoter_holding = get_latest_val("promoter_holding") or 50.0
+        # Check from financial obs if ingested as metric
+        promoter_holding = get_latest_val("promoter_holding")
+    if pledged_pct is None:
+        pledged_pct = get_latest_val("promoter_pledged_pct") or get_latest_val("pledged_pct")
 
     # PEG ratio calculation
     eps_growth_rate = eps_3y_cagr or pat_3y_cagr
@@ -265,7 +270,7 @@ def run_quality_growth_screener(
         "leverage": f"D/E = {debt_to_equity:.2f}" if debt_to_equity is not None else "UNVERIFIED",
         "margin_durability": f"OPM = {opm_curr:.1f}%" if opm_curr else "UNVERIFIED",
         "working_capital_quality": f"Debtor Days = {debtor_days:.1f}" if debtor_days else "UNVERIFIED",
-        "promoter_governance_signals": f"Promoter = {promoter_holding:.1f}%, Pledged = {pledged_pct:.1f}%" if promoter_holding else "UNVERIFIED",
+        "promoter_governance_signals": f"Promoter = {promoter_holding:.1f}%, Pledged = {pledged_pct:.1f}%" if (promoter_holding is not None and pledged_pct is not None) else "UNVERIFIED",
         "valuation": f"PE = {pe_ratio:.1f}" if pe_ratio else "UNVERIFIED",
         "peg_interpretation": f"PEG = {peg_ratio:.2f}" if peg_ratio else "UNVERIFIED",
         "business_quality": "HIGH_MOAT_QUALITY_COMPOUNDER" if passed_count >= 20 else "STANDARD",
@@ -312,8 +317,31 @@ def run_full_universe_screener(
         try:
             res = run_quality_growth_screener(sym, as_of=as_of, store=data_store)
             results.append(res)
-        except Exception:
-            pass
+        except Exception as e:
+            logger.warning("Quality growth screener evaluation error for %s: %s", sym, e)
+            norm_sym = normalize_symbol(sym)
+            err_res = QualityGrowthScreenResponse(
+                symbol=norm_sym,
+                screening_status="DATA_UNAVAILABLE",
+                total_conditions=28,
+                conditions_passed=0,
+                conditions_failed=0,
+                conditions_unavailable=28,
+                condition_results=[
+                    QualityGrowthConditionResult(
+                        condition_id="ERR_EXEC",
+                        description=f"Screener execution error: {str(e)}",
+                        threshold="N/A",
+                        actual_value=None,
+                        status="DATA_UNAVAILABLE",
+                        source="ResearchDataStore",
+                        notes=f"Exception caught during universe scan: {str(e)}"
+                    )
+                ],
+                quality_growth_profile={"error": str(e), "execution_status": "FAILED"},
+                meta=create_meta_header("QualityGrowthScreener", limitations=[f"Evaluation failed: {str(e)}"])
+            )
+            results.append(err_res)
 
     # Rank by conditions passed (descending), then conditions failed (ascending)
     results.sort(key=lambda r: (r.conditions_passed, -r.conditions_failed, -r.conditions_unavailable), reverse=True)

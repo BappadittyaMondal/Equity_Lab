@@ -27,25 +27,30 @@ export function renderMIVSScorecard(containerId, mivsData) {
     return;
   }
 
-  const score = mivsData.mivs_score ?? 75.0;
-  const passed = mivsData.passed_hard_gates ?? true;
-  const verdict = mivsData.verdict ?? (passed ? "Buy" : "Avoid");
+  const hasScore = mivsData.mivs_score != null;
+  const score = hasScore ? mivsData.mivs_score : null;
+  const passed = mivsData.passed_hard_gates;
+  const verdict = mivsData.verdict ?? (passed === true ? "Buy" : (passed === false ? "Avoid" : "Under Review"));
   const reasons = mivsData.gate_reasons || [];
   const dims = mivsData.dimension_scores || {};
-  const sectorPercentile = mivsData.sector_relative_percentile ?? 50.0;
+  const sectorPercentile = mivsData.sector_relative_percentile;
 
-  const scoreColor = !passed ? "text-red-400" : (score >= 70 ? "text-emerald-400" : (score >= 50 ? "text-amber-400" : "text-red-400"));
-  const gateBadge = passed 
+  const scoreText = score != null ? score.toFixed(1) : "N/A";
+  const sectorText = sectorPercentile != null ? `Sector Rank: ${sectorPercentile.toFixed(1)}th Percentile` : "Sector Rank: N/A";
+  const scoreColor = passed === false ? "text-red-400" : (score != null && score >= 70 ? "text-emerald-400" : (score != null && score >= 50 ? "text-amber-400" : "text-slate-400"));
+  const gateBadge = passed === true 
     ? `<span class="px-2 py-0.5 rounded text-[10px] font-mono bg-emerald-950 text-emerald-300 border border-emerald-700">7 HARD GATES PASSED</span>`
-    : `<span class="px-2 py-0.5 rounded text-[10px] font-mono bg-red-950 text-red-300 border border-red-700">HARD GATE VETO</span>`;
+    : (passed === false 
+        ? `<span class="px-2 py-0.5 rounded text-[10px] font-mono bg-red-950 text-red-300 border border-red-700">HARD GATE VETO</span>`
+        : `<span class="px-2 py-0.5 rounded text-[10px] font-mono bg-amber-950 text-amber-300 border border-amber-700">GATE AUDIT PENDING</span>`);
 
   let html = `
     <div class="p-4 bg-surface-lowest rounded-lg border border-gold/40 space-y-3 font-mono">
       <div class="flex items-center justify-between border-b border-surface-border/60 pb-2">
         <div>
           <span class="text-xs text-muted uppercase tracking-wider">100-Point MIVS Score (§51, §52)</span>
-          <h3 class="text-xl font-bold font-serif ${scoreColor}">${score.toFixed(1)} <span class="text-xs font-sans text-cream-dark">/ 100</span></h3>
-          <span class="text-[10px] text-gold font-sans font-semibold">Sector Rank: ${sectorPercentile.toFixed(1)}th Percentile</span>
+          <h3 class="text-xl font-bold font-serif ${scoreColor}">${scoreText} <span class="text-xs font-sans text-cream-dark">/ 100</span></h3>
+          <span class="text-[10px] text-gold font-sans font-semibold">${sectorText}</span>
         </div>
         <div class="text-right">
           ${gateBadge}

@@ -79,7 +79,13 @@ class PointInTimeReplayEngine:
         snapshot = self.get_point_in_time_data(normalized, as_of)
 
         # Run real production Arbiter engine with point-in-time date T
-        call = self.arbiter.arbitrate(normalized, as_of=as_of)
+        from app.models.schemas import DecisionContext
+        context = DecisionContext(
+            as_of=as_of,
+            environment="HISTORICAL_BACKTEST",
+            allow_synthetic_fallback=False
+        )
+        call = self.arbiter.arbitrate(normalized, as_of=as_of, context=context)
 
         return HistoricalReplayResult(
             symbol=normalized,

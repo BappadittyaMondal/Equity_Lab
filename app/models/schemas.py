@@ -1,9 +1,33 @@
 """Pydantic data schemas for request validation and response models.
 """
 
+import uuid
+from enum import Enum
 from datetime import date, datetime, timezone
 from typing import List, Dict, Any, Literal, Optional
 from pydantic import BaseModel, Field, HttpUrl, ConfigDict, model_validator, field_validator
+
+
+class ProbabilityType(str, Enum):
+    """Institutional classification of probability-like quantitative outputs (§56)."""
+    SCENARIO_INDEX = "SCENARIO_INDEX"                 # Qualitative ranking or diagnostic index
+    HEURISTIC_CONFIDENCE = "HEURISTIC_CONFIDENCE"     # Rule-based score transformation
+    EMPIRICAL_RATE = "EMPIRICAL_RATE"                 # Historical hit-rate frequency
+    CALIBRATED_PROBABILITY = "CALIBRATED_PROBABILITY" # Statistically calibrated (Platt/Isotonic/Conformal)
+
+
+class DecisionContext(BaseModel):
+    """Immutable Execution and Point-in-Time Context for Quantitative Governance (§51)."""
+    as_of: datetime = Field(default_factory=lambda: datetime.now(timezone.utc), description="Mandatory historical Point-in-Time timestamp")
+    execution_id: str = Field(default_factory=lambda: str(uuid.uuid4()), description="Cryptographically unique execution trace ID")
+    environment: Literal["LIVE_TRADING", "PAPER_SHADOW", "HISTORICAL_BACKTEST"] = Field(
+        default="LIVE_TRADING", description="Operational environment"
+    )
+    allow_synthetic_fallback: bool = Field(
+        default=False, description="Fail-closed policy: never fabricate synthetic Brownian price walks in backtests"
+    )
+    provider_snapshot_id: Optional[str] = Field(default=None, description="Immutable upstream market data snapshot hash")
+
 
 
 class MetaHeader(BaseModel):
@@ -169,6 +193,7 @@ class StrategyRunResponse(BaseModel):
     metrics: Dict[str, Any]
     risk_warnings: List[str]
     disclaimer: str
+    probability_type: Optional[ProbabilityType] = Field(default=ProbabilityType.HEURISTIC_CONFIDENCE, description="Typed evidentiary classification of probability outputs")
     meta: MetaHeader
 
 
@@ -416,6 +441,7 @@ class TurnaroundStageResponse(BaseModel):
     turnaround_score: float = Field(..., ge=0.0, le=100.0)
     current_stage: str
     success_probability_pct: float = Field(..., ge=0.0, le=100.0)
+    probability_type: Optional[ProbabilityType] = Field(default=ProbabilityType.SCENARIO_INDEX, description="Classification: diagnostic scenario index")
     false_turnaround_risk: Literal["LOW", "MODERATE", "HIGH", "CRITICAL", "UNKNOWN"]
     evidence: List[str]
     metrics_summary: Dict[str, Any]
@@ -1079,14 +1105,14 @@ class MachineReadableStockReport(BaseModel):
 
 
 class MarketRegimeClassification(BaseModel):
-    regime_code: str = "R1_BULL_TREND"  # R1..R6
-    description: str = "Bull Trend — Benchmark above long-term trend, positive breadth, controlled volatility"
-    nifty_sma20_slope_pct: float = 1.2
-    nifty_sma50_slope_pct: float = 0.8
-    breadth_pct_above_50dma: float = 68.5
-    advance_decline_ratio: float = 1.65
-    realized_volatility_pct: float = 14.2
-    market_stress_level: str = "LOW"
+    regime_code: str = "DATA_UNAVAILABLE"  # R1..R6 or DATA_UNAVAILABLE
+    description: str = "Market history unobserved or insufficient for deterministic regime classification"
+    nifty_sma20_slope_pct: float = 0.0
+    nifty_sma50_slope_pct: float = 0.0
+    breadth_pct_above_50dma: float = 50.0
+    advance_decline_ratio: float = 1.0
+    realized_volatility_pct: float = 16.0
+    market_stress_level: str = "UNKNOWN"
     hmm_state: Optional[int] = None
     hmm_label: Optional[str] = None
     hmm_probabilities: Optional[List[float]] = None

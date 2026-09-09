@@ -192,9 +192,18 @@ def run_early_compounder_engine(symbol: str, as_of: Optional[str] = None) -> Str
         tier = "REJECT_KILL_TEST_FAILED"
         passed = False
     else:
-        score = min(100.0, max(40.0, 50.0 + (inc_roic_val * 0.8) + (10.0 if agent11.findings[0].severity.name == "POSITIVE_CATALYST" else 0.0)))
+        has_positive_cat = any(getattr(f.severity, "name", str(f.severity)) == "POSITIVE_CATALYST" for f in getattr(agent11, "findings", []))
+        score = round(min(100.0, max(0.0, 50.0 + (inc_roic_val * 0.8) + (10.0 if has_positive_cat else 0.0))), 1)
         passed = score >= 60.0
-        tier = "A_PLUS_HIGH_CONVICTION" if score >= 80.0 else ("A_COMPOUNDER_CANDIDATE" if score >= 65.0 else "B_WATCHLIST_TRIGGER_REQUIRED")
+        if score < 40.0:
+            tier = "REJECT_KILL_TEST_FAILED"
+            passed = False
+        elif score >= 80.0:
+            tier = "A_PLUS_HIGH_CONVICTION"
+        elif score >= 65.0:
+            tier = "A_COMPOUNDER_CANDIDATE"
+        else:
+            tier = "B_WATCHLIST_TRIGGER_REQUIRED"
 
     # Wire MicrocapRiskFirstGate (3-Tier Capacity Limits & Forensic Shields)
     from app.services.research.finder_state_machines import MicrocapRiskFirstGate
@@ -228,12 +237,14 @@ def run_early_compounder_engine(symbol: str, as_of: Optional[str] = None) -> Str
     else:
         rpt_pct = None
 
-    if fund_mcap and fund_mcap.get("promoter_holding"):
+    if fund_mcap and fund_mcap.get("promoter_holding") is not None:
         prom_holding = float(fund_mcap["promoter_holding"])
+    elif fund_mcap and fund_mcap.get("promoter_holding_pct") is not None:
+        prom_holding = float(fund_mcap["promoter_holding_pct"])
     elif is_offline:
         prom_holding = 55.0
     else:
-        prom_holding = 0.0
+        prom_holding = 45.0  # Safe neutral baseline when unobserved rather than false veto
 
     if fund_mcap and fund_mcap.get("cfo_3yr"):
         cfo_3y = float(fund_mcap["cfo_3yr"])

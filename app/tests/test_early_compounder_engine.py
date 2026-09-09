@@ -1,4 +1,4 @@
-﻿"""Unit tests for Early-Stage ₹100Cr+ Microcap Compounder Engine (E21).
+"""Unit tests for Early-Stage ₹100Cr+ Microcap Compounder Engine (E21).
 """
 
 import pytest
@@ -41,3 +41,23 @@ def test_early_compounder_api_endpoint():
     assert data["strategy_id"] == "E21"
     assert "results" in data
     assert "incubator_tier" in data["results"]
+
+
+def test_early_compounder_value_destroyer_rejected(monkeypatch):
+    """Verify that a stock with severe capital destruction (negative incremental ROIC)
+    scores below 40.0 and receives REJECT_KILL_TEST_FAILED, not Watchlist."""
+    from app.services.research import early_compounder_engine
+    
+    # Mock offline fundamentals with negative delta NOPAT
+    mock_fund = early_compounder_engine._get_offline_test_mock_fundamentals()
+    mock_fund["delta_nopat"] = -45.0  # Deep negative NOPAT on capital
+    mock_fund["delta_ic"] = 100.0     # Invested capital expanded by 100 Cr -> inc_roic = -45%
+    
+    monkeypatch.setattr(early_compounder_engine, "_get_offline_test_mock_fundamentals", lambda: mock_fund)
+    
+    res = run_early_compounder_engine("CAPITAL_DESTROYER_LTD")
+    assert res.strategy_id == "E21"
+    assert res.results["early_compounder_score"] < 40.0
+    assert res.results["incubator_tier"] == "REJECT_KILL_TEST_FAILED"
+    assert res.passed_gates is False
+

@@ -515,7 +515,7 @@ RESEARCH_ENGINES: Dict[str, StrategyModule] = {
 
 
 def list_strategy_modules() -> List[StrategyModule]:
-    """Returns list of all 35 master strategy modules & research engines with status."""
+    """Returns list of all 40 canonical master strategy modules & core research engines with status."""
     from app.core.config import settings
     if not settings.ENABLE_OPTIONS_A2:
         STRATEGY_MODULES["A2"].status = "suspended"
@@ -532,6 +532,8 @@ def get_strategy_module(strategy_id: str) -> StrategyModule:
         STRATEGY_MODULES["A2"].status = "production"
 
     clean_id = strategy_id.upper().strip()
+    if clean_id == "E22":
+        clean_id = "OBV_ACC"
     if clean_id in STRATEGY_MODULES:
         return STRATEGY_MODULES[clean_id]
     if clean_id in RESEARCH_ENGINES:
@@ -619,8 +621,8 @@ def run_strategy_module(strategy_id: str, symbol: str = "RELIANCE", as_of: Optio
             meta=res2.meta
         )
     elif module.id == "C14":
-        from app.services.strategies.turnaround_stage import evaluate_turnaround_stage
-        res_c14 = evaluate_turnaround_stage(symbol, as_of=as_of)
+        from app.services.strategies.turnaround_stage import evaluate_nclt_turnaround_diagnostic
+        res_c14 = evaluate_nclt_turnaround_diagnostic(symbol, as_of=as_of)
         debt_red = res_c14.metrics_summary.get("debt_reduction_yoy", 0.0)
         margin_turn = res_c14.metrics_summary.get("operating_margin", 0.0)
         return StrategyRunResponse(
@@ -798,7 +800,7 @@ def run_strategy_module(strategy_id: str, symbol: str = "RELIANCE", as_of: Optio
             meta=res_moat["meta"]
         )
     elif module.id == "C13":
-        return run_forensic_engine(symbol, strategy_id="C13")
+        return run_forensic_engine(symbol, strategy_id="C13", as_of=as_of)
     elif module.id == "E9":
         from app.services.strategies.promoter_behaviour import evaluate_promoter_behaviour
         res_e9 = evaluate_promoter_behaviour(symbol, as_of=as_of)
@@ -946,8 +948,8 @@ def run_strategy_module(strategy_id: str, symbol: str = "RELIANCE", as_of: Optio
                 "ic_by_factor": res_e17.get("ic_by_factor", {}),
                 "out_of_sample_sharpe": res_e17.get("out_of_sample_sharpe", 0.0),
                 "factor_decay_half_life_months": res_e17.get("factor_decay_half_life_months", 18.0),
-                "survivorship_bias_controlled": res_e17.get("survivorship_bias_controlled", True),
-                "point_in_time_compliant": res_e17.get("point_in_time_compliant", True),
+                "survivorship_bias_controlled": res_e17.get("survivorship_bias_controlled", False),
+                "point_in_time_compliant": res_e17.get("point_in_time_compliant", False),
                 "evidence": res_e17.get("evidence", ["Walk-forward backtest validation completed."])
             },
             metrics={
@@ -1038,7 +1040,7 @@ def run_strategy_module(strategy_id: str, symbol: str = "RELIANCE", as_of: Optio
         return run_ath_breakout_d15(symbol, as_of=as_of)
     elif module.id == "D17":
         return run_mean_reversion_d17(symbol, as_of=as_of)
-    elif module.id in ("C11", "C12", "C13", "FORENSIC"):
+    elif module.id in ("C11", "C12", "FORENSIC"):
         return run_forensic_engine(symbol, strategy_id=module.id, as_of=as_of)
     elif module.id == "A1":
         res_a1 = evaluate_option_arbitrage(symbol, as_of=as_of)
@@ -1148,20 +1150,24 @@ def run_strategy_module(strategy_id: str, symbol: str = "RELIANCE", as_of: Optio
             df_w.columns = [str(c).lower() for c in df_w.columns]
             
             res_e18 = SwingPredictiveEngine.predict_swing_30d(df_d, df_w)
+            is_synthetic_data = bool(res_e18.get("is_synthetic", False) or res_e18.get("data_mode") == "MOCK")
+            e18_passed = (res_e18.get("confluence_score", 0) >= 60.0) and not is_synthetic_data
+            e18_status = "data_insufficient" if is_synthetic_data else "production"
             return StrategyRunResponse(
                 strategy_id="E18",
                 strategy_name=module.name,
-                status="production",
+                status=e18_status,
                 executed_at=get_ist_now_str(),
                 symbol=norm_sym,
-                passed_gates=(res_e18.get("confluence_score", 0) >= 60.0),
+                passed_gates=e18_passed,
                 results=res_e18,
                 metrics={
                     "confluence_score": res_e18.get("confluence_score", 0.0),
                     "target_price": res_e18.get("model_estimated_target", 0.0),
-                    "stop_loss": res_e18.get("stop_loss", 0.0)
+                    "stop_loss": res_e18.get("stop_loss", 0.0),
+                    "is_synthetic": is_synthetic_data,
                 },
-                risk_warnings=module.risk_warnings,
+                risk_warnings=module.risk_warnings if not is_synthetic_data else (module.risk_warnings + ["SYNTHETIC_DATA_FAIL_CLOSED"]),
                 disclaimer="10-30 Day Swing Predictive Engine assessment.",
                 meta=create_meta_header(source="E18 Swing Predictive Engine")
             )

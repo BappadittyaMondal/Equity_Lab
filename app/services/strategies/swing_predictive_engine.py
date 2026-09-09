@@ -576,7 +576,7 @@ class SwingPredictiveEngine:
         surv = evaluate_surveillance_and_cost_gate(sym_name)
         circuit_locked = bool(surv.circuit_lock_risk == "HIGH" or surv.circuit_band_pct <= 2.0 or surv.hard_gate_status == "FAIL")
 
-        order_size_val = order_size_cr if order_size_cr is not None else (0.25 if adtv_val >= 5.0 else None)
+        order_size_val = order_size_cr if order_size_cr is not None else (0.25 if adtv_val >= 5.0 else (round(0.02 * adtv_val, 2) if adtv_val >= 1.0 else None))
 
         feasibility_res = SwingTradeFeasibilityEngine.evaluate(
             symbol=sym_name,

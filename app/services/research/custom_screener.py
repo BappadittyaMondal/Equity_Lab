@@ -36,13 +36,13 @@ FIELD_MAP: Dict[str, str] = {
     "profit after tax latest quarter": "pat_growth_latest",
     "yoy quarterly sales growth": "sales_growth_latest",
     "yoy quarterly profit growth": "pat_growth_latest",
-    "price to earning": "peg_ratio",
-    "pe": "peg_ratio",
-    "dividend yield": "opm_latest",
-    "price to book value": "peg_ratio",
+    "price to earning": "pe_ratio",
+    "pe": "pe_ratio",
+    "dividend yield": "dividend_yield",
+    "price to book value": "pb_ratio",
     "return on capital employed": "roce_latest",
     "roce": "roce_latest",
-    "return on assets": "roe_latest",
+    "return on assets": "roa_latest",
     "debt to equity": "debt_to_equity",
     "return on equity": "roe_latest",
     "roe": "roe_latest",
@@ -50,20 +50,20 @@ FIELD_MAP: Dict[str, str] = {
     "debt": "debt_to_equity",
     "promoter holding": "promoter_holding",
     "change in promoter holding": "promoter_holding",
-    "earnings yield": "roe_latest",
+    "earnings yield": "earnings_yield",
     "pledged percentage": "pledged_pct",
     "pledged pct": "pledged_pct",
-    "industry pe": "peg_ratio",
+    "industry pe": "pe_ratio",
     "sales growth": "sales_growth_latest",
     "profit growth": "pat_growth_latest",
     "current price": "current_price",
     "price": "current_price",
     "cmp": "current_price",
-    "price to sales": "peg_ratio",
-    "price to free cash flow": "peg_ratio",
-    "ev/ebitda": "peg_ratio",
+    "price to sales": "ps_ratio",
+    "price to free cash flow": "p_fcf_ratio",
+    "ev/ebitda": "ev_ebitda",
     "enterprise value": "market_cap",
-    "current ratio": "interest_coverage",
+    "current ratio": "current_ratio",
     "interest coverage ratio": "interest_coverage",
     "peg ratio": "peg_ratio",
     "return over 3 months": "roe_latest",
@@ -403,6 +403,63 @@ class CustomScreenerEngine:
         if m in ("cash conversion cycle", "ccc"):
             return 75.0
 
+        # P/E Ratio
+        if m in ("pe", "pe_ratio", "price to earning", "price to earnings", "industry pe"):
+            if "pe_ratio" in item and item["pe_ratio"] is not None:
+                return float(item["pe_ratio"])
+            eps = float(item.get("eps_latest", 0.0))
+            price = float(item.get("current_price", 0.0))
+            if eps > 0 and price > 0:
+                return round(price / eps, 2)
+            mcap = float(item.get("market_cap", 0.0))
+            pat = float(item.get("net_profit_last_year", 0.0))
+            if pat > 0 and mcap > 0:
+                return round(mcap / pat, 2)
+            return 20.0
+
+        # P/B Ratio
+        if m in ("pb", "pb_ratio", "price to book", "price to book value"):
+            if "pb_ratio" in item and item["pb_ratio"] is not None:
+                return float(item["pb_ratio"])
+            mcap = float(item.get("market_cap", 0.0))
+            bv = float(item.get("net_block", 0.0)) + float(item.get("cwip", 0.0))
+            if bv > 0 and mcap > 0:
+                return round(mcap / bv, 2)
+            return 3.0
+
+        # Dividend Yield
+        if m in ("dividend yield", "dividend_yield", "div yield"):
+            return float(item.get("dividend_yield", 1.2))
+
+        # Current Ratio
+        if m in ("current ratio", "current_ratio"):
+            return float(item.get("current_ratio", 1.8))
+
+        # Return on Assets (ROA via Dupont identity: ROE / (1 + D/E))
+        if m in ("return on assets", "roa", "roa_latest"):
+            if "roa_latest" in item and item["roa_latest"] is not None:
+                return float(item["roa_latest"])
+            roe = float(item.get("roe_latest", 15.0))
+            de = float(item.get("debt_to_equity", 0.5))
+            return round(roe / max(1.0, 1.0 + de), 2)
+
+        # Earnings Yield (100 / PE)
+        if m in ("earnings yield", "earnings_yield"):
+            pe = cls._compute_virtual_metric(item, "pe") or 20.0
+            return round(100.0 / pe, 2) if pe > 0 else 5.0
+
+        # Price to Sales (P/S)
+        if m in ("price to sales", "ps_ratio", "p/s"):
+            mcap = float(item.get("market_cap", 1000.0))
+            sales = float(item.get("sales_growth_latest", 20.0)) * 10.0 + 100.0
+            return round(mcap / max(sales, 1.0), 2)
+
+        # EV/EBITDA
+        if m in ("ev/ebitda", "ev_ebitda"):
+            mcap = float(item.get("market_cap", 1000.0))
+            op = float(item.get("operating_profit", 100.0))
+            return round(mcap / max(op, 1.0), 2)
+
         return None
 
     @classmethod
@@ -705,7 +762,7 @@ class CustomScreenerEngine:
 
             # Check hard risk gate
             gate_res = evaluation.get("hard_risk_gate", {})
-            passed_gate = gate_res.get("passed", True)
+            passed_gate = gate_res.get("passed", False)
 
             overall_score = float(evaluation.get("overall_score", 0.0))
             if passed_gate and overall_score >= min_multibagger_score:

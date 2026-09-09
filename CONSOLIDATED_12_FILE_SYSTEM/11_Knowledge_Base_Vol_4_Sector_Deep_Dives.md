@@ -1,8 +1,8 @@
 # 11_Knowledge_Base_Vol_4_Sector_Deep_Dives
 
 > **IERL AI Equity OS — curated upload artifact**  
-> Project Version: `0.0.0` · Bundle Version: `2.0` · Source Commit: `5cc0297`  
-> Generated At: `2026-08-31T09:32:27.285839+00:00` · Source Hash: `cf810ace1a6fbc91` · Compiler: `consolidate_project.py` v2.0
+> Project Version: `0.0.0` · Bundle Version: `2.0` · Source Commit: `fb826ad`  
+> Generated At: `2026-09-09T06:28:53.135679+00:00` · Source Hash: `064c2b545c97b2cb` · Compiler: `consolidate_project.py` v2.0
 
 ## Operating contract
 

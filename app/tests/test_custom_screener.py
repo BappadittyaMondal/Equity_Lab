@@ -40,3 +40,12 @@ def test_custom_screen_api_endpoint():
     data = response.json()
     assert "total_results_found" in data
     assert data["total_results_found"] > 0
+
+
+def test_custom_screener_disambiguated_metrics():
+    """Verify that PE, PB, Current Ratio, Dividend Yield, ROA evaluate as authentic metrics without aliasing."""
+    query = "Price to earning > 5 AND Return on assets > 5 AND Current ratio > 1.0 AND Price to book value > 0.5"
+    result = CustomScreenerEngine.execute_query(query)
+    assert result["total_universe_scanned"] >= 7
+    assert len(result["results"]) > 0
+

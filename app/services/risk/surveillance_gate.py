@@ -25,7 +25,8 @@ def evaluate_surveillance_and_cost_gate(
     symbol: str,
     price: float = 500.0,
     trade_value_inr: float = 100000.0,
-    surveillance_data: Optional[Dict[str, Any]] = None
+    surveillance_data: Optional[Dict[str, Any]] = None,
+    as_of: Optional[datetime] = None
 ) -> SurveillanceRiskGate:
     """Evaluates regulatory surveillance risk (ASM/GSM/T2T/F&O Ban), circuit bands, and Indian trade costs."""
     norm_symbol = normalize_symbol(symbol)

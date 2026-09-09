@@ -103,6 +103,7 @@ def evaluate_owner_earnings(symbol: str = "RELIANCE", as_of: Optional[datetime] 
             data_status = "production"
             is_mock_val = True
             is_pure_accounting = False
+            is_capex_estimated = True
             accounting_integrity = "OFFLINE_TEST_MOCK"
             accounting_components_observed = {
                 "pat": False,
@@ -129,6 +130,7 @@ def evaluate_owner_earnings(symbol: str = "RELIANCE", as_of: Optional[datetime] 
                     "capex": False,
                     "working_capital_delta": False,
                 },
+                "is_capex_estimated": True,
                 "is_pure_accounting_observation": False,
                 "accounting_integrity": "DATA_INSUFFICIENT",
                 "assessment": "DATA_INSUFFICIENT",
@@ -160,6 +162,7 @@ def evaluate_owner_earnings(symbol: str = "RELIANCE", as_of: Optional[datetime] 
         owner_to_pat_ratio = round((owner_earnings / pat), 4) if pat > 0 else 0.0
         data_status = "production"
         is_mock_val = False
+        is_capex_estimated = not is_capex_observed
 
     return {
         "strategy_id": "C10",
@@ -173,6 +176,7 @@ def evaluate_owner_earnings(symbol: str = "RELIANCE", as_of: Optional[datetime] 
         "depreciation": depr,
         "owner_earnings_to_pat_ratio": owner_to_pat_ratio,
         "accounting_components_observed": accounting_components_observed,
+        "is_capex_estimated": is_capex_estimated,
         "is_pure_accounting_observation": is_pure_accounting,
         "accounting_integrity": accounting_integrity,
         "assessment": "ATTRACTIVE_OWNER_YIELD" if fcf_yield_pct >= 4.5 else "MODERATE_FCF_YIELD" if fcf_yield_pct >= 2.5 else "LOW_FCF_YIELD",

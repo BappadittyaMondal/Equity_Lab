@@ -280,11 +280,17 @@ class FinancialIngester:
         return None
 
     def _estimate_publication_date(self, period_end: str) -> str:
-        """Estimate when quarterly results were published (typically 45 days after period end)."""
+        """Estimate statutory publication date adhering to SEBI LODR regulations.
+        
+        SEBI LODR (Listing Obligations and Disclosure Requirements) Regulations, 2015:
+        - Regulation 33(3)(a): Quarterly financial results for Q1-Q3 within 45 days of period end.
+        - Regulation 33(3)(d): Annual audited financial results (Q4) within 60 days of period end.
+        """
         try:
             pe = datetime.strptime(period_end[:10], "%Y-%m-%d")
             from datetime import timedelta
-            pub = pe + timedelta(days=45)
+            delay_days = 60 if pe.month == 3 else 45
+            pub = pe + timedelta(days=delay_days)
             return pub.replace(tzinfo=timezone.utc).isoformat()
         except Exception:
             return datetime.now(timezone.utc).isoformat()
@@ -293,7 +299,7 @@ class FinancialIngester:
         self, symbol: str, metric: str, value: float, unit: str,
         period_end: str, period_type: str, published_at: str
     ) -> int:
-        """Store a single financial observation. Returns 1 on success, 0 on failure."""
+        """Store a single financial observation with regulatory watermark provenance. Returns 1 on success, 0 on failure."""
         try:
             self.store.add_financial_observation({
                 "symbol": symbol,
@@ -306,6 +312,7 @@ class FinancialIngester:
                 "source_name": _SOURCE_NAME,
                 "source_url": f"https://finance.yahoo.com/quote/{symbol.replace('.NS', '')}/financials/",
                 "confidence": _SOURCE_CONFIDENCE,
+                "notes": "SEBI_LODR_REGULATORY_WATERMARK: Publication date conservatively estimated via statutory deadline",
             })
             return 1
         except Exception as e:

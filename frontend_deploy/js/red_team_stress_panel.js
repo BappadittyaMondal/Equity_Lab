@@ -12,10 +12,10 @@ export async function renderRedTeamStressPanel(containerId = 'red-team-container
     api.runGeopoliticalStressTest(symbol, "US_IT_BUDGET_CUT_15PCT")
   ]);
 
-  const redTeamPassed = redTeamRes?.red_team_passed ?? true;
-  const stressPassed = stressTestRes?.pass_stress_test ?? true;
-  const bearSummary = redTeamRes?.bear_case_summary || 'GenAI Bear Bot generated zero catastrophic failure vectors.';
-  const rec = stressTestRes?.stress_test_recommendation || 'MAINTAIN_POSITION';
+  const redTeamPassed = redTeamRes?.red_team_passed;
+  const stressPassed = stressTestRes?.pass_stress_test;
+  const bearSummary = redTeamRes?.bear_case_summary || (redTeamRes ? 'GenAI Bear Bot generated zero catastrophic failure vectors.' : 'GenAI Bear Bot review pending or service unreachable.');
+  const rec = stressTestRes?.stress_test_recommendation || (stressTestRes ? 'MAINTAIN_POSITION' : 'DATA_UNAVAILABLE');
 
   container.innerHTML = `
     <div class="bg-slate-900 border border-rose-500/30 rounded-lg p-5 font-sans space-y-4">
@@ -30,8 +30,8 @@ export async function renderRedTeamStressPanel(containerId = 'red-team-container
         <div class="bg-slate-800/60 p-4 rounded border border-slate-700 space-y-2">
           <div class="flex items-center justify-between">
             <h4 class="font-bold text-slate-200">🐻 Pre-Mortem Bear Case Challenge</h4>
-            <span class="px-2 py-0.5 rounded ${redTeamPassed ? 'bg-emerald-500/20 text-emerald-300' : 'bg-rose-500/20 text-rose-300'} font-bold">
-              ${redTeamPassed ? 'GATE 7 PASSED' : 'HIGH RISK FLAG'}
+            <span class="px-2 py-0.5 rounded ${redTeamPassed === true ? 'bg-emerald-500/20 text-emerald-300' : (redTeamPassed === false ? 'bg-rose-500/20 text-rose-300' : 'bg-amber-500/20 text-amber-300')} font-bold">
+              ${redTeamPassed === true ? 'GATE 7 PASSED' : (redTeamPassed === false ? 'HIGH RISK FLAG' : 'AUDIT PENDING / UNVERIFIED')}
             </span>
           </div>
           <p class="text-slate-300 leading-relaxed bg-slate-950/60 p-3 rounded border border-slate-800">${bearSummary}</p>
@@ -40,12 +40,12 @@ export async function renderRedTeamStressPanel(containerId = 'red-team-container
         <div class="bg-slate-800/60 p-4 rounded border border-slate-700 space-y-2">
           <div class="flex items-center justify-between">
             <h4 class="font-bold text-slate-200">🌍 Geopolitical Stress Scenario: US IT Budget Cut</h4>
-            <span class="px-2 py-0.5 rounded ${stressPassed ? 'bg-emerald-500/20 text-emerald-300' : 'bg-amber-500/20 text-amber-300'} font-bold">
-              ${rec}
+            <span class="px-2 py-0.5 rounded ${stressPassed === true ? 'bg-emerald-500/20 text-emerald-300' : (stressPassed === false ? 'bg-rose-500/20 text-rose-300' : 'bg-amber-500/20 text-amber-300')} font-bold">
+              ${stressPassed === true ? rec : (stressPassed === false ? 'STRESS TEST FAILED' : 'STRESS TEST PENDING')}
             </span>
           </div>
           <div class="text-slate-400 space-y-1 mt-2">
-            <div>Sector Impact: <span class="font-mono text-white">${stressTestRes?.estimated_revenue_impact_pct ?? -5.0}% Revenue Impact</span></div>
+            <div>Sector Impact: <span class="font-mono text-white">${stressTestRes?.estimated_revenue_impact_pct != null ? stressTestRes.estimated_revenue_impact_pct + '% Revenue Impact' : 'N/A'}</span></div>
             <div>Actionable Guidance: <span class="font-mono text-gold">${rec}</span></div>
           </div>
         </div>

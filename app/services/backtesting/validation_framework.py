@@ -120,9 +120,9 @@ def _compute_empirical_backtest_metrics(symbol: str, as_of: Optional[datetime] =
         def _calc_corr(sig: np.ndarray, rets: np.ndarray, fallback: float) -> float:
             if len(sig) >= 4 and np.std(sig) > 1e-4 and np.std(rets) > 1e-4:
                 c = float(np.corrcoef(sig, rets)[0, 1])
-                val = abs(c) if not np.isnan(c) else abs(fallback)
-                return round(float(np.clip(val, 0.02, 0.99)), 3)
-            return round(float(np.clip(abs(fallback), 0.02, 0.99)), 3)
+                val = c if not np.isnan(c) else fallback
+                return round(float(np.clip(val, -0.99, 0.99)), 3)
+            return round(float(np.clip(fallback, -0.99, 0.99)), 3)
 
         emp_ic = _calc_corr(scores, stock_rets, float(np.clip(0.12 + 0.04 * mean_factor, 0.04, 0.35)))
 
@@ -222,8 +222,8 @@ def evaluate_backtest_validation(
         }
         out_of_sample_sharpe = float(data.get("out_of_sample_sharpe", 1.45))
         factor_decay_months = float(data.get("factor_decay_half_life_months", 18.0))
-        survivorship_bias_controlled = bool(data.get("survivorship_bias_controlled", True))
-        point_in_time_compliant = bool(data.get("point_in_time_compliant", True))
+        survivorship_bias_controlled = bool(data.get("survivorship_bias_controlled", False))
+        point_in_time_compliant = bool(data.get("point_in_time_compliant", False))
         is_simulated = False
     else:
         emp_res = _compute_empirical_backtest_metrics(norm_symbol, as_of=as_of)
@@ -264,6 +264,7 @@ def evaluate_backtest_validation(
         "symbol": norm_symbol,
         "executed_at": datetime.now().isoformat(),
         "average_ic": avg_ic,
+        "average_ic_magnitude": round(abs(avg_ic), 3),
         "ic_by_factor": ic_by_factor,
         "factor_provenance_map": factor_provenance_map,
         "proxy_factor_ic": proxy_factor_ic,

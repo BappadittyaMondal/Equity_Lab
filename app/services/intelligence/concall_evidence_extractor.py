@@ -70,3 +70,61 @@ class ConCallEvidenceExtractor:
             red_team_invalidation_risk=round(red_team_risk, 2),
             evidence_notes=notes
         )
+
+
+def build_qualitative_payload(
+    symbol: str,
+    as_of: Optional[Any] = None,
+    explicit_nlp_inputs: Optional[Dict[str, Any]] = None
+) -> QualitativeEvidencePayload:
+    """Constructs QualitativeEvidencePayload from evaluated concall NLP analysis.
+
+    Enforces the Neutral Microcap Safeguard:
+    If no transcript is filed (standard for ~90% of microcaps), returns neutral 0.5 scores
+    yielding M_Qual = 1.00x, preventing large-cap reporting bias.
+    """
+    from app.services.market_data import normalize_symbol
+    from app.services.strategies.concall_nlp import evaluate_concall_nlp
+
+    norm_symbol = normalize_symbol(symbol)
+    concall_res = evaluate_concall_nlp(norm_symbol, nlp_inputs=explicit_nlp_inputs, as_of=as_of)
+
+    is_synthetic = concall_res.get("is_synthetic", True)
+    data_mode = concall_res.get("data_mode", "DATA_INSUFFICIENT")
+
+    if is_synthetic or data_mode == "DATA_INSUFFICIENT":
+        return QualitativeEvidencePayload(
+            symbol=norm_symbol,
+            guidance_credibility_score=0.5,
+            capacity_commitment_score=0.5,
+            related_party_risk_flag=False,
+            red_team_invalidation_risk=0.0,
+            evidence_notes=["No verified earnings call transcript filed — neutral 1.00x multiplier assigned without microcap penalty."]
+        )
+
+    tone = str(concall_res.get("tone_shift_direction", "NEUTRAL")).upper()
+    deflections = int(concall_res.get("q_and_a_deflection_count", 0))
+    spec_score = float(concall_res.get("guidance_specificity_score", 50.0))
+
+    if tone in ["BULLISH_CONFIDENT", "COMMITTED"]:
+        guidance_credibility = min(1.0, 0.5 + (spec_score / 200.0))
+        capacity_commitment = 0.70
+    elif tone in ["BEARISH_DEFENSIVE", "EVASIVE"]:
+        guidance_credibility = max(0.1, 0.5 - (spec_score / 200.0))
+        capacity_commitment = 0.30
+    else:
+        guidance_credibility = 0.50
+        capacity_commitment = 0.50
+
+    red_team_risk = min(1.0, deflections * 0.15)
+    notes = list(concall_res.get("evidence", []))
+
+    return QualitativeEvidencePayload(
+        symbol=norm_symbol,
+        guidance_credibility_score=round(guidance_credibility, 2),
+        capacity_commitment_score=round(capacity_commitment, 2),
+        related_party_risk_flag=False,
+        red_team_invalidation_risk=round(red_team_risk, 2),
+        evidence_notes=notes
+    )
+

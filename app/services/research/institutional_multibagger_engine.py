@@ -63,6 +63,7 @@ class InstitutionalMultibaggerEngine:
 
         piotroski_score = item.get("piotroski_score", 0.0)
         promoter_holding = item.get("promoter_holding", 0.0)
+        is_prof_managed = bool(item.get("promoter_holding") is not None and float(item.get("promoter_holding", 100.0)) < 5.0)
         is_offline = os.getenv("OFFLINE_TEST_MODE", "false").lower() == "true"
         pledged_raw = item.get("pledged_pct")
         if pledged_raw is not None:
@@ -172,7 +173,9 @@ class InstitutionalMultibaggerEngine:
         # Risk Penalty Engine (Phase 2 Enhanced: FCF vs Capex Trap Differentiation)
         risk_penalties = 0.0
         risk_flags = []
-        if pledged_pct is not None:
+        if is_prof_managed:
+            pass  # Professionally managed: no promoter pledge penalty
+        elif pledged_pct is not None:
             if pledged_pct > 10.0:
                 risk_penalties -= 15.0
                 risk_flags.append(f"High Promoter Pledge ({pledged_pct:.1f}%)")
@@ -308,13 +311,16 @@ class InstitutionalMultibaggerEngine:
 
         is_offline = os.getenv("OFFLINE_TEST_MODE", "false").lower() == "true"
 
-        # Pledge fail-closed handling
-        if pledged_pct is not None:
+        # Context-Aware 3-Tier Pledge Matrix (DEF-001 & Pillar 1 Alignment)
+        if is_prof_managed:
+            pledge_val = 0.0  # Professionally managed: pledge check evaluates cleanly
+        elif pledged_pct is not None:
             pledge_val = float(pledged_pct)
         elif is_offline:
             pledge_val = 0.0
         else:
-            pledge_val = 50.0
+            pledge_val = 50.0  # Promoter unobserved in prod: fail-closed to protect capital
+            risk_flags.append("Promoter Pledge Data Missing/Unverified in Production")
 
         # Multi-period ROCE persistence tracking
         if roce_latest >= 20.0 and roce_3yr >= 20.0:
@@ -413,8 +419,11 @@ class InstitutionalMultibaggerEngine:
         related_party_red_flag = item.get("related_party_flag", False)
         debt_to_equity = item.get("debt_to_equity", 0.0)
 
+        is_prof_managed = bool(item.get("promoter_holding") is not None and float(item.get("promoter_holding", 100.0)) < 5.0)
         disqualifications = []
-        if pledged_pct is None:
+        if is_prof_managed:
+            pass  # Professionally managed: zero promoter pledge is standard
+        elif pledged_pct is None:
             disqualifications.append("Promoter Pledge Data Missing/Unverified (Fail-Closed Risk Gate)")
         elif pledged_pct > 25.0:
             disqualifications.append(f"Excessive Promoter Pledge ({pledged_pct:.1f}% > 25%)")

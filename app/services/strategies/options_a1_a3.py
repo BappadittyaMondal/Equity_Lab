@@ -41,12 +41,13 @@ def evaluate_option_arbitrage(underlying: str = "NIFTY", as_of: Optional[datetim
                 as_of = pd.to_datetime(as_of).to_pydatetime()
             except Exception:
                 pass
-        # Point-in-time calculation adjustment based on historical timestamp
-        now_dt = datetime.now()
-        as_of_naive = as_of.replace(tzinfo=None) if hasattr(as_of, "tzinfo") and as_of.tzinfo else as_of
-        if isinstance(as_of_naive, datetime):
-            days_diff = max(1, (now_dt - as_of_naive).days)
-            spot = round(spot * (1.0 - (days_diff * 0.001)), 2)
+        # Deterministic point-in-time calculation adjustment for synthetic fallback (zero wall-clock drift)
+        if raw_spot is None:
+            ref_dt = datetime(2025, 1, 1)
+            as_of_naive = as_of.replace(tzinfo=None) if hasattr(as_of, "tzinfo") and as_of.tzinfo else as_of
+            if isinstance(as_of_naive, datetime):
+                days_diff = (ref_dt - as_of_naive).days
+                spot = round(spot * (1.0 - (days_diff * 0.0005)), 2)
 
     # Parity check parameters
     call_strike = round(spot, -2)
@@ -124,11 +125,13 @@ def evaluate_iron_condor(underlying: str = "NIFTY", as_of: Optional[datetime] = 
                 as_of = pd.to_datetime(as_of).to_pydatetime()
             except Exception:
                 pass
-        now_dt = datetime.now()
-        as_of_naive = as_of.replace(tzinfo=None) if hasattr(as_of, "tzinfo") and as_of.tzinfo else as_of
-        if isinstance(as_of_naive, datetime):
-            days_diff = max(1, (now_dt - as_of_naive).days)
-            spot = round(spot * (1.0 - (days_diff * 0.001)), 2)
+        # Deterministic point-in-time calculation adjustment for synthetic fallback (zero wall-clock drift)
+        if raw_spot is None:
+            ref_dt = datetime(2025, 1, 1)
+            as_of_naive = as_of.replace(tzinfo=None) if hasattr(as_of, "tzinfo") and as_of.tzinfo else as_of
+            if isinstance(as_of_naive, datetime):
+                days_diff = (ref_dt - as_of_naive).days
+                spot = round(spot * (1.0 - (days_diff * 0.0005)), 2)
 
     # 4-leg strikes
     short_put = round(spot * 0.97, -2)

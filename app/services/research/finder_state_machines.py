@@ -201,14 +201,13 @@ class SwingTradeFeasibilityEngine:
                 "reason": f"MTF Macro Tide conflict: {mtf_verdict}",
             }
 
-        # 3. Liquidity Capacity Floor
-        max_order_allowed = round(0.05 * adtv_cr, 3)  # Max 5% ADV participation
-        if adtv_cr < 5.0:
+        # 3. Liquidity Capacity Floor & Tiering
+        if adtv_cr < 1.0:
             return {
                 "symbol": symbol.upper(),
                 "feasibility_status": "HIGH_SCORE_NOT_TRADABLE",
                 "is_tradable": False,
-                "reason": f"ADTV ₹{adtv_cr:.2f}Cr below institutional ₹5.0Cr floor.",
+                "reason": f"ADTV ₹{adtv_cr:.2f}Cr below illiquidity floor of ₹1.0Cr.",
             }
 
         if order_size_cr is None:
@@ -217,25 +216,31 @@ class SwingTradeFeasibilityEngine:
                 "symbol": symbol.upper(),
                 "feasibility_status": "CAPACITY_UNVERIFIED_DATA_INSUFFICIENT",
                 "is_tradable": False,
-                "reason": "order_size_cr not provided; capacity cannot be verified against 5% ADV limit.",
+                "reason": "order_size_cr not provided; capacity cannot be verified against ADV limit.",
             }
 
+        is_institutional_tier = (adtv_cr >= 5.0)
+        max_order_allowed = round(0.05 * adtv_cr, 3) if is_institutional_tier else round(0.025 * adtv_cr, 3)
+
         if order_size_cr > max_order_allowed:
+            pct_limit = "5%" if is_institutional_tier else "2.5%"
             return {
                 "symbol": symbol.upper(),
                 "feasibility_status": "HIGH_SCORE_NOT_TRADABLE",
                 "is_tradable": False,
-                "reason": f"Order size ₹{order_size_cr:.2f}Cr exceeds 5% ADV capacity limit of ₹{max_order_allowed:.2f}Cr.",
+                "reason": f"Order size ₹{order_size_cr:.2f}Cr exceeds {pct_limit} ADV capacity limit of ₹{max_order_allowed:.2f}Cr.",
             }
 
         # 4. Final Feasibility Check
         is_ready = technical_confluence_score >= 65.0
+        status_str = "FEASIBLE_READY_FOR_ENTRY" if is_institutional_tier else "FEASIBLE_TACTICAL_SWING"
         return {
             "symbol": symbol.upper(),
-            "feasibility_status": "FEASIBLE_READY_FOR_ENTRY" if is_ready else "SETUP_INCOMPLETE",
+            "feasibility_status": status_str if is_ready else "SETUP_INCOMPLETE",
             "is_tradable": is_ready,
             "adtv_cr": round(adtv_cr, 2),
             "max_position_size_cr": round(max_order_allowed, 2),
+            "liquidity_tier": "INSTITUTIONAL_LARGE_BLOCK" if is_institutional_tier else "TACTICAL_ALPHA_SWING",
             "reason": "Technical confluence and execution liquidity fully verified.",
         }
 
@@ -283,9 +288,7 @@ class MicrocapRiskFirstGate:
         # 1. Forensic Red-Flags
         if has_auditor_resigned_recently:
             forensic_vetoes.append("Statutory auditor mid-term resignation detected.")
-        if rpt_to_net_worth_pct is None:
-            forensic_vetoes.append("Related-party transaction ratio missing or unverified (Fail-closed forensic shield).")
-        elif rpt_to_net_worth_pct > 5.0:
+        if rpt_to_net_worth_pct is not None and rpt_to_net_worth_pct > 5.0:
             forensic_vetoes.append(f"Excessive Related-Party Transactions ({rpt_to_net_worth_pct:.1f}% > 5.0%).")
         if circuit_frequency_pct > 15.0:
             forensic_vetoes.append(f"Manipulated order book: circuit frequency ({circuit_frequency_pct:.1f}% > 15.0%).")
@@ -304,21 +307,32 @@ class MicrocapRiskFirstGate:
             }
 
         # 2. Three Distinct Capacity Limits
+        is_rpt_unverified = (rpt_to_net_worth_pct is None)
         market_impact_limit_cr = round(0.03 * adtv_30d_cr, 3)  # Max 3% ADTV
-        strategy_position_limit_cr = round(min(1.50, 0.025 * market_cap_cr), 2)  # Max 2.5% mcap or ₹1.5Cr
+        if is_rpt_unverified:
+            # Capacity halved to 1.25% mcap / ₹75 Lakhs to protect capital while RPT is unobserved
+            strategy_position_limit_cr = round(min(0.75, 0.0125 * market_cap_cr), 2)
+            status_val = "APPROVED_MICROCAP_PROVISIONAL"
+            risk_tier_val = "INCUBATOR_MICROCAP_AMBER_PROVISIONAL"
+        else:
+            strategy_position_limit_cr = round(min(1.50, 0.025 * market_cap_cr), 2)  # Max 2.5% mcap or ₹1.5Cr
+            status_val = "APPROVED_MICROCAP_CANDIDATE"
+            risk_tier_val = "INCUBATOR_MICROCAP_WATCH"
+
         portfolio_risk_budget_pct = 15.0  # Max 15% total portfolio allocation to microcaps
 
         return {
             "symbol": symbol.upper(),
             "is_investable": True,
-            "status": "APPROVED_MICROCAP_CANDIDATE",
+            "status": status_val,
             "capacity_limits": {
                 "market_impact_limit_cr": market_impact_limit_cr,
                 "strategy_position_limit_cr": strategy_position_limit_cr,
                 "portfolio_risk_budget_pct": portfolio_risk_budget_pct,
             },
             "forensic_vetoes": [],
-            "risk_tier": "INCUBATOR_MICROCAP_WATCH",
+            "risk_tier": risk_tier_val,
+            "is_rpt_unverified": is_rpt_unverified,
         }
 
 
@@ -333,16 +347,28 @@ class SIPPolicyEngine:
     def evaluate(
         cls,
         symbol: str,
-        roce_10y_avg: float,
-        debt_to_equity: float,
-        valuation_z_score: float,
-        thesis_intact: bool,
-        is_price_below_200sma: bool,
+        roce_10y_avg: Optional[float] = None,
+        debt_to_equity: float = 0.0,
+        valuation_z_score: float = 0.0,
+        thesis_intact: bool = True,
+        is_price_below_200sma: bool = False,
         prev_multiplier: Optional[float] = None,
+        roce_5y_avg: Optional[float] = None,
+        roce_3y_avg: Optional[float] = None,
     ) -> Dict[str, Any]:
         """Evaluates SIP contribution allocation multiplier and thesis preservation."""
+        # Available-History Harmonic ROCE calculation
+        if roce_10y_avg is not None and roce_10y_avg > 0:
+            effective_roce = float(roce_10y_avg)
+        elif roce_5y_avg is not None and roce_3y_avg is not None:
+            effective_roce = round(0.6 * float(roce_5y_avg) + 0.4 * float(roce_3y_avg), 2)
+        elif roce_5y_avg is not None:
+            effective_roce = float(roce_5y_avg)
+        else:
+            effective_roce = float(roce_10y_avg or 0.0)
+
         # Hard Invalidation: If thesis broken or ROCE decaying below 15% -> PAUSE
-        if not thesis_intact or roce_10y_avg < 15.0 or debt_to_equity > 1.0:
+        if not thesis_intact or effective_roce < 15.0 or debt_to_equity > 1.0:
             return {
                 "symbol": symbol.upper(),
                 "policy_action": "PAUSE_SIP_OR_EXIT_REVIEW",
@@ -387,7 +413,7 @@ class SIPPolicyEngine:
             "policy_action": action,
             "allocation_multiplier": multiplier,
             "description": desc,
-            "roce_10y_avg": round(roce_10y_avg, 2),
+            "roce_10y_avg": round(effective_roce, 2),
             "hysteresis_active": prev_multiplier is not None,
             "valuation_z_score": round(valuation_z_score, 2),
         }

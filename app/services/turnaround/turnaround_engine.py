@@ -7,6 +7,9 @@ lifecycle state evaluation, and returns a fully certified StrategyRunResponse.
 
 from typing import Any, Dict, Optional
 import os
+import logging
+
+logger = logging.getLogger(__name__)
 
 from app.models.schemas import StrategyRunResponse
 from app.services.market_data import create_meta_header, get_ist_now_str
@@ -30,10 +33,16 @@ def run_turnaround_engine(symbol: str, as_of: Optional[str] = None) -> StrategyR
     """Run E20 Turnaround Prediction Engine for given symbol."""
     is_offline = os.getenv("OFFLINE_TEST_MODE", "false").lower() == "true"
     
-    # Ingestion layer with fallback
-    financials = get_mock_turnaround_financials(symbol) if is_offline else []
-    fund_dict = None
-    if not is_offline:
+    # 1. Fetch Timeline Financials
+    financials = []
+    is_heuristic_timeline = False
+    try:
+        from app.services.data_ingestion.financial_timeline import _get_financial_timeline
+        financials = _get_financial_timeline(symbol)
+    except Exception as err:
+        logger.debug("Failed to query financial timeline for %s: %s", symbol, err)
+
+    if not financials:
         try:
             from app.services.data_ingestion.screener_connector import ScreenerCloudConnector
             fund_dict = ScreenerCloudConnector.get_company_fundamentals(symbol)
@@ -51,6 +60,7 @@ def run_turnaround_engine(symbol: str, as_of: Optional[str] = None) -> StrategyR
                 # Require verified fundamental fields in production without synthetic defaults
                 required = [op_prof, opm_latest, pat_val, cfo_val, roce_val]
                 if all(v is not None for v in required):
+                    is_heuristic_timeline = True
                     rev_latest = float(op_prof) / (float(opm_latest) / 100.0) if float(opm_latest) > 0 else float(op_prof) * 5.0
                     debt_latest = (float(mcap) * float(de_ratio) * 0.4) if (mcap is not None and de_ratio is not None) else 0.0
                     financials = [
@@ -71,8 +81,8 @@ def run_turnaround_engine(symbol: str, as_of: Optional[str] = None) -> StrategyR
                             "debt_inr": debt_latest,
                         }
                     ]
-        except Exception:
-            pass
+        except Exception as err:
+            logger.debug("Failed to extract financial timeline for %s: %s", symbol, err)
 
     if not financials:
         if not is_offline:
@@ -100,8 +110,8 @@ def run_turnaround_engine(symbol: str, as_of: Optional[str] = None) -> StrategyR
             q = get_quote(symbol)
             if q and hasattr(q, "price_change_6m_pct") and q.price_change_6m_pct is not None:
                 quote = {"price_change_6m_pct": float(q.price_change_6m_pct)}
-        except Exception:
-            pass
+        except Exception as err:
+            logger.debug("Failed to get quote price change for %s: %s", symbol, err)
 
     # Pipeline math execution
     features = extract_turnaround_features(financials, market_quote=quote)
@@ -130,8 +140,8 @@ def run_turnaround_engine(symbol: str, as_of: Optional[str] = None) -> StrategyR
             q = get_quote(symbol)
             if q and hasattr(q, "price") and q.price:
                 cp_val = float(q.price)
-        except Exception:
-            pass
+        except Exception as err:
+            logger.debug("Failed to extract current price for %s: %s", symbol, err)
         if cp_val <= 0.0 and fund_dict:
             cp_val = float(fund_dict.get("current_price", 0.0) or 0.0)
     else:
@@ -202,9 +212,13 @@ def run_turnaround_engine(symbol: str, as_of: Optional[str] = None) -> StrategyR
         )
 
     meta = create_meta_header(source="Turnaround Prediction Engine (E20)")
+    if is_heuristic_timeline:
+        meta["data_mode"] = "HEURISTIC_CONSTRUCTED"
 
     results_dict = {
         "symbol": symbol,
+        "data_mode": "HEURISTIC_CONSTRUCTED" if is_heuristic_timeline else "EMPIRICAL_TIMELINE",
+        "synthetic_prior_periods": is_heuristic_timeline,
         "turnaround_score": t_score,
         "p_recovery": model_output.get("p_recovery", 0.0),
         "p_recovery_4q": model_output.get("p_recovery_4q", 0.0),

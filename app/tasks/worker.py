@@ -121,8 +121,20 @@ async def evaluate_champion_challenger_task(ctx: Dict[str, Any]) -> Dict[str, An
         return {"status": "error", "error": str(exc)}
 
 
+async def worker_startup(ctx: Dict[str, Any]) -> None:
+    """Enforce zero-trust production boot invariants before polling worker jobs."""
+    try:
+        from app.core.boot_guards import enforce_production_boot_invariants
+        enforce_production_boot_invariants()
+        logger.info("ARQ Worker successfully passed production boot guards and database health check.")
+    except Exception as e:
+        logger.critical("ARQ Worker startup aborted by boot guard: %s", e)
+        raise e
+
+
 class WorkerSettings:
     """ARQ Worker Settings."""
+    on_startup = worker_startup
     functions = [refresh_market_data_task, retrain_ml_model_task, evaluate_champion_challenger_task]
     try:
         from arq.connections import RedisSettings

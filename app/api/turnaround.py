@@ -8,6 +8,7 @@ from typing import Any, Dict, Optional
 from fastapi import APIRouter, HTTPException, Query, status
 from app.models.schemas import StrategyRunResponse
 from app.services.turnaround.turnaround_engine import run_turnaround_engine
+from app.services.strategies.turnaround_stage import evaluate_turnaround_stage
 
 router = APIRouter(prefix="/api/v1/turnaround", tags=["Turnaround Prediction Framework"])
 
@@ -45,12 +46,32 @@ def post_turnaround_prediction(req: TurnaroundPredictionRequest):
 @router.get("/stage/{symbol}", summary="Get Turnaround Stage Details")
 def get_turnaround_stage(symbol: str):
     """Get turnaround stage details for symbol."""
-    res = run_turnaround_engine(symbol)
+    res_e20 = run_turnaround_engine(symbol)
+    e20_stage = res_e20.results.get("turnaround_stage", "UNKNOWN")
+    stage_desc = res_e20.results.get("capital_structure_warning", "")
+    
+    # Also evaluate E2 stage classification for full diagnostic parity
+    try:
+        res_e2 = evaluate_turnaround_stage(symbol)
+        e2_stage = res_e2.current_stage
+        e2_desc = res_e2.stage_description
+        prob_success = res_e2.success_probability_pct
+        false_risk = res_e2.false_turnaround_risk
+    except Exception:
+        e2_stage = e20_stage
+        e2_desc = stage_desc
+        prob_success = res_e20.metrics.get("p_recovery", 0.0) * 100.0
+        false_risk = "MODERATE"
+
     return {
         "symbol": symbol.upper(),
-        "stage": res.results.get("stage", "UNKNOWN"),
-        "stage_description": res.results.get("stage_description", ""),
-        "lifecycle": res.results.get("lifecycle_state", {})
+        "stage": e2_stage or e20_stage,
+        "stage_description": e2_desc or stage_desc,
+        "e20_stage": e20_stage,
+        "success_probability_pct": prob_success,
+        "false_turnaround_risk": false_risk,
+        "lifecycle": res_e20.results.get("lifecycle_state", {}),
+        "is_relapse_active": res_e20.results.get("is_relapse_active", False)
     }
 
 

@@ -151,6 +151,12 @@ def compute_beneish_mscore(financials: List[Any]) -> Dict[str, Any]:
     )
     m_score = round(m_score, 3)
     result["m_score"] = m_score
+    result["model_variant"] = "BENEISH_M_5_FACTOR_CORE_PROXY"
+    result["approximated_variables"] = ["DSRI", "DEPI", "SGAI"]
+    result["canonical_specification_note"] = (
+        "Calculated using 8-variable formula with empirical neutral proxies for unobserved line items "
+        "(DSRI=1.0, DEPI=1.0, SGAI=1.0) and proxy AQI."
+    )
 
     if m_score > -1.78:
         classification = "LIKELY_MANIPULATOR"
@@ -229,9 +235,13 @@ def compute_altman_zscore(financials: List[Any]) -> Dict[str, Any]:
 
     z_score = 1.2 * x1 + 1.4 * x2 + 3.3 * x3 + 0.6 * x4 + 1.0 * x5
     z_score = round(z_score, 3)
+    z_prime_score = round(0.717 * x1 + 0.847 * x2 + 3.107 * x3 + 0.420 * x4 + 0.998 * x5, 3)
 
     result.update({
         "z_score": z_score,
+        "z_prime_score": z_prime_score,
+        "model_variant": "ALTMAN_Z_BOOK_EQUITY_VARIANT",
+        "canonical_specification_note": "X4 utilizes Book Value of Equity. For canonical 1968 manufacturing Z-Score, X4 requires Market Value of Equity; Z' represents the 1983 book-equity model.",
         "x1_working_capital_ratio": round(x1, 3),
         "x2_retained_earnings_ratio": round(x2, 3),
         "x3_ebit_ratio": round(x3, 3),
@@ -289,6 +299,7 @@ def compute_piotroski_fscore(financials: List[Any]) -> Dict[str, Any]:
     debt_s = _extract_series(financials, ["total_debt"])
     rev_s = _extract_series(financials, ["revenue", "total_revenue"])
     gp_s = _extract_series(financials, ["gross_profit"])
+    shares_s = _extract_series(financials, ["shares_outstanding", "equity_shares", "shares", "total_shares"])
 
     def _binary(condition: bool, label: str, true_msg: str, false_msg: str) -> int:
         if condition:
@@ -341,9 +352,14 @@ def compute_piotroski_fscore(financials: List[Any]) -> Dict[str, Any]:
     turn_t1 = rev_t1 / asset_t1 if asset_t1 > 0 else 0.0
     scores["F6"] = _binary(turn_t >= turn_t1, "F6 Liquidity proxy", "Asset turnover improved", "Asset turnover declined")
 
-    # F7: No dilution (approximated — share count not stored, assume neutral)
-    scores["F7"] = 1  # Neutral — no share issuance data
-    evidence.append("⚪ F7 Dilution: data not tracked — neutral score")
+    # F7: No dilution
+    if len(shares_s) >= 2:
+        sh_t = _get(shares_s, -1) or 0.0
+        sh_t1 = _get(shares_s, -2) or 0.0
+        scores["F7"] = _binary(sh_t <= sh_t1, "F7 Dilution", f"Shares stable/reduced ({sh_t1:.0f} → {sh_t:.0f})", f"Dilution detected: shares increased ({sh_t1:.0f} → {sh_t:.0f})")
+    else:
+        scores["F7"] = 0  # Conservative zero-trust policy: unverified share count receives zero points
+        evidence.append("⚪ F7 Dilution: share issuance data unobserved — zero score awarded (conservative zero-trust policy)")
 
     # F8: Gross margin improved
     gm_t = (gp_t / rev_t) if rev_t > 0 and gp_t > 0 else 0.0

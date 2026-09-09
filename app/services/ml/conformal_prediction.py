@@ -24,6 +24,9 @@ class ConformalPredictionInterval:
     coverage_guarantee_pct: float  # e.g., 90.0
     strata: str  # Mondrian category (e.g., "MICRO_CAP_HIGH_VOL")
     interval_width: float
+    is_calibrated: bool = True
+    calibration_sample_size: int = 0
+    calibration_status: str = "PILOT_SAMPLE"
 
 
 class ConformalPredictor:
@@ -36,15 +39,14 @@ class ConformalPredictor:
             self.load_calibration()
 
     def fit(self, y_true: np.ndarray, y_pred: np.ndarray, strata: str = "GENERAL", persist: bool = True) -> float:
-        """Calibrate non-conformity scores (absolute residuals) on calibration dataset."""
+        """Fit conformal predictor by computing residuals on calibration set."""
         if len(y_true) == 0:
             self.residuals_by_strata[strata] = np.array([0.15])
             return 0.15
 
-        abs_residuals = np.abs(y_true - y_pred)
+        abs_residuals = np.abs(np.array(y_true, dtype=float) - np.array(y_pred, dtype=float))
         n = len(abs_residuals)
-        # Conformal quantile formula: (1 - alpha) * (1 + 1/n)
-        quantile_level = min(0.99, max(0.50, (1.0 - self.alpha) * (1.0 + 1.0 / n)))
+        quantile_level = min(0.99, (1.0 - self.alpha) * (1.0 + 1.0 / n))
         q_val = float(np.quantile(abs_residuals, quantile_level))
         self.residuals_by_strata[strata] = abs_residuals
         if persist:
@@ -52,9 +54,20 @@ class ConformalPredictor:
         return q_val
 
     def save_calibration(self, filepath: Optional[str] = None) -> str:
-        """Persist calibrated residuals to JSON file atomically."""
+        """Persist calibrated residuals to JSON file atomically with provenance metadata."""
+        from datetime import datetime, timezone
         target_path = filepath or getattr(settings, "CONFORMAL_CACHE_PATH", "conformal_calibration_cache.json")
-        data = {strata: res.tolist() for strata, res in self.residuals_by_strata.items()}
+        residuals_dict = {strata: res.tolist() for strata, res in self.residuals_by_strata.items()}
+        data = {
+            "metadata": {
+                "calibrated_at": datetime.now(timezone.utc).isoformat(),
+                "alpha": self.alpha,
+                "target_coverage_pct": round((1.0 - self.alpha) * 100.0, 1),
+                "strata_counts": {s: len(r) for s, r in self.residuals_by_strata.items()},
+                "engine": "ConformalPredictorV1"
+            },
+            "residuals": residuals_dict
+        }
         tmp_path = f"{target_path}.tmp.{os.getpid()}"
         try:
             with open(tmp_path, "w", encoding="utf-8") as f:
@@ -77,8 +90,10 @@ class ConformalPredictor:
         try:
             with open(target_path, "r", encoding="utf-8") as f:
                 data = json.load(f)
-            for strata, res_list in data.items():
-                if res_list:
+            # Support both metadata-wrapped format and legacy raw dict format
+            residuals_map = data.get("residuals", data) if isinstance(data, dict) else data
+            for strata, res_list in residuals_map.items():
+                if strata != "metadata" and res_list and isinstance(res_list, list):
                     self.residuals_by_strata[strata] = np.array(res_list, dtype=float)
             return True
         except Exception:
@@ -94,10 +109,16 @@ class ConformalPredictor:
         if abs_res is None or len(abs_res) == 0:
             q_90 = 0.12
             q_95 = 0.18
+            is_calibrated = False
+            calib_sample_size = 0
+            calib_status = "UNREPRESENTATIVE"
         else:
             n = len(abs_res)
             q_90 = float(np.quantile(abs_res, min(0.99, 0.90 * (1.0 + 1.0 / n))))
             q_95 = float(np.quantile(abs_res, min(0.99, 0.95 * (1.0 + 1.0 / n))))
+            is_calibrated = (n >= 50)
+            calib_sample_size = n
+            calib_status = "EMPIRICALLY_VERIFIED" if n >= 50 else ("PILOT_SAMPLE_BELOW_N50" if n >= 15 else "UNREPRESENTATIVE_SAMPLE")
 
         lower_90 = round(point_estimate - q_90, 4)
         upper_90 = round(point_estimate + q_90, 4)
@@ -112,5 +133,8 @@ class ConformalPredictor:
             upper_bound_95=upper_95,
             coverage_guarantee_pct=round((1.0 - self.alpha) * 100.0, 1),
             strata=strata,
-            interval_width=round(upper_90 - lower_90, 4)
+            interval_width=round(upper_90 - lower_90, 4),
+            is_calibrated=is_calibrated,
+            calibration_sample_size=calib_sample_size,
+            calibration_status=calib_status,
         )

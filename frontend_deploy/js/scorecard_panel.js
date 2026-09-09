@@ -25,17 +25,17 @@ export async function renderScorecardPanel(symbol = "RELIANCE") {
   }
 
   const scores = data.scores || data.pillar_scores || {};
-  const bq = scores.business_quality != null ? scores.business_quality : (scores.E1_Quality != null ? scores.E1_Quality : "8.5/10");
-  const gp = scores.growth_potential != null ? scores.growth_potential : (scores.E2_Growth != null ? scores.E2_Growth : "8.2/10");
-  const op = scores.optionality_15x != null ? scores.optionality_15x : (scores.E3_Valuation != null ? scores.E3_Valuation : "7.5/10");
-  const rk = scores.risk_score != null ? scores.risk_score : (scores.E4_Momentum != null ? scores.E4_Momentum : "7.2/10");
-  const overall = scores.overall_score != null ? scores.overall_score : (data.composite_score != null ? data.composite_score : 85);
+  const bq = scores.business_quality != null ? scores.business_quality : (scores.E1_Quality != null ? scores.E1_Quality : "N/A");
+  const gp = scores.growth_potential != null ? scores.growth_potential : (scores.E2_Growth != null ? scores.E2_Growth : "N/A");
+  const op = scores.optionality_15x != null ? scores.optionality_15x : (scores.E3_Valuation != null ? scores.E3_Valuation : "N/A");
+  const rk = scores.risk_score != null ? scores.risk_score : (scores.E4_Momentum != null ? scores.E4_Momentum : "N/A");
+  const overall = scores.overall_score != null ? scores.overall_score : (data.composite_score != null ? data.composite_score : "—");
 
   const probObj = data.horizon_probabilities || {};
-  const prob1y = probObj.prob_1y || (data.return_probability != null ? (data.return_probability * 100).toFixed(1) + "%" : "75%");
+  const prob1y = probObj.prob_1y || (data.return_probability != null ? (data.return_probability * 100).toFixed(1) + "%" : "N/A");
 
-  const verdictText = data.qualitative_view || data.verdict || "Buy Candidate";
-  const verdictClass = overall >= 85 ? "badge-success" : (overall >= 70 ? "badge-gold" : "badge-neutral");
+  const verdictText = data.qualitative_view || data.verdict || (overall !== "—" ? "Under Review" : "Data Pending");
+  const verdictClass = typeof overall === "number" && overall >= 85 ? "badge-success" : (typeof overall === "number" && overall >= 70 ? "badge-gold" : "badge-neutral");
 
   container.innerHTML = `
     <div class="p-6 bg-surface-lowest rounded-xl border border-surface-border/50 shadow-lg">
@@ -78,7 +78,7 @@ export async function renderScorecardPanel(symbol = "RELIANCE") {
 
       <div class="flex items-center justify-between text-xs font-mono p-3 bg-surface-low/50 rounded-lg">
         <span class="text-muted">Empirical 3-Year Horizon (2x+ Upside Probability):</span>
-        <span class="text-green font-bold">${probObj.prob_3y_2x_plus || "70%"}</span>
+        <span class="text-green font-bold">${probObj.prob_3y_2x_plus || "N/A"}</span>
       </div>
     </div>`;
 }

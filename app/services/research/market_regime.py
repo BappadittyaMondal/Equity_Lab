@@ -31,16 +31,16 @@ def classify_market_regime(
         hist = None
 
     if hist is None or hist.empty or len(hist) < 60:
-        # Fallback default regime R1
+        # Fallback default regime DATA_UNAVAILABLE (fail-closed)
         return MarketRegimeClassification(
-            regime_code="R1_BULL_TREND",
-            description="Bull Trend — Benchmark above long-term trend, positive breadth, controlled volatility",
-            nifty_sma20_slope_pct=1.2,
-            nifty_sma50_slope_pct=0.8,
-            breadth_pct_above_50dma=68.5,
-            advance_decline_ratio=1.65,
-            realized_volatility_pct=14.2,
-            market_stress_level="LOW"
+            regime_code="DATA_UNAVAILABLE",
+            description="Market history insufficient (<60 periods) for deterministic regime classification",
+            nifty_sma20_slope_pct=0.0,
+            nifty_sma50_slope_pct=0.0,
+            breadth_pct_above_50dma=50.0,
+            advance_decline_ratio=1.0,
+            realized_volatility_pct=16.0,
+            market_stress_level="UNKNOWN"
         )
 
     close = hist["Close"]

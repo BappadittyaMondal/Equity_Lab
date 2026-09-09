@@ -306,6 +306,10 @@ class Arbiter:
           - Missing governance_grade key (engine produced no grade) → no veto
           - pledge key absent → no veto (only fires when key is explicitly present)
         """
+        # Reset per-decision audit flags
+        self._pledge_audit_amber = False
+        self._forensic_infrastructure_failed = False
+
         # Grades that trigger veto (POOR performance or unknown = caution)
         VETO_GRADES = {"POOR", "UNKNOWN"}
 
@@ -340,11 +344,31 @@ class Arbiter:
                     logger.warning("Forensic veto triggered: risk=CRITICAL")
                     return True
 
-            # Promoter pledge > threshold — only when key is explicitly present
+            # Promoter pledge > threshold — Context-Aware 3-Tier Matrix
             pledge = results.get("promoter_pledge_pct") or metrics.get("promoter_pledge_pct")
+            if pledge is None and snap:
+                pledge = getattr(snap, "promoter_pledge_pct", None) or getattr(snap, "promoter_pledged_pct", None)
+
+            promoter_holding = results.get("promoter_holding_pct") or metrics.get("promoter_holding_pct")
+            if promoter_holding is None and snap:
+                promoter_holding = getattr(snap, "promoter_holding_pct", None) or getattr(snap, "promoter_holding", None)
+
             if pledge is not None and isinstance(pledge, (int, float)) and pledge > PLEDGE_VETO_THRESHOLD:
                 logger.warning("Promoter pledge veto triggered: pledge=%.1f%% (>%.1f%%)", pledge, PLEDGE_VETO_THRESHOLD)
                 return True
+
+            if promoter_holding is not None and isinstance(promoter_holding, (int, float)) and promoter_holding >= 5.0 and pledge is None:
+                self._pledge_audit_amber = True
+
+        # Check snapshot-level promoter pledge directly if outputs lacked key
+        if snap:
+            snap_pledge = getattr(snap, "promoter_pledge_pct", None) or getattr(snap, "promoter_pledged_pct", None)
+            if snap_pledge is not None and isinstance(snap_pledge, (int, float)) and snap_pledge > PLEDGE_VETO_THRESHOLD:
+                logger.warning("Promoter pledge veto triggered from snapshot: pledge=%.1f%% (>%.1f%%)", snap_pledge, PLEDGE_VETO_THRESHOLD)
+                return True
+            snap_holding = getattr(snap, "promoter_holding_pct", None) or getattr(snap, "promoter_holding", None)
+            if snap_holding is not None and isinstance(snap_holding, (int, float)) and snap_holding >= 5.0 and snap_pledge is None:
+                self._pledge_audit_amber = True
 
         # Check Micro/Small-Cap Integrity & Forensic Audit Gates
         symbol = getattr(snap, "symbol", None) if snap else None
@@ -394,7 +418,9 @@ class Arbiter:
                         logger.warning("Microcap integrity gate veto triggered for %s: %s", symbol, m_res.veto_reasons)
                         return True
             except Exception as e:
-                logger.debug("Microcap integrity gate check skipped: %s", e)
+                logger.warning("Microcap integrity gate check failed for %s: %s", symbol, e)
+                if not os.getenv("OFFLINE_TEST_MODE", "false").lower() == "true":
+                    self._forensic_infrastructure_failed = True
 
             try:
                 from app.services.research.forensic_auditor import ForensicAuditor
@@ -414,7 +440,9 @@ class Arbiter:
                     logger.warning("Forensic auditor veto triggered for %s: %s", symbol, f_res.red_flags)
                     return True
             except Exception as e:
-                logger.debug("Forensic auditor check skipped: %s", e)
+                logger.warning("Forensic auditor check failed for %s: %s", symbol, e)
+                if not os.getenv("OFFLINE_TEST_MODE", "false").lower() == "true":
+                    self._forensic_infrastructure_failed = True
 
             try:
                 # Check Sub-Agent qualitative audit findings for CRITICAL_RED_FLAG
@@ -596,6 +624,10 @@ class Arbiter:
         2. Extreme Engine Disagreement (score std dev > 25.0 with balanced Buy/Avoid split)
         3. Crisis/Extreme Market Volatility regime (VIX > 30 or CRISIS regime) without high consensus
         """
+        # 0. Infrastructure failure in forensic audit (fail-closed in production)
+        if getattr(self, "_forensic_infrastructure_failed", False):
+            return "forensic audit infrastructure failure (fail-closed security trigger)"
+
         # 1. Low data confidence
         confidence_score = getattr(snap, "data_confidence_score", 1.0)
         if confidence_score < 0.25:
@@ -628,11 +660,18 @@ class Arbiter:
     # ──────────────────────────────────────────────────────────────────────
     # 11. Public: arbitrate() — the canonical entry point
     # ──────────────────────────────────────────────────────────────────────
-    def arbitrate(self, symbol: str, as_of: Optional[datetime] = None) -> ConvictionCall:
+    def arbitrate(
+        self,
+        symbol: str,
+        as_of: Optional[datetime] = None,
+        context: Optional[Any] = None
+    ) -> ConvictionCall:
         """Full Phase 4 arbitration pipeline.
 
         DATA → RESEARCH → REASONING → DEBATE → PREDICTION → CONVICTION → AUDIT
         """
+        if context is not None and hasattr(context, "as_of"):
+            as_of = context.as_of
         normalized = symbol.upper()
         self._macro_context = None  # Fresh regime assessment
         regime = self.macro_context.regime.regime
@@ -666,8 +705,10 @@ class Arbiter:
         mivs_result = None
         try:
             from app.services.decision_brain.mivs_engine import MIVSEngine
+            from app.services.intelligence.concall_evidence_extractor import build_qualitative_payload
             mivs_engine = MIVSEngine()
-            mivs_result = mivs_engine.compute_mivs(normalized, outputs, snap)
+            qual_payload = build_qualitative_payload(normalized, as_of=as_of)
+            mivs_result = mivs_engine.compute_mivs(normalized, outputs, snap, qualitative_payload=qual_payload)
         except Exception as exc:
             logger.warning("MIVS Engine computation failed for %s: %s", normalized, exc)
 
@@ -685,6 +726,9 @@ class Arbiter:
             # Contradiction penalty (5 pts per contradicting engine, max 20)
             penalty = min(20, len(contradictions) * 5)
             final_score_f = max(0.0, final_score_f - penalty)
+
+        if getattr(self, "_pledge_audit_amber", False):
+            final_score_f = min(final_score_f, 65.0)  # Cap conviction under unobserved promoter pledge
 
         final_score = int(round(final_score_f))
 
@@ -719,6 +763,7 @@ class Arbiter:
             governance_verified = True
 
         decision_manifest["governance_status"] = "VERIFIED" if governance_verified else ("FAILED_VETO" if veto else "UNVERIFIED")
+        decision_manifest["governance_pledge_status"] = "AMBER_UNVERIFIED" if getattr(self, "_pledge_audit_amber", False) else "VERIFIED"
 
         if abstain_reason:
             final_verdict = "ABSTAIN"
@@ -826,7 +871,9 @@ class Arbiter:
         snap = self.synthesizer.synthesize(norm, as_of=as_of)
         outputs = self._collect_engine_outputs(norm, snap=snap, as_of=as_of)
 
-        mivs_res = MIVSEngine().compute_mivs(norm, outputs, snap)
+        from app.services.intelligence.concall_evidence_extractor import build_qualitative_payload
+        qual_payload = build_qualitative_payload(norm, as_of=as_of)
+        mivs_res = MIVSEngine().compute_mivs(norm, outputs, snap, qualitative_payload=qual_payload)
         score = mivs_res.mivs_score
 
         # Classify Multibagger Tier (§50)

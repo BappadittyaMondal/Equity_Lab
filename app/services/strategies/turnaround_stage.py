@@ -177,3 +177,136 @@ def evaluate_turnaround_stage(
         metrics_summary=summary,
         meta=create_meta_header(source="Turnaround Stage Engine (E2)")
     )
+
+
+def evaluate_nclt_turnaround_diagnostic(
+    symbol: str,
+    as_of: Optional[datetime] = None,
+    store: Optional[ResearchDataStore] = None
+) -> TurnaroundStageResponse:
+    """Specialized C14 Forensic Hygiene: NCLT & Distressed Solvency Recovery Diagnostic.
+    
+    Evaluates debt deleveraging trajectory, interest coverage restoration, and solvency
+    to differentiate genuine IBC/NCLT recoveries from liquidation traps.
+    """
+    norm_symbol = normalize_symbol(symbol)
+    data_store = store or ResearchDataStore()
+
+    try:
+        company, financials, events, corp_actions, ownership, docs = data_store.get_timeline(norm_symbol, as_of=as_of)
+    except Exception:
+        return TurnaroundStageResponse(
+            symbol=norm_symbol,
+            executed_at=datetime.now().isoformat(),
+            turnaround_score=0.0,
+            current_stage="UNKNOWN",
+            success_probability_pct=0.0,
+            false_turnaround_risk="UNKNOWN",
+            evidence=["No point-in-time financial observation history found for NCLT diagnostic."],
+            metrics_summary={"status": "INSUFFICIENT_DATA", "debt_reduction_yoy": 0.0, "operating_margin": 0.0},
+            meta=create_meta_header(source="IERL Turnaround & NCLT Diagnostic (C14)")
+        )
+
+    metric_map: Dict[str, List[Any]] = {}
+    for obs in financials:
+        metric_map.setdefault(obs.metric, []).append(obs)
+    for m in metric_map:
+        metric_map[m].sort(key=lambda x: x.period_end)
+
+    debt_obs = metric_map.get("total_debt", []) or metric_map.get("debt", [])
+    ebit_obs = metric_map.get("ebit", []) or metric_map.get("operating_income", [])
+    interest_obs = metric_map.get("interest_expense", [])
+    rev_obs = metric_map.get("revenue", [])
+    cfo_obs = metric_map.get("cfo", [])
+
+    score = 40.0
+    evidence: List[str] = []
+    false_risk = "LOW"
+    debt_reduction_yoy = 0.0
+    operating_margin = 0.0
+
+    # 1. Deleveraging Trajectory
+    if len(debt_obs) >= 2 and debt_obs[-2].value > 0:
+        prev_debt = debt_obs[-2].value
+        curr_debt = debt_obs[-1].value
+        debt_reduction_yoy = round(((prev_debt - curr_debt) / prev_debt) * 100.0, 2)
+        if debt_reduction_yoy > 15.0:
+            score += 25.0
+            evidence.append(f"Substantial deleveraging: Debt reduced by {debt_reduction_yoy:.1f}% YoY.")
+        elif debt_reduction_yoy > 0.0:
+            score += 10.0
+            evidence.append(f"Modest deleveraging: Debt reduced by {debt_reduction_yoy:.1f}% YoY.")
+        else:
+            false_risk = "MODERATE"
+            evidence.append(f"Debt expansion warning: Debt increased by {abs(debt_reduction_yoy):.1f}% YoY.")
+    elif debt_obs:
+        evidence.append("Single debt observation available; multi-year deleveraging trend unverified.")
+
+    # 2. Operating Margin Revival
+    if rev_obs and ebit_obs and rev_obs[-1].value > 0:
+        operating_margin = round((ebit_obs[-1].value / rev_obs[-1].value) * 100.0, 2)
+        if operating_margin > 12.0:
+            score += 20.0
+            evidence.append(f"Operating margin restored to healthy {operating_margin:.1f}%.")
+        elif operating_margin > 0.0:
+            score += 10.0
+            evidence.append(f"Operating margin positive at {operating_margin:.1f}%.")
+        else:
+            score -= 15.0
+            false_risk = "HIGH"
+            evidence.append(f"Negative operating margin ({operating_margin:.1f}%): core business unviable.")
+
+    # 3. Interest Coverage Solvency
+    if ebit_obs and interest_obs and interest_obs[-1].value > 0:
+        icr = round(ebit_obs[-1].value / interest_obs[-1].value, 2)
+        if icr >= 2.5:
+            score += 15.0
+            evidence.append(f"Healthy interest coverage ({icr:.1f}x) supports debt service.")
+        elif icr >= 1.0:
+            score += 5.0
+            evidence.append(f"Marginal interest coverage ({icr:.1f}x): solvency is fragile.")
+        else:
+            score -= 20.0
+            false_risk = "CRITICAL"
+            evidence.append(f"Critical insolvency warning: EBIT fails to cover interest ({icr:.1f}x).")
+
+    # 4. Cash Flow Solvency Sanity
+    if cfo_obs and cfo_obs[-1].value > 0:
+        score += 10.0
+        evidence.append("Positive operating cash flow confirms solvency recovery.")
+    elif cfo_obs and cfo_obs[-1].value < 0:
+        false_risk = "CRITICAL" if false_risk in ("HIGH", "CRITICAL") else "HIGH"
+        evidence.append("Cash burn risk: Negative CFO during debt restructuring.")
+
+    final_score = max(0.0, min(100.0, round(score, 1)))
+
+    if false_risk == "CRITICAL":
+        stage = "DISTRESSED"
+        success_prob = 15.0
+    elif final_score >= 70.0 and false_risk == "LOW":
+        stage = "SOLVENCY_RESTORED"
+        success_prob = 80.0
+    elif final_score >= 50.0:
+        stage = "DELEVERAGING_RECOVERY"
+        success_prob = 60.0
+    else:
+        stage = "DISTRESSED"
+        success_prob = 30.0
+
+    metrics_summary = {
+        "debt_reduction_yoy": debt_reduction_yoy,
+        "operating_margin": operating_margin,
+        "diagnostic_focus": "NCLT & Distressed Solvency Recovery Diagnostic"
+    }
+
+    return TurnaroundStageResponse(
+        symbol=norm_symbol,
+        executed_at=datetime.now().isoformat(),
+        turnaround_score=final_score,
+        current_stage=stage,
+        success_probability_pct=success_prob,
+        false_turnaround_risk=false_risk,
+        evidence=evidence or ["Baseline NCLT turnaround diagnostic."],
+        metrics_summary=metrics_summary,
+        meta=create_meta_header(source="IERL Turnaround & NCLT Diagnostic (C14)")
+    )

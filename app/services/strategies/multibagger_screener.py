@@ -39,7 +39,7 @@ def evaluate_multibagger_score(
     res_e2 = evaluate_turnaround_stage(norm_symbol, as_of=as_of, store=data_store)
     res_e3 = evaluate_growth_market_gap(norm_symbol, as_of=as_of, store=data_store)
     res_gov = evaluate_governance_quality(norm_symbol, as_of=as_of, store=data_store)
-    res_moat = evaluate_moat_score(norm_symbol)
+    res_moat = evaluate_moat_score(norm_symbol, as_of=as_of)
     
     # Incremental ROIC sub-calculation
     try:
@@ -50,12 +50,12 @@ def evaluate_multibagger_score(
     inc_roic_val = res_inc_roic.get("incremental_roic_pct")
     score_inc_roic = min(100.0, max(0.0, inc_roic_val * 2.0)) if inc_roic_val is not None else 50.0
 
-    saatvik_passed = True
+    saatvik_passed = False
     try:
-        res_d18 = run_saatvik_d18(norm_symbol)
-        saatvik_passed = res_d18.passed_gates
+        res_d18 = run_saatvik_d18(norm_symbol, as_of=as_of)
+        saatvik_passed = bool(res_d18.passed_gates)
     except Exception:
-        pass
+        saatvik_passed = False
 
     # 2. Weighted Score Composition (25/20/20/15/10/10)
     score_e1 = res_e1.growth_inflection_score

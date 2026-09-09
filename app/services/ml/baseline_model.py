@@ -848,9 +848,11 @@ def evaluate_and_retrain_model(human_approved_by: Optional[str] = None) -> Dict[
                     "previous_accuracy": active_acc,
                     "brier_score": round(candidate_brier, 4),
                     "validation_protocol": "walk_forward_chronological_split",
+                    "is_human_approved": bool(human_approved_by),
+                    "approval_source": "HUMAN_EXPLICIT" if human_approved_by else "AUTOMATED_WALKFORWARD_GATE",
                 },
                 backtest_summary=f"Walk-forward validated NumPyEnsembleClassifier promoted. Out-of-sample Test Acc: {candidate_acc:.4f} (Brier: {candidate_brier:.4f}) vs Prev Acc: {active_acc:.4f} on {len(rows)} ledger outcomes.",
-                human_approved_by=human_approved_by or "automated_walkforward_gate"
+                human_approved_by=human_approved_by or "UNAPPROVED_AUTOMATED_GATE"
             )
         except Exception:
             pass

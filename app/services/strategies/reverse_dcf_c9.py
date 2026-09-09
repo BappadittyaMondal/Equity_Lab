@@ -37,10 +37,15 @@ def run_reverse_dcf_c9(
 ) -> StrategyRunResponse:
     """Execute C9 Reverse DCF Intrinsic Growth Check.
     
+    Solves for the market-implied steady-state growth rate (g) using the inverse 
+    Gordon Growth valuation relation: P/E = (1 + g) / (r - g) => g = (r * P/E - 1) / (P/E + 1).
+    In this single-stage formulation, the implied sustainable growth rate g represents 
+    the perpetual rate (where terminal_growth is coincident with g).
+    
     Args:
         symbol: Target equity symbol.
         discount_rate: Baseline cost of equity discount rate (default: 12%).
-        terminal_growth: Perpetual terminal growth rate (default: 4%).
+        terminal_growth: Perpetual terminal growth benchmark rate (default: 4%).
         as_of: Historical point-in-time reference boundary.
     """
     norm_symbol = normalize_symbol(symbol)

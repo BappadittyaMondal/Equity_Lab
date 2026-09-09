@@ -13,8 +13,8 @@ export async function renderAICommitteePanel(containerId = 'ai-committee-contain
     api.loadSupplyChainGraph(symbol),
   ]);
 
-  const auditPassed = govAudit?.governance_clean ?? true;
-  const postMortemStatus = postMortem?.learning_loop_status ?? 'ACTIVE';
+  const auditPassed = govAudit?.governance_clean;
+  const postMortemStatus = postMortem?.learning_loop_status ?? 'UNVERIFIED';
   const suppliers = supplyChain?.tier_1_suppliers || ['N/A'];
 
   container.innerHTML = `
@@ -29,8 +29,8 @@ export async function renderAICommitteePanel(containerId = 'ai-committee-contain
       <div class="grid grid-cols-1 md:grid-cols-3 gap-3 text-xs">
         <div class="bg-slate-800/60 p-3 rounded border border-slate-700">
           <div class="text-slate-400">Governance & Related-Party Audit</div>
-          <div class="text-lg font-bold ${auditPassed ? 'text-emerald-400' : 'text-rose-400'} mt-1">
-            ${auditPassed ? 'PASSED (0 RPT Red Flags)' : 'WARNING (RPT Discrepancy)'}
+          <div class="text-lg font-bold ${auditPassed === true ? 'text-emerald-400' : (auditPassed === false ? 'text-rose-400' : 'text-amber-400')} mt-1">
+            ${auditPassed === true ? 'PASSED (0 RPT Red Flags)' : (auditPassed === false ? 'WARNING (RPT Discrepancy)' : 'AUDIT PENDING / UNVERIFIED')}
           </div>
         </div>
         <div class="bg-slate-800/60 p-3 rounded border border-slate-700">
