@@ -465,7 +465,9 @@ class Arbiter:
                         logger.warning("Sub-agent critical red flag veto triggered for %s: %s", symbol, finding.finding)
                         return True
             except Exception as e:
-                logger.debug("Sub-agent audit check skipped: %s", e)
+                logger.warning("Sub-agent audit check encountered error for %s: %s", symbol, e)
+                if not os.getenv("OFFLINE_TEST_MODE", "false").lower() == "true":
+                    self._forensic_infrastructure_failed = True
 
         return False
 
@@ -790,11 +792,16 @@ class Arbiter:
         consensus_str = f"Market consensus pricing reflects standard sector baseline."
         evidence_list = [f"{o['engine_id']}: {o.get('score_0_100', 'N/A')}/100" for o in outputs if o.get("verdict") == "Buy"]
 
-        # Step 6.5: ML outperformance probability signal
+        # Step 6.5: ML outperformance probability signal with provenance metadata
         ml_prob: Optional[float] = None
+        is_ml_fallback: Optional[bool] = None
+        ml_sample_count: Optional[int] = None
         try:
-            from app.services.ml.baseline_model import predict_outperformance_prob
-            ml_prob = predict_outperformance_prob(normalized, final_score_f, data_backed=is_data_backed)
+            from app.services.ml.baseline_model import predict_outperformance_prob_details
+            ml_details = predict_outperformance_prob_details(normalized, final_score_f, data_backed=is_data_backed)
+            ml_prob = ml_details.get("outperformance_probability")
+            is_ml_fallback = ml_details.get("is_fallback")
+            ml_sample_count = ml_details.get("sample_count")
         except Exception as exc:
             logger.warning("ML baseline prediction failed for %s: %s", normalized, exc)
 
@@ -814,6 +821,8 @@ class Arbiter:
             catalyst_timing="12-24 Months",
             data_backed=is_data_backed,
             ml_outperformance_probability=ml_prob,
+            is_ml_fallback=is_ml_fallback,
+            ml_sample_count=ml_sample_count,
             evidence_coverage_pct=coverage_pct,
             decision_manifest=decision_manifest,
             evidence_clusters=clusters,

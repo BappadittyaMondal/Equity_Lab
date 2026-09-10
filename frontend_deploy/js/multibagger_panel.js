@@ -285,7 +285,7 @@ export async function executeFinderQuery(finderType = "multibagger") {
           symbol: e21Data.symbol,
           name: `${e21Data.symbol} (E21 Microcap)`,
           price: 6850,
-          score: Math.round(e21Data.incubator_score || 92),
+          score: (e21Data.incubator_score !== undefined && e21Data.incubator_score !== null) ? Math.round(e21Data.incubator_score) : null,
           tag: `Incr. ROIC: ${e21Data.agent_10_incremental_roic?.incremental_roic_pct}% | PM Kill-Test: ${e21Data.agent_12_pm_kill_test?.passed_all ? 'PASS' : 'FAIL'}`,
         }];
       }
@@ -318,7 +318,7 @@ export async function executeFinderQuery(finderType = "multibagger") {
         <div class="text-[10px] text-amber-300/80 font-mono mt-0.5">${c.tag || ''}</div>
       </td>
       <td class="py-2 px-3 text-xs font-mono text-right text-white">${c.price ? '₹' + c.price.toLocaleString("en-IN") : '—'}</td>
-      <td class="py-2 px-3 text-xs font-mono text-right text-green font-bold">${c.score || 85} / 100</td>
+      <td class="py-2 px-3 text-xs font-mono text-right text-green font-bold">${c.score !== null && c.score !== undefined ? c.score + ' / 100' : 'N/A'}</td>
       <td class="py-2 px-3 text-xs text-right space-x-1">
         <button onclick="event.stopPropagation(); window.viewInstitutionalReport('${c.symbol.split(' ')[0]}')" class="btn-secondary text-[11px] py-0.5 px-2 text-gold border-gold/40 hover:bg-gold/10">
           📄 Report

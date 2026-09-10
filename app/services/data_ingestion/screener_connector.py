@@ -1094,8 +1094,7 @@ class ScreenerCloudConnector:
 
     @staticmethod
     def get_all_fundamentals() -> List[Dict[str, Any]]:
-        """Fetch all stored company fundamentals from SQLite."""
-        ScreenerCloudConnector.seed_universe()
+        """Fetch all stored company fundamentals from SQLite (pure read-only)."""
         conn = get_connection()
         try:
             rows = conn.execute("SELECT * FROM company_fundamentals").fetchall()
@@ -1105,8 +1104,16 @@ class ScreenerCloudConnector:
 
     @staticmethod
     def get_company_fundamentals(symbol: str) -> Optional[Dict[str, Any]]:
-        """Fetch fundamental data for a single company symbol."""
-        all_items = ScreenerCloudConnector.get_all_fundamentals()
-        target = next((item for item in all_items if item["symbol"].lower() == symbol.lower() or item["symbol"].split(".")[0].lower() == symbol.lower()), None)
-        return target
+        """Fetch fundamental data for a single company symbol via fast indexed read-only query."""
+        conn = get_connection()
+        try:
+            norm = symbol.strip().upper()
+            clean = norm.replace(".NS", "").replace(".BO", "")
+            row = conn.execute(
+                "SELECT * FROM company_fundamentals WHERE UPPER(symbol) = ? OR UPPER(symbol) = ? OR UPPER(symbol) LIKE ? LIMIT 1",
+                (norm, clean, f"{clean}.%")
+            ).fetchone()
+            return dict(row) if row else None
+        finally:
+            conn.close()
 

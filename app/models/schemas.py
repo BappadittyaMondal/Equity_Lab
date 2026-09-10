@@ -582,6 +582,8 @@ class ConvictionCall(BaseModel):
     )
     data_backed: bool = Field(default=False, description="True if based on empirical ResearchDataStore observations (confidence >= 0.3)")
     ml_outperformance_probability: Optional[float] = Field(default=None, description="Scikit-Learn baseline estimated probability of benchmark outperformance (0.0 to 1.0)")
+    is_ml_fallback: Optional[bool] = Field(default=None, description="True if ml_outperformance_probability was computed from a heuristic fallback formula")
+    ml_sample_count: Optional[int] = Field(default=None, description="Training sample count for active ML model")
     evidence_coverage_pct: float = Field(default=100.0, description="Percentage of standard category evidence clusters available (0.0 to 100.0)")
     decision_manifest: Optional[Dict[str, Any]] = Field(default=None, description="Immutable Decision Run Manifest containing run_id, dataset lineage, and config hash")
     evidence_clusters: Optional[Dict[str, Any]] = Field(default=None, description="Independent evidence cluster score breakdown")

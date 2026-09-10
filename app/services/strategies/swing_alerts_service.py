@@ -93,7 +93,7 @@ def get_swing_trade_alerts(symbols: Optional[List[str]] = None) -> SwingTradeAle
                     conf_int = cp.predict_interval(point_estimate=ladder.event_t2_prob_10pct_20d, strata="TECHNICAL_SWING")
                     edge_str = f"P(+10% 20D)={int(ladder.event_t2_prob_10pct_20d * 100)}% [90% CI: {int(conf_int.lower_bound_90 * 100)}%-{int(conf_int.upper_bound_90 * 100)}%]"
                 except Exception:
-                    edge_str = "P(+10% 20D)=58% [90% CI: 46%-70%]"
+                    edge_str = "P(+10% 20D)=UNAVAILABLE [90% CI: N/A]"
 
                 alerts.append(SwingTradeAlertItem(
                     symbol=norm,

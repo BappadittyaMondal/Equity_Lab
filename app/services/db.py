@@ -618,6 +618,18 @@ def _ensure_tables() -> None:
         pass
 
     conn.commit()
+
+    # Seed initial universal fundamentals strictly once if table is completely empty
+    try:
+        row_cnt_cur = conn.execute("SELECT COUNT(*) FROM company_fundamentals")
+        cnt_row = row_cnt_cur.fetchone()
+        cnt_val = cnt_row[0] if cnt_row else 0
+        if cnt_val == 0:
+            from app.services.data_ingestion.screener_connector import ScreenerCloudConnector
+            ScreenerCloudConnector.seed_universe()
+    except Exception:
+        pass
+
     conn.close()
     if conn in _OPEN_CONNECTIONS:
         _OPEN_CONNECTIONS.remove(conn)

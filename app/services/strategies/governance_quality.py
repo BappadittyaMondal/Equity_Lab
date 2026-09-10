@@ -42,8 +42,8 @@ def evaluate_governance_quality(
     evidence: List[str] = []
     summary: Dict[str, Any] = {}
     
-    pledge_risk = "LOW"
-    accounting_flag = "PASS"
+    pledge_risk = "UNKNOWN"
+    accounting_flag = "UNKNOWN"
     
     latest_promoter_pct: Optional[float] = None
     latest_pledge_pct: Optional[float] = None
@@ -79,6 +79,7 @@ def evaluate_governance_quality(
                 score -= 10.0
                 evidence.append(f"Moderate promoter pledge at {latest_pledge_pct}%.")
             else:
+                pledge_risk = "LOW"
                 evidence.append("Zero promoter share pledge.")
 
         # Promoter trend check
@@ -91,7 +92,8 @@ def evaluate_governance_quality(
             elif diff > 1.0:
                 evidence.append(f"Promoter increased stake by {round(diff, 2)}%.")
     else:
-        evidence.append("No shareholding pattern observation history found.")
+        score -= 25.0
+        evidence.append("No shareholding pattern observation history found — ownership unassessed.")
 
     # 2. Accounting Hygiene (CFO / PAT Ratio)
     pat_obs = [obs for obs in financials if obs.metric == "pat"]
@@ -116,7 +118,11 @@ def evaluate_governance_quality(
                 score -= 20.0
                 evidence.append(f"ACCOUNTING HYGIENE WARNING: Low cash conversion (CFO/PAT ratio is {cfo_pat_ratio}).")
             else:
+                accounting_flag = "PASS"
                 evidence.append(f"Healthy cash conversion with CFO/PAT ratio of {cfo_pat_ratio}.")
+    else:
+        score -= 15.0
+        evidence.append("No financial cash flow observations observed — accounting hygiene unassessed.")
 
     # 3. Governance Events
     gov_events = [evt for evt in events if evt.event_type in ["governance_alert", "regulatory_approval"]]

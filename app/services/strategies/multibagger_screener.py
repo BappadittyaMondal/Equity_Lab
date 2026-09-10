@@ -48,7 +48,7 @@ def evaluate_multibagger_score(
         obs = []
     res_inc_roic = compute_incremental_roic(obs)
     inc_roic_val = res_inc_roic.get("incremental_roic_pct")
-    score_inc_roic = min(100.0, max(0.0, inc_roic_val * 2.0)) if inc_roic_val is not None else 50.0
+    score_inc_roic = min(100.0, max(0.0, inc_roic_val * 2.0)) if inc_roic_val is not None else 0.0
 
     saatvik_passed = False
     try:
@@ -62,17 +62,35 @@ def evaluate_multibagger_score(
     score_e2 = res_e2.turnaround_score
     score_e3 = res_e3.potential_rerating_score
     moat_score_val = res_moat.get("moat_score")
-    score_gov = (res_gov.governance_score + moat_score_val) / 2.0 if moat_score_val is not None else float(res_gov.governance_score)
+    gov_val = res_gov.governance_score if (res_gov and res_gov.governance_score is not None) else None
+    if gov_val is not None and moat_score_val is not None:
+        score_gov = (gov_val + moat_score_val) / 2.0
+    elif gov_val is not None:
+        score_gov = float(gov_val)
+    elif moat_score_val is not None:
+        score_gov = float(moat_score_val)
+    else:
+        score_gov = 0.0
     score_d18 = 100.0 if saatvik_passed else 0.0
 
-    raw_score = (
-        (score_e1 * 0.25) +
-        (score_inc_roic * 0.20) +
-        (score_e2 * 0.20) +
-        (score_e3 * 0.15) +
-        (score_gov * 0.10) +
-        (score_d18 * 0.10)
-    )
+    if inc_roic_val is not None:
+        raw_score = (
+            (score_e1 * 0.25) +
+            (score_inc_roic * 0.20) +
+            (score_e2 * 0.20) +
+            (score_e3 * 0.15) +
+            (score_gov * 0.10) +
+            (score_d18 * 0.10)
+        )
+    else:
+        # Absence of evidence: normalize weights across observed sub-components (0.80 active weight)
+        raw_score = (
+            (score_e1 * 0.25) +
+            (score_e2 * 0.20) +
+            (score_e3 * 0.15) +
+            (score_gov * 0.10) +
+            (score_d18 * 0.10)
+        ) / 0.80
 
     # 3. Hard Risk Penalties
     is_high_risk = False

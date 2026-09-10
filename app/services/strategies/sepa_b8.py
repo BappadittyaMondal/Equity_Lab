@@ -40,6 +40,8 @@ def run_sepa_b8(symbol: str, as_of: Optional[Any] = None) -> StrategyRunResponse
     pe = _safe_float(pe_raw, 25.0) or 25.0
 
     # 1. Price Momentum Metrics (1-year & 3-month)
+    one_yr_momentum_pct = None
+    three_mo_momentum_pct = None
     if 'Close' in hist and len(hist['Close']) > 0:
         try:
             start_p = _safe_float(hist['Close'].values[0], spot * 0.8)
@@ -50,11 +52,27 @@ def run_sepa_b8(symbol: str, as_of: Optional[Any] = None) -> StrategyRunResponse
             p_3m = _safe_float(hist['Close'].values[three_mo_idx], spot * 0.9)
             three_mo_momentum_pct = round(((end_p - p_3m) / p_3m) * 100.0, 2)
         except Exception:
-            one_yr_momentum_pct = 22.5
-            three_mo_momentum_pct = 8.4
-    else:
-        one_yr_momentum_pct = 22.5
-        three_mo_momentum_pct = 8.4
+            one_yr_momentum_pct = None
+            three_mo_momentum_pct = None
+
+    if one_yr_momentum_pct is None or three_mo_momentum_pct is None:
+        return StrategyRunResponse(
+            strategy_id="B8",
+            strategy_name="SEPA Fundamental Growth Screening",
+            status="data_insufficient",
+            executed_at=get_ist_now_str(),
+            symbol=norm_symbol,
+            passed_gates=False,
+            results={
+                "status": "data_insufficient",
+                "reason": "Insufficient historical price bars to evaluate Minervini SEPA momentum criteria.",
+                "sepa_classification": "DATA_INSUFFICIENT"
+            },
+            metrics={"peg_ratio": 99.0, "one_year_momentum_pct": None, "three_month_momentum_pct": None},
+            risk_warnings=["Missing price history prevents stage 2 momentum analysis."],
+            disclaimer="SEPA Screening requires verified historical price series.",
+            meta=create_meta_header(source=f"SEPA Engine B8 ({norm_symbol})")
+        )
 
     # 2. Valuation & PEG Ratio Gate
     import os

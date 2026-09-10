@@ -110,8 +110,19 @@ def run_inflection_multibagger(symbol: str, as_of: Optional[Any] = None) -> Stra
 
     pat_growth_yoy = round(((pat_t - pat_t1) / abs(pat_t1)) * 100.0, 2) if pat_t1 != 0 else 0.0
     pat_growth_prev = round(((pat_t1 - pat_t2) / abs(pat_t2)) * 100.0, 2) if pat_t2 != 0 else 0.0
-    growth_std_12q = 10.0
-    c_e = round((pat_growth_yoy - pat_growth_prev) / growth_std_12q, 2)
+    growth_deltas = []
+    for idx in range(1, len(pat_s)):
+        v_curr = pat_s[idx][1] if isinstance(pat_s[idx], (list, tuple)) else getattr(pat_s[idx], "value", 0.0)
+        v_prev = pat_s[idx - 1][1] if isinstance(pat_s[idx - 1], (list, tuple)) else getattr(pat_s[idx - 1], "value", 0.0)
+        if v_prev and v_prev != 0:
+            growth_deltas.append(((v_curr - v_prev) / abs(v_prev)) * 100.0)
+
+    if len(growth_deltas) >= 3 and float(np.std(growth_deltas)) > 0.01:
+        growth_std = round(float(np.std(growth_deltas)), 2)
+    else:
+        growth_std = 15.0
+
+    c_e = round((pat_growth_yoy - pat_growth_prev) / growth_std, 2)
     convexity_pass = c_e >= 1.5
 
     raw_pe = _get(pe_s, -1)
@@ -134,28 +145,35 @@ def run_inflection_multibagger(symbol: str, as_of: Optional[Any] = None) -> Stra
         pledged_pct = None
         forensic_pass = False
 
-    volumes = hist['Volume'].values if 'Volume' in hist else np.array([10000.0] * len(hist))
+    has_volume_data = bool(hist is not None and not hist.empty and 'Volume' in hist.columns and len(hist['Volume']) >= 20)
+    if has_volume_data:
+        volumes = hist['Volume'].values
+        vol_mean_252 = float(np.mean(volumes))
+        vol_std_252 = float(np.std(volumes)) if float(np.std(volumes)) > 0 else 1.0
+        vol_5d_avg = float(np.mean(volumes[-5:]))
+        z_vol = round((vol_5d_avg - vol_mean_252) / vol_std_252, 2)
+        volume_z_pass = z_vol >= 3.0
 
-    # 1. Microstructure Volume Z-Score (Z_Vol)
-    vol_mean_252 = float(np.mean(volumes))
-    vol_std_252 = float(np.std(volumes)) if float(np.std(volumes)) > 0 else 1.0
-    vol_5d_avg = float(np.mean(volumes[-5:]))
-    z_vol = round((vol_5d_avg - vol_mean_252) / vol_std_252, 2)
-    volume_z_pass = z_vol >= 3.0
+        if 'Delivery_Pct' in hist and len(hist['Delivery_Pct']) > 0 and not np.isnan(hist['Delivery_Pct'].iloc[-1]):
+            delivery_pct = float(hist['Delivery_Pct'].iloc[-1])
+        else:
+            from app.services.market_data import get_latest_db_delivery_pct
+            delivery_pct = get_latest_db_delivery_pct(symbol)
 
-    # 2. Float Delivery Turnover Estimate (DTR_5d)
-    if 'Delivery_Pct' in hist and len(hist['Delivery_Pct']) > 0 and not np.isnan(hist['Delivery_Pct'].iloc[-1]):
-        delivery_pct = float(hist['Delivery_Pct'].iloc[-1])
+        if delivery_pct is not None:
+            dtr_5d = round((vol_5d_avg * (delivery_pct / 100.0)) / max(vol_mean_252 * 10, 1.0) * 100.0, 2)
+            dtr_pass = dtr_5d >= 2.0 or z_vol >= 3.5
+        else:
+            dtr_5d = None
+            dtr_pass = z_vol >= 3.5
     else:
-        from app.services.market_data import get_latest_db_delivery_pct
-        delivery_pct = get_latest_db_delivery_pct(symbol)
-
-    if delivery_pct is not None:
-        dtr_5d = round((vol_5d_avg * (delivery_pct / 100.0)) / max(vol_mean_252 * 10, 1.0) * 100.0, 2)
-        dtr_pass = dtr_5d >= 2.0 or z_vol >= 3.5
-    else:
+        vol_mean_252 = 0.0
+        vol_5d_avg = 0.0
+        z_vol = 0.0
+        volume_z_pass = False
+        delivery_pct = None
         dtr_5d = None
-        dtr_pass = z_vol >= 3.5
+        dtr_pass = False
 
     overall_pass = volume_z_pass and dtr_pass and convexity_pass and peg_pass and forensic_pass
 
