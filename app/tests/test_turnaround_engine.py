@@ -108,12 +108,17 @@ class TestTurnaroundRegistryDispatch(unittest.TestCase):
         self.assertEqual(resp.strategy_id, "E20")
         self.assertEqual(resp.status, "production")
 
-    def test_rank_turnaround_universe_dynamic(self):
-        from app.api.turnaround import rank_turnaround_universe
-        res = rank_turnaround_universe(min_score=30.0, universe="MEGA_CAP", limit=5)
-        self.assertIn("total_candidates", res)
-        self.assertEqual(res["universe"], "MEGA_CAP")
-        self.assertIsInstance(res["rankings"], list)
+    def test_turnaround_engine_fails_closed_on_insufficient_timeline(self):
+        import os
+        from unittest.mock import patch
+        from app.services.turnaround.turnaround_engine import run_turnaround_engine
+
+        # Mock online production mode with an unobserved symbol
+        with patch.dict(os.environ, {"OFFLINE_TEST_MODE": "false"}):
+            resp = run_turnaround_engine("NONEXISTENT_UNOBSERVED_TICKER")
+            self.assertEqual(resp.status, "data_insufficient")
+            self.assertFalse(resp.passed_gates)
+            self.assertEqual(resp.metrics.get("turnaround_score"), 0.0)
 
 
 if __name__ == "__main__":

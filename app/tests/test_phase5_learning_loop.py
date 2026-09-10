@@ -566,3 +566,13 @@ class TestPredictionLedgerService:
         )
         assert outcome.outcome_class == "CONFIRMED_OUTPERFORMANCE"
         assert outcome.excess_return_pct == pytest.approx(13.0)
+
+    def test_resolve_multi_horizon_outcomes(self):
+        from app.services.monitoring.outcome_checker import resolve_multi_horizon_outcomes
+        res = resolve_multi_horizon_outcomes("RELIANCE", entry_price=2500.0, horizons_days=[3, 10, 30])
+        assert res["status"] in ("SUCCESS", "DATA_UNAVAILABLE")
+        if res["status"] == "SUCCESS":
+            assert "3D" in res["outcomes"]
+            assert "10D" in res["outcomes"]
+            assert "30D" in res["outcomes"]
+

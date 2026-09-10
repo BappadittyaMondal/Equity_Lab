@@ -93,6 +93,9 @@ def evaluate_governance_quality(
                 evidence.append(f"Promoter increased stake by {round(diff, 2)}%.")
     else:
         score -= 25.0
+        latest_promoter_pct = None
+        latest_pledge_pct = None
+        pledge_risk = "UNKNOWN"
         evidence.append("No shareholding pattern observation history found — ownership unassessed.")
 
     # 2. Accounting Hygiene (CFO / PAT Ratio)
@@ -136,7 +139,9 @@ def evaluate_governance_quality(
 
     final_score = max(0.0, min(100.0, round(score, 1)))
 
-    if final_score >= 85.0:
+    if not ownership:
+        grade = "UNKNOWN"
+    elif final_score >= 85.0:
         grade = "EXCELLENT"
     elif final_score >= 70.0:
         grade = "GOOD"

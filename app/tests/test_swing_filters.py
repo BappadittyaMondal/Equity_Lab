@@ -48,6 +48,25 @@ class TestSwingPredictiveFilters(unittest.TestCase):
         self.assertIn("mdi", res)
         self.assertGreaterEqual(res["adx"], 0.0)
 
+    def test_williams_wilder_directional_movement_math(self):
+        """Verify that pure higher lows produce high +DI and zero/minimal -DI (not contaminated by absolute low deltas)."""
+        # Strictly upward trending price series with higher highs and higher lows
+        dates = pd.date_range(end="2026-03-30", periods=35, freq="B")
+        lows = np.linspace(100.0, 150.0, 35)
+        highs = lows + 5.0
+        closes = lows + 3.0
+        trending_up_df = pd.DataFrame({
+            "open": lows + 1.0,
+            "high": highs,
+            "low": lows,
+            "close": closes,
+            "volume": np.full(35, 100000)
+        }, index=dates)
+        res = SwingPredictiveEngine.calculate_adx(trending_up_df, period=14)
+        # In a monotonic upward trend, PDI must strongly exceed MDI
+        self.assertGreater(res["pdi"], res["mdi"])
+        self.assertEqual(res["mdi"], 0.0)  # Pure higher lows produce exactly zero -DM!
+
     def test_calculate_delivery_conviction(self):
         res = SwingPredictiveEngine.calculate_delivery_conviction(self.trending_df)
         self.assertIn("conviction_score", res)

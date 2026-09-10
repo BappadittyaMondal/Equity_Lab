@@ -201,7 +201,8 @@ class MultiHorizonMatrixEngine:
         if cfo_pat < 0:
             base_cagr *= 0.70  # Negative cash flow penalty
 
-        base_cagr = max(5.0, min(85.0, base_cagr))
+        # Bound realistic limits: [-40%, +85%], avoiding artificial positive floor on negative earnings
+        base_cagr = max(-40.0, min(85.0, base_cagr))
 
         cagr_6m = round(base_cagr * 0.85, 1)
         cagr_1y = round(base_cagr * 0.95, 1)
@@ -209,12 +210,12 @@ class MultiHorizonMatrixEngine:
         cagr_3y = round(base_cagr * 1.00, 1)
         cagr_5y = round(base_cagr * 1.02, 1)
 
-        # Target Prices
-        p_6m = round(price * ((1.0 + cagr_6m / 100.0) ** 0.5), 2)
-        p_1y = round(price * ((1.0 + cagr_1y / 100.0) ** 1.0), 2)
-        p_2y = round(price * ((1.0 + cagr_2y / 100.0) ** 2.0), 2)
-        p_3y = round(price * ((1.0 + cagr_3y / 100.0) ** 3.0), 2)
-        p_5y = round(price * ((1.0 + cagr_5y / 100.0) ** 5.0), 2)
+        # Target Prices (safeguarded against negative base)
+        p_6m = round(price * (max(0.01, 1.0 + cagr_6m / 100.0) ** 0.5), 2)
+        p_1y = round(price * (max(0.01, 1.0 + cagr_1y / 100.0) ** 1.0), 2)
+        p_2y = round(price * (max(0.01, 1.0 + cagr_2y / 100.0) ** 2.0), 2)
+        p_3y = round(price * (max(0.01, 1.0 + cagr_3y / 100.0) ** 3.0), 2)
+        p_5y = round(price * (max(0.01, 1.0 + cagr_5y / 100.0) ** 5.0), 2)
 
         # 4. Compute Return Probabilities (%)
         def calculate_probability(cagr: float, horizon_years: float, target_mult: float) -> float:

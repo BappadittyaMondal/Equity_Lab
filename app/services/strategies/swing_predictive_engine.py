@@ -144,7 +144,7 @@ class SwingPredictiveEngine:
             return {"adx": 20.0, "pdi": 20.0, "mdi": 20.0}
         
         up_move = highs.diff()
-        down_move = lows.diff().abs()
+        down_move = -lows.diff()
         
         plus_dm = np.where((up_move > down_move) & (up_move > 0), up_move, 0.0)
         minus_dm = np.where((down_move > up_move) & (down_move > 0), down_move, 0.0)
@@ -171,7 +171,7 @@ class SwingPredictiveEngine:
     def calculate_delivery_conviction(cls, df: pd.DataFrame) -> Dict[str, Any]:
         """Calculates Delivery Percentage score (0-100) and institutional accumulation tag."""
         if 'delivery_pct' not in df.columns:
-            return {"delivery_pct": None, "conviction_score": 50.0, "is_institutional": False}
+            return {"delivery_pct": None, "conviction_score": None, "is_institutional": False, "status": "DATA_UNAVAILABLE"}
         
         del_series = cls._clean_series(df['delivery_pct'])
         if len(del_series) == 0:
@@ -500,7 +500,7 @@ class SwingPredictiveEngine:
         if cp >= hma_val: confluence_score += 10.0
         if bop_positive: confluence_score += 10.0
         if is_trending and has_adx_trend: confluence_score += 10.0
-        if del_score >= 70.0: confluence_score += 10.0
+        if del_score is not None and del_score >= 70.0: confluence_score += 10.0
         if cmf_res["is_accumulation"]: confluence_score += 10.0
         if gmma_res["is_aligned_bullish"]: confluence_score += 10.0
         if m_rs_res["is_outperforming_sector"]: confluence_score += 10.0

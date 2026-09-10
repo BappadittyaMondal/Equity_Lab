@@ -250,3 +250,46 @@ def get_outcome_summary(symbol: Optional[str] = None) -> List[Dict[str, Any]]:
         }
         for row in rows
     ]
+
+
+def resolve_multi_horizon_outcomes(
+    symbol: str,
+    entry_price: float,
+    entry_date: Optional[datetime] = None,
+    horizons_days: Optional[List[int]] = None,
+    as_of: Optional[datetime] = None
+) -> Dict[str, Any]:
+    """Calculate realized returns across multiple short-term and medium-term horizons (3D, 10D, 30D)."""
+    if horizons_days is None:
+        horizons_days = [3, 10, 30]
+
+    from app.services.market_data import get_history
+    hist = get_history(symbol, period="3m", interval="1d", as_of=as_of)
+    if hist is None or hist.empty or "Close" not in hist:
+        return {"status": "DATA_UNAVAILABLE", "symbol": symbol, "outcomes": {}}
+
+    outcomes = {}
+    closes = hist["Close"].values
+    for d in horizons_days:
+        if len(closes) >= d:
+            exit_price = float(closes[-1] if len(closes) == d else closes[min(len(closes) - 1, d)])
+            ret_pct = round(((exit_price - entry_price) / entry_price) * 100.0, 2)
+            outcomes[f"{d}D"] = {
+                "horizon_days": d,
+                "exit_price": round(exit_price, 2),
+                "return_pct": ret_pct,
+                "status": "RESOLVED"
+            }
+        else:
+            outcomes[f"{d}D"] = {
+                "horizon_days": d,
+                "status": "PENDING_INSUFFICIENT_BARS"
+            }
+
+    return {
+        "status": "SUCCESS",
+        "symbol": symbol,
+        "entry_price": round(entry_price, 2),
+        "outcomes": outcomes
+    }
+

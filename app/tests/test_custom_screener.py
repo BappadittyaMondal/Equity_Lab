@@ -49,3 +49,40 @@ def test_custom_screener_disambiguated_metrics():
     assert result["total_universe_scanned"] >= 7
     assert len(result["results"]) > 0
 
+
+def test_custom_screener_semantic_metric_truth():
+    """Verify that Sales, Debt, Return over 1 year, and Public holding evaluate as authentic metrics."""
+    # Test Sales as absolute revenue (not growth rate)
+    comp = {
+        "symbol": "TEST.NS",
+        "company_name": "Test Co",
+        "operating_profit": 200.0,
+        "opm_latest": 20.0,  # Implies sales = 1000.0 Cr
+        "sales_growth_latest": 15.0,  # 15% growth
+        "current_price": 500.0,
+        "low_52w": 250.0,  # 100% 52w price appreciation
+        "market_cap": 5000.0,
+        "debt_to_equity": 0.5,
+        "net_block": 2000.0,
+        "cwip": 500.0,  # Total equity proxy = 2500 -> Debt = 1250 Cr
+        "promoter_holding": 60.0,
+        "fii_holding": 10.0,
+        "dii_holding": 5.0,  # Public holding = 25.0%
+        "roe_latest": 8.0,   # Low ROE to prove Return over 1 year is NOT evaluating ROE
+    }
+    # 1. Sales query: > 500 Cr should pass on sales=1000, but would fail if aliased to sales_growth=15
+    assert CustomScreenerEngine._eval_boolean_expr(comp, "Sales > 500") is True
+    assert CustomScreenerEngine._eval_boolean_expr(comp, "Sales > 1500") is False
+
+    # 2. Debt query: > 500 Cr should pass on debt=1250, but would fail if aliased to debt_to_equity=0.5
+    assert CustomScreenerEngine._eval_boolean_expr(comp, "Debt > 500") is True
+    assert CustomScreenerEngine._eval_boolean_expr(comp, "Debt to equity < 1.0") is True
+
+    # 3. Return over 1 year: should be positive price return, NOT roe_latest (8.0)
+    assert CustomScreenerEngine._eval_boolean_expr(comp, "Return over 1 year > 20") is True
+
+    # 4. Public holding: 25% (100 - 60 - 10 - 5), NOT promoter_holding (60%)
+    assert CustomScreenerEngine._eval_boolean_expr(comp, "Public holding < 30") is True
+    assert CustomScreenerEngine._eval_boolean_expr(comp, "Promoter holding > 50") is True
+
+

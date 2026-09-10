@@ -98,7 +98,7 @@ def test_conformal_prediction_cones():
         directional_bias_pct=-2.0
     )
 
-    for h in [3, 5, 10]:
+    for h in [3, 5, 10, 30]:
         cone = cones[f"horizon_{h}d"]
         c80 = cone["conformal_80_pct"]
         c95 = cone["conformal_95_pct"]

@@ -293,7 +293,7 @@ def _store_in_cache(symbol: str, quote: Quote, as_of: Optional[Any] = None) -> N
             low_val = quote.get("fifty_two_week_low")
             high = float(high_val) if high_val is not None else price
             low = float(low_val) if low_val is not None else price
-            vol = int(quote.get("volume", 100000) or 0)
+            vol = int(quote.get("volume") or 0) if quote.get("volume") is not None else 0
             provider_name = str(quote.get("provider", quote.get("active_provider", "MarketDataProvider")))
             
             conn.execute(

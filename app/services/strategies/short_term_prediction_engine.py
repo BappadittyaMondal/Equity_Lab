@@ -57,9 +57,9 @@ class ShortTermPredictionEngine:
         directional_bias_pct: float = 0.0
     ) -> Dict[str, Any]:
         """Generates calibrated 80% (z=1.28) and 95% (z=1.96) conformal volatility prediction cones
-        for 3-day, 5-day, and 10-day forward horizons.
+        for 3-day, 5-day, 10-day, and 30-day forward horizons.
         """
-        horizons = [3, 5, 10]
+        horizons = [3, 5, 10, 30]
         cones = {}
 
         for h in horizons:

@@ -193,5 +193,60 @@ def test_arbiter_3tier_pledge_matrix():
     assert arbiter._pledge_audit_amber is True  # Flags amber for scoring cap and audit
 
 
+def test_arbiter_archetype_weight_routing():
+    """Verify Arbiter dynamically shifts category weights according to investment objective."""
+    arbiter = Arbiter()
+    # Output set with high technical (90 via B4) and poor fundamental (30 via E1)
+    outputs = [
+        {"engine_id": "B4", "score_0_100": 90.0, "confidence": 100.0, "verdict": "Buy", "status": "ok"},  # Technical
+        {"engine_id": "E1", "score_0_100": 30.0, "confidence": 100.0, "verdict": "Avoid", "status": "ok"}, # Fundamental
+    ]
+
+    # In SWING_POSITIONAL, technical weight is 50% vs fundamental 10%
+    score_swing, breakdown_swing = arbiter._compute_weighted_score(outputs, objective="SWING_POSITIONAL")
+    # In SIP_COMPOUNDER, technical weight is 0% vs fundamental 40%
+    score_sip, breakdown_sip = arbiter._compute_weighted_score(outputs, objective="SIP_COMPOUNDER")
+
+    assert score_swing > score_sip, "Swing objective must prioritize high technical setup over fundamental laggard"
+    # In SIP compounder, technical contributes 0 weight to composite score
+    assert score_sip < 10.0, f"Expected low SIP composite due to fundamental avoidance, got {score_sip}"
+
+
+def test_arbiter_two_tier_risk_classification():
+    """Verify non-destructive two-tier alert classification."""
+    arbiter = Arbiter()
+    outputs = [
+        {"engine_id": "C11", "score_0_100": 40.0, "confidence": 90.0, "verdict": "Avoid", "raw": None},
+    ]
+    fatal, warnings = arbiter._classify_two_tier_alerts(outputs, objective="TURNAROUND")
+    assert any("Turnaround" in w for w in warnings)
+    assert any("QoQ cash inflection" in w for w in warnings)
+
+
+def test_governance_quality_fails_closed_when_ownership_unobserved(tmp_path):
+    """Verify Governance Quality engine returns UNKNOWN grade and pledge risk when ownership is not observed."""
+    from app.services.strategies.governance_quality import evaluate_governance_quality
+    from app.services.research_data import ResearchDataStore
+    from app.models.schemas import CompanyUpsertRequest
+    
+    store = ResearchDataStore(str(tmp_path / "test_gov.sqlite3"))
+    store.upsert_company(CompanyUpsertRequest(symbol="UNKNOWN_SCRIP", legal_name="Unknown Scrip Ltd"))
+    res = evaluate_governance_quality("UNKNOWN_SCRIP", store=store)
+    assert res.governance_grade == "UNKNOWN"
+    assert res.promoter_pledge_risk == "UNKNOWN"
+    assert any("No shareholding pattern observation history found" in e for e in res.evidence)
+
+
+def test_multibagger_screener_separates_data_adequacy_and_stage():
+    """Verify Multibagger Screener separates data adequacy from stage index."""
+    from app.services.strategies.multibagger_screener import evaluate_multibagger_score
+    res = evaluate_multibagger_score("RELIANCE")
+    assert "data_adequacy_pct" in res.component_scores
+    assert "stage_index_pct" in res.component_scores
+    assert 0.0 <= res.component_scores["data_adequacy_pct"] <= 100.0
+    assert 0.0 <= res.component_scores["stage_index_pct"] <= 100.0
+
+
+
 
 

@@ -42,6 +42,51 @@ CATEGORY_WEIGHTS: Dict[str, float] = {
     "OPTIONS":     0.00,  # Options strategies don't affect equity conviction
 }
 
+# Archetype-specific weight profiles for dynamic context-aware arbitration
+ARCHETYPE_WEIGHT_PROFILES: Dict[str, Dict[str, float]] = {
+    "GENERAL": CATEGORY_WEIGHTS,
+    "TURNAROUND": {
+        "FORENSIC":    0.25,
+        "FUNDAMENTAL": 0.25,
+        "VALUATION":   0.20,
+        "TECHNICAL":   0.15,
+        "GOVERNANCE":  0.10,
+        "MACRO":       0.05,
+        "OTHER":       0.00,
+        "OPTIONS":     0.00,
+    },
+    "SIP_COMPOUNDER": {
+        "FUNDAMENTAL": 0.40,
+        "GOVERNANCE":  0.25,
+        "FORENSIC":    0.20,
+        "VALUATION":   0.15,
+        "TECHNICAL":   0.00,  # Zero technical noise; oversold RSI is accumulation opportunity
+        "MACRO":       0.00,
+        "OTHER":       0.00,
+        "OPTIONS":     0.00,
+    },
+    "SWING_POSITIONAL": {
+        "TECHNICAL":   0.50,  # Market microstructure, ADX, AVWAP, and momentum
+        "MACRO":       0.20,
+        "FORENSIC":    0.15,
+        "FUNDAMENTAL": 0.10,
+        "VALUATION":   0.05,  # Subordinate 10Y DCF valuation to near-term trade dynamics
+        "GOVERNANCE":  0.00,
+        "OTHER":       0.00,
+        "OPTIONS":     0.00,
+    },
+    "EARLY_MICROCAP": {
+        "FORENSIC":    0.35,  # Maximum shield against small-cap fraud and balance sheet dilution
+        "GOVERNANCE":  0.20,
+        "FUNDAMENTAL": 0.25,  # CWIP / operating leverage convexity
+        "VALUATION":   0.10,
+        "TECHNICAL":   0.10,
+        "MACRO":       0.00,
+        "OTHER":       0.00,
+        "OPTIONS":     0.00,
+    },
+}
+
 MODEL_VERSION = "0.4.0"
 
 
@@ -202,14 +247,18 @@ class Arbiter:
     def _compute_weighted_score(
         self,
         outputs: List[Dict[str, Any]],
+        objective: str = "GENERAL",
     ) -> Tuple[float, Dict[str, float]]:
         """Compute weighted conviction score across engine categories.
 
+        Dynamically routes archetype-specific weights based on investment objective:
+        GENERAL, TURNAROUND, SIP_COMPOUNDER, SWING_POSITIONAL, EARLY_MICROCAP.
         Per-engine contribution = per-engine score_0_100 (if Buy) scaled by data confidence.
         Engines with status=data_insufficient contribute 0 (excluded).
         Returns (composite_score_0_100, category_breakdown_dict).
         """
-        category_scores: Dict[str, List[float]] = {k: [] for k in CATEGORY_WEIGHTS}
+        weights = ARCHETYPE_WEIGHT_PROFILES.get(objective.upper(), CATEGORY_WEIGHTS)
+        category_scores: Dict[str, List[float]] = {k: [] for k in weights}
         category_breakdown: Dict[str, float] = {}
 
         # Signal de-duplication: detect engines that have valid scores
@@ -232,7 +281,7 @@ class Arbiter:
 
             eng_id = out["engine_id"]
             category = ENGINE_CATEGORIES.get(eng_id, "OTHER")
-            if CATEGORY_WEIGHTS.get(category, 0) == 0:
+            if weights.get(category, 0) == 0:
                 continue
 
             eng_score = out.get("score_0_100")
@@ -257,7 +306,7 @@ class Arbiter:
         # Average within each category
         weighted_sum = 0.0
         total_weight = 0.0
-        for cat, weight in CATEGORY_WEIGHTS.items():
+        for cat, weight in weights.items():
             if weight == 0 or not category_scores[cat]:
                 continue
             cat_avg = sum(category_scores[cat]) / len(category_scores[cat])
@@ -293,7 +342,7 @@ class Arbiter:
     # ──────────────────────────────────────────────────────────────────────
     # 3. Forensic veto (enhanced — checks real forensic flags)
     # ──────────────────────────────────────────────────────────────────────
-    def _apply_governance_veto(self, outputs: List[Dict[str, Any]], snap: Optional[Any] = None) -> bool:
+    def _apply_governance_veto(self, outputs: List[Dict[str, Any]], snap: Optional[Any] = None, objective: str = "GENERAL") -> bool:
         """Veto fires if ANY forensic/governance engine raises a CRITICAL flag.
 
         Triggers:
@@ -312,6 +361,9 @@ class Arbiter:
 
         # Grades that trigger veto (POOR performance or unknown = caution)
         VETO_GRADES = {"POOR", "UNKNOWN"}
+
+        pledge = None
+        promoter_holding = None
 
         for out in outputs:
             raw = out.get("raw")
@@ -413,7 +465,24 @@ class Arbiter:
 
                 if is_microcap:
                     from app.services.research.microcap_integrity_gate import evaluate_microcap_integrity_gate
-                    m_res = evaluate_microcap_integrity_gate(symbol)
+                    pledge_val = pledge if pledge is not None else (getattr(snap, "promoter_pledge_pct", None) or getattr(snap, "promoter_pledged_pct", None) if snap else None)
+                    cfo_ebitda_val = getattr(snap, "cfo_ebitda_ratio", None) if snap else None
+                    if cfo_ebitda_val is None and snap:
+                        cfo_val = getattr(snap, "latest_cfo", None) or getattr(snap, "cfo", None)
+                        ebitda_val = getattr(snap, "latest_ebitda", None) or getattr(snap, "ebitda", None)
+                        if cfo_val is not None and ebitda_val is not None and ebitda_val > 0:
+                            cfo_ebitda_val = float(cfo_val / ebitda_val)
+
+                    asm_val = getattr(snap, "asm_gsm_stage", None) if snap else None
+                    band_val = getattr(snap, "circuit_band_pct", None) if snap else None
+
+                    m_res = evaluate_microcap_integrity_gate(
+                        symbol,
+                        promoter_pledge_pct=pledge_val,
+                        cfo_ebitda_ratio=cfo_ebitda_val,
+                        asm_gsm_stage=asm_val,
+                        circuit_band_pct=band_val,
+                    )
                     if not m_res.pass_all_gates:
                         logger.warning("Microcap integrity gate veto triggered for %s: %s", symbol, m_res.veto_reasons)
                         return True
@@ -470,6 +539,54 @@ class Arbiter:
                     self._forensic_infrastructure_failed = True
 
         return False
+
+    def _classify_two_tier_alerts(
+        self,
+        outputs: List[Dict[str, Any]],
+        snap: Optional[Any] = None,
+        objective: str = "GENERAL"
+    ) -> Tuple[List[str], List[str]]:
+        """Distinguish non-negotiable Fatal Vetoes from Contextual Archetype Warnings.
+
+        Fatal Vetoes (Structural disqualifiers):
+          - Beneish accounting manipulation, auditor resignation, critical pledge, surveillance lock.
+        Contextual Warnings (Informative caveats that do NOT invalidate thesis):
+          - Turnaround: negative 3Y historical growth/margin is normal during recovery.
+          - SIP: short-term oversold technical indicator is an accumulation discount.
+          - Swing: elevated P/E ratio is acceptable for high-momentum breakouts.
+          - Microcap: lack of institutional coverage is standard pre-discovery.
+        """
+        fatal_vetoes: List[str] = []
+        contextual_warnings: List[str] = []
+        obj_upper = objective.upper()
+
+        for out in outputs:
+            raw = out.get("raw")
+            if not raw:
+                continue
+            results = getattr(raw, "results", {}) or {}
+
+            # Fatal checks
+            if results.get("manipulation_flag") or results.get("forensic_risk") == "CRITICAL":
+                fatal_vetoes.append(f"Forensic fraud/manipulation flag triggered in {out['engine_id']}")
+            if results.get("governance_grade") in ("POOR", "UNKNOWN") and out["engine_id"] == "C13":
+                fatal_vetoes.append("Corporate governance failure/unverified in C13")
+
+        pledge = (getattr(snap, "promoter_pledge_pct", None) or getattr(snap, "promoter_pledged_pct", None)) if snap else None
+        if pledge is not None and pledge > PLEDGE_VETO_THRESHOLD:
+            fatal_vetoes.append(f"Fatal promoter pledge: {pledge}% exceeds maximum {PLEDGE_VETO_THRESHOLD}% threshold")
+
+        # Contextual checks based on objective
+        if obj_upper == "TURNAROUND":
+            contextual_warnings.append("Contextual Note [Turnaround]: Trailing 3Y/5Y growth/margin contraction is discounted in favor of sequential QoQ cash inflection.")
+        elif obj_upper == "SIP_COMPOUNDER":
+            contextual_warnings.append("Contextual Note [SIP]: Technical volatility and short-term oversold momentum are accumulation opportunities, zero technical penalty applied.")
+        elif obj_upper == "SWING_POSITIONAL":
+            contextual_warnings.append("Contextual Note [Swing]: Long-term valuation multiples (DCF/PE) are subordinated to market microstructure, ADX, and AVWAP.")
+        elif obj_upper == "EARLY_MICROCAP":
+            contextual_warnings.append("Contextual Note [Microcap]: Low institutional ownership is normal; rigorous forensic and liquidity caps enforced.")
+
+        return fatal_vetoes, contextual_warnings
 
 
     # ──────────────────────────────────────────────────────────────────────
@@ -666,14 +783,25 @@ class Arbiter:
         self,
         symbol: str,
         as_of: Optional[datetime] = None,
-        context: Optional[Any] = None
+        context: Optional[Any] = None,
+        objective: str = "GENERAL",
     ) -> ConvictionCall:
         """Full Phase 4 arbitration pipeline.
 
         DATA → RESEARCH → REASONING → DEBATE → PREDICTION → CONVICTION → AUDIT
         """
-        if context is not None and hasattr(context, "as_of"):
-            as_of = context.as_of
+        if context is not None:
+            if hasattr(context, "as_of") and context.as_of:
+                as_of = context.as_of
+            if hasattr(context, "objective") and context.objective:
+                objective = str(context.objective)
+            elif hasattr(context, "intent") and context.intent:
+                objective = str(context.intent)
+            elif hasattr(context, "archetype") and context.archetype:
+                objective = str(context.archetype)
+            elif isinstance(context, dict):
+                objective = str(context.get("objective") or context.get("intent") or context.get("archetype") or objective)
+
         normalized = symbol.upper()
         self._macro_context = None  # Fresh regime assessment
         regime = self.macro_context.regime.regime
@@ -687,7 +815,8 @@ class Arbiter:
         outputs = self._collect_engine_outputs(normalized, snap=snap, as_of=as_of)
 
         # Step 2: Governance veto check (before scoring)
-        veto = self._apply_governance_veto(outputs, snap=snap)
+        veto = self._apply_governance_veto(outputs, snap=snap, objective=objective)
+        fatal_vetoes, contextual_warnings = self._classify_two_tier_alerts(outputs, snap=snap, objective=objective)
 
         # Step 3: Detect contradictions
         contradictions = self._detect_contradictions(outputs)
@@ -719,9 +848,9 @@ class Arbiter:
 
         if veto or (mivs_result and not mivs_result.passed_hard_gates):
             final_score_f = self.VETO_SCORE_CAP * 0.5  # Hard cap under veto
-            _, category_breakdown = self._compute_weighted_score(outputs)
+            _, category_breakdown = self._compute_weighted_score(outputs, objective=objective)
         else:
-            final_score_f, category_breakdown = self._compute_weighted_score(outputs)
+            final_score_f, category_breakdown = self._compute_weighted_score(outputs, objective=objective)
             if mivs_result:
                 # Blend weighted composite with MIVS score
                 final_score_f = (final_score_f * 0.6) + (mivs_result.mivs_score * 0.4)
@@ -742,6 +871,7 @@ class Arbiter:
             "symbol": normalized,
             "timestamp": datetime.now(timezone.utc).isoformat(),
             "as_of": as_of.isoformat() if hasattr(as_of, "isoformat") else (str(as_of) if as_of else None),
+            "objective": objective.upper(),
             "model_version": MODEL_VERSION,
             "git_commit_sha": getattr(settings, "GIT_COMMIT_SHA", "HEAD_1B4339A"),
             "evidence_coverage_pct": coverage_pct,
@@ -751,6 +881,8 @@ class Arbiter:
             "engines_missing": getattr(self, "_last_engines_missing", []),
             "min_engines_required": 10,
             "governance_veto_applied": veto,
+            "fatal_vetoes": fatal_vetoes,
+            "contextual_warnings": contextual_warnings,
             "data_backed": is_data_backed,
         }
 

@@ -42,47 +42,24 @@ def run_turnaround_engine(symbol: str, as_of: Optional[str] = None) -> StrategyR
     except Exception as err:
         logger.debug("Failed to query financial timeline for %s: %s", symbol, err)
 
-    if not financials:
-        try:
-            from app.services.data_ingestion.screener_connector import ScreenerCloudConnector
-            fund_dict = ScreenerCloudConnector.get_company_fundamentals(symbol)
-            if fund_dict:
-                op_prof = fund_dict.get("operating_profit")
-                opm_latest = fund_dict.get("opm_latest")
-                opm_5yr = fund_dict.get("opm_5yr")
-                pat_val = fund_dict.get("net_profit_last_year")
-                cfo_val = fund_dict.get("cfo_last_year")
-                roce_val = fund_dict.get("roce_latest")
-                roce_3yr = fund_dict.get("roce_3yr")
-                mcap = fund_dict.get("market_cap")
-                de_ratio = fund_dict.get("debt_to_equity")
-
-                # Require verified fundamental fields in production without synthetic defaults
-                required = [op_prof, opm_latest, pat_val, cfo_val, roce_val]
-                if all(v is not None for v in required):
-                    is_heuristic_timeline = True
-                    rev_latest = float(op_prof) / (float(opm_latest) / 100.0) if float(opm_latest) > 0 else float(op_prof) * 5.0
-                    debt_latest = (float(mcap) * float(de_ratio) * 0.4) if (mcap is not None and de_ratio is not None) else 0.0
-                    financials = [
-                        {
-                            "revenue_inr": rev_latest * 0.88,
-                            "opm_pct": float(opm_5yr or opm_latest),
-                            "pat_inr": float(pat_val) * 0.75,
-                            "cfo_inr": float(cfo_val) * 0.75,
-                            "roce_pct": float(roce_3yr or roce_val),
-                            "debt_inr": debt_latest * 1.15,
-                        },
-                        {
-                            "revenue_inr": rev_latest,
-                            "opm_pct": float(opm_latest),
-                            "pat_inr": float(pat_val),
-                            "cfo_inr": float(cfo_val),
-                            "roce_pct": float(roce_val),
-                            "debt_inr": debt_latest,
-                        }
-                    ]
-        except Exception as err:
-            logger.debug("Failed to extract financial timeline for %s: %s", symbol, err)
+    if not financials or len(financials) < 2:
+        if not is_offline:
+            meta = create_meta_header(source="Turnaround Prediction Engine (E20)")
+            meta["data_mode"] = "INSUFFICIENT_DATA"
+            return StrategyRunResponse(
+                strategy_id="E20",
+                strategy_name="Institutional Turnaround Prediction Engine",
+                status="data_insufficient",
+                executed_at=get_ist_now_str(),
+                symbol=symbol,
+                passed_gates=False,
+                results={"symbol": symbol, "data_status": "insufficient_financial_observations", "turnaround_score": 0.0},
+                metrics={"score": 0.0, "turnaround_score": 0.0},
+                risk_warnings=["Insufficient multi-period financial timeline to evaluate corporate turnaround (min 2 periods required)."],
+                disclaimer="Real multi-period financial observation data required for corporate turnaround evaluation.",
+                meta=meta
+            )
+        financials = get_mock_turnaround_financials(symbol)
 
     if not financials:
         if not is_offline:
@@ -133,6 +110,13 @@ def run_turnaround_engine(symbol: str, as_of: Optional[str] = None) -> StrategyR
     from app.services.research.finder_state_machines import TurnaroundStateMachine
 
     # Extract real price from market quote or fundamentals
+    fund_dict = None
+    try:
+        from app.services.data_ingestion.screener_connector import ScreenerCloudConnector
+        fund_dict = ScreenerCloudConnector.get_company_fundamentals(symbol)
+    except Exception as err:
+        logger.debug("Failed to get fundamentals for %s: %s", symbol, err)
+
     cp_val = 0.0
     if not is_offline:
         try:

@@ -135,6 +135,12 @@ def evaluate_multibagger_score(
     if not saatvik_passed:
         key_risks.append("Saatvik Ethical Screen Gate: Excluded due to business category or financial sanity check.")
 
+    # Separate data adequacy from inflection stage maturity
+    observed_metrics = len({o.metric for o in obs if hasattr(o, "metric")}) if obs else 0
+    data_adequacy_pct = round(min(100.0, (observed_metrics / 5.0) * 100.0), 1)
+    stage_map = {"Early": 90.0, "Developing": 75.0, "Confirmed": 60.0, "Exhausting": 30.0, "Insufficient Data": 10.0}
+    stage_index_pct = stage_map.get(res_e1.stage, 50.0)
+
     confidence = round((res_e1.heuristic_confidence + res_e2.success_probability_pct) / 2.0, 1)
 
     components = {
@@ -147,6 +153,8 @@ def evaluate_multibagger_score(
         "turnaround_stage": res_e2.current_stage,
         "gap_classification": res_e3.gap_classification,
         "governance_grade": res_gov.governance_grade,
+        "data_adequacy_pct": data_adequacy_pct,
+        "stage_index_pct": stage_index_pct,
     }
 
     return MultibaggerScreenerResponse(
