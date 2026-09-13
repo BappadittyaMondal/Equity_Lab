@@ -4730,6 +4730,62 @@
         }
       }
     },
+    "/api/v1/research/ai-committee/ace-investor-review": {
+      "post": {
+        "tags": [
+          "Next-Gen AI Committee & Intelligence"
+        ],
+        "summary": "Run Ace Investor Review",
+        "description": "Run Simulated Indian Ace Investor Committee (Vijay Kedia, Ashish Kacholia, Mukul Agrawal) debate.",
+        "operationId": "run_ace_investor_review_api_v1_research_ai_committee_ace_investor_review_post",
+        "parameters": [
+          {
+            "name": "x-api-key",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "default": "",
+              "title": "X-Api-Key"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ICReviewRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": true,
+                  "title": "Response Run Ace Investor Review Api V1 Research Ai Committee Ace Investor Review Post"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/v1/research/ai-committee/governance-audit/{symbol}": {
       "get": {
         "tags": [

@@ -94,6 +94,36 @@ ARCHETYPE_WEIGHT_PROFILES = {
         "OTHER":       0.00,
         "OPTIONS":     0.00,
     },
+    "KEDIA_SMILE": {
+        "GOVERNANCE":  0.35,  # Promoter integrity, pledge < 5%, capital allocation
+        "FUNDAMENTAL": 0.25,  # Secular ROCE stability, long runway
+        "FORENSIC":    0.20,  # Solvency fortress, zero debt, CFO/PAT
+        "VALUATION":   0.15,  # Reasonable entry relative to 5-15Y horizon
+        "TECHNICAL":   0.05,
+        "MACRO":       0.00,
+        "OTHER":       0.00,
+        "OPTIONS":     0.00,
+    },
+    "KACHOLIA_SCALABILITY": {
+        "FUNDAMENTAL": 0.40,  # Incremental ROIC > 22%, CWIP conversion, asset turnover
+        "VALUATION":   0.20,  # Operating leverage runway
+        "FORENSIC":    0.20,  # Clean accounting, working capital turn
+        "GOVERNANCE":  0.15,  # Promoter alignment
+        "TECHNICAL":   0.05,
+        "MACRO":       0.00,
+        "OTHER":       0.00,
+        "OPTIONS":     0.00,
+    },
+    "AGRAWAL_INFLECTION": {
+        "TECHNICAL":   0.40,  # Volume Z-score, float delivery %, 52W breakout structure
+        "FUNDAMENTAL": 0.35,  # QoQ PAT acceleration > 8Q average + 15%
+        "FORENSIC":    0.15,  # Basic sanity / circuit safety
+        "VALUATION":   0.10,  # Growth at reasonable price / momentum allowance
+        "GOVERNANCE":  0.00,
+        "MACRO":       0.00,
+        "OTHER":       0.00,
+        "OPTIONS":     0.00,
+    },
 }
 
 
@@ -119,7 +149,8 @@ class QueryAdaptiveConstraintEngine:
         ],
         "MULTIBAGGER": [
             "multibagger", "10x", "5x", "asymmetry", "runway", "under discovered",
-            "high growth compounder", "reinvestment runway"
+            "high growth compounder", "reinvestment runway", "super investor", "smart money",
+            "ace investor", "bulk deal", "block deal"
         ],
         "EARLY_MICROCAP": [
             "microcap", "early stage", "100cr", "500cr", "nano cap",
@@ -128,6 +159,15 @@ class QueryAdaptiveConstraintEngine:
         "PEER_COMPARE": [
             "compare", "comparison", "vs", "versus", "better than", "peer",
             "which stock", "sector peer", "relative"
+        ],
+        "KEDIA_SMILE": [
+            "kedia", "vijay kedia", "smile", "kedia securities", "kedia stock", "smile framework"
+        ],
+        "KACHOLIA_SCALABILITY": [
+            "kacholia", "ashish kacholia", "capital scalability", "incremental roic", "lucky investment"
+        ],
+        "AGRAWAL_INFLECTION": [
+            "mukul agrawal", "agrawal", "techno funda", "inflection breakout", "param capital"
         ],
     }
 
@@ -183,6 +223,12 @@ class QueryAdaptiveConstraintEngine:
             norm_intent = "MULTIBAGGER"
         elif norm_intent in ("COMPARE", "PEER"):
             norm_intent = "PEER_COMPARE"
+        elif norm_intent in ("KEDIA", "VIJAY_KEDIA", "SMILE", "KEDIA_SMILE"):
+            norm_intent = "KEDIA_SMILE"
+        elif norm_intent in ("KACHOLIA", "ASHISH_KACHOLIA", "KACHOLIA_SCALABILITY"):
+            norm_intent = "KACHOLIA_SCALABILITY"
+        elif norm_intent in ("AGRAWAL", "MUKUL_AGRAWAL", "AGRAWAL_INFLECTION"):
+            norm_intent = "AGRAWAL_INFLECTION"
 
         relaxed: List[str] = []
         tightened: List[str] = []
@@ -211,6 +257,11 @@ class QueryAdaptiveConstraintEngine:
         interest_cov = _get_opt_float(["interest_coverage"])
         dso = _get_opt_float(["dso", "debtor_days"])
         mcap = _get_opt_float(["market_cap"])
+        pat_growth_latest = _get_opt_float(["pat_growth_latest", "pat_growth_yoy", "latest_pat_growth"])
+        vol_z = _get_opt_float(["volume_z_score", "vol_z", "z_vol"])
+        delivery_turnover = _get_opt_float(["delivery_turnover_5d", "delivery_turnover", "dtr_5d"])
+        inc_roic = _get_opt_float(["incremental_roic", "inc_roic", "roic", "roce"])
+        prom_hold = _get_opt_float(["promoter_holding", "promoter_holding_pct"])
 
         # ── 1. TURNAROUND INTENT ─────────────────────────────────────────
         if norm_intent == "TURNAROUND":
@@ -481,7 +532,136 @@ class QueryAdaptiveConstraintEngine:
                 relaxed.append("Sector cross-sectional comparison: asset base normalized across peer group.")
                 tightened.append("Hardware/ESDM working capital cycle and Book-to-Bill ratio enforced.")
 
-        # ── 7. GENERAL INTENT ────────────────────────────────────────────
+        # ── 8. KEDIA SMILE INTENT ────────────────────────────────────────
+        elif norm_intent == "KEDIA_SMILE":
+            relaxed.append("Short-term price/volume volatility and cyclical raw material swings relaxed for 5-15Y SMILE compounding horizon.")
+
+            # Strict promoter alignment & skin in the game
+            if prom_hold is None:
+                warnings.append("CAUTION: Promoter holding unobserved in Kedia SMILE candidate.")
+                tightened.append("Promoter alignment: Promoter holding >= 50.0% strictly enforced (unobserved).")
+            elif prom_hold < 45.0:
+                msg = f"OBJECTIVE_BLOCK: Promoter holding ({prom_hold:.1f}%) below Kedia skin-in-the-game hurdle (minimum 45.0%, preferred >= 50%)."
+                objective_blocks.append(msg)
+                vetoes.append(msg)
+                tightened.append(f"Promoter alignment >= 45% strictly enforced (failed: {prom_hold:.1f}%).")
+            else:
+                tightened.append(f"Strong promoter alignment strictly verified (Promoter: {prom_hold:.1f}% >= 45.0%).")
+
+            # Strict zero/low pledge
+            if pledge_pct is None:
+                warnings.append("CAUTION: Promoter pledge unobserved in Kedia candidate.")
+            elif pledge_pct > 5.0:
+                if pledge_pct > 20.0:
+                    msg = f"FATAL: Promoter pledge ({pledge_pct:.1f}%) exceeds safety distress limit (20.0%)."
+                    fatal_vetoes.append(msg)
+                else:
+                    msg = f"OBJECTIVE_BLOCK: Promoter pledge ({pledge_pct:.1f}%) exceeds Kedia SMILE zero-pledge hurdle (5.0%)."
+                    objective_blocks.append(msg)
+                vetoes.append(msg)
+                tightened.append(f"Promoter pledge <= 5% strictly enforced (failed: {pledge_pct:.1f}%).")
+            else:
+                tightened.append(f"Clean unencumbered promoter shares verified (Pledge: {pledge_pct:.1f}% <= 5.0%).")
+
+            # Solvency fortress
+            if debt_eq is not None and debt_eq > 0.30:
+                msg = f"OBJECTIVE_BLOCK: Balance sheet leverage (D/E: {debt_eq:.2f}) exceeds Kedia conservative solvency ceiling (0.30)."
+                objective_blocks.append(msg)
+                vetoes.append(msg)
+                tightened.append(f"Solvency ceiling Debt/Equity <= 0.30 strictly enforced (failed: {debt_eq:.2f}).")
+            elif debt_eq is not None:
+                tightened.append(f"Conservative solvency verified: Debt/Equity ({debt_eq:.2f} <= 0.30).")
+
+            if interest_cov is not None and interest_cov < 3.5:
+                msg = f"OBJECTIVE_BLOCK: Interest coverage ({interest_cov:.2f}x) below Kedia safety buffer (3.5x)."
+                objective_blocks.append(msg)
+                vetoes.append(msg)
+                tightened.append(f"Interest coverage >= 3.5x strictly enforced (failed: {interest_cov:.2f}x).")
+            elif interest_cov is not None:
+                tightened.append(f"Robust interest service coverage verified ({interest_cov:.2f}x >= 3.5x).")
+
+            if roce is not None and roce < 15.0:
+                msg = f"OBJECTIVE_BLOCK: ROCE ({roce:.1f}%) below Kedia compounding benchmark (15.0%)."
+                objective_blocks.append(msg)
+                vetoes.append(msg)
+                tightened.append(f"Capital allocation ROCE >= 15.0% strictly enforced (failed: {roce:.1f}%).")
+            elif roce is not None:
+                tightened.append(f"Healthy capital efficiency verified: ROCE ({roce:.1f}% >= 15.0%).")
+
+        # ── 9. KACHOLIA SCALABILITY INTENT ───────────────────────────────
+        elif norm_intent == "KACHOLIA_SCALABILITY":
+            relaxed.append("Dividend yield and high institutional float coverage relaxed for niche B2B/manufacturing scale compounder.")
+
+            # Incremental capital productivity (dNOPAT/dIC or ROCE)
+            target_roic = inc_roic if inc_roic is not None else roce
+            if target_roic is None:
+                warnings.append("CAUTION: Incremental capital productivity unobserved; scalability unconfirmed.")
+                tightened.append("Incremental capital productivity: ROIC/ROCE >= 20.0% strictly enforced (unobserved).")
+            elif target_roic < 18.0:
+                msg = f"OBJECTIVE_BLOCK: Incremental capital productivity ({target_roic:.1f}%) below Kacholia scalability threshold (18.0%, target >= 22%)."
+                objective_blocks.append(msg)
+                vetoes.append(msg)
+                tightened.append(f"Capital productivity >= 18% strictly enforced (failed: {target_roic:.1f}%).")
+            else:
+                tightened.append(f"High incremental capital productivity strictly verified (ROIC/ROCE: {target_roic:.1f}% >= 18.0%).")
+
+            # Revenue / capacity expansion runway
+            if sales_cagr_3y is not None and sales_cagr_3y < 12.0:
+                msg = f"OBJECTIVE_BLOCK: Trailing 3Y sales CAGR ({sales_cagr_3y:.1f}%) below Kacholia growth runway hurdle (12.0%)."
+                objective_blocks.append(msg)
+                vetoes.append(msg)
+                tightened.append(f"Sales growth runway >= 12% strictly enforced (failed: {sales_cagr_3y:.1f}%).")
+            elif sales_cagr_3y is not None:
+                tightened.append(f"Strong top-line growth runway verified (3Y Sales CAGR: {sales_cagr_3y:.1f}% >= 12.0%).")
+
+            # Cash flow realization
+            if cfo_pat is not None and cfo_pat < 0.65:
+                warnings.append(f"CAUTION: Operating cash flow conversion (CFO/PAT: {cfo_pat:.2f}) indicates working capital lag.")
+                tightened.append("Working capital & cash conversion discipline enforced (CFO/PAT >= 0.65).")
+            elif cfo_pat is not None:
+                tightened.append(f"Disciplined working capital cash conversion verified (CFO/PAT: {cfo_pat:.2f} >= 0.65).")
+
+            if debt_eq is not None and debt_eq > 0.70:
+                msg = f"OBJECTIVE_BLOCK: Leverage (D/E: {debt_eq:.2f}) exceeds Kacholia capex safety ceiling (0.70)."
+                objective_blocks.append(msg)
+                vetoes.append(msg)
+                tightened.append(f"Debt/Equity <= 0.70 strictly enforced (failed: {debt_eq:.2f}).")
+
+        # ── 10. AGRAWAL INFLECTION INTENT ────────────────────────────────
+        elif norm_intent == "AGRAWAL_INFLECTION":
+            relaxed.append("Multi-year 5Y/10Y historical metrics and trailing valuation multiples relaxed in favor of immediate operating inflection and volume breakout.")
+
+            # Latest QoQ PAT acceleration
+            eff_pat_acc = pat_growth_latest if pat_growth_latest is not None else pat_cagr_3y
+            if eff_pat_acc is None:
+                warnings.append("CAUTION: Latest PAT growth rate unobserved; earnings inflection unconfirmed.")
+                tightened.append("Operating inflection: PAT acceleration >= 18.0% strictly enforced (unobserved).")
+            elif eff_pat_acc < 15.0:
+                msg = f"OBJECTIVE_BLOCK: Latest PAT growth ({eff_pat_acc:.1f}%) below Agrawal inflection acceleration threshold (15.0%, preferred >= 20%)."
+                objective_blocks.append(msg)
+                vetoes.append(msg)
+                tightened.append(f"PAT inflection acceleration >= 15% strictly enforced (failed: {eff_pat_acc:.1f}%).")
+            else:
+                tightened.append(f"Explosive earnings inflection strictly verified (PAT growth: {eff_pat_acc:.1f}% >= 15.0%).")
+
+            # Volume & Microstructure Footprint confirmation
+            if vol_z is not None and vol_z < 0.5:
+                warnings.append(f"CAUTION: Volume accumulation z-score ({vol_z:.1f}s) indicates muted institutional participation.")
+            elif vol_z is not None:
+                tightened.append(f"Institutional volume accumulation footprint strictly verified (Z-score: +{vol_z:.1f}s).")
+            else:
+                tightened.append("Institutional delivery volume expansion and base breakout structure strictly enforced.")
+
+            if delivery_turnover is not None and delivery_turnover >= 2.0:
+                tightened.append(f"High float delivery turnover verified: {delivery_turnover:.1f}% (>= 2.0%).")
+
+            # Governance sanity
+            if pledge_pct is not None and pledge_pct > 15.0:
+                msg = f"FATAL: Promoter pledge ({pledge_pct:.1f}%) exceeds momentum risk threshold (15.0%)."
+                fatal_vetoes.append(msg)
+                vetoes.append(msg)
+
+        # ── 11. GENERAL INTENT ───────────────────────────────────────────
         else:
             relaxed.append("Standard balanced weighting: no single dimension excessively penalized or boosted.")
             tightened.append("Baseline institutional risk checks enforced: solvency, governance, and forensic hygiene.")

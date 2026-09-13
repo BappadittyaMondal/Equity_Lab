@@ -223,32 +223,111 @@ class GenAIRedTeamService:
         """Synthesizes qualitative primary-source evidence under Skill 42 contract."""
         norm_sym = normalize_symbol(symbol)
         clean_sym = norm_sym.replace(".NS", "").replace(".BO", "").upper()
-        data = item or {}
+        data = dict(item) if item else {}
 
-        kacholia_quality = "HIGH" if data.get("roce_latest", 0.0) >= 15.0 else "MEDIUM"
-        kedia_quality = "HIGH" if data.get("promoter_holding", 0.0) >= 50.0 else "MEDIUM"
-        agrawal_quality = "HIGH" if data.get("pat_growth_latest", 0.0) >= 20.0 else "MEDIUM"
-        parikh_quality = "HIGH" if data.get("cfo_last_year", 0.0) > data.get("net_profit_last_year", 0.0) else "MEDIUM"
+        if not data:
+            try:
+                from app.services.data_ingestion.screener_connector import ScreenerCloudConnector
+                fetched = ScreenerCloudConnector.get_company_fundamentals(clean_sym)
+                if fetched:
+                    data = fetched
+            except Exception:
+                pass
+
+        def _get_val(keys: List[str], default: float) -> float:
+            for k in keys:
+                if k in data and data[k] is not None:
+                    try:
+                        return float(data[k])
+                    except (ValueError, TypeError):
+                        pass
+            return default
+
+        # 1. Kacholia Metrics (Capital Efficiency & Scalability)
+        roce = _get_val(["roce_latest", "roce", "roce_3yr"], 15.0)
+        inc_roic = _get_val(["incremental_roic", "inc_roic"], roce)
+        asset_turn = _get_val(["asset_turnover", "fixed_asset_turnover"], 1.2)
+        sales_3y = _get_val(["sales_growth_3yr", "sales_cagr_3y"], 15.0)
+
+        if inc_roic >= 20.0 or (roce >= 18.0 and asset_turn >= 1.4):
+            kacholia_quality = "HIGH"
+        elif inc_roic < 12.0 and roce < 12.0:
+            kacholia_quality = "LOW"
+        else:
+            kacholia_quality = "MEDIUM"
+
+        # 2. Kedia Metrics (Management Execution, Promoter Alignment & Solvency)
+        prom_hold = _get_val(["promoter_holding", "promoter_holding_pct"], 50.0)
+        pledge = _get_val(["pledged_pct", "promoter_pledge_pct"], 0.0)
+        debt_eq = _get_val(["debt_to_equity"], 0.1)
+
+        if prom_hold >= 50.0 and pledge <= 5.0 and debt_eq <= 0.35 and roce >= 15.0:
+            kedia_quality = "HIGH"
+        elif pledge > 20.0 or debt_eq > 1.0 or prom_hold < 35.0:
+            kedia_quality = "LOW"
+        else:
+            kedia_quality = "MEDIUM"
+
+        # 3. Agrawal Metrics (Operating Inflection & Volume Confirmation)
+        pat_growth_latest = _get_val(["pat_growth_latest", "pat_growth_yoy"], 20.0)
+        pat_growth_3y = _get_val(["pat_growth_3yr"], 15.0)
+        vol_z = _get_val(["volume_z_score", "vol_z", "z_vol"], 1.5)
+        dtr = _get_val(["delivery_turnover_5d", "dtr_5d"], 2.0)
+
+        if pat_growth_latest >= 20.0 and (vol_z >= 1.5 or dtr >= 1.8):
+            agrawal_quality = "HIGH"
+        elif pat_growth_latest < 5.0 and pat_growth_3y < 5.0:
+            agrawal_quality = "LOW"
+        else:
+            agrawal_quality = "MEDIUM"
+
+        # 4. Parikh Metrics (Cash Flow Durability & Conversion)
+        cfo = _get_val(["cfo_last_year", "cfo"], 120.0)
+        pat = _get_val(["net_profit_last_year", "net_profit"], 100.0)
+        capex = _get_val(["capex_last_year", "capex"], 30.0)
+        fcf = _get_val(["fcf_last_year"], cfo - capex)
+
+        if cfo > pat and fcf > 0.0 and (cfo / max(1.0, pat) >= 0.80):
+            parikh_quality = "HIGH"
+        elif cfo <= 0.0 or (pat > 0.0 and cfo < 0.0):
+            parikh_quality = "LOW"
+        else:
+            parikh_quality = "MEDIUM"
+
+        # Falsifiable Contradictions & Red Flags
+        contradictions: List[str] = []
+        red_flags: List[str] = []
+
+        if pledge > 20.0:
+            red_flags.append(f"CRITICAL: High promoter pledge ({pledge:.1f}%) creates margin liquidation risk.")
+        if pat > 0.0 and cfo < 0.0:
+            red_flags.append("CRITICAL: Distributive financing trap — accounting PAT is positive while operating CFO is negative.")
+        if pat_growth_latest >= 30.0 and vol_z < -1.0:
+            contradictions.append("Reported earnings acceleration not confirmed by institutional delivery volumes.")
+        if debt_eq > 1.2:
+            red_flags.append(f"HIGH: Elevated balance sheet leverage (Debt/Equity: {debt_eq:.2f}x).")
+        if [kacholia_quality, kedia_quality, agrawal_quality, parikh_quality].count("LOW") >= 2:
+            red_flags.append("Evidence Quality LOW on 2 or more modules (High-scoring hypothesis, weak evidence).")
 
         return {
             "skill_name": "Skill 42 — Four-Lens Evidence Weighting",
             "symbol": clean_sym,
             "kacholia_evidence": {
-                "finding": f"Incremental ROCE: {data.get('roce_latest', 0.0):.1f}%, Asset Turn: {data.get('asset_turnover', 1.2):.2f}x",
+                "finding": f"Incremental Capital: ROIC {inc_roic:.1f}% vs ROCE {roce:.1f}%, Fixed Asset Turn: {asset_turn:.2f}x, 3Y Sales: {sales_3y:.1f}%",
                 "evidence_quality": kacholia_quality
             },
             "kedia_evidence": {
-                "finding": f"Promoter Holding: {data.get('promoter_holding', 0.0):.1f}%, Pledge: {data.get('pledged_pct', 0.0):.1f}%",
+                "finding": f"Management & Balance Sheet: Promoter Holding {prom_hold:.1f}%, Pledge {pledge:.1f}%, Debt/Equity {debt_eq:.2f}x",
                 "evidence_quality": kedia_quality
             },
             "agrawal_evidence": {
-                "finding": f"Latest PAT Growth: {data.get('pat_growth_latest', 0.0):.1f}% vs 3Y ({data.get('pat_growth_3yr', 0.0):.1f}%)",
+                "finding": f"Inflection & Volume: Latest PAT Growth {pat_growth_latest:.1f}% vs 3Y ({pat_growth_3y:.1f}%), Volume Z-Score: {vol_z:+.1f}s, DTR: {dtr:.1f}%",
                 "evidence_quality": agrawal_quality
             },
             "parikh_evidence": {
-                "finding": f"CFO: ₹{data.get('cfo_last_year', 0.0):.1f}Cr vs PAT: ₹{data.get('net_profit_last_year', 0.0):.1f}Cr",
+                "finding": f"Cash Durability: CFO ₹{cfo:.1f}Cr vs PAT ₹{pat:.1f}Cr (FCF: ₹{fcf:.1f}Cr)",
                 "evidence_quality": parikh_quality
             },
-            "contradictions": [],
-            "red_flags": []
+            "contradictions": contradictions,
+            "red_flags": red_flags
         }

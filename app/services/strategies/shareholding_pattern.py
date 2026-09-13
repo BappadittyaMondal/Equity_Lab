@@ -92,6 +92,19 @@ def evaluate_shareholding_pattern(
     evidence.append(f"FII: {fii_pct:.1f}% ({fii_qoq:+.1f}% QoQ) | DII/MF: {dii_pct:.1f}% ({dii_qoq:+.1f}% QoQ)")
     evidence.append(f"Retail Holding Trend: {retail_trend} | Float Catalyst: {index_catalyst}")
 
+    # Reporting lag evaluation
+    cur_p = data.get("current_price")
+    q_end_p = data.get("filing_quarter_end_price") or data.get("quarter_end_price")
+    lag_eval = calculate_reporting_lag_risk(cur_p, q_end_p)
+    if lag_eval.get("warning"):
+        evidence.append(lag_eval["warning"])
+
+    # Smart money clustering evaluation
+    holders_list = data.get("tracked_holders") or data.get("public_shareholders_above_1pct") or []
+    clustering_eval = detect_smart_money_clustering(holders_list)
+    if clustering_eval["is_smart_money_clustered"]:
+        evidence.append(f"Smart Money Clustering Confirmed: {clustering_eval['cluster_count']} ace investors present ({', '.join(clustering_eval['tracked_entities'])}).")
+
     intelligence = ShareholdingPatternIntelligence(
         fii_holding_pct=fii_pct,
         fii_qoq_change=fii_qoq,
@@ -110,6 +123,101 @@ def evaluate_shareholding_pattern(
         "accumulation_quarters": accumulation_quarters,
         "index_catalyst": index_catalyst,
         "pattern_intelligence": intelligence.model_dump(),
+        "reporting_lag_analysis": lag_eval,
+        "smart_money_clustering": clustering_eval,
         "evidence": evidence,
         "meta": create_meta_header(source="Shareholding Pattern Intelligence Engine (§24)")
+    }
+
+
+def calculate_reporting_lag_risk(
+    current_price: Optional[float] = None,
+    filing_quarter_end_price: Optional[float] = None
+) -> Dict[str, Any]:
+    """Evaluates the 15-to-21 day BSE/NSE shareholding pattern reporting lag risk.
+    
+    Prevents the retail trap of buying into stocks that have already rallied > 35%
+    between the quarter-end filing cutoff date and public exchange disclosure.
+    """
+    if current_price is None or filing_quarter_end_price is None or filing_quarter_end_price <= 0:
+        return {
+            "reporting_lag_assessed": False,
+            "post_filing_runup_pct": None,
+            "lag_risk_tier": "UNASSESSED",
+            "warning": None
+        }
+
+    runup_pct = round(((current_price - filing_quarter_end_price) / filing_quarter_end_price) * 100.0, 1)
+
+    if runup_pct >= 50.0:
+        lag_risk_tier = "CRITICAL_RUNUP_TRAP"
+        warning = f"CRITICAL: Stock has surged +{runup_pct:.1f}% since the quarter-end filing period. High probability of discovery euphoria and impending distribution."
+    elif runup_pct >= 35.0:
+        lag_risk_tier = "HIGH_DISCOVERY_PREMIUM"
+        warning = f"CAUTION: Reporting Lag Trap — Stock has already rallied +{runup_pct:.1f}% since the filing period. Independent fundamental valuation margin of safety is mandatory before following smart money."
+    elif runup_pct <= -15.0:
+        lag_risk_tier = "PULLBACK_VALUE_WINDOW"
+        warning = f"OPPORTUNITY_WINDOW: Stock has corrected {runup_pct:.1f}% since disclosure; smart money entry may offer favorable risk/reward if fundamentals remain intact."
+    else:
+        lag_risk_tier = "BENIGN"
+        warning = None
+
+    return {
+        "reporting_lag_assessed": True,
+        "post_filing_runup_pct": runup_pct,
+        "lag_risk_tier": lag_risk_tier,
+        "warning": warning
+    }
+
+
+def detect_smart_money_clustering(
+    tracked_holders: Optional[Any] = None
+) -> Dict[str, Any]:
+    """Detects multi-investor clustering in public shareholding filings (>1% public shareholders).
+    
+    When 2 or more legendary investors (e.g. Kedia, Kacholia, Agrawal, Dolly Khanna)
+    independently hold or accumulate stakes in the same scrip, conviction multiplier is activated.
+    """
+    holders = tracked_holders if isinstance(tracked_holders, list) else []
+
+    detected_clusters = set()
+    holder_details = []
+
+    for h in holders:
+        if isinstance(h, dict):
+            name = str(h.get("holder_name") or h.get("name") or "").lower().strip()
+            holding_pct = float(h.get("holding_pct") or h.get("stake_pct") or 0.0)
+
+            entity_tag = None
+            if "kedia" in name:
+                entity_tag = "VIJAY_KEDIA"
+            elif "kacholia" in name or "lucky investment" in name:
+                entity_tag = "ASHISH_KACHOLIA"
+            elif ("mukul" in name and "agrawal" in name) or ("mukul" in name and "agarwal" in name) or "param capital" in name:
+                entity_tag = "MUKUL_AGRAWAL"
+            elif "dolly khanna" in name or "rajiv khanna" in name:
+                entity_tag = "DOLLY_KHANNA"
+            elif "andrade" in name:
+                entity_tag = "KENNETH_ANDRADE"
+            elif "damani" in name or "derive trading" in name:
+                entity_tag = "RADHAKISHAN_DAMANI"
+
+            if entity_tag:
+                detected_clusters.add(entity_tag)
+                holder_details.append({
+                    "investor_entity": entity_tag,
+                    "disclosed_name": name,
+                    "holding_pct": holding_pct,
+                    "quarter": h.get("quarter")
+                })
+
+    cluster_count = len(detected_clusters)
+    is_clustered = cluster_count >= 2
+
+    return {
+        "is_smart_money_clustered": is_clustered,
+        "cluster_count": cluster_count,
+        "tracked_entities": sorted(list(detected_clusters)),
+        "holder_details": holder_details,
+        "clustering_signal": "HIGH_CONVICTION_CLUSTER" if is_clustered else ("SINGLE_INVESTOR_OBSERVED" if cluster_count == 1 else "NO_ACE_CLUSTER")
     }

@@ -2,7 +2,7 @@
 
 > **Version:** 1.0.0  
 > **Source of Truth:** `docs/api_contract.json`  
-> **Total Endpoints:** 93
+> **Total Endpoints:** 94
 
 ---
 
@@ -166,6 +166,7 @@
 - `symbol` (path, required)
 - `objective` (query, optional)
 - `as_of` (query, optional)
+- `query` (query, optional)
 - `x-api-key` (header, optional)
 
 ---
@@ -368,6 +369,14 @@ The file is stored under `frontend_deploy/data/digests/watchlist_digest.json`.
 ### `GET` /api/v1/regime
 **Summary:** Fetch Market Regime  
 **Description:** Evaluates live India VIX and Nifty volatility regime.  
+**Parameters:**
+- `x-api-key` (header, optional)
+
+---
+
+### `POST` /api/v1/research/ai-committee/ace-investor-review
+**Summary:** Run Ace Investor Review  
+**Description:** Run Simulated Indian Ace Investor Committee (Vijay Kedia, Ashish Kacholia, Mukul Agrawal) debate.  
 **Parameters:**
 - `x-api-key` (header, optional)
 

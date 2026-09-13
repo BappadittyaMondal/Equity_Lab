@@ -38,6 +38,15 @@ def run_ic_boardroom_review(payload: ICReviewRequest) -> Dict[str, Any]:
     )
 
 
+@router.post("/ace-investor-review", response_model=Dict[str, Any])
+def run_ace_investor_review(payload: ICReviewRequest) -> Dict[str, Any]:
+    """Run Simulated Indian Ace Investor Committee (Vijay Kedia, Ashish Kacholia, Mukul Agrawal) debate."""
+    return VirtualInvestmentCommittee.evaluate_ace_investor_committee(
+        symbol=payload.symbol,
+        stock_data=payload.stock_data
+    )
+
+
 @router.get("/governance-audit/{symbol}", response_model=Dict[str, Any])
 def audit_governance(symbol: str) -> Dict[str, Any]:
     """Audit Form AOC-2 RPTs, promoter pledging, and auditor report notes."""

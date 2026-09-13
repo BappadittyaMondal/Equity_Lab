@@ -1,6 +1,6 @@
 # Equity Lab — API Surface Specification
 
-> Total Endpoints: 93
+> Total Endpoints: 94
 
 | Endpoint Path | Method | Summary |
 |---|---|---|
@@ -48,6 +48,7 @@
 | `/api/v1/query` | **POST** | Handle Ai Query |
 | `/api/v1/readiness` | **GET** | Get Readiness Status |
 | `/api/v1/regime` | **GET** | Fetch Market Regime |
+| `/api/v1/research/ai-committee/ace-investor-review` | **POST** | Run Ace Investor Review |
 | `/api/v1/research/ai-committee/evt-tail/{symbol}` | **GET** | Get Evt Tail Metrics |
 | `/api/v1/research/ai-committee/forensics/{symbol}` | **GET** | Get Company Forensics |
 | `/api/v1/research/ai-committee/governance-audit/{symbol}` | **GET** | Audit Governance |
