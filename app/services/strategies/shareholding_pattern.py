@@ -105,6 +105,12 @@ def evaluate_shareholding_pattern(
     if clustering_eval["is_smart_money_clustered"]:
         evidence.append(f"Smart Money Clustering Confirmed: {clustering_eval['cluster_count']} ace investors present ({', '.join(clustering_eval['tracked_entities'])}).")
 
+    # Daily bulk deals tracking (T+0 exchange disclosures)
+    bulk_deals_input = data.get("daily_bulk_deals") or data.get("bulk_deals")
+    bulk_eval = track_daily_bulk_deals(norm_symbol, raw_deals=bulk_deals_input, as_of=as_of)
+    if bulk_eval.get("has_deals") and bulk_eval.get("tracked_smart_money_deals"):
+        evidence.extend(bulk_eval["evidence"])
+
     intelligence = ShareholdingPatternIntelligence(
         fii_holding_pct=fii_pct,
         fii_qoq_change=fii_qoq,
@@ -125,6 +131,7 @@ def evaluate_shareholding_pattern(
         "pattern_intelligence": intelligence.model_dump(),
         "reporting_lag_analysis": lag_eval,
         "smart_money_clustering": clustering_eval,
+        "daily_bulk_deals": bulk_eval,
         "evidence": evidence,
         "meta": create_meta_header(source="Shareholding Pattern Intelligence Engine (§24)")
     }
@@ -170,6 +177,35 @@ def calculate_reporting_lag_risk(
     }
 
 
+TRACKED_SMART_MONEY_PATTERNS: Dict[str, list[str]] = {
+    "VIJAY_KEDIA": ["kedia"],
+    "ASHISH_KACHOLIA": ["kacholia", "lucky investment"],
+    "MUKUL_AGRAWAL": ["mukul agrawal", "mukul agarwal", "param capital"],
+    "DOLLY_KHANNA": ["dolly khanna", "rajiv khanna"],
+    "KENNETH_ANDRADE": ["andrade", "old bridge"],
+    "RADHAKISHAN_DAMANI": ["damani", "derive trading", "gopikishan damani"],
+    "LIC_INDIA": ["life insurance corporation", "lic of india"],
+    "SBI_MUTUAL_FUND": ["sbi mutual fund", "sbi mf"],
+    "HDFC_MUTUAL_FUND": ["hdfc mutual fund", "hdfc trustee", "hdfc mf"],
+    "NORGES_BANK": ["norges bank", "government pension fund"],
+    "MARQUEE_DOMESTIC_INSTITUTION": ["nippon india", "kotak mutual", "icici prudential", "mirae asset", "uti mutual"],
+    "SOVEREIGN_GLOBAL_FII": ["vanguard", "blackrock", "gqg partners", "fidelity"]
+}
+
+
+def match_smart_money_entity(name: str) -> Optional[str]:
+    """Matches a client or holder name against tracked ace investors and marquee institutions."""
+    clean_name = str(name or "").lower().strip()
+    if not clean_name:
+        return None
+    if "mukul" in clean_name and ("agrawal" in clean_name or "agarwal" in clean_name):
+        return "MUKUL_AGRAWAL"
+    for entity, patterns in TRACKED_SMART_MONEY_PATTERNS.items():
+        if any(p in clean_name for p in patterns):
+            return entity
+    return None
+
+
 def detect_smart_money_clustering(
     tracked_holders: Optional[Any] = None
 ) -> Dict[str, Any]:
@@ -185,22 +221,9 @@ def detect_smart_money_clustering(
 
     for h in holders:
         if isinstance(h, dict):
-            name = str(h.get("holder_name") or h.get("name") or "").lower().strip()
+            name = str(h.get("holder_name") or h.get("name") or "").strip()
             holding_pct = float(h.get("holding_pct") or h.get("stake_pct") or 0.0)
-
-            entity_tag = None
-            if "kedia" in name:
-                entity_tag = "VIJAY_KEDIA"
-            elif "kacholia" in name or "lucky investment" in name:
-                entity_tag = "ASHISH_KACHOLIA"
-            elif ("mukul" in name and "agrawal" in name) or ("mukul" in name and "agarwal" in name) or "param capital" in name:
-                entity_tag = "MUKUL_AGRAWAL"
-            elif "dolly khanna" in name or "rajiv khanna" in name:
-                entity_tag = "DOLLY_KHANNA"
-            elif "andrade" in name:
-                entity_tag = "KENNETH_ANDRADE"
-            elif "damani" in name or "derive trading" in name:
-                entity_tag = "RADHAKISHAN_DAMANI"
+            entity_tag = match_smart_money_entity(name)
 
             if entity_tag:
                 detected_clusters.add(entity_tag)
@@ -220,4 +243,118 @@ def detect_smart_money_clustering(
         "tracked_entities": sorted(list(detected_clusters)),
         "holder_details": holder_details,
         "clustering_signal": "HIGH_CONVICTION_CLUSTER" if is_clustered else ("SINGLE_INVESTOR_OBSERVED" if cluster_count == 1 else "NO_ACE_CLUSTER")
+    }
+
+
+def track_daily_bulk_deals(
+    symbol: str,
+    raw_deals: Optional[list[Dict[str, Any]]] = None,
+    as_of: Optional[datetime] = None
+) -> Dict[str, Any]:
+    """Tracks daily BSE/NSE Bulk and Block deal disclosures at T+0.
+    
+    Eliminates the 21-day SEBI Clause 35 reporting lag by tracking large open-market
+    transactions on the exact day they execute.
+    """
+    norm_symbol = normalize_symbol(symbol)
+    deals = raw_deals
+    if deals is None:
+        try:
+            from app.services.research_data import ResearchDataStore
+            store = ResearchDataStore()
+            deals = store.get_bulk_deals(norm_symbol, as_of=as_of, limit=50)
+        except Exception:
+            deals = []
+    elif as_of is not None:
+        as_of_str = as_of.isoformat() if isinstance(as_of, datetime) else str(as_of)
+        filtered = []
+        for d in deals:
+            pub_at = str(d.get("published_at") or d.get("deal_date") or "")
+            if pub_at and pub_at > as_of_str:
+                continue
+            filtered.append(d)
+        deals = filtered
+
+    if not deals:
+        return {
+            "symbol": norm_symbol,
+            "has_deals": False,
+            "total_deals_count": 0,
+            "tracked_smart_money_deals": [],
+            "tracked_smart_money_count": 0,
+            "smart_money_flows": [],
+            "net_smart_money_cr": 0.0,
+            "net_smart_money_flow_cr": 0.0,
+            "activity_tier": "NEUTRAL_OR_UNTRACKED",
+            "smart_money_activity_tier": "NEUTRAL_OR_UNTRACKED",
+            "latest_deal_date": None,
+            "evidence": ["No daily bulk/block deal filings observed."]
+        }
+
+    tracked_deals = []
+    net_smart_flow = 0.0
+    latest_date = None
+
+    for d in deals:
+        client = str(d.get("client_name") or "").strip()
+        matched = d.get("smart_money_entity") or match_smart_money_entity(client)
+        tx_type = str(d.get("transaction_type") or d.get("deal_type") or "BUY").upper()
+        val_cr = float(d.get("value_cr") or 0.0)
+        if val_cr == 0.0 and d.get("quantity") and d.get("trade_price"):
+            val_cr = round((float(d["quantity"]) * float(d["trade_price"])) / 10000000.0, 2)
+        d_date = str(d.get("deal_date") or "")
+        if not latest_date or (d_date and d_date > latest_date):
+            latest_date = d_date
+
+        if matched:
+            deal_record = {
+                "deal_date": d_date,
+                "client_name": client,
+                "smart_money_entity": matched,
+                "smart_entity": matched,
+                "transaction_type": tx_type,
+                "deal_type": tx_type,
+                "value_cr": val_cr,
+                "trade_price": float(d.get("trade_price") or 0.0)
+            }
+            tracked_deals.append(deal_record)
+            if tx_type == "BUY":
+                net_smart_flow += val_cr
+            else:
+                net_smart_flow -= val_cr
+
+    net_smart_flow = round(net_smart_flow, 2)
+
+    if net_smart_flow >= 5.0:
+        activity_tier = "STRONG_NET_ACCUMULATION"
+    elif net_smart_flow > 0.0:
+        activity_tier = "MODERATE_ACCUMULATION"
+    elif net_smart_flow <= -5.0:
+        activity_tier = "HEAVY_DISTRIBUTION"
+    elif net_smart_flow < 0.0:
+        activity_tier = "MODERATE_DISTRIBUTION"
+    else:
+        activity_tier = "NEUTRAL_OR_UNTRACKED"
+
+    evidence = []
+    if tracked_deals:
+        evidence.append(
+            f"Daily Bulk Deals (T+0): Net Smart Money Flow of Rs {net_smart_flow:+.2f} Cr across {len(tracked_deals)} transactions ({activity_tier})."
+        )
+    else:
+        evidence.append(f"Daily Bulk Deals (T+0): {len(deals)} transactions observed; zero ace super-investor concentration.")
+
+    return {
+        "symbol": norm_symbol,
+        "has_deals": len(deals) > 0,
+        "total_deals_count": len(deals),
+        "tracked_smart_money_deals": tracked_deals,
+        "tracked_smart_money_count": len(tracked_deals),
+        "smart_money_flows": tracked_deals,
+        "net_smart_money_cr": net_smart_flow,
+        "net_smart_money_flow_cr": net_smart_flow,
+        "activity_tier": activity_tier,
+        "smart_money_activity_tier": activity_tier,
+        "latest_deal_date": latest_date,
+        "evidence": evidence
     }

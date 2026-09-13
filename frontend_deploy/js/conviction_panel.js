@@ -1,6 +1,6 @@
 import { apiFetch } from "./api.js";
 
-export async function renderConvictionPanel(symbol, objective = "ALL") {
+export async function renderConvictionPanel(symbol, objective = "ALL", query = "") {
   const container = document.getElementById('conviction-panel');
   if (!container) return;
 
@@ -23,7 +23,14 @@ export async function renderConvictionPanel(symbol, objective = "ALL") {
     </div>`;
 
   try {
-    const queryParam = objective && objective !== "ALL" ? `?objective=${encodeURIComponent(objective)}` : "";
+    const params = new URLSearchParams();
+    if (objective && objective !== "ALL") {
+      params.append("objective", objective);
+    }
+    if (query && query.trim()) {
+      params.append("query", query.trim());
+    }
+    const queryParam = params.toString() ? `?${params.toString()}` : "";
     const resp = await apiFetch(`/api/v1/decision/${encodeURIComponent(symbol)}${queryParam}`);
     if (!resp.ok) {
       if (resp.status === 404) {
@@ -214,11 +221,12 @@ export async function renderConvictionPanel(symbol, objective = "ALL") {
     const objSelect = document.getElementById("conviction-objective-select");
     if (objSelect) {
       objSelect.addEventListener("change", (e) => {
-        renderConvictionPanel(symbol, e.target.value);
+        renderConvictionPanel(symbol, e.target.value, query);
       });
     }
   } catch (err) {
     // 3. Error State
+    const escapedQuery = (query || '').replace(/'/g, "\\'");
     container.innerHTML = `
       <div class="p-6 bg-red-950/80 border border-red-600/60 rounded-xl text-red-200">
         <div class="flex items-center gap-2 mb-2 font-bold">
@@ -227,7 +235,7 @@ export async function renderConvictionPanel(symbol, objective = "ALL") {
         </div>
         <p class="text-xs text-red-300 mb-3">${err.message || 'Network or server error encountered.'}</p>
         <button class="px-3 py-1 bg-red-800 hover:bg-red-700 text-white font-mono text-xs rounded border"
-                onclick="window.renderConvictionPanel ? window.renderConvictionPanel('${symbol}', '${objective}') : null">
+                onclick="window.renderConvictionPanel ? window.renderConvictionPanel('${symbol}', '${objective}', '${escapedQuery}') : null">
           Retry Analysis
         </button>
       </div>`;

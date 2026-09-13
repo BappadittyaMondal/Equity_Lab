@@ -1,8 +1,8 @@
 # 05_Workflow_Skills_10_to_25
 
 > **IERL AI Equity OS — curated upload artifact**  
-> Project Version: `0.0.0` · Bundle Version: `2.0` · Source Commit: `a4e5b9d`  
-> Generated At: `2026-09-13T18:06:46.871924+00:00` · Source Hash: `edb9976dc16010e5` · Compiler: `consolidate_project.py` v2.0
+> Project Version: `0.0.0` · Bundle Version: `2.0` · Source Commit: `fe64efa`  
+> Generated At: `2026-09-13T18:38:01.711605+00:00` · Source Hash: `983086cf6ff7bcb8` · Compiler: `consolidate_project.py` v2.0
 
 ## Operating contract
 

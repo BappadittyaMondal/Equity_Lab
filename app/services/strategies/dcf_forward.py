@@ -37,6 +37,65 @@ SECTOR_MEDIANS: Dict[str, Dict[str, float]] = {
 }
 NIFTY_50_MEDIANS: Dict[str, float] = {"pe": 22.0, "pb": 3.5, "roe": 14.0}
 
+SECTOR_WACC_MATRIX: Dict[str, float] = {
+    "CONSUMER": 0.105,       # 10.5% FMCG, consumer staples, low cyclicality
+    "FMCG": 0.105,
+    "HEALTHCARE": 0.110,     # 11.0% Pharma, hospitals, diagnostic defensives
+    "PHARMA": 0.110,
+    "TECHNOLOGY": 0.115,     # 11.5% IT services, software, net cash balance sheets
+    "IT": 0.115,
+    "BANKING": 0.115,        # 11.5% Banking, financial services, NBFCs
+    "FINANCIAL": 0.115,
+    "BFSI": 0.115,
+    "AUTOMOBILE": 0.120,     # 12.0% Passenger/commercial vehicles, auto ancillaries
+    "AUTO": 0.120,
+    "CAPITAL_GOODS": 0.125,  # 12.5% Engineering, electricals, defense, infrastructure
+    "INFRASTRUCTURE": 0.125,
+    "ENGINEERING": 0.125,
+    "ENERGY": 0.130,         # 13.0% Oil, gas, power utilities
+    "OIL_GAS": 0.130,
+    "POWER": 0.130,
+    "MATERIALS": 0.135,      # 13.5% Metals, mining, specialty chemicals
+    "CHEMICALS": 0.135,
+    "METALS": 0.135,
+    "REAL_ESTATE": 0.140,    # 14.0% High leverage, regulatory and project cycle lead times
+    "REALTY": 0.140,
+    "TELECOM": 0.130,
+    "DEFAULT": 0.120         # 12.0% Default baseline
+}
+
+
+def resolve_sector_wacc(
+    sector: Optional[str] = None,
+    industry: Optional[str] = None,
+    default_wacc: float = 0.12
+) -> float:
+    """Resolves sector-calibrated cost of capital (WACC) to eliminate uniform discount rate distortion."""
+    import re
+    raw_text = f"{sector or ''} {industry or ''}".upper()
+    tokens = set(re.findall(r'[A-Z0-9]+', raw_text))
+    if not tokens:
+        return default_wacc
+
+    # Sort keys by specificity: multi-word and longer keys first
+    for sec_key, rate in sorted(SECTOR_WACC_MATRIX.items(), key=lambda x: len(x[0]), reverse=True):
+        if sec_key == "DEFAULT":
+            continue
+        key_parts = sec_key.split("_")
+        match_all = True
+        for kp in key_parts:
+            if len(kp) >= 4:
+                if not any(t.startswith(kp) or kp in t for t in tokens):
+                    match_all = False
+                    break
+            else:
+                if kp not in tokens:
+                    match_all = False
+                    break
+        if match_all:
+            return rate
+    return default_wacc
+
 
 def _safe_float(val: Any, default: float = 0.0) -> float:
     if val is None:
@@ -50,8 +109,9 @@ def _safe_float(val: Any, default: float = 0.0) -> float:
 def run_dcf_forward(
     symbol: str,
     store: Optional[ResearchDataStore] = None,
-    discount_rate: float = 0.12,
+    discount_rate: Optional[float] = None,
     terminal_growth: float = 0.04,
+    sector: Optional[str] = None,
 ) -> StrategyRunResponse:
     """Execute Forward DCF + Relative Valuation for a symbol.
 
@@ -76,9 +136,18 @@ def run_dcf_forward(
 
     # ── 2. Get financial history from ResearchDataStore ────────────────────
     try:
-        _, financials, _, _, _, _ = data_store.get_timeline(norm)
+        company, financials, _, _, _, _ = data_store.get_timeline(norm)
     except Exception as e:
         return _insufficient_response(norm, f"ResearchDataStore unavailable: {e}")
+
+    comp_sector = sector or getattr(company, "sector", "") or ""
+    comp_industry = getattr(company, "industry", "") or ""
+    if discount_rate is None or discount_rate == 0.12:
+        effective_discount_rate = resolve_sector_wacc(comp_sector, comp_industry)
+        evidence.append(f"Sector-Calibrated WACC: {effective_discount_rate*100:.1f}% applied for {comp_sector or 'market benchmark'}.")
+    else:
+        effective_discount_rate = discount_rate
+        evidence.append(f"User-Specified Discount Rate: {effective_discount_rate*100:.1f}%.")
 
     if not financials:
         return _insufficient_response(norm, "No financial observations in database — run seed_watchlist first")
@@ -116,17 +185,17 @@ def run_dcf_forward(
 
         for yr in range(1, 4):
             fcf_yr = fcf_base * ((1 + g1) ** yr)
-            pv_sum += fcf_yr / ((1 + discount_rate) ** yr)
+            pv_sum += fcf_yr / ((1 + effective_discount_rate) ** yr)
 
         fcf_after_3 = fcf_base * ((1 + g1) ** 3)
         for yr in range(1, 5):
             fcf_yr = fcf_after_3 * ((1 + g2) ** yr)
-            pv_sum += fcf_yr / ((1 + discount_rate) ** (3 + yr))
+            pv_sum += fcf_yr / ((1 + effective_discount_rate) ** (3 + yr))
 
         # Terminal value
         fcf_terminal = fcf_after_3 * ((1 + g2) ** 4) * (1 + terminal_growth)
-        tv = fcf_terminal / (discount_rate - terminal_growth)
-        pv_terminal = tv / ((1 + discount_rate) ** 7)
+        tv = fcf_terminal / max(effective_discount_rate - terminal_growth, 0.01)
+        pv_terminal = tv / ((1 + effective_discount_rate) ** 7)
         enterprise_value = pv_sum + pv_terminal
 
         # Approximate equity value (no net-debt adjustment — use market cap ratio)
@@ -134,7 +203,7 @@ def run_dcf_forward(
             intrinsic_value_dcf = round((enterprise_value / market_cap) * price, 2)
             evidence.append(
                 f"3-Stage DCF intrinsic value: ₹{intrinsic_value_dcf} "
-                f"(discount={int(discount_rate*100)}%, g1={g1*100:.0f}%, terminal={terminal_growth*100:.0f}%)"
+                f"(discount={effective_discount_rate*100:.1f}%, g1={g1*100:.0f}%, terminal={terminal_growth*100:.0f}%)"
             )
     else:
         evidence.append(f"Insufficient FCF history ({len(fcf_series)} qtrs) for DCF — need ≥4 quarters")
@@ -170,7 +239,7 @@ def run_dcf_forward(
     valuation_zone = _compute_valuation_zone(pe, peg_ratio, margin_of_safety_pct)
 
     # ── 9. Scenario Analysis ──────────────────────────────────────────────
-    scenarios = _compute_scenarios(fcf_base, market_cap, price, discount_rate, terminal_growth)
+    scenarios = _compute_scenarios(fcf_base, market_cap, price, effective_discount_rate, terminal_growth)
 
     # ── 10. Sensitivity table ─────────────────────────────────────────────
     sensitivity = {}
@@ -195,6 +264,8 @@ def run_dcf_forward(
         "peg_ratio": peg_ratio,
         "eps_cagr_used_pct": round(eps_cagr, 2) if eps_cagr else None,
         "fcf_growth_rate_used_pct": round(growth_rate_annual * 100, 2),
+        "discount_rate_wacc_pct": round(effective_discount_rate * 100, 2),
+        "sector_resolved": comp_sector or "Unclassified",
         "scenarios": scenarios,
         "sensitivity_table": sensitivity,
         "evidence": evidence,
@@ -206,6 +277,8 @@ def run_dcf_forward(
         "margin_of_safety_pct": margin_of_safety_pct,
         "peg_ratio": peg_ratio,
         "valuation_zone": valuation_zone,
+        "discount_rate_wacc_pct": round(effective_discount_rate * 100, 2),
+        "sector_resolved": comp_sector or "Unclassified",
     }
 
     return StrategyRunResponse(

@@ -260,7 +260,27 @@ class ResearchDataStore:
                 notes TEXT,
                 added_at TEXT NOT NULL
             )
-            """
+            """,
+            f"""
+            CREATE TABLE IF NOT EXISTS bulk_block_deals (
+                id {auto_pk},
+                symbol TEXT NOT NULL REFERENCES companies(symbol),
+                deal_date TEXT NOT NULL,
+                deal_type TEXT NOT NULL,
+                client_name TEXT NOT NULL,
+                transaction_type TEXT NOT NULL,
+                quantity REAL NOT NULL,
+                trade_price REAL NOT NULL,
+                value_cr REAL NOT NULL,
+                is_smart_money BOOLEAN DEFAULT 0,
+                smart_money_entity TEXT,
+                source_name TEXT NOT NULL,
+                published_at TEXT NOT NULL,
+                confidence REAL NOT NULL,
+                ingested_at TEXT NOT NULL
+            )
+            """,
+            "CREATE INDEX IF NOT EXISTS idx_bulk_deals_lookup ON bulk_block_deals(symbol, deal_date, published_at)"
         ]
         with self._connect() as conn:
             for stmt in ddl_statements:
@@ -647,5 +667,89 @@ class ResearchDataStore:
             if row:
                 return dict(row)
         return None
+
+    def add_bulk_deal(self, deal: Dict[str, Any]) -> Dict[str, Any]:
+        """Ingests a single bulk/block deal record into point-in-time storage."""
+        symbol = normalize_symbol(deal["symbol"])
+        self.get_company(symbol)
+        now = _utc_now().isoformat()
+
+        deal_date = str(deal.get("deal_date") or now[:10])
+        deal_type = str(deal.get("deal_type") or "BULK").upper()
+        client_name = str(deal.get("client_name") or "").strip()
+        tx_type = str(deal.get("transaction_type") or deal.get("trade_type") or "BUY").upper()
+        qty = float(deal.get("quantity") or 0.0)
+        price = float(deal.get("trade_price") or deal.get("price") or 0.0)
+        value_cr = float(deal.get("value_cr") or round((qty * price) / 1e7, 2))
+
+        is_smart = bool(deal.get("is_smart_money", False))
+        entity = deal.get("smart_money_entity")
+        if not entity:
+            from app.services.strategies.shareholding_pattern import match_smart_money_entity
+            matched = match_smart_money_entity(client_name)
+            if matched:
+                is_smart = True
+                entity = matched
+
+        raw_pub = deal.get("published_at")
+        pub_at = _as_utc(datetime.fromisoformat(str(raw_pub)) if raw_pub else _utc_now()).isoformat()
+        src_name = str(deal.get("source_name") or "BSE_NSE_EXCHANGE_DISCLOSURE")
+        conf = float(deal.get("confidence") or 0.95)
+
+        with self._connect() as conn:
+            cursor = conn.execute(
+                """
+                INSERT INTO bulk_block_deals(
+                    symbol, deal_date, deal_type, client_name, transaction_type,
+                    quantity, trade_price, value_cr, is_smart_money, smart_money_entity,
+                    source_name, published_at, confidence, ingested_at
+                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                """,
+                (
+                    symbol, deal_date, deal_type, client_name, tx_type,
+                    qty, price, value_cr, 1 if is_smart else 0, entity,
+                    src_name, pub_at, conf, now
+                )
+            )
+            deal_id = cursor.lastrowid
+
+        return {
+            "id": deal_id,
+            "symbol": symbol,
+            "deal_date": deal_date,
+            "deal_type": deal_type,
+            "client_name": client_name,
+            "transaction_type": tx_type,
+            "quantity": qty,
+            "trade_price": price,
+            "value_cr": value_cr,
+            "is_smart_money": is_smart,
+            "smart_money_entity": entity,
+            "source_name": src_name,
+            "published_at": pub_at,
+            "confidence": conf,
+            "ingested_at": now
+        }
+
+    def get_bulk_deals(self, symbol: str, as_of: Optional[Union[datetime, str]] = None, limit: int = 50) -> List[Dict[str, Any]]:
+        """Retrieves point-in-time bulk and block deals for a symbol filtered strictly by published_at <= cutoff."""
+        norm_symbol = normalize_symbol(symbol)
+        if isinstance(as_of, str):
+            cutoff_dt = _parse_datetime(as_of.replace("Z", "+00:00"))
+        elif isinstance(as_of, datetime):
+            cutoff_dt = as_of
+        else:
+            cutoff_dt = _utc_now()
+        cutoff_iso = _as_utc(cutoff_dt).isoformat()
+        with self._connect() as conn:
+            rows = conn.execute(
+                """
+                SELECT * FROM bulk_block_deals
+                WHERE symbol = ? AND published_at <= ?
+                ORDER BY deal_date DESC, id DESC LIMIT ?
+                """,
+                (norm_symbol, cutoff_iso, limit)
+            ).fetchall()
+        return [dict(r) for r in rows]
 
 
