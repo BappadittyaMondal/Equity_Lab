@@ -6,11 +6,33 @@ import pytest
 from app.services.ml.evaluation_harness import evaluate_walk_forward_harness
 
 
-def test_walk_forward_harness_production_mode_returns_insufficient_data():
-    """Verify that when run against empty production DB, returns INSUFFICIENT_DATA."""
+def test_walk_forward_harness_empty_db_returns_insufficient_data(monkeypatch):
+    """Verify that when run against empty DB (<20 rows), returns INSUFFICIENT_DATA."""
+    class FakeEmptyConn:
+        def execute(self, *args, **kwargs):
+            return self
+        def fetchall(self):
+            return []
+        def close(self):
+            pass
+
+    from app.services.ml import evaluation_harness
+    monkeypatch.setattr(evaluation_harness, "_get_db_connection", lambda: FakeEmptyConn())
+
     res = evaluate_walk_forward_harness()
     assert res["status"] == "INSUFFICIENT_DATA"
     assert "INSUFFICIENT_DATA" in res["message"] or res["sample_count"] < 20
+
+
+def test_walk_forward_harness_production_mode():
+    """Verify that when run against populated production DB, returns EVALUATED."""
+    res = evaluate_walk_forward_harness()
+    assert res["status"] in ("EVALUATED", "INSUFFICIENT_DATA")
+    if res["status"] == "EVALUATED":
+        assert res["sample_count"] >= 20
+        assert "metrics" in res
+    else:
+        assert res["sample_count"] < 20
 
 
 def test_walk_forward_harness_synthetic_fixture_mode():

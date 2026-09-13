@@ -1,8 +1,8 @@
 <!-- IERL-CANONICAL-METADATA v1.2 -->
-> **Canonical retrieval label:** AI Institutional Multibagger Engine (27-Engine Synthesis)
+> **Canonical retrieval label:** AI Institutional Multibagger Engine (27-Sub-Engine Synthesis within 40 Platform Engines)
 > **Role:** Multi-dimensional early multibagger discovery, archetype classification, and risk penalty audit engine
 > **Use when:** Identifying early-stage 3x–10x multibagger compounders across fundamental quality, cash flow, institutional footprint, technical relative strength, and catalyst triggers.
-> **Evidence rule:** Evaluate all 27 engines independently and enforce hard risk penalties on missing or red-flagged observations.
+> **Evidence rule:** Evaluate all 27 specialized sub-engines independently under the master 40-engine registry (A1–D18, E1–E22) and enforce hard risk penalties on missing or red-flagged observations.
 
 # AI Institutional Multibagger Engine Specification
 
@@ -15,7 +15,7 @@
 
 ## 1. Executive Summary & Purpose
 
-The AI Institutional Multibagger Engine (`InstitutionalMultibaggerEngine`) synthesizes 27 quantitative and qualitative analytical sub-engines to identify high-conviction early-stage multibaggers in the Indian capital markets. Rather than relying on simple static filters, the engine evaluates multidimensional business acceleration, capital reinvestment intensity, institutional footprints, management commentary sentiment, alt-data signals, and technical market structure.
+The AI Institutional Multibagger Engine (`InstitutionalMultibaggerEngine`) synthesizes 27 quantitative and qualitative analytical sub-engines (operating under the 40 canonical strategy and research engines of the platform) to identify high-conviction early-stage multibaggers in the Indian capital markets. Rather than relying on simple static filters, the engine evaluates multidimensional business acceleration, capital reinvestment intensity, institutional footprints, management commentary sentiment, alt-data signals, and technical market structure.
 
 ---
 

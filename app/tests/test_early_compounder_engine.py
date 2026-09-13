@@ -61,3 +61,63 @@ def test_early_compounder_value_destroyer_rejected(monkeypatch):
     assert res.results["incubator_tier"] == "REJECT_KILL_TEST_FAILED"
     assert res.passed_gates is False
 
+
+def test_early_compounder_microcap_gate_veto_enforced(monkeypatch):
+    """Verify CR-004: When MicrocapRiskFirstGate vetoes an issue (e.g. auditor resignation),
+    passed_gates is strictly False and tier is REJECT_KILL_TEST_FAILED."""
+    from app.services.strategies import promoter_behaviour
+    
+    # Mock promoter behaviour to report auditor resignation
+    monkeypatch.setattr(
+        promoter_behaviour,
+        "evaluate_promoter_behaviour",
+        lambda symbol, promoter_data=None, as_of=None: {
+            "red_flags": ["Auditor resigned abruptly within 6 months"],
+            "related_party_pct": 2.0,
+            "promoter_holding_pct": 50.0
+        }
+    )
+    res = run_early_compounder_engine("AUDITOR_FRAUD_LTD")
+    assert res.passed_gates is False
+    assert res.results["incubator_tier"] == "REJECT_KILL_TEST_FAILED"
+    assert res.results["risk_first_gate"]["is_investable"] is False
+    assert any("auditor" in r.lower() for r in res.risk_warnings)
+
+
+def test_early_compounder_unobserved_debt_fails_closed(monkeypatch):
+    """Verify that unobserved Debt-to-Equity strictly triggers fail-closed data_insufficient in production."""
+    import os
+    from app.services.research import early_compounder_engine
+
+    # Force production mode
+    monkeypatch.setenv("OFFLINE_TEST_MODE", "false")
+
+    # Mock ResearchDataStore to return observations where debt_to_equity is missing
+    class MockObs:
+        def __init__(self, val):
+            self.value = val
+
+    mock_map = {
+        "invested_capital": [MockObs(100.0), MockObs(150.0)],
+        "ebitda": [MockObs(20.0), MockObs(35.0)],
+        # debt_to_equity intentionally omitted to simulate unobserved leverage
+    }
+
+    class MockRDS:
+        def get_financial_series(self, symbol, as_of=None):
+            return [{"pat": 25.0, "cfo": 30.0, "capex": 10.0}]
+        def get_financial_observations(self, symbol, as_of=None):
+            return mock_map
+        def get_company_profile(self, symbol):
+            return {"market_cap": 300.0, "current_price": 50.0}
+
+    from app.services import research_data
+    monkeypatch.setattr(research_data, "ResearchDataStore", lambda: MockRDS())
+
+    res = early_compounder_engine.run_early_compounder_engine("UNOBSERVED_DEBT_CO")
+    assert res.status == "data_insufficient"
+    assert res.passed_gates is False
+    assert any("DATA_GAP_UNOBSERVED_DEBT" in w for w in res.risk_warnings)
+
+
+

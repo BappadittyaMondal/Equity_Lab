@@ -10,7 +10,7 @@ Integrates:
 
 import math
 from typing import Dict, Any, Optional, List
-from datetime import datetime
+from datetime import datetime, timedelta, date
 import pandas as pd
 import numpy as np
 
@@ -40,7 +40,7 @@ class ShortTermPredictionEngine:
         closes = clean_series(df['close'])
 
         if len(closes) < 15:
-            return float((highs.iloc[-1] - lows.iloc[-1]) if len(closes) > 0 else 5.0)
+            return float((highs.iloc[-1] - lows.iloc[-1]) if len(closes) > 0 else 0.0)
 
         tr1 = highs - lows
         tr2 = (highs - closes.shift(1)).abs()
@@ -50,14 +50,142 @@ class ShortTermPredictionEngine:
         return float(atr) if not np.isnan(atr) and atr > 0 else float(tr.iloc[-1])
 
     @classmethod
+    def _fetch_outcome_ledger_residuals(cls, horizon_days: int) -> List[float]:
+        """Fetches absolute percentage return residuals from settled outcome_ledger records."""
+        try:
+            from app.services.db import get_db_connection
+            conn = get_db_connection()
+            rows = conn.execute(
+                """
+                SELECT actual_return_pct FROM outcome_ledger
+                WHERE (horizon_days = ? OR (horizon_days = 0 AND horizon_months = ?))
+                  AND (pre_fix_unverified IS NULL OR pre_fix_unverified = 0)
+                """,
+                (horizon_days, max(1, round(horizon_days / 30.0)))
+            ).fetchall()
+            conn.close()
+            return [abs(float(r[0])) for r in rows if r[0] is not None]
+        except Exception:
+            return []
+
+    @classmethod
+    def check_event_proximity(
+        cls,
+        symbol: str,
+        as_of: Optional[datetime] = None,
+        upcoming_events: Optional[List[Dict[str, Any]]] = None
+    ) -> Dict[str, Any]:
+        """Checks for scheduled earnings announcements or board meetings within <= 3 trading days."""
+        norm_sym = normalize_symbol(symbol)
+        now_dt = as_of or datetime.now()
+        now_date = now_dt.date() if hasattr(now_dt, "date") else now_dt
+
+        events_to_check = []
+        if upcoming_events is not None:
+            events_to_check = upcoming_events
+        else:
+            try:
+                from app.services.research_data import ResearchDataStore
+                store = ResearchDataStore()
+                _, _, b_events, c_actions, _, _ = store.get_timeline(norm_sym, as_of=as_of)
+                for b in b_events:
+                    events_to_check.append({
+                        "event_type": getattr(b, "event_type", ""),
+                        "title": getattr(b, "title", ""),
+                        "date": getattr(b, "effective_date", None) or getattr(b, "announced_at", None)
+                    })
+                for c in c_actions:
+                    events_to_check.append({
+                        "event_type": getattr(c, "action_type", ""),
+                        "title": getattr(c, "notes", "") or getattr(c, "action_type", ""),
+                        "date": getattr(c, "ex_date", None) or getattr(c, "announced_at", None)
+                    })
+            except Exception:
+                pass
+
+        imminent_events = []
+        is_binary_risk = False
+
+        for evt in events_to_check:
+            evt_type = str(evt.get("event_type", "")).lower()
+            evt_title = str(evt.get("title", "")).lower()
+            raw_date = evt.get("date") or evt.get("event_date")
+            if not raw_date:
+                continue
+
+            try:
+                if isinstance(raw_date, date) and not isinstance(raw_date, datetime):
+                    dt_val = raw_date
+                elif hasattr(raw_date, "date"):
+                    dt_val = raw_date.date()
+                elif isinstance(raw_date, str):
+                    clean_str = raw_date.replace("Z", "+00:00")
+                    dt_val = datetime.fromisoformat(clean_str).date()
+                else:
+                    continue
+            except Exception:
+                continue
+
+            try:
+                trading_days_diff = int(np.busday_count(now_date, dt_val))
+            except Exception:
+                if dt_val >= now_date:
+                    cur = now_date
+                    days = 0
+                    while cur < dt_val:
+                        cur += timedelta(days=1)
+                        if cur.weekday() < 5:
+                            days += 1
+                    trading_days_diff = days
+                else:
+                    cur = now_date
+                    days = 0
+                    while cur > dt_val:
+                        cur -= timedelta(days=1)
+                        if cur.weekday() < 5:
+                            days += 1
+                    trading_days_diff = -days
+
+            if -1 <= trading_days_diff <= 3:
+                binary_keywords = ("earnings", "results", "board_meeting", "agm", "financial_results")
+                if any(kw in evt_type for kw in binary_keywords) or any(kw in evt_title for kw in ("board meeting", "financial results", "quarterly results", "earnings")):
+                    is_binary_risk = True
+                    imminent_events.append({
+                        "event_type": evt.get("event_type"),
+                        "title": evt.get("title"),
+                        "event_date": str(dt_val),
+                        "days_ahead": trading_days_diff,
+                        "calendar_days_diff": (dt_val - now_date).days
+                    })
+
+        if is_binary_risk:
+            return {
+                "event_risk": "HIGH_BINARY_EVENT_RISK",
+                "event_risk_warning": "Scheduled board meeting/earnings within <= 3 trading days or recent release within 24h PEAD digestion window. Elevated overnight gap risk; technical stop levels may slip.",
+                "position_sizing_multiplier": 0.50,
+                "upcoming_events_count": len(imminent_events),
+                "imminent_events": imminent_events
+            }
+        else:
+            return {
+                "event_risk": "NORMAL_PROXIMITY",
+                "event_risk_warning": None,
+                "position_sizing_multiplier": 1.0,
+                "upcoming_events_count": len(imminent_events),
+                "imminent_events": imminent_events
+            }
+
+    @classmethod
     def generate_conformal_prediction_cones(
         cls,
         current_price: float,
         atr_14: float,
-        directional_bias_pct: float = 0.0
+        directional_bias_pct: float = 0.0,
+        empirical_residuals_by_horizon: Optional[Dict[int, List[float]]] = None
     ) -> Dict[str, Any]:
-        """Generates calibrated 80% (z=1.28) and 95% (z=1.96) conformal volatility prediction cones
-        for 3-day, 5-day, 10-day, and 30-day forward horizons.
+        """Generates parametric Gaussian ATR volatility prediction cones (80% z=1.28, 95% z=1.96)
+        for 3-day, 5-day, 10-day, and 30-day forward horizons with backward-compatible conformal keys,
+        and optionally layers empirical split-conformal non-conformity quantiles if outcome history >= 20.
         """
         horizons = [3, 5, 10, 30]
         cones = {}
@@ -78,14 +206,63 @@ class ShortTermPredictionEngine:
             upper_95 = round(center_price + (1.96 * vol_expansion), 2)
             lower_95 = round(max(0.1, center_price - (1.96 * vol_expansion)), 2)
 
+            # Check for empirical residuals
+            residuals = None
+            if empirical_residuals_by_horizon is not None:
+                residuals = empirical_residuals_by_horizon.get(h, [])
+            else:
+                residuals = cls._fetch_outcome_ledger_residuals(h)
+
+            has_empirical = residuals is not None and len(residuals) >= 20
+            if has_empirical:
+                q80 = float(np.percentile(residuals, 80))
+                q95 = float(np.percentile(residuals, 95))
+                emp_upper_80 = round(center_price * (1.0 + q80 / 100.0), 2)
+                emp_lower_80 = round(max(0.1, center_price * (1.0 - q80 / 100.0)), 2)
+                emp_upper_95 = round(center_price * (1.0 + q95 / 100.0), 2)
+                emp_lower_95 = round(max(0.1, center_price * (1.0 - q95 / 100.0)), 2)
+
+                empirical_cone_payload = {
+                    "sample_size": len(residuals),
+                    "conformal_80_pct": {
+                        "lower_bound": emp_lower_80,
+                        "upper_bound": emp_upper_80,
+                        "empirical_quantile_pct": round(q80, 2),
+                        "spread_pct": round(((emp_upper_80 - emp_lower_80) / current_price) * 100, 2)
+                    },
+                    "conformal_95_pct": {
+                        "lower_bound": emp_lower_95,
+                        "upper_bound": emp_upper_95,
+                        "empirical_quantile_pct": round(q95, 2),
+                        "spread_pct": round(((emp_upper_95 - emp_lower_95) / current_price) * 100, 2)
+                    },
+                    "calibration_status": "EMPIRICALLY_CALIBRATED",
+                    "methodology": "EMPIRICAL_SPLIT_CONFORMAL_NONCONFORMITY_QUANTILE"
+                }
+                calib_note = f"Empirical conformal non-conformity quantiles calibrated from {len(residuals)} settled outcomes in outcome_ledger."
+            else:
+                empirical_cone_payload = {
+                    "sample_size": len(residuals) if residuals else 0,
+                    "status": "INSUFFICIENT_DATA",
+                    "minimum_required": 20,
+                    "fallback": "PARAMETRIC_GAUSSIAN_ATR_CONE"
+                }
+                calib_note = "Parametric ATR volatility step-scaling (ATR*sqrt(h)); empirical conformal residual quantile requires outcome ledger history (min 20 settled outcomes)."
+
             cones[f"horizon_{h}d"] = {
                 "horizon_days": h,
                 "projected_center_price": round(center_price, 2),
                 "conformal_80_pct": {"lower_bound": lower_80, "upper_bound": upper_80, "spread_pct": round(((upper_80 - lower_80) / current_price) * 100, 2)},
                 "conformal_95_pct": {"lower_bound": lower_95, "upper_bound": upper_95, "spread_pct": round(((upper_95 - lower_95) / current_price) * 100, 2)},
+                "parametric_atr_volatility_cone_80": {"lower_bound": lower_80, "upper_bound": upper_80, "spread_pct": round(((upper_80 - lower_80) / current_price) * 100, 2), "z_multiplier": 1.28},
+                "parametric_atr_volatility_cone_95": {"lower_bound": lower_95, "upper_bound": upper_95, "spread_pct": round(((upper_95 - lower_95) / current_price) * 100, 2), "z_multiplier": 1.96},
                 "volatility_cone_80_pct": {"lower_bound": lower_80, "upper_bound": upper_80, "spread_pct": round(((upper_80 - lower_80) / current_price) * 100, 2), "z_multiplier": 1.28},
                 "volatility_cone_95_pct": {"lower_bound": lower_95, "upper_bound": upper_95, "spread_pct": round(((upper_95 - lower_95) / current_price) * 100, 2), "z_multiplier": 1.96},
-                "cone_methodology": "GAUSSIAN_PARAMETRIC_ATR_CONE"
+                "empirical_conformal_cone": empirical_cone_payload,
+                "cone_methodology": "GAUSSIAN_PARAMETRIC_ATR_CONE",
+                "statistical_type": "PARAMETRIC_GAUSSIAN_VOLATILITY_CONE",
+                "is_empirically_calibrated": has_empirical,
+                "calibration_note": calib_note
             }
 
         return cones
@@ -95,7 +272,8 @@ class ShortTermPredictionEngine:
         cls,
         symbol: str,
         df: Optional[pd.DataFrame] = None,
-        as_of: Optional[datetime] = None
+        as_of: Optional[datetime] = None,
+        upcoming_events: Optional[List[Dict[str, Any]]] = None
     ) -> Dict[str, Any]:
         """Executes full short-term prediction pipeline for a given stock."""
         norm_sym = normalize_symbol(symbol)
@@ -197,6 +375,11 @@ class ShortTermPredictionEngine:
             target_2 = round(cp - (0.5 * atr), 2)
             invalidation_level = major_floor
 
+        # 6. Event Proximity Gate (Corporate Earnings / Board Meetings)
+        event_gate = cls.check_event_proximity(norm_sym, as_of=as_of, upcoming_events=upcoming_events)
+        if event_gate["event_risk"] == "HIGH_BINARY_EVENT_RISK":
+            primary_verdict += " [CAUTION: HIGH_BINARY_EVENT_RISK - scheduled board meeting/earnings within <= 3 days; tactical swing position sizing halved (0.50x).]"
+
         meta = create_meta_header(source="Short-Term Quantitative Prediction Engine")
         data_mode_val = hist_df.attrs.get("data_mode", "LIVE") if hasattr(hist_df, "attrs") else "LIVE"
         meta["data_mode"] = data_mode_val
@@ -221,6 +404,10 @@ class ShortTermPredictionEngine:
                 "rangebound_chop": p_rangebound,
                 "breakout_expansion": p_breakout
             },
+            "event_proximity": event_gate,
+            "event_risk": event_gate["event_risk"],
+            "event_risk_warning": event_gate["event_risk_warning"],
+            "position_sizing_multiplier": event_gate["position_sizing_multiplier"],
             "conformal_prediction_cones": cones,
             "stochastic_rsi": stoch_res,
             "multi_anchor_vwap": avwap_res,

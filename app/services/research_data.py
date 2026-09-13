@@ -121,146 +121,159 @@ class ResearchDataStore:
 
 
     def _initialize(self) -> None:
-        with self._connect() as conn:
-            conn.executescript(
-                """
-                CREATE TABLE IF NOT EXISTS companies (
-                    symbol TEXT PRIMARY KEY,
-                    legal_name TEXT NOT NULL,
-                    sector TEXT,
-                    industry TEXT,
-                    created_at TEXT NOT NULL
-                );
+        db_url = os.getenv("DATABASE_URL", "")
+        is_pg = db_url.startswith("postgres://") or db_url.startswith("postgresql://")
+        auto_pk = "BIGSERIAL PRIMARY KEY" if is_pg else "INTEGER PRIMARY KEY AUTOINCREMENT"
 
-                CREATE TABLE IF NOT EXISTS financial_observations (
-                    id INTEGER PRIMARY KEY AUTOINCREMENT,
-                    symbol TEXT NOT NULL REFERENCES companies(symbol),
-                    metric TEXT NOT NULL,
-                    value REAL NOT NULL,
-                    unit TEXT NOT NULL,
-                    currency TEXT,
-                    period_end TEXT NOT NULL,
-                    period_type TEXT NOT NULL,
-                    statement_scope TEXT NOT NULL,
-                    published_at TEXT NOT NULL,
-                    source_name TEXT NOT NULL,
-                    source_url TEXT NOT NULL,
-                    source_reference TEXT,
-                    confidence REAL NOT NULL,
-                    notes TEXT,
-                    ingested_at TEXT NOT NULL
-                );
-                CREATE INDEX IF NOT EXISTS idx_financial_lookup
-                    ON financial_observations(symbol, metric, period_end, published_at);
-
-                CREATE TABLE IF NOT EXISTS business_events (
-                    id INTEGER PRIMARY KEY AUTOINCREMENT,
-                    symbol TEXT NOT NULL REFERENCES companies(symbol),
-                    event_type TEXT NOT NULL,
-                    announced_at TEXT NOT NULL,
-                    effective_date TEXT,
-                    title TEXT NOT NULL,
-                    summary TEXT NOT NULL,
-                    value REAL,
-                    unit TEXT,
-                    source_name TEXT NOT NULL,
-                    source_url TEXT NOT NULL,
-                    source_reference TEXT,
-                    confidence REAL NOT NULL,
-                    ingested_at TEXT NOT NULL
-                );
-                CREATE INDEX IF NOT EXISTS idx_event_lookup
-                    ON business_events(symbol, announced_at);
-
-                CREATE TABLE IF NOT EXISTS corporate_actions (
-                    id INTEGER PRIMARY KEY AUTOINCREMENT,
-                    symbol TEXT NOT NULL REFERENCES companies(symbol),
-                    action_type TEXT NOT NULL,
-                    ratio_numerator REAL,
-                    ratio_denominator REAL,
-                    amount_per_share REAL,
-                    ex_date TEXT NOT NULL,
-                    record_date TEXT,
-                    announced_at TEXT NOT NULL,
-                    source_name TEXT NOT NULL,
-                    source_url TEXT NOT NULL,
-                    confidence REAL NOT NULL,
-                    ingested_at TEXT NOT NULL
-                );
-                CREATE INDEX IF NOT EXISTS idx_corporate_action_lookup
-                    ON corporate_actions(symbol, ex_date, announced_at);
-
-                CREATE TABLE IF NOT EXISTS ownership_snapshots (
-                    id INTEGER PRIMARY KEY AUTOINCREMENT,
-                    symbol TEXT NOT NULL REFERENCES companies(symbol),
-                    period_end TEXT NOT NULL,
-                    promoter_pct REAL NOT NULL,
-                    fii_pct REAL NOT NULL,
-                    dii_pct REAL NOT NULL,
-                    mutual_fund_pct REAL,
-                    insurance_pct REAL,
-                    public_pct REAL NOT NULL,
-                    aif_pct REAL,
-                    promoter_pledge_pct REAL,
-                    published_at TEXT NOT NULL,
-                    source_name TEXT NOT NULL,
-                    source_url TEXT NOT NULL,
-                    confidence REAL NOT NULL,
-                    ingested_at TEXT NOT NULL
-                );
-                CREATE INDEX IF NOT EXISTS idx_ownership_lookup
-                    ON ownership_snapshots(symbol, period_end, published_at);
-
-                CREATE TABLE IF NOT EXISTS document_metadata (
-                    id INTEGER PRIMARY KEY AUTOINCREMENT,
-                    symbol TEXT NOT NULL REFERENCES companies(symbol),
-                    document_type TEXT NOT NULL,
-                    title TEXT NOT NULL,
-                    financial_period TEXT,
-                    document_date TEXT NOT NULL,
-                    publication_date TEXT NOT NULL,
-                    source_name TEXT NOT NULL,
-                    source_url TEXT NOT NULL,
-                    confidence REAL NOT NULL,
-                    metadata_json TEXT,
-                    ingested_at TEXT NOT NULL
-                );
-                CREATE INDEX IF NOT EXISTS idx_document_lookup
-                    ON document_metadata(symbol, publication_date);
-
-                CREATE TABLE IF NOT EXISTS market_daily_snapshots (
-                    id INTEGER PRIMARY KEY AUTOINCREMENT,
-                    symbol TEXT NOT NULL REFERENCES companies(symbol),
-                    trading_date TEXT NOT NULL,
-                    open_price REAL NOT NULL,
-                    high_price REAL NOT NULL,
-                    low_price REAL NOT NULL,
-                    close_price REAL NOT NULL,
-                    volume INTEGER NOT NULL,
-                    delivery_volume INTEGER,
-                    delivery_pct REAL,
-                    market_cap REAL,
-                    published_at TEXT NOT NULL,
-                    source_name TEXT NOT NULL,
-                    source_url TEXT NOT NULL,
-                    ingested_at TEXT NOT NULL
-                );
-                CREATE INDEX IF NOT EXISTS idx_market_daily_lookup
-                    ON market_daily_snapshots(symbol, trading_date, published_at);
-
-                CREATE TABLE IF NOT EXISTS watchlist (
-                    id INTEGER PRIMARY KEY AUTOINCREMENT,
-                    symbol TEXT UNIQUE NOT NULL,
-                    company_name TEXT,
-                    target_price REAL DEFAULT 0.0,
-                    notes TEXT,
-                    added_at TEXT NOT NULL
-                );
-                """
+        ddl_statements = [
+            """
+            CREATE TABLE IF NOT EXISTS companies (
+                symbol TEXT PRIMARY KEY,
+                legal_name TEXT NOT NULL,
+                sector TEXT,
+                industry TEXT,
+                created_at TEXT NOT NULL
             )
+            """,
+            f"""
+            CREATE TABLE IF NOT EXISTS financial_observations (
+                id {auto_pk},
+                symbol TEXT NOT NULL REFERENCES companies(symbol),
+                metric TEXT NOT NULL,
+                value REAL NOT NULL,
+                unit TEXT NOT NULL,
+                currency TEXT,
+                period_end TEXT NOT NULL,
+                period_type TEXT NOT NULL,
+                statement_scope TEXT NOT NULL,
+                published_at TEXT NOT NULL,
+                source_name TEXT NOT NULL,
+                source_url TEXT NOT NULL,
+                source_reference TEXT,
+                confidence REAL NOT NULL,
+                notes TEXT,
+                ingested_at TEXT NOT NULL
+            )
+            """,
+            "CREATE INDEX IF NOT EXISTS idx_financial_lookup ON financial_observations(symbol, metric, period_end, published_at)",
+            f"""
+            CREATE TABLE IF NOT EXISTS business_events (
+                id {auto_pk},
+                symbol TEXT NOT NULL REFERENCES companies(symbol),
+                event_type TEXT NOT NULL,
+                announced_at TEXT NOT NULL,
+                effective_date TEXT,
+                title TEXT NOT NULL,
+                summary TEXT NOT NULL,
+                value REAL,
+                unit TEXT,
+                source_name TEXT NOT NULL,
+                source_url TEXT NOT NULL,
+                source_reference TEXT,
+                confidence REAL NOT NULL,
+                ingested_at TEXT NOT NULL
+            )
+            """,
+            "CREATE INDEX IF NOT EXISTS idx_event_lookup ON business_events(symbol, announced_at)",
+            f"""
+            CREATE TABLE IF NOT EXISTS corporate_actions (
+                id {auto_pk},
+                symbol TEXT NOT NULL REFERENCES companies(symbol),
+                action_type TEXT NOT NULL,
+                ratio_numerator REAL,
+                ratio_denominator REAL,
+                amount_per_share REAL,
+                ex_date TEXT NOT NULL,
+                record_date TEXT,
+                announced_at TEXT NOT NULL,
+                source_name TEXT NOT NULL,
+                source_url TEXT NOT NULL,
+                confidence REAL NOT NULL,
+                ingested_at TEXT NOT NULL
+            )
+            """,
+            "CREATE INDEX IF NOT EXISTS idx_corporate_action_lookup ON corporate_actions(symbol, ex_date, announced_at)",
+            f"""
+            CREATE TABLE IF NOT EXISTS ownership_snapshots (
+                id {auto_pk},
+                symbol TEXT NOT NULL REFERENCES companies(symbol),
+                period_end TEXT NOT NULL,
+                promoter_pct REAL NOT NULL,
+                fii_pct REAL NOT NULL,
+                dii_pct REAL NOT NULL,
+                mutual_fund_pct REAL,
+                insurance_pct REAL,
+                public_pct REAL NOT NULL,
+                aif_pct REAL,
+                promoter_pledge_pct REAL,
+                published_at TEXT NOT NULL,
+                source_name TEXT NOT NULL,
+                source_url TEXT NOT NULL,
+                confidence REAL NOT NULL,
+                ingested_at TEXT NOT NULL
+            )
+            """,
+            "CREATE INDEX IF NOT EXISTS idx_ownership_lookup ON ownership_snapshots(symbol, period_end, published_at)",
+            f"""
+            CREATE TABLE IF NOT EXISTS document_metadata (
+                id {auto_pk},
+                symbol TEXT NOT NULL REFERENCES companies(symbol),
+                document_type TEXT NOT NULL,
+                title TEXT NOT NULL,
+                financial_period TEXT,
+                document_date TEXT NOT NULL,
+                publication_date TEXT NOT NULL,
+                source_name TEXT NOT NULL,
+                source_url TEXT NOT NULL,
+                confidence REAL NOT NULL,
+                metadata_json TEXT,
+                ingested_at TEXT NOT NULL
+            )
+            """,
+            "CREATE INDEX IF NOT EXISTS idx_document_lookup ON document_metadata(symbol, publication_date)",
+            f"""
+            CREATE TABLE IF NOT EXISTS market_daily_snapshots (
+                id {auto_pk},
+                symbol TEXT NOT NULL REFERENCES companies(symbol),
+                trading_date TEXT NOT NULL,
+                open_price REAL NOT NULL,
+                high_price REAL NOT NULL,
+                low_price REAL NOT NULL,
+                close_price REAL NOT NULL,
+                volume INTEGER NOT NULL,
+                delivery_volume INTEGER,
+                delivery_pct REAL,
+                market_cap REAL,
+                published_at TEXT NOT NULL,
+                source_name TEXT NOT NULL,
+                source_url TEXT NOT NULL,
+                ingested_at TEXT NOT NULL
+            )
+            """,
+            "CREATE INDEX IF NOT EXISTS idx_market_daily_lookup ON market_daily_snapshots(symbol, trading_date, published_at)",
+            f"""
+            CREATE TABLE IF NOT EXISTS watchlist (
+                id {auto_pk},
+                symbol TEXT UNIQUE NOT NULL,
+                company_name TEXT,
+                target_price REAL DEFAULT 0.0,
+                notes TEXT,
+                added_at TEXT NOT NULL
+            )
+            """
+        ]
+        with self._connect() as conn:
+            for stmt in ddl_statements:
+                conn.execute(stmt)
         # Ensure universe discovery is seeded
         with self._connect() as conn:
-            cnt = conn.execute("SELECT COUNT(*) FROM companies").fetchone()[0]
+            row = conn.execute("SELECT COUNT(*) FROM companies").fetchone()
+            if isinstance(row, dict):
+                cnt = list(row.values())[0] if row else 0
+            elif hasattr(row, "__getitem__"):
+                cnt = row[0]
+            else:
+                cnt = 0
         if cnt < 200:
             from app.services.ingestion.universe_discovery import seed_universe_companies
             seed_universe_companies(self)

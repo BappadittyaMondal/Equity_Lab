@@ -78,12 +78,6 @@ def run_inflection_multibagger(symbol: str, as_of: Optional[Any] = None) -> Stra
 
     has_real_financials = len(pat_s) >= 2 and len(pe_s) >= 1 and piotroski_res.get("status") != "insufficient_data"
 
-    if not has_real_financials and is_offline_env:
-        pat_s = [("2024-03-31", 100.0), ("2024-06-30", 150.0), ("2024-09-30", 220.0)]
-        pe_s = [("2024-09-30", 18.0)]
-        piotroski_res = {"status": "success", "f_score": 7}
-        has_real_financials = True
-
     if not has_real_financials:
         # Honest fallback: require real fundamental data observations
         return StrategyRunResponse(
@@ -154,24 +148,47 @@ def run_inflection_multibagger(symbol: str, as_of: Optional[Any] = None) -> Stra
         z_vol = round((vol_5d_avg - vol_mean_252) / vol_std_252, 2)
         volume_z_pass = z_vol >= 3.0
 
-        if 'Delivery_Pct' in hist and len(hist['Delivery_Pct']) > 0 and not np.isnan(hist['Delivery_Pct'].iloc[-1]):
-            delivery_pct = float(hist['Delivery_Pct'].iloc[-1])
+        # Defensive case-insensitive column resolution for delivery percentage
+        deliv_col = None
+        for col_candidate in ('Delivery_Pct', 'delivery_pct', 'delivery_percentage', 'delivery', 'deliv_pct'):
+            if col_candidate in hist.columns:
+                deliv_col = col_candidate
+                break
+        if deliv_col is None:
+            deliv_col = next((c for c in hist.columns if str(c).lower() in ("delivery_pct", "delivery_percentage", "delivery", "deliv_pct")), None)
+
+        if deliv_col and len(hist[deliv_col]) > 0 and not np.isnan(hist[deliv_col].iloc[-1]):
+            delivery_pct = float(hist[deliv_col].iloc[-1])
         else:
             from app.services.market_data import get_latest_db_delivery_pct
             delivery_pct = get_latest_db_delivery_pct(symbol)
 
+        delivery_delta: Optional[float] = None
+        has_float_absorption = False
+        if deliv_col and len(hist[deliv_col]) >= 10 and not hist[deliv_col].iloc[:-5].isna().all():
+            try:
+                base_deliv = float(np.nanmean(hist[deliv_col].iloc[:-5].values))
+                recent_deliv = float(np.nanmean(hist[deliv_col].iloc[-5:].values))
+                delivery_delta = round(recent_deliv - base_deliv, 1)
+                if delivery_delta >= 20.0 and z_vol >= 2.5:
+                    has_float_absorption = True
+            except Exception:
+                pass
+
         if delivery_pct is not None:
             dtr_5d = round((vol_5d_avg * (delivery_pct / 100.0)) / max(vol_mean_252 * 10, 1.0) * 100.0, 2)
-            dtr_pass = dtr_5d >= 2.0 or z_vol >= 3.5
+            dtr_pass = dtr_5d >= 2.0 or z_vol >= 3.5 or has_float_absorption
         else:
             dtr_5d = None
-            dtr_pass = z_vol >= 3.5
+            dtr_pass = z_vol >= 3.5 or has_float_absorption
     else:
         vol_mean_252 = 0.0
         vol_5d_avg = 0.0
         z_vol = 0.0
         volume_z_pass = False
         delivery_pct = None
+        delivery_delta = None
+        has_float_absorption = False
         dtr_5d = None
         dtr_pass = False
 
@@ -180,11 +197,31 @@ def run_inflection_multibagger(symbol: str, as_of: Optional[Any] = None) -> Stra
     results = {
         "volume_z_score_status": f"PASS (Z={z_vol}s)" if volume_z_pass else f"FAIL (Z={z_vol}s)",
         "float_delivery_turnover": f"{dtr_5d}%",
+        "delivery_delta_pct": f"{delivery_delta:+0.1f}%" if delivery_delta is not None else "UNOBSERVED",
+        "float_absorption_signal": "ACTIVE_ACCUMULATION" if has_float_absorption else "NORMAL",
         "earnings_acceleration_convexity": f"PASS (C_E={c_e}s)" if convexity_pass else f"FAIL (C_E={c_e}s)",
         "peg_mispricing_status": f"PASS (PEG={peg_ratio})" if peg_pass else f"FAIL (PEG={peg_ratio})",
         "forensic_integrity_gate": "PASS" if forensic_pass else "FAIL",
         "inflection_signal": "HIGH_CONVICTION_INFLECTION" if overall_pass else "MONITORING"
     }
+
+    # Bridge into Canonical InstitutionalMultibaggerEngine (§Authority Consolidation)
+    try:
+        from app.services.research.institutional_multibagger_engine import InstitutionalMultibaggerEngine
+        item_profile = {
+            "symbol": norm_symbol,
+            "current_price": spot,
+            "peg_ratio": peg_ratio,
+            "piotroski_score": piotroski_score,
+            "pledged_pct": pledged_pct,
+            "pat_growth_latest": pat_growth_yoy,
+            "acceleration_z_score_ce": c_e,
+        }
+        inst_eval = InstitutionalMultibaggerEngine.evaluate_company(item_profile)
+        results["institutional_score"] = inst_eval.get("overall_score", 0.0)
+        results["institutional_archetype"] = inst_eval.get("archetype", "UNKNOWN")
+    except Exception:
+        pass
 
     metrics = {
         "spot_price": spot,
@@ -193,7 +230,8 @@ def run_inflection_multibagger(symbol: str, as_of: Optional[Any] = None) -> Stra
         "convexity_index_ce": c_e,
         "peg_ratio": peg_ratio,
         "piotroski_f_score": piotroski_score,
-        "pledged_pct": pledged_pct
+        "pledged_pct": pledged_pct,
+        "institutional_score": results.get("institutional_score", 0.0)
     }
 
     risk_warnings = [

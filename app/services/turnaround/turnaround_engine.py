@@ -5,7 +5,8 @@ Orchestrates PIT data ingestion, feature extraction, 2-layer probability model,
 lifecycle state evaluation, and returns a fully certified StrategyRunResponse.
 """
 
-from typing import Any, Dict, Optional
+from datetime import datetime
+from typing import Any, Dict, Optional, List
 import os
 import logging
 
@@ -33,14 +34,55 @@ def run_turnaround_engine(symbol: str, as_of: Optional[str] = None) -> StrategyR
     """Run E20 Turnaround Prediction Engine for given symbol."""
     is_offline = os.getenv("OFFLINE_TEST_MODE", "false").lower() == "true"
     
-    # 1. Fetch Timeline Financials
+    # 1. Fetch Timeline Financials from Institutional ResearchDataStore
     financials = []
     is_heuristic_timeline = False
     try:
-        from app.services.data_ingestion.financial_timeline import _get_financial_timeline
-        financials = _get_financial_timeline(symbol)
+        from app.services.research_data import ResearchDataStore
+        from app.services.market_data import normalize_symbol
+        norm_sym = normalize_symbol(symbol)
+        parsed_as_of = None
+        if as_of:
+            if isinstance(as_of, datetime):
+                parsed_as_of = as_of
+            elif isinstance(as_of, str):
+                try:
+                    parsed_as_of = datetime.fromisoformat(as_of.replace("Z", "+00:00"))
+                except Exception:
+                    parsed_as_of = None
+
+        ds = ResearchDataStore()
+        _, obs_list, _, _, _, _ = ds.get_timeline(norm_sym, as_of=parsed_as_of)
+        if obs_list:
+            period_map: Dict[str, Dict[str, float]] = {}
+            for obs in obs_list:
+                p_end = getattr(obs, "period_end", None)
+                if not p_end:
+                    continue
+                if p_end not in period_map:
+                    period_map[p_end] = {}
+                m_name = getattr(obs, "metric", "").lower()
+                try:
+                    val = float(getattr(obs, "value", 0.0))
+                except (ValueError, TypeError):
+                    continue
+                if m_name in ("revenue", "revenue_inr", "sales", "total_revenue"):
+                    period_map[p_end]["revenue_inr"] = val
+                elif m_name in ("opm", "opm_pct", "operating_margin", "ebitda_margin_pct"):
+                    period_map[p_end]["opm_pct"] = val
+                elif m_name in ("pat", "pat_inr", "net_profit"):
+                    period_map[p_end]["pat_inr"] = val
+                elif m_name in ("cfo", "cfo_inr", "cash_from_ops", "operating_cash_flow"):
+                    period_map[p_end]["cfo_inr"] = val
+                elif m_name in ("roce", "roce_pct"):
+                    period_map[p_end]["roce_pct"] = val
+                elif m_name in ("debt", "debt_inr", "net_debt", "gross_debt", "total_debt"):
+                    period_map[p_end]["debt_inr"] = val
+
+            sorted_periods = sorted(period_map.keys())
+            financials = [period_map[p] for p in sorted_periods]
     except Exception as err:
-        logger.debug("Failed to query financial timeline for %s: %s", symbol, err)
+        logger.debug("Failed to query ResearchDataStore financial timeline for %s: %s", symbol, err)
 
     if not financials or len(financials) < 2:
         if not is_offline:
@@ -129,14 +171,14 @@ def run_turnaround_engine(symbol: str, as_of: Optional[str] = None) -> StrategyR
         if cp_val <= 0.0 and fund_dict:
             cp_val = float(fund_dict.get("current_price", 0.0) or 0.0)
     else:
-        cp_val = float(features.get("current_price", 100.0) or 100.0)
+        cp_val = float(features.get("current_price") or (quote.get("price") if isinstance(quote, dict) else 0.0) or (fund_dict.get("current_price") if fund_dict else 0.0) or 0.0)
 
     # Do not synthesize fake disaster floor if missing
     d_avwap = None
     if fund_dict and fund_dict.get("low_52w"):
         d_avwap = float(fund_dict["low_52w"])
-    elif is_offline:
-        d_avwap = float(features.get("disaster_avwap", cp_val * 0.85) or (cp_val * 0.85))
+    elif is_offline and cp_val > 0:
+        d_avwap = float(features.get("disaster_avwap") or (cp_val * 0.85))
 
     # Extract real financial metrics from latest observations
     latest_fin = financials[-1] if financials else {}
@@ -148,10 +190,10 @@ def run_turnaround_engine(symbol: str, as_of: Optional[str] = None) -> StrategyR
 
     # Derive real Piotroski score and prior period delta (DEF-D)
     f_curr = 5 if is_offline else 0
-    f_prev = 0
+    f_prev = None
     if fund_dict and fund_dict.get("piotroski_score"):
         f_curr = int(fund_dict["piotroski_score"])
-        f_prev = int(fund_dict.get("piotroski_score_prev", max(1, f_curr - 1) if f_curr > 0 else 0))
+        f_prev = int(fund_dict["piotroski_score_prev"]) if fund_dict.get("piotroski_score_prev") is not None else None
     elif len(financials) >= 2:
         from app.services.strategies.forensic_engine import compute_piotroski_fscore
         piot_res = compute_piotroski_fscore(financials)
@@ -160,13 +202,7 @@ def run_turnaround_engine(symbol: str, as_of: Optional[str] = None) -> StrategyR
         if len(financials) >= 3:
             piot_prev_res = compute_piotroski_fscore(financials[:-1])
             if piot_prev_res.get("status") == "success":
-                f_prev = int(piot_prev_res.get("f_score", max(1, f_curr - 1)))
-            else:
-                f_prev = max(1, f_curr - 1) if f_curr > 0 else 0
-        else:
-            f_prev = max(1, f_curr - 1) if f_curr > 0 else 0
-    else:
-        f_prev = max(1, f_curr - 1) if f_curr > 0 else 0
+                f_prev = int(piot_prev_res.get("f_score", 0))
     relapse_flag = bool(model_output.get("p_relapse", 0.0) > 0.65)
 
     sm_res = TurnaroundStateMachine.evaluate(
@@ -185,6 +221,13 @@ def run_turnaround_engine(symbol: str, as_of: Optional[str] = None) -> StrategyR
         passed = False
         damage_info.setdefault("damage_reasons", []).append(
             f"Turnaround Relapse Veto Active: Dominant failure override ({sm_res.get('dominant_override')})"
+        )
+
+    # Optical Base Illusion Check: Never buy a turnaround base with negative CFO and rising borrowings
+    if cfo_val < 0.0 and not debt_red:
+        passed = False
+        damage_info.setdefault("damage_reasons", []).append(
+            "DISTRIBUTIVE_FINANCING_TRAP: Technical base represents inventory financing, not accumulation (CFO < 0 with increasing borrowings)."
         )
 
     from app.services.risk.surveillance_gate import evaluate_surveillance_and_cost_gate

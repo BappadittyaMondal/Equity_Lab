@@ -212,13 +212,14 @@ def _calculate_scenario_probabilities(
     symbol: str = "",
     composite_score: float = 60.0,
     regime: Optional[str] = None,
-) -> Tuple[float, float, float, str]:
+) -> Tuple[float, float, float, str, str]:
     """Calculate calibrated Bull/Base/Bear probabilities using ML ensemble & market regime.
 
-    Returns (prob_bull, prob_base, prob_bear, confidence_mode).
+    Returns (prob_bull, prob_base, prob_bear, confidence_mode, ml_calibration_tier).
     """
     prob_bull, prob_base, prob_bear = 0.25, 0.50, 0.25
     confidence_mode = "prior_insufficient_data"
+    sample_count = 0
 
     try:
         from app.services.ml.baseline_model import _MODEL_CACHE, predict_outperformance_prob, train_baseline_model
@@ -235,6 +236,8 @@ def _calculate_scenario_probabilities(
             confidence_mode = "calibrated_ml_ensemble"
     except Exception as e:
         logger.debug("ML scenario probability calculation fallback: %s", e)
+
+    calib_tier = "FULL_PRODUCTION_N100" if sample_count >= 100 else ("PILOT_EXPANDING_N20_N99" if sample_count >= 20 else "INSUFFICIENT_N0_N19")
 
     # Regime adjustments
     if regime:
@@ -261,7 +264,7 @@ def _calculate_scenario_probabilities(
         prob_bear = round(prob_bear / total, 4)
         prob_base = round(1.0 - prob_bull - prob_bear, 4)
 
-    return prob_bull, prob_base, prob_bear, confidence_mode
+    return prob_bull, prob_base, prob_bear, confidence_mode, calib_tier
 
 
 def _build_scenario_tree(
@@ -291,7 +294,7 @@ def _build_scenario_tree(
     def _price_target(ret_pct: float) -> float:
         return round(current_price * (1 + ret_pct / 100.0), 2) if current_price > 0 else 0.0
 
-    prob_bull, prob_base, prob_bear, confidence_mode = _calculate_scenario_probabilities(
+    prob_bull, prob_base, prob_bear, confidence_mode, calib_tier = _calculate_scenario_probabilities(
         symbol=symbol, composite_score=composite_score, regime=regime
     )
 
@@ -310,6 +313,7 @@ def _build_scenario_tree(
         "expected_return_pct": round(expected_return, 2),
         "expected_price":      _price_target(expected_return),
         "prob_sum_check":      round(prob_bull + prob_base + prob_bear, 2),
+        "ml_calibration_tier": calib_tier,
     }
 
 

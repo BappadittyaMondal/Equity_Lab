@@ -1,6 +1,6 @@
 # Equity Lab — API Surface Specification
 
-> Total Endpoints: 79
+> Total Endpoints: 93
 
 | Endpoint Path | Method | Summary |
 |---|---|---|
@@ -48,12 +48,15 @@
 | `/api/v1/query` | **POST** | Handle Ai Query |
 | `/api/v1/readiness` | **GET** | Get Readiness Status |
 | `/api/v1/regime` | **GET** | Fetch Market Regime |
+| `/api/v1/research/ai-committee/evt-tail/{symbol}` | **GET** | Get Evt Tail Metrics |
+| `/api/v1/research/ai-committee/forensics/{symbol}` | **GET** | Get Company Forensics |
 | `/api/v1/research/ai-committee/governance-audit/{symbol}` | **GET** | Audit Governance |
 | `/api/v1/research/ai-committee/nl-query` | **POST** | Compile Nl Query |
 | `/api/v1/research/ai-committee/post-mortem` | **POST** | Audit Post Mortem |
 | `/api/v1/research/ai-committee/review` | **POST** | Run Ic Boardroom Review |
 | `/api/v1/research/ai-committee/supply-chain/{symbol}` | **GET** | Get Supply Chain Graph |
 | `/api/v1/research/cagr-matrix` | **GET** | Fetch Cagr Sensitivity Matrix |
+| `/api/v1/research/early-compounder` | **GET** | Run Early Compounder Endpoint |
 | `/api/v1/research/genai-redteam/concall-audit` | **POST** | Audit Concall Transcript |
 | `/api/v1/research/genai-redteam/geopolitical-overlay/{symbol}` | **GET** | Get Geopolitical Overlay |
 | `/api/v1/research/genai-redteam/red-team-review` | **POST** | Generate Red Team Review |
@@ -62,9 +65,12 @@
 | `/api/v1/research/growth-arbitrage` | **GET** | Run Growth Arbitrage |
 | `/api/v1/research/growth-inflection` | **GET** | Run Growth Inflection |
 | `/api/v1/research/growth-market-gap` | **GET** | Run Growth Market Gap |
+| `/api/v1/research/inflection-multibagger` | **GET** | Run Inflection Multibagger Endpoint |
 | `/api/v1/research/multibagger-screener` | **GET** | Run Multibagger Screener |
 | `/api/v1/research/scorecard` | **GET** | Fetch Symbol Scorecard |
 | `/api/v1/research/scorecard-matrix` | **POST** | Fetch Scorecard Matrix |
+| `/api/v1/research/sip-policy/{symbol}` | **GET** | Get Valuation-Responsive Dynamic SIP Allocation Policy |
+| `/api/v1/research/swing-predictive` | **GET** | Run Swing Predictive Endpoint |
 | `/api/v1/research/turnaround-stage` | **GET** | Run Turnaround Stage |
 | `/api/v1/research/user-feedback` | **POST** | Submit Counter Question |
 | `/api/v1/research/walk-forward` | **GET** | Run Walk Forward Backtest |
@@ -73,15 +79,23 @@
 | `/api/v1/strategies/swing-alerts` | **GET** | Fetch Swing Trade Alerts |
 | `/api/v1/strategies/{strategy_id}` | **GET** | Fetch Strategy Detail |
 | `/api/v1/strategies/{strategy_id}/run` | **POST** | Run Strategy |
+| `/api/v1/technical/chart/reconcile` | **POST** | Reconcile Chart Vision |
 | `/api/v1/technical/probability/{symbol}` | **GET** | Get Probability Ladder |
 | `/api/v1/technical/regime` | **GET** | Get Market Regime |
 | `/api/v1/technical/report/{symbol}` | **GET** | Get Technical Report |
 | `/api/v1/technical/screener` | **GET** | Run Screener |
+| `/api/v1/technical/short-term-prediction/{symbol}` | **GET** | Get Short Term Prediction |
 | `/api/v1/technical/surveillance/{symbol}` | **GET** | Get Surveillance Gate |
 | `/api/v1/technical/trade_manager/{symbol}` | **GET** | Get Trade Management |
 | `/api/v1/ticker-strip` | **GET** | Fetch Ticker Strip |
 | `/api/v1/ticker/{symbol}` | **GET** | Fetch Ticker Quote |
 | `/api/v1/ticker/{symbol}/history` | **GET** | Fetch Ticker History |
+| `/api/v1/turnaround/features/{symbol}` | **GET** | Get Turnaround Feature Vector |
+| `/api/v1/turnaround/prediction` | **POST** | Post Turnaround Prediction for Symbol |
+| `/api/v1/turnaround/rank/universe` | **GET** | Rank Universe for Turnaround Opportunities |
+| `/api/v1/turnaround/stage/{symbol}` | **GET** | Get Turnaround Stage Details |
+| `/api/v1/turnaround/transitions/{symbol}` | **GET** | Get Turnaround Transition History |
+| `/api/v1/turnaround/{symbol}` | **GET** | Get Single-Stock Turnaround Intelligence (E20) |
 | `/api/v1/watchlist` | **GET** | Get Watchlist |
 | `/api/v1/watchlist` | **POST** | Add To Watchlist |
 | `/api/v1/watchlist/{symbol}` | **DELETE** | Delete From Watchlist |

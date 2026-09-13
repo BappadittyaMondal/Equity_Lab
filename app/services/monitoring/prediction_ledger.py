@@ -87,11 +87,42 @@ class PredictionLedgerService:
         symbol: str,
         horizon_months: int,
         actual_return_pct: float,
-        benchmark_return_pct: float = 8.0,
+        benchmark_return_pct: Optional[float] = None,
+        benchmark_symbol: str = "^NSEI",
     ) -> OutcomeRecord:
         """Record future actual return outcome for a historical prediction."""
         normalized = normalize_symbol(symbol)
-        excess = actual_return_pct - benchmark_return_pct
+
+        # Dynamic realized benchmark resolution
+        if benchmark_return_pct is None:
+            conn_b = get_connection()
+            pred_row = conn_b.execute(
+                "SELECT timestamp FROM prediction_ledger WHERE id = ?",
+                (prediction_id,)
+            ).fetchone()
+            conn_b.close()
+
+            realized_bmark: Optional[float] = None
+            if pred_row and pred_row["timestamp"]:
+                try:
+                    from app.services.market_data import get_history
+                    b_df = get_history(benchmark_symbol, period="2y")
+                    if b_df is not None and not b_df.empty and "Close" in b_df.columns:
+                        b_start = float(b_df["Close"].iloc[0])
+                        b_end = float(b_df["Close"].iloc[-1])
+                        if b_start > 0:
+                            realized_bmark = round(((b_end - b_start) / b_start) * 100.0, 2)
+                except Exception:
+                    realized_bmark = None
+
+            if realized_bmark is not None:
+                benchmark_return_pct = realized_bmark
+            else:
+                # Scaled 12% Nifty institutional CAGR baseline prorated to horizon
+                horizon_years = max(0.08, horizon_months / 12.0)
+                benchmark_return_pct = round(((1.0 + 0.12) ** horizon_years - 1.0) * 100.0, 2)
+
+        excess = round(actual_return_pct - benchmark_return_pct, 2)
 
         if excess >= 15.0:
             outcome_class = "CONFIRMED_HIGH_OUTPERFORMANCE"

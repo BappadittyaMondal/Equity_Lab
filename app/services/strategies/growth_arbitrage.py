@@ -169,9 +169,9 @@ def evaluate_growth_arbitrage(
             },
             horizon_forecasts=forecasts,
             key_drivers=["Market implied growth computed from Reverse DCF"],
-            key_risks=["DATA_UNAVAILABLE: Market quote or price history unavailable."],
-            disclaimer="DATA_UNAVAILABLE: Valid market price and P/E ratio required.",
-            meta=create_meta_header(source=f"AI Growth Arbitrage Engine E5 ({norm_symbol})")
+            key_risks=["DATA_INSUFFICIENT: Market quote, P/E ratio, or price history unobserved."],
+            disclaimer="DATA_INSUFFICIENT: Valid market price and P/E ratio required for growth arbitrage valuation.",
+            meta=create_meta_header(source=f"AI Growth Arbitrage Engine E5 ({norm_symbol})", limitations=["DATA_INSUFFICIENT"])
         )
 
     # 4. Growth Arbitrage Gap

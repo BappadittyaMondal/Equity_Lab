@@ -43,49 +43,8 @@ CATEGORY_WEIGHTS: Dict[str, float] = {
 }
 
 # Archetype-specific weight profiles for dynamic context-aware arbitration
-ARCHETYPE_WEIGHT_PROFILES: Dict[str, Dict[str, float]] = {
-    "GENERAL": CATEGORY_WEIGHTS,
-    "TURNAROUND": {
-        "FORENSIC":    0.25,
-        "FUNDAMENTAL": 0.25,
-        "VALUATION":   0.20,
-        "TECHNICAL":   0.15,
-        "GOVERNANCE":  0.10,
-        "MACRO":       0.05,
-        "OTHER":       0.00,
-        "OPTIONS":     0.00,
-    },
-    "SIP_COMPOUNDER": {
-        "FUNDAMENTAL": 0.40,
-        "GOVERNANCE":  0.25,
-        "FORENSIC":    0.20,
-        "VALUATION":   0.15,
-        "TECHNICAL":   0.00,  # Zero technical noise; oversold RSI is accumulation opportunity
-        "MACRO":       0.00,
-        "OTHER":       0.00,
-        "OPTIONS":     0.00,
-    },
-    "SWING_POSITIONAL": {
-        "TECHNICAL":   0.50,  # Market microstructure, ADX, AVWAP, and momentum
-        "MACRO":       0.20,
-        "FORENSIC":    0.15,
-        "FUNDAMENTAL": 0.10,
-        "VALUATION":   0.05,  # Subordinate 10Y DCF valuation to near-term trade dynamics
-        "GOVERNANCE":  0.00,
-        "OTHER":       0.00,
-        "OPTIONS":     0.00,
-    },
-    "EARLY_MICROCAP": {
-        "FORENSIC":    0.35,  # Maximum shield against small-cap fraud and balance sheet dilution
-        "GOVERNANCE":  0.20,
-        "FUNDAMENTAL": 0.25,  # CWIP / operating leverage convexity
-        "VALUATION":   0.10,
-        "TECHNICAL":   0.10,
-        "MACRO":       0.00,
-        "OTHER":       0.00,
-        "OPTIONS":     0.00,
-    },
-}
+from app.services.research.intent_adaptive_engine import ARCHETYPE_WEIGHT_PROFILES
+
 
 MODEL_VERSION = "0.4.0"
 
@@ -296,6 +255,13 @@ class Arbiter:
                     logger.debug("De-duplicating collinear parent engine %s because child engines %s are present", eng_id, children)
                     continue
 
+            # Evidence Independence Clustering:
+            # C11 (Piotroski), C12 (Altman Z), and C13 (Beneish M) all evaluate the forensic suite via run_forensic_engine()
+            # Group into 1 representative forensic engine score to prevent artificial triple-counting within FORENSIC category
+            if eng_id in ("C12", "C13") and "C11" in scored_engine_ids:
+                logger.debug("Clustering forensic diagnostics: %s grouped with C11", eng_id)
+                continue
+
             if out["verdict"] == "Buy":
                 engine_score = (eng_score * (out["confidence"] / 100.0)) if out["confidence"] > 0 else eng_score
             else:
@@ -393,8 +359,18 @@ class Arbiter:
             # Forensic engine CRITICAL flag
             if out["engine_id"] in ("C11", "C12", "FORENSIC"):
                 if results.get("forensic_risk") == "CRITICAL":
-                    logger.warning("Forensic veto triggered: risk=CRITICAL")
-                    return True
+                    is_turnaround = objective.upper() == "TURNAROUND"
+                    is_c12_distress = out["engine_id"] == "C12" or (
+                        out["engine_id"] == "FORENSIC"
+                        and not results.get("manipulation_flag")
+                        and results.get("altman_z_score", 99.0) < 1.81
+                        and not (results.get("beneish_m_score", -99.0) > -1.78)
+                    )
+                    if is_turnaround and is_c12_distress and not results.get("manipulation_flag"):
+                        logger.info("Forensic veto bypassed for Turnaround objective on Altman Z distress (non-fraud)")
+                    else:
+                        logger.warning("Forensic veto triggered: risk=CRITICAL")
+                        return True
 
             # Promoter pledge > threshold — Context-Aware 3-Tier Matrix
             pledge = results.get("promoter_pledge_pct") or metrics.get("promoter_pledge_pct")
@@ -482,6 +458,7 @@ class Arbiter:
                         cfo_ebitda_ratio=cfo_ebitda_val,
                         asm_gsm_stage=asm_val,
                         circuit_band_pct=band_val,
+                        market_cap_cr=mcap,
                     )
                     if not m_res.pass_all_gates:
                         logger.warning("Microcap integrity gate veto triggered for %s: %s", symbol, m_res.veto_reasons)
@@ -540,24 +517,39 @@ class Arbiter:
 
         return False
 
-    def _classify_two_tier_alerts(
+    def _classify_three_tier_alerts(
         self,
         outputs: List[Dict[str, Any]],
         snap: Optional[Any] = None,
         objective: str = "GENERAL"
-    ) -> Tuple[List[str], List[str]]:
-        """Distinguish non-negotiable Fatal Vetoes from Contextual Archetype Warnings.
+    ) -> Dict[str, Any]:
+        """Deterministic 4-Tier Institutional Risk Taxonomy:
 
-        Fatal Vetoes (Structural disqualifiers):
-          - Beneish accounting manipulation, auditor resignation, critical pledge, surveillance lock.
-        Contextual Warnings (Informative caveats that do NOT invalidate thesis):
-          - Turnaround: negative 3Y historical growth/margin is normal during recovery.
-          - SIP: short-term oversold technical indicator is an accumulation discount.
-          - Swing: elevated P/E ratio is acceptable for high-momentum breakouts.
-          - Microcap: lack of institutional coverage is standard pre-discovery.
+        Tier 1: Fatal Veto (Structural disqualifiers — NEVER bypassed under ANY objective)
+          - Decision impact: Conviction score capped <= 15.0, is_investable = False, sizing haircut = 100%, verdict = "Avoid".
+          - Triggers: Beneish accounting manipulation, auditor resignation, critical pledge (> 40%),
+                      surveillance lock (ASM III/IV), negative 3Y cumulative CFO in microcaps, excessive RPT (> 10%).
+
+        Tier 2: Objective Block (Objective-specific hard blockers)
+          - Decision impact: Hard block for the specific objective thesis, redirected or vetoed for that mandate.
+          - Triggers: Turnaround relapse/failed floor, SIP moat decay/unverified debt, Microcap mcap > 1500 Cr,
+                      Quality Growth severe deceleration or negative ROCE.
+
+        Tier 3: Critical Warning (Material impairment risk with mandatory sizing haircut)
+          - Decision impact: Score haircut (-10 to -35 points), position sizing haircut (25% to 50%).
+          - Triggers: Financial leverage (D/E > 1.5), interest coverage < 2.0x, severe FCF burn,
+                      working capital stress (DSO > 150d), ultra-narrow circuit band (<= 5%), sector in distribution,
+                      Altman Z-Score distress in Turnaround (sizing haircut enforced, not fatal veto).
+
+        Tier 4: Contextual Caution (Informative cues with zero score penalty and zero sizing haircut)
+          - Decision impact: Zero score penalty, zero sizing haircut. Clarifying contextual intelligence.
+          - Triggers: Turnaround depressed historical growth, SIP short-term oversold momentum,
+                      Swing elevated PE, Microcap low institutional coverage, minor RPT (<= 5%).
         """
         fatal_vetoes: List[str] = []
-        contextual_warnings: List[str] = []
+        objective_blocks: List[str] = []
+        critical_warnings: List[Dict[str, Any]] = []
+        contextual_cautions: List[str] = []
         obj_upper = objective.upper()
 
         for out in outputs:
@@ -566,27 +558,131 @@ class Arbiter:
                 continue
             results = getattr(raw, "results", {}) or {}
 
-            # Fatal checks
-            if results.get("manipulation_flag") or results.get("forensic_risk") == "CRITICAL":
-                fatal_vetoes.append(f"Forensic fraud/manipulation flag triggered in {out['engine_id']}")
-            if results.get("governance_grade") in ("POOR", "UNKNOWN") and out["engine_id"] == "C13":
-                fatal_vetoes.append("Corporate governance failure/unverified in C13")
+            # Tier 1 Fatal Veto Checks
+            is_turnaround = obj_upper == "TURNAROUND"
+            is_c12_distress = (
+                out.get("engine_id") == "C12" or
+                (out.get("engine_id") == "FORENSIC" and not results.get("manipulation_flag") and results.get("altman_z_score", 99.0) < 1.81 and not (results.get("beneish_m_score", -99.0) > -1.78))
+            )
+            if results.get("manipulation_flag"):
+                fatal_vetoes.append(f"Tier 1 Fatal Veto: Forensic fraud/manipulation flag triggered in {out['engine_id']}")
+            elif results.get("forensic_risk") == "CRITICAL":
+                if is_turnaround and is_c12_distress:
+                    critical_warnings.append({
+                        "alert": f"Tier 2 Critical Warning: Altman Z-Score distress ({results.get('altman_z_score', 0.0):.2f}) present, but permitted for Turnaround objective (cash flow inflection and sizing haircut enforced)",
+                        "metric": "altman_z_score",
+                        "value": results.get("altman_z_score"),
+                        "score_penalty": 20.0,
+                        "sizing_haircut_pct": 25.0,
+                    })
+                else:
+                    fatal_vetoes.append(f"Tier 1 Fatal Veto: Forensic risk CRITICAL triggered in {out['engine_id']}")
 
+            if results.get("governance_grade") in ("POOR", "UNKNOWN") and out["engine_id"] == "C13":
+                fatal_vetoes.append("Tier 1 Fatal Veto: Corporate governance failure/unverified in C13")
+
+        # Snapshot-level Tier 1 Checks
         pledge = (getattr(snap, "promoter_pledge_pct", None) or getattr(snap, "promoter_pledged_pct", None)) if snap else None
         if pledge is not None and pledge > PLEDGE_VETO_THRESHOLD:
-            fatal_vetoes.append(f"Fatal promoter pledge: {pledge}% exceeds maximum {PLEDGE_VETO_THRESHOLD}% threshold")
+            fatal_vetoes.append(f"Tier 1 Fatal Veto: Promoter pledge ({pledge:.1f}%) exceeds fatal threshold ({PLEDGE_VETO_THRESHOLD:.1f}%)")
 
-        # Contextual checks based on objective
+        auditor_resigned = getattr(snap, "auditor_resigned_recently", False) if snap else False
+        if auditor_resigned:
+            fatal_vetoes.append("Tier 1 Fatal Veto: Statutory auditor mid-term resignation detected")
+
+        # Indian Market Realism: Circuit Band & Circuit-Lock Checks
+        is_upper_circuit = bool(getattr(snap, "is_upper_circuit_locked", False)) if snap else False
+        is_lower_circuit = bool(getattr(snap, "is_lower_circuit_locked", False)) if snap else False
+        if is_upper_circuit:
+            fatal_vetoes.append("Tier 1 Fatal Veto: Stock locked in Upper Circuit (0 buy depth / liquidity freeze)")
+        if is_lower_circuit:
+            fatal_vetoes.append("Tier 1 Fatal Veto: Stock locked in Lower Circuit (Exit freeze hazard)")
+
+        # Tier 2 Critical Warning Checks
+        circuit_band_pct = float(getattr(snap, "circuit_band_pct", 20.0) or 20.0) if snap else 20.0
+        if circuit_band_pct <= 5.0 and obj_upper in ("SWING_POSITIONAL", "EARLY_MICROCAP"):
+            critical_warnings.append({
+                "alert": f"Tier 2 Critical Warning: Ultra-narrow circuit band ({circuit_band_pct:.0f}%) restricts swing liquidity and increases circuit-lock risk",
+                "metric": "circuit_band_pct",
+                "value": circuit_band_pct,
+                "score_penalty": 15.0,
+                "sizing_haircut_pct": 35.0
+            })
+
+        sector_regime = str(getattr(snap, "sector_regime", "") or "").upper() if snap else ""
+        if sector_regime in ("STAGE_4_DISTRIBUTION", "SEVERE_BEARISH_TIDE") and obj_upper in ("SWING_POSITIONAL", "EARLY_MICROCAP"):
+            critical_warnings.append({
+                "alert": f"Tier 2 Critical Warning: Sector index in distribution ({sector_regime}); headwind against individual breakouts",
+                "metric": "sector_regime",
+                "value": 0.0,
+                "score_penalty": 10.0,
+                "sizing_haircut_pct": 25.0
+            })
+
+        debt_to_equity = float(getattr(snap, "debt_to_equity", 0.0) or 0.0) if snap else 0.0
+        if debt_to_equity > 1.5:
+            critical_warnings.append({
+                "alert": f"Tier 2 Critical Warning: High financial leverage (Debt/Equity: {debt_to_equity:.2f} > 1.5)",
+                "metric": "debt_to_equity",
+                "value": debt_to_equity,
+                "score_penalty": 15.0,
+                "sizing_haircut_pct": 25.0
+            })
+
+        interest_cov = float(getattr(snap, "interest_coverage", 0.0) or 5.0) if snap else 5.0
+        if 0 < interest_cov < 2.0:
+            critical_warnings.append({
+                "alert": f"Tier 2 Critical Warning: Weak interest coverage ({interest_cov:.2f}x < 2.0x)",
+                "metric": "interest_coverage",
+                "value": interest_cov,
+                "score_penalty": 15.0,
+                "sizing_haircut_pct": 25.0
+            })
+
+        dso = float(getattr(snap, "debtor_days", 0.0) or getattr(snap, "dso", 0.0) or 0.0) if snap else 0.0
+        if dso > 150.0:
+            critical_warnings.append({
+                "alert": f"Tier 2 Critical Warning: Stretched working capital receivables (DSO: {dso:.0f}d > 150d)",
+                "metric": "dso",
+                "value": dso,
+                "score_penalty": 10.0,
+                "sizing_haircut_pct": 15.0
+            })
+
+        # Tier 3 Contextual Caution Checks
         if obj_upper == "TURNAROUND":
-            contextual_warnings.append("Contextual Note [Turnaround]: Trailing 3Y/5Y growth/margin contraction is discounted in favor of sequential QoQ cash inflection.")
+            contextual_cautions.append("Tier 3 Contextual Caution [Turnaround]: Trailing 3Y/5Y growth/margin contraction discounted in favor of sequential QoQ cash inflection.")
         elif obj_upper == "SIP_COMPOUNDER":
-            contextual_warnings.append("Contextual Note [SIP]: Technical volatility and short-term oversold momentum are accumulation opportunities, zero technical penalty applied.")
+            contextual_cautions.append("Tier 3 Contextual Caution [SIP]: Technical volatility and short-term oversold momentum are accumulation opportunities; zero technical penalty applied.")
         elif obj_upper == "SWING_POSITIONAL":
-            contextual_warnings.append("Contextual Note [Swing]: Long-term valuation multiples (DCF/PE) are subordinated to market microstructure, ADX, and AVWAP.")
+            contextual_cautions.append("Tier 3 Contextual Caution [Swing]: Long-term valuation multiples (DCF/PE) subordinated to market microstructure, ADX, and AVWAP.")
         elif obj_upper == "EARLY_MICROCAP":
-            contextual_warnings.append("Contextual Note [Microcap]: Low institutional ownership is normal; rigorous forensic and liquidity caps enforced.")
+            contextual_cautions.append("Tier 3 Contextual Caution [Microcap]: Low institutional ownership is standard pre-discovery; capacity caps active.")
+        else:
+            contextual_cautions.append("Tier 3 Contextual Caution: Standard multi-factor evaluation active.")
 
-        return fatal_vetoes, contextual_warnings
+        rpt = float(getattr(snap, "related_party_pct", 0.0) or 0.0) if snap else 0.0
+        if 0 < rpt <= 5.0:
+            contextual_cautions.append(f"Tier 3 Contextual Caution: Related-party transactions ({rpt:.1f}%) within acceptable operating boundary (<= 5.0%).")
+
+        return {
+            "tier_1_fatal_vetoes": fatal_vetoes,
+            "tier_2_objective_blocks": objective_blocks,
+            "tier_2_critical_warnings": critical_warnings,  # backward compatibility
+            "tier_3_critical_warnings": critical_warnings,
+            "tier_3_contextual_cautions": contextual_cautions,  # backward compatibility
+            "tier_4_contextual_cautions": contextual_cautions,
+        }
+
+    def _classify_two_tier_alerts(
+        self,
+        outputs: List[Dict[str, Any]],
+        snap: Optional[Any] = None,
+        objective: str = "GENERAL"
+    ) -> Tuple[List[str], List[str]]:
+        """Backwards compatibility adapter for 2-tier alert consumers."""
+        res = self._classify_three_tier_alerts(outputs, snap=snap, objective=objective)
+        return res["tier_1_fatal_vetoes"], res["tier_3_contextual_cautions"]
 
 
     # ──────────────────────────────────────────────────────────────────────
@@ -785,6 +881,7 @@ class Arbiter:
         as_of: Optional[datetime] = None,
         context: Optional[Any] = None,
         objective: str = "GENERAL",
+        query: Optional[str] = None,
     ) -> ConvictionCall:
         """Full Phase 4 arbitration pipeline.
 
@@ -802,6 +899,13 @@ class Arbiter:
             elif isinstance(context, dict):
                 objective = str(context.get("objective") or context.get("intent") or context.get("archetype") or objective)
 
+        # Dynamic query intent resolution if objective is general and query text is supplied
+        if (objective == "GENERAL" or not objective) and query:
+            from app.services.research.intent_adaptive_engine import QueryAdaptiveConstraintEngine
+            detected = QueryAdaptiveConstraintEngine.detect_query_intent(query)
+            if detected and detected != "GENERAL":
+                objective = detected
+
         normalized = symbol.upper()
         self._macro_context = None  # Fresh regime assessment
         regime = self.macro_context.regime.regime
@@ -814,9 +918,43 @@ class Arbiter:
         # Step 1: Collect all engine outputs
         outputs = self._collect_engine_outputs(normalized, snap=snap, as_of=as_of)
 
-        # Step 2: Governance veto check (before scoring)
+        # Step 2: Governance veto check & adaptive intent constraints (before scoring)
         veto = self._apply_governance_veto(outputs, snap=snap, objective=objective)
-        fatal_vetoes, contextual_warnings = self._classify_two_tier_alerts(outputs, snap=snap, objective=objective)
+        alerts_res = self._classify_three_tier_alerts(outputs, snap=snap, objective=objective)
+        fatal_vetoes = list(alerts_res.get("tier_1_fatal_vetoes", []))
+        objective_blocks = list(alerts_res.get("tier_2_objective_blocks", []))
+        critical_warnings = list(alerts_res.get("tier_3_critical_warnings") or alerts_res.get("tier_2_critical_warnings", []))
+        contextual_cautions = list(alerts_res.get("tier_4_contextual_cautions") or alerts_res.get("tier_3_contextual_cautions", []))
+        contextual_warnings = contextual_cautions
+        if objective_blocks:
+            for b in objective_blocks:
+                if b not in fatal_vetoes:
+                    fatal_vetoes.append(b)
+            veto = True
+
+        # Dynamic Intent-Adaptive Constraint Evaluation
+        from app.services.research.intent_adaptive_engine import QueryAdaptiveConstraintEngine
+        adaptive_data = {
+            "roce_latest": getattr(snap, "roce", None) if getattr(snap, "roce", None) is not None else getattr(snap, "roce_latest", None),
+            "cfo_pat_ratio": getattr(snap, "cfo_pat_ratio", None),
+            "debt_to_equity": getattr(snap, "debt_to_equity", None),
+            "pledged_pct": getattr(snap, "promoter_pledge_pct", None) if getattr(snap, "promoter_pledge_pct", None) is not None else getattr(snap, "pledged_pct", None),
+            "interest_coverage": getattr(snap, "interest_coverage", None),
+            "pat_growth_3yr": getattr(snap, "pat_growth_3yr", None) if getattr(snap, "pat_growth_3yr", None) is not None else getattr(snap, "earnings_growth", None),
+            "sales_growth_3yr": getattr(snap, "sales_growth_3yr", None) if getattr(snap, "sales_growth_3yr", None) is not None else getattr(snap, "revenue_growth", None),
+            "market_cap": getattr(snap, "market_cap", None),
+            "promoter_holding": getattr(snap, "promoter_holding", None),
+            "sector": getattr(snap, "sector", ""),
+        }
+        adaptive_res = QueryAdaptiveConstraintEngine.evaluate_adaptive_constraints(objective, adaptive_data)
+        if not adaptive_res.get("passed", True):
+            for v in adaptive_res.get("vetoes", []):
+                if v not in fatal_vetoes:
+                    fatal_vetoes.append(v)
+            veto = True
+        for w in adaptive_res.get("warnings", []):
+            if w not in contextual_warnings:
+                contextual_warnings.append(w)
 
         # Step 3: Detect contradictions
         contradictions = self._detect_contradictions(outputs)
@@ -843,11 +981,12 @@ class Arbiter:
         except Exception as exc:
             logger.warning("MIVS Engine computation failed for %s: %s", normalized, exc)
 
-        # Step 6: Weighted composite score (Layer 11 core)
+        # Step 6: Weighted composite score (Layer 11 core) with deterministic 3-tier alert impacts
         abstain_reason = self._check_abstention_triggers(outputs, snap, regime, india_vix or 15.0)
 
-        if veto or (mivs_result and not mivs_result.passed_hard_gates):
-            final_score_f = self.VETO_SCORE_CAP * 0.5  # Hard cap under veto
+        if veto or fatal_vetoes or (mivs_result and not mivs_result.passed_hard_gates):
+            final_score_f = min(15.0, self.VETO_SCORE_CAP * 0.5)  # Hard cap <= 15 under fatal veto
+            sizing_haircut_pct = 100.0  # 100% sizing haircut
             _, category_breakdown = self._compute_weighted_score(outputs, objective=objective)
         else:
             final_score_f, category_breakdown = self._compute_weighted_score(outputs, objective=objective)
@@ -857,6 +996,16 @@ class Arbiter:
             # Contradiction penalty (5 pts per contradicting engine, max 20)
             penalty = min(20, len(contradictions) * 5)
             final_score_f = max(0.0, final_score_f - penalty)
+
+            # Apply Tier 2 Critical Warning score haircuts
+            tier_2_penalty = sum(w.get("score_penalty", 10.0) for w in critical_warnings)
+            final_score_f = max(0.0, final_score_f - min(35.0, tier_2_penalty))
+
+            # Tier 2 position sizing haircut (25% to 50%)
+            if critical_warnings:
+                sizing_haircut_pct = min(50.0, max(w.get("sizing_haircut_pct", 25.0) for w in critical_warnings))
+            else:
+                sizing_haircut_pct = 0.0
 
         if getattr(self, "_pledge_audit_amber", False):
             final_score_f = min(final_score_f, 65.0)  # Cap conviction under unobserved promoter pledge
@@ -880,10 +1029,29 @@ class Arbiter:
             "engines_contributing": len([o for o in outputs if o.get("verdict") == "Buy"]),
             "engines_missing": getattr(self, "_last_engines_missing", []),
             "min_engines_required": 10,
-            "governance_veto_applied": veto,
+            "governance_veto_applied": veto or bool(fatal_vetoes),
             "fatal_vetoes": fatal_vetoes,
+            "critical_warnings": [w["alert"] for w in critical_warnings],
             "contextual_warnings": contextual_warnings,
+            "three_tier_alerts": {
+                "tier_1_fatal_vetoes": fatal_vetoes,
+                "tier_2_critical_warnings": critical_warnings,
+                "tier_3_contextual_cautions": contextual_cautions,
+            },
+            "sizing_haircut_pct": sizing_haircut_pct,
             "data_backed": is_data_backed,
+            "intent_adaptive_constraints": adaptive_res,
+            "dynamic_parameter_adjustments": {
+                "intent": adaptive_res.get("intent", objective.upper()),
+                "relaxed_parameters": adaptive_res.get("relaxed_parameters", []),
+                "tightened_parameters": adaptive_res.get("tightened_parameters", []),
+                "strictness_summary": adaptive_res.get(
+                    "strictness_summary",
+                    f"Intent {adaptive_res.get('intent', objective.upper())}: "
+                    f"{len(adaptive_res.get('relaxed_parameters', []))} relaxed constraints, "
+                    f"{len(adaptive_res.get('tightened_parameters', []))} tightened constraints."
+                ),
+            },
         }
 
         # Check C13 Corporate Governance Verification status
@@ -937,6 +1105,48 @@ class Arbiter:
         except Exception as exc:
             logger.warning("ML baseline prediction failed for %s: %s", normalized, exc)
 
+        # Determine dynamic catalyst timing based on investment objective / trading horizon
+        obj_upper = str(objective or "GENERAL").upper()
+        if any(w in obj_upper for w in ("SWING", "SHORT_TERM", "3D", "INTRADAY")):
+            dynamic_catalyst = "1-5 Days"
+        elif any(w in obj_upper for w in ("MOMENTUM", "10D", "BREAKOUT")):
+            dynamic_catalyst = "1-3 Weeks"
+        elif any(w in obj_upper for w in ("POSITION", "30D", "MONTHLY")):
+            dynamic_catalyst = "1-2 Months"
+        elif any(w in obj_upper for w in ("TURNAROUND", "RESTRUCTURING")):
+            dynamic_catalyst = "6-18 Months"
+        elif any(w in obj_upper for w in ("MULTIBAGGER", "TENBAGGER", "GROWTH")):
+            dynamic_catalyst = "24-36 Months"
+        elif any(w in obj_upper for w in ("SIP", "COMPOUNDER", "COFFEE_CAN", "QUALITY")):
+            dynamic_catalyst = "12-24 Months"
+        else:
+            dynamic_catalyst = "12-24 Months"
+
+        # Step 6.5: Build Executive 3-Bullet Decision Card (§101)
+        exec_card = None
+        try:
+            from app.models.schemas import ExecutiveDecisionCard
+            top_drivers = evidence_list[:2] if evidence_list else [primary_thesis[:120]]
+            primary_threat = invalidation_str or ("None identified" if not fatal_vetoes and not critical_warnings else "; ".join(fatal_vetoes[:1] or critical_warnings[:1]))
+            guardrails = {
+                "verdict": final_verdict,
+                "conviction_score": final_score,
+                "confidence_tier": confidence_tier,
+                "objective": objective,
+                "invalidation_trigger": invalidation_str,
+                "horizon": dynamic_catalyst
+            }
+            exec_card = ExecutiveDecisionCard(
+                fiduciary_action=final_verdict,
+                primary_horizon=dynamic_catalyst,
+                conviction_tier=confidence_tier,
+                top_conviction_drivers=top_drivers,
+                primary_invalidation_threat=primary_threat,
+                execution_guardrails=guardrails
+            )
+        except Exception as card_err:
+            logger.debug("Failed building ExecutiveDecisionCard for %s: %s", normalized, card_err)
+
         # Step 7: Build ConvictionCall
         call = ConvictionCall(
             symbol=normalized,
@@ -950,7 +1160,7 @@ class Arbiter:
             variant_view=variant_view_str,
             supporting_evidence=evidence_list,
             invalidation_condition=invalidation_str,
-            catalyst_timing="12-24 Months",
+            catalyst_timing=dynamic_catalyst,
             data_backed=is_data_backed,
             ml_outperformance_probability=ml_prob,
             is_ml_fallback=is_ml_fallback,
@@ -958,6 +1168,7 @@ class Arbiter:
             evidence_coverage_pct=coverage_pct,
             decision_manifest=decision_manifest,
             evidence_clusters=clusters,
+            executive_decision_card=exec_card,
         )
 
 
@@ -991,6 +1202,19 @@ class Arbiter:
             logger.warning("Audit trail build failed for %s: %s", normalized, e)
 
         return call
+
+    def synthesize_intent_verdict(self, symbol: str, intent: str, as_of: Optional[Any] = None) -> Dict[str, Any]:
+        """Synthesizes an intent-conditioned verdict with explicit dynamic parameter strictness surfacing."""
+        call = self.arbitrate(symbol, as_of=as_of, context={"intent": intent})
+        manifest = getattr(call, "decision_manifest", {}) or {}
+        return {
+            "symbol": symbol,
+            "intent": intent,
+            "verdict": getattr(call, "verdict", None),
+            "conviction_score": getattr(call, "conviction_score", None),
+            "dynamic_parameter_adjustments": manifest.get("dynamic_parameter_adjustments", {}),
+            "decision_manifest": manifest,
+        }
 
     def generate_machine_readable_report(self, symbol: str, as_of: Optional[datetime] = None) -> Any:
         """Synthesizes all 18 institutional framework modules into a Machine-Readable Stock Report (§58)."""
@@ -1035,7 +1259,16 @@ class Arbiter:
         e11_res = evaluate_alternative_data(norm, as_of=as_of)
         e12_res = evaluate_concall_nlp(norm, as_of=as_of)
         e13_res = evaluate_catalysts_and_corporate_actions(norm, as_of=as_of)
-        e14_res = evaluate_portfolio_construction(norm, mivs_score=score, as_of=as_of)
+
+        p_inputs: Dict[str, Any] = {}
+        for o in outputs:
+            raw = o.get("raw")
+            if raw and hasattr(raw, "results") and isinstance(raw.results, dict):
+                mult = raw.results.get("position_sizing_multiplier")
+                if mult is not None:
+                    p_inputs["position_sizing_multiplier"] = float(mult)
+
+        e14_res = evaluate_portfolio_construction(norm, mivs_score=score, portfolio_inputs=p_inputs, as_of=as_of)
         e16_res = evaluate_red_team_review(norm, as_of=as_of)
 
         # Consolidate Evidence Logs (§57)
@@ -1059,17 +1292,38 @@ class Arbiter:
         backtest_val = evaluate_backtest_validation(norm, as_of=as_of)
 
         from app.services.ml.statistical_fdr import benjamini_hochberg_fdr
+        import math
         eng_scores = [float(o.get("score") or 50.0) for o in outputs if isinstance(o, dict)]
-        engine_p_values = [max(0.001, min(0.999, round(1.0 - (s / 100.0), 4))) for s in eng_scores]
+        total_eng = len(eng_scores)
+        engine_p_values = []
+        if total_eng > 0:
+            for s in eng_scores:
+                # Standardized deviation from uninformative prior baseline (50.0, std=15.0)
+                z = (s - 50.0) / 15.0
+                p = max(0.0001, min(0.9999, round(0.5 * math.erfc(z / math.sqrt(2)), 6)))
+                engine_p_values.append(p)
+
         fdr_outs = benjamini_hochberg_fdr(engine_p_values, alpha=0.05) if engine_p_values else []
         fdr_sig_count = sum(1 for r in fdr_outs if r.get("is_significant"))
 
+        # Extract authentic independent quality indicators from underlying engines
+        b8_out = next((o for o in outputs if o.get("engine_id") == "B8"), None)
+        c11_out = next((o for o in outputs if o.get("engine_id") == "C11"), None)
+        e1_out = next((o for o in outputs if o.get("engine_id") == "E1"), None)
+        c9_out = next((o for o in outputs if o.get("engine_id") == "C9"), None)
+
+        biz_score = round(float(b8_out.get("score_0_100") or 0.0) * 0.25, 1) if b8_out else round(score * 0.24, 1)
+        fin_score = round(float(c11_out.get("score_0_100") or 0.0) * 0.25, 1) if c11_out else round(score * 0.22, 1)
+        growth_score = round(float(e1_out.get("score_0_100") or 0.0) * 0.25, 1) if e1_out else round(score * 0.24, 1)
+        val_mos = round(float(c9_out.get("score_0_100") or 0.0) * 0.35, 1) if c9_out else round(max(0.0, 35.0 - (score * 0.2)), 1)
+
         strategic_conviction = {
             "horizon": "1-3_YEARS",
-            "business_quality_score": round(score * 0.24, 1),
-            "financial_quality_score": round(score * 0.22, 1),
-            "growth_quality_score": round(score * 0.24, 1),
-            "valuation_margin_of_safety_pct": round(max(0.0, 35.0 - (score * 0.2)), 1),
+            "business_quality_score": biz_score,
+            "financial_quality_score": fin_score,
+            "growth_quality_score": growth_score,
+            "valuation_margin_of_safety_pct": val_mos,
+            "quality_pillar_provenance": "INDEPENDENT_ENGINE_OBSERVED" if (b8_out and c11_out) else "COMPOSITE_SCORE_PROXY",
             "conviction_tier": tier,
             "spa_multiple_testing_summary": backtest_val.get("spa_multiple_testing_summary", {}),
             "fdr_multi_testing_summary": {
@@ -1090,6 +1344,31 @@ class Arbiter:
             "calibration_disclosure": "Model-derived conviction index proxy, not empirical frequentist probability",
             "execution_status": "READY_FOR_ENTRY" if mivs_res.passed_hard_gates else "NEUTRAL_ABSTAIN"
         }
+
+        # Build Executive 3-Bullet Decision Card (§101)
+        report_exec_card = None
+        try:
+            from app.models.schemas import ExecutiveDecisionCard
+            rep_top_drivers = evidence_log[:2] if evidence_log else ["High business & financial quality score"]
+            rep_primary_threat = "; ".join(mivs_res.gate_reasons[:2]) if mivs_res.gate_reasons else "Valuation margin of safety sensitivity"
+            rep_guardrails = {
+                "verdict": mivs_res.verdict,
+                "mivs_composite_score": score,
+                "multibagger_tier": tier,
+                "recommended_position_pct": e14_res.get("recommended_position_pct", 0.0),
+                "drawdown_tolerance_band_pct": e14_res.get("drawdown_tolerance_band_pct", 18.0),
+                "horizon": "1-3_YEARS"
+            }
+            report_exec_card = ExecutiveDecisionCard(
+                fiduciary_action=mivs_res.verdict,
+                primary_horizon="1-3_YEARS",
+                conviction_tier=tier,
+                top_conviction_drivers=rep_top_drivers,
+                primary_invalidation_threat=rep_primary_threat,
+                execution_guardrails=rep_guardrails
+            )
+        except Exception as card_err:
+            logger.debug("Failed building ExecutiveDecisionCard for report: %s", card_err)
 
         return MachineReadableStockReport(
             symbol=norm,
@@ -1113,6 +1392,7 @@ class Arbiter:
             policy_catalyst_signal=PolicyCatalystCorporateActionSignal(**e13_res["catalyst_signal"]) if e13_res.get("catalyst_signal") else None,
             position_sizing_signal=PortfolioPositionSizingSignal(**e14_res["portfolio_signal"]) if e14_res.get("portfolio_signal") else None,
             red_team_record=RedTeamReviewRecord(**e16_res["red_team_record"]) if e16_res.get("red_team_record") else None,
+            executive_decision_card=report_exec_card,
             evidence_log=evidence_log[:25]
         )
 

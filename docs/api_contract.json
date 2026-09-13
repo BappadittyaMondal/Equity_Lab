@@ -664,6 +664,23 @@
             }
           },
           {
+            "name": "as_of",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "format": "date-time"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "As Of"
+            }
+          },
+          {
             "name": "x-api-key",
             "in": "header",
             "required": false,
@@ -1492,6 +1509,23 @@
             "description": "Stock symbol (e.g. PTCIL or RELIANCE)"
           },
           {
+            "name": "as_of",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "format": "date-time"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "As Of"
+            }
+          },
+          {
             "name": "x-api-key",
             "in": "header",
             "required": false,
@@ -1547,6 +1581,23 @@
             "description": "Stock symbol (e.g. RELIANCE)"
           },
           {
+            "name": "as_of",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "format": "date-time"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "As Of"
+            }
+          },
+          {
             "name": "x-api-key",
             "in": "header",
             "required": false,
@@ -1600,6 +1651,23 @@
               "title": "Symbol"
             },
             "description": "Stock symbol (e.g. SHILCHAR or RELIANCE)"
+          },
+          {
+            "name": "as_of",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "format": "date-time"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "As Of"
+            }
           },
           {
             "name": "x-api-key",
@@ -2737,6 +2805,48 @@
             "schema": {
               "type": "string",
               "title": "Symbol"
+            }
+          },
+          {
+            "name": "objective",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "default": "GENERAL",
+              "title": "Objective"
+            }
+          },
+          {
+            "name": "as_of",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "As Of"
+            }
+          },
+          {
+            "name": "query",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Query"
             }
           },
           {
@@ -4210,6 +4320,64 @@
                   "type": "object",
                   "additionalProperties": true,
                   "title": "Response Get Short Term Prediction Api V1 Technical Short Term Prediction  Symbol  Get"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/technical/chart/reconcile": {
+      "post": {
+        "tags": [
+          "Institutional Technical Framework"
+        ],
+        "summary": "Reconcile Chart Vision",
+        "description": "Reconciles visual chart features (pixels/vision extraction) against authoritative numerical OHLCV exchange truth.",
+        "operationId": "reconcile_chart_vision_api_v1_technical_chart_reconcile_post",
+        "parameters": [
+          {
+            "name": "x-api-key",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "default": "",
+              "title": "X-Api-Key"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "additionalProperties": true,
+                "title": "Payload"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": true,
+                  "title": "Response Reconcile Chart Vision Api V1 Technical Chart Reconcile Post"
                 }
               }
             }
@@ -5831,6 +5999,18 @@
             "description": "Benchmark index symbol (default ^NSEI for Nifty 50)",
             "default": "^NSEI"
           },
+          "as_of": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "As Of",
+            "description": "Optional Point-in-Time reference boundary (YYYY-MM-DD)"
+          },
           "metrics": {
             "items": {
               "type": "string"
@@ -5845,6 +6025,18 @@
               "pe",
               "market_cap"
             ]
+          },
+          "intent": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Intent",
+            "description": "Optional strategic archetype (e.g. SIP_COMPOUNDER, SWING_POSITIONAL, MULTIBAGGER, TURNAROUND)"
           }
         },
         "type": "object",
@@ -5871,7 +6063,14 @@
             "title": "Benchmark"
           },
           "benchmark_return_pct": {
-            "type": "number",
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
             "title": "Benchmark Return Pct"
           },
           "metrics_data": {
@@ -5904,6 +6103,58 @@
             ],
             "title": "Score Breakdown"
           },
+          "pairwise_correlations": {
+            "anyOf": [
+              {
+                "additionalProperties": {
+                  "type": "number"
+                },
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Pairwise Correlations"
+          },
+          "correlation_degrees_of_freedom": {
+            "anyOf": [
+              {
+                "additionalProperties": true,
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Correlation Degrees Of Freedom"
+          },
+          "intent_conditioned_ranking": {
+            "anyOf": [
+              {
+                "additionalProperties": true,
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Intent Conditioned Ranking"
+          },
+          "cross_sector_comparison_notes": {
+            "anyOf": [
+              {
+                "items": {
+                  "type": "string"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Cross Sector Comparison Notes"
+          },
           "disclaimer": {
             "type": "string",
             "title": "Disclaimer"
@@ -5917,7 +6168,6 @@
           "symbols",
           "period",
           "benchmark",
-          "benchmark_return_pct",
           "metrics_data",
           "formula_explanations",
           "disclaimer",
@@ -6090,6 +6340,30 @@
             "title": "Ml Outperformance Probability",
             "description": "Scikit-Learn baseline estimated probability of benchmark outperformance (0.0 to 1.0)"
           },
+          "is_ml_fallback": {
+            "anyOf": [
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Is Ml Fallback",
+            "description": "True if ml_outperformance_probability was computed from a heuristic fallback formula"
+          },
+          "ml_sample_count": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Ml Sample Count",
+            "description": "Training sample count for active ML model"
+          },
           "evidence_coverage_pct": {
             "type": "number",
             "title": "Evidence Coverage Pct",
@@ -6121,6 +6395,17 @@
             ],
             "title": "Evidence Clusters",
             "description": "Independent evidence cluster score breakdown"
+          },
+          "executive_decision_card": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/ExecutiveDecisionCard"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Executive 3-Bullet Decision Card synthesizing action, key drivers/risks, and guardrails"
           },
           "disclaimer": {
             "type": "string",
@@ -6663,6 +6948,53 @@
         "title": "DriftReport",
         "description": "Model & strategy drift audit summary."
       },
+      "ExecutiveDecisionCard": {
+        "properties": {
+          "fiduciary_action": {
+            "type": "string",
+            "title": "Fiduciary Action",
+            "description": "Action verdict: Strong Buy, Buy, Accumulate, Watch, Avoid, etc."
+          },
+          "primary_horizon": {
+            "type": "string",
+            "title": "Primary Horizon",
+            "description": "Primary strategy horizon: e.g. 3D-30D Tactical Swing, 1-3Y Turnaround, 3-10Y Compounder"
+          },
+          "conviction_tier": {
+            "type": "string",
+            "title": "Conviction Tier",
+            "description": "Conviction tier: Confirmed, Model-dependent, Contested"
+          },
+          "top_conviction_drivers": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Top Conviction Drivers",
+            "description": "Top positive conviction drivers / operational catalysts"
+          },
+          "primary_invalidation_threat": {
+            "type": "string",
+            "title": "Primary Invalidation Threat",
+            "description": "Top 1 forensic, valuation, or structural risk threat"
+          },
+          "execution_guardrails": {
+            "additionalProperties": true,
+            "type": "object",
+            "title": "Execution Guardrails",
+            "description": "Actionable guardrails: position_sizing_pct, stop_loss, target_price, rrr, review_trigger"
+          }
+        },
+        "type": "object",
+        "required": [
+          "fiduciary_action",
+          "primary_horizon",
+          "conviction_tier",
+          "primary_invalidation_threat"
+        ],
+        "title": "ExecutiveDecisionCard",
+        "description": "Executive 3-Bullet Decision Card synthesizing action, key drivers/risks, and guardrails (\u00a7101)."
+      },
       "FinancialObservationIn": {
         "properties": {
           "symbol": {
@@ -7130,22 +7462,50 @@
             "default": "LOW"
           },
           "beneish_m_score": {
-            "type": "number",
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
             "title": "Beneish M Score",
             "default": -2.45
           },
           "altman_z_score": {
-            "type": "number",
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
             "title": "Altman Z Score",
             "default": 3.82
           },
           "piotroski_f_score": {
-            "type": "integer",
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
             "title": "Piotroski F Score",
             "default": 8
           },
           "mohanram_g_score": {
-            "type": "integer",
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
             "title": "Mohanram G Score",
             "default": 7
           },
@@ -7485,6 +7845,17 @@
             "title": "Promoter Net Transaction 30D",
             "default": 0.0
           },
+          "promoter_pledge_pct": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Promoter Pledge Pct"
+          },
           "promoter_pledge_trend": {
             "type": "string",
             "title": "Promoter Pledge Trend",
@@ -7722,6 +8093,17 @@
                 "type": "null"
               }
             ]
+          },
+          "executive_decision_card": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/ExecutiveDecisionCard"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Executive 3-Bullet Decision Card synthesizing action, key drivers/risks, and guardrails"
           },
           "evidence_log": {
             "items": {
@@ -9054,6 +9436,22 @@
             "type": "number",
             "title": "Drawdown Tolerance Band Pct",
             "default": 25.0
+          },
+          "event_proximity_multiplier": {
+            "type": "number",
+            "title": "Event Proximity Multiplier",
+            "default": 1.0
+          },
+          "base_recommended_pct": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Base Recommended Pct"
           }
         },
         "type": "object",
@@ -9201,6 +9599,17 @@
         ],
         "title": "PredictionRecord",
         "description": "Container for a logged historical prediction."
+      },
+      "ProbabilityType": {
+        "type": "string",
+        "enum": [
+          "SCENARIO_INDEX",
+          "HEURISTIC_CONFIDENCE",
+          "EMPIRICAL_RATE",
+          "CALIBRATED_PROBABILITY"
+        ],
+        "title": "ProbabilityType",
+        "description": "Institutional classification of probability-like quantitative outputs (\u00a756)."
       },
       "QueryRequest": {
         "properties": {
@@ -9405,6 +9814,18 @@
             ],
             "title": "Method",
             "default": "historical_empirical"
+          },
+          "as_of": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "As Of",
+            "description": "Optional Point-in-Time cutoff timestamp (YYYY-MM-DD)"
           }
         },
         "type": "object",
@@ -9465,10 +9886,22 @@
             "title": "Conformal Prediction Interval 90",
             "description": "Non-parametric 90% conformal prediction interval bounds [lower_bound_pct, upper_bound_pct]"
           },
+          "target_coverage_pct": {
+            "type": "number",
+            "title": "Target Coverage Pct",
+            "description": "Target coverage rate for distribution-free empirical dispersion interval",
+            "default": 90.0
+          },
+          "coverage_guarantee": {
+            "type": "boolean",
+            "title": "Coverage Guarantee",
+            "description": "Whether finite-sample conformal guarantee holds under exchangeability",
+            "default": false
+          },
           "conformal_coverage_guarantee_pct": {
             "type": "number",
             "title": "Conformal Coverage Guarantee Pct",
-            "description": "Target empirical coverage rate for distribution-free interval",
+            "description": "[DEPRECATED ALIAS] Preserved for backward compatibility",
             "default": 90.0
           },
           "conformal_risk_tier": {
@@ -9483,6 +9916,32 @@
             ],
             "title": "Conformal Risk Tier",
             "description": "Certified confidence tier based on numeric conformal interval width"
+          },
+          "coverage_nature": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Coverage Nature",
+            "description": "Nature of coverage: empirical in-sample dispersion or finite-sample holdout calibration",
+            "default": "EMPIRICAL_IN_SAMPLE_DISPERSION"
+          },
+          "is_finite_sample_guaranteed": {
+            "anyOf": [
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Is Finite Sample Guaranteed",
+            "description": "True only if verified against an exchangeable holdout calibration dataset under i.i.d.",
+            "default": false
           },
           "sample_size": {
             "type": "integer",
@@ -9719,6 +10178,56 @@
               }
             ],
             "title": "Parameters"
+          },
+          "as_of": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date-time"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "As Of",
+            "description": "Point-in-time evaluation timestamp for historical backtesting"
+          },
+          "query_intent": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Query Intent",
+            "description": "Request-scoped investment query intent (TURNAROUND, SIP_COMPOUNDER, etc.)"
+          },
+          "query_text": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Query Text",
+            "description": "Natural language user query string for intent classification"
+          },
+          "visual_features": {
+            "anyOf": [
+              {
+                "additionalProperties": true,
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Visual Features",
+            "description": "Structured visual chart features for multimodal verification"
           }
         },
         "type": "object",
@@ -9778,6 +10287,18 @@
             "type": "string",
             "title": "Disclaimer"
           },
+          "probability_type": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/ProbabilityType"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Typed evidentiary classification of probability outputs",
+            "default": "HEURISTIC_CONFIDENCE"
+          },
           "meta": {
             "$ref": "#/components/schemas/MetaHeader"
           }
@@ -9834,7 +10355,14 @@
             "default": "INR"
           },
           "price": {
-            "type": "number",
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
             "title": "Price"
           },
           "previous_close": {
@@ -9860,7 +10388,14 @@
             "title": "Change"
           },
           "change_percent": {
-            "type": "number",
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
             "title": "Change Percent"
           },
           "fifty_two_week_high": {
@@ -9931,9 +10466,7 @@
         },
         "type": "object",
         "required": [
-          "symbol",
-          "price",
-          "change_percent"
+          "symbol"
         ],
         "title": "TickerQuoteResponse"
       },
@@ -9970,11 +10503,38 @@
             "type": "string",
             "title": "Current Stage"
           },
+          "turnaround_stage_score_pct": {
+            "type": "number",
+            "maximum": 100.0,
+            "minimum": 0.0,
+            "title": "Turnaround Stage Score Pct",
+            "description": "Deterministic multi-stage turnaround progression index score",
+            "default": 0.0
+          },
           "success_probability_pct": {
             "type": "number",
             "maximum": 100.0,
             "minimum": 0.0,
-            "title": "Success Probability Pct"
+            "title": "Success Probability Pct",
+            "description": "Legacy alias for turnaround_stage_score_pct"
+          },
+          "calibration_status": {
+            "type": "string",
+            "title": "Calibration Status",
+            "description": "Calibration disclosure",
+            "default": "HEURISTIC_SCORE_NOT_EMPIRICALLY_CALIBRATED"
+          },
+          "probability_type": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/ProbabilityType"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Classification: diagnostic scenario index",
+            "default": "SCENARIO_INDEX"
           },
           "false_turnaround_risk": {
             "type": "string",

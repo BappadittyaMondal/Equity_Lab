@@ -52,7 +52,13 @@ class YFinanceProvider(MarketDataProvider):
     async def get_quote(self, symbol: str) -> Quote:
         loop = asyncio.get_event_loop()
         def _fetch() -> Quote:
-            ticker = self.yf.Ticker(symbol)
+            ticker_sym = symbol
+            try:
+                from app.services.research.security_master import SecurityMaster
+                ticker_sym = SecurityMaster.get_provider_ticker(symbol, "yfinance")
+            except Exception:
+                pass
+            ticker = self.yf.Ticker(ticker_sym)
             info = ticker.info
             price = info.get("currentPrice") or info.get("regularMarketPrice") or info.get("previousClose")
             if not price:
@@ -288,13 +294,16 @@ def _store_in_cache(symbol: str, quote: Quote, as_of: Optional[Any] = None) -> N
                 (cache_key, json.dumps(quote), now_ts),
             )
             # Append-Only Ledger Insertion: Align with MarketDailySnapshot schema (Zero deletion)
-            price = float(quote.get("price", 0.0) or 0.0)
-            high_val = quote.get("fifty_two_week_high")
-            low_val = quote.get("fifty_two_week_low")
+            price = float(quote.get("price", 0.0) or quote.get("close_price", 0.0) or 0.0)
+            open_p = float(quote.get("open", price) if quote.get("open") is not None else price)
+            # Pull genuine daily bar high/low (fallback to current price if unobserved, NEVER 52-week range)
+            high_val = quote.get("high") or quote.get("day_high") or quote.get("dayHigh")
+            low_val = quote.get("low") or quote.get("day_low") or quote.get("dayLow")
             high = float(high_val) if high_val is not None else price
             low = float(low_val) if low_val is not None else price
             vol = int(quote.get("volume") or 0) if quote.get("volume") is not None else 0
             provider_name = str(quote.get("provider", quote.get("active_provider", "MarketDataProvider")))
+            source_url = quote.get("source_url") or ("https://www.nseindia.com" if "NSE" in provider_name.upper() else f"https://finance.provider/{provider_name}")
             
             conn.execute(
                 """INSERT INTO market_daily_snapshots 
@@ -303,7 +312,7 @@ def _store_in_cache(symbol: str, quote: Quote, as_of: Optional[Any] = None) -> N
                 (
                     symbol.upper(),
                     now_date,
-                    price,
+                    open_p,
                     high,
                     low,
                     price,
@@ -313,7 +322,7 @@ def _store_in_cache(symbol: str, quote: Quote, as_of: Optional[Any] = None) -> N
                     None,
                     now_iso,
                     provider_name,
-                    "https://www.nseindia.com",
+                    source_url,
                     now_iso
                 )
             )
@@ -409,12 +418,12 @@ def get_ist_now_str() -> str:
     ist = timezone(timedelta(hours=5, minutes=30))
     return datetime.datetime.now(ist).isoformat()
 
-def create_meta_header(source: str = "IERL Market Data", stale: bool = False, limitations: list = None, data_mode: str = "LIVE", market_data_type: str = None) -> dict:
+def create_meta_header(source: str = "IERL Market Data", stale: bool = False, limitations: list = None, data_mode: str = "LIVE", market_data_type: str = None, as_of: str = None) -> dict:
     now = get_ist_now_str()
     md_type = market_data_type or ("delayed" if data_mode == "LIVE" else "SIMULATION")
     return {
         "source": source,
-        "as_of": now,
+        "as_of": as_of or now,
         "retrieved_at": now,
         "market_data_type": md_type,
         "data_mode": data_mode,
@@ -445,14 +454,18 @@ _INDEX_MAP = {
 }
 
 def normalize_symbol(symbol: str) -> str:
-    clean = symbol.upper().strip()
-    if clean in _INDEX_MAP:
-        return _INDEX_MAP[clean]
-    if clean.startswith("^"):
-        return clean
-    if clean.endswith(".NS") or clean.endswith(".BO"):
-        return clean
-    return f"{clean}.NS"
+    try:
+        from app.services.research.security_master import SecurityMaster
+        return SecurityMaster.resolve_symbol(symbol)
+    except Exception:
+        clean = symbol.upper().strip()
+        if clean in _INDEX_MAP:
+            return _INDEX_MAP[clean]
+        if clean.startswith("^"):
+            return clean
+        if clean.endswith(".NS") or clean.endswith(".BO"):
+            return clean
+        return f"{clean}.NS"
 
 from app.services.utils.resilience import CircuitBreaker
 
@@ -476,7 +489,7 @@ async def _async_get_market_quote(symbol: str) -> Quote:
             return _get_mock_fallback_quote(symbol)
         logger.error("MarketDataUpstream circuit breaker OPEN for %s in production. Failing closed.", symbol)
         return {
-            "symbol": normalize_symbol(symbol),
+            "symbol": symbol,
             "price": None,
             "close_price": None,
             "open": None,
@@ -511,7 +524,7 @@ async def _async_get_market_quote(symbol: str) -> Quote:
 
     logger.error("All primary/secondary market data providers failed for %s (%s) in production mode. Failing closed.", symbol, last_exc)
     return {
-        "symbol": normalize_symbol(symbol),
+        "symbol": symbol,
         "price": None,
         "close_price": None,
         "open": None,
@@ -599,7 +612,8 @@ def get_history(symbol: str, period: str = "3y", interval: str = "1d", allow_sim
     import pandas as pd
     import numpy as np
 
-    if any(tok in symbol.upper() for tok in ["UNKNOWN", "INVALID", "NONEXISTENT", "FAIL_DATA"]):
+    norm_symbol = normalize_symbol(symbol)
+    if any(tok in norm_symbol.upper() for tok in ["UNKNOWN", "INVALID", "NONEXISTENT", "FAIL_DATA"]):
         empty_df = pd.DataFrame()
         empty_df.attrs["is_mock"] = False
         empty_df.attrs["data_mode"] = "DATA_UNAVAILABLE"
@@ -622,7 +636,7 @@ def get_history(symbol: str, period: str = "3y", interval: str = "1d", allow_sim
         import io
         with warnings.catch_warnings(), contextlib.redirect_stderr(io.StringIO()):
             warnings.simplefilter("ignore")
-            df = yf.download(symbol, period=period, interval=interval, progress=False, timeout=2.0)
+            df = yf.download(norm_symbol, period=period, interval=interval, progress=False, timeout=2.0)
             if isinstance(df, pd.DataFrame) and not df.empty and len(df) > 5:
                 if isinstance(df.columns, pd.MultiIndex):
                     df.columns = df.columns.get_level_values(0)

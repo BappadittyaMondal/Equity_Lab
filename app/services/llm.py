@@ -478,3 +478,86 @@ class LLMService:
         )
 
 
+def analyze_chart_image_with_vision(image_base64: str) -> Dict[str, Any]:
+    """Extracts technical chart price levels and patterns from an image using Gemini Vision."""
+    import os
+    import json
+    import base64
+    gemini_key = os.getenv("GEMINI_API_KEY") or os.getenv("GOOGLE_API_KEY") or getattr(settings, "GEMINI_API_KEY", None)
+    if not gemini_key or "your_" in str(gemini_key).lower():
+        return {
+            "status": "VISION_KEY_MISSING",
+            "error": "Gemini API key is not configured.",
+            "visual_price": None,
+            "visual_breakout_level": None,
+            "visual_support": None,
+            "visual_pattern": "UNSPECIFIED",
+            "pattern_confidence": 0.0,
+        }
+
+    raw_b64 = image_base64
+    if "," in raw_b64:
+        raw_b64 = raw_b64.split(",", 1)[1]
+
+    prompt = (
+        "Analyze this financial candlestick/bar chart image with extreme precision.\n"
+        "Extract the following structured JSON:\n"
+        "{\n"
+        '  "spot_price": <most recent close price as float or null>,\n'
+        '  "breakout_level": <nearest resistance/breakout price level as float or null>,\n'
+        '  "support_level": <nearest support price level as float or null>,\n'
+        '  "visual_pattern": <one of ["VCP_CONTRACTION", "CUP_AND_HANDLE", "DOUBLE_BOTTOM", "STAGE_2_BREAKOUT", "CHANNEL_BREAKOUT", "UNSPECIFIED"]>,\n'
+        '  "pattern_confidence": <float between 0.0 and 1.0>\n'
+        "}\n"
+        "Return ONLY raw JSON without markdown code blocks."
+    )
+
+    try:
+        try:
+            from google import genai
+            from google.genai import types
+            client = genai.Client(api_key=gemini_key)
+            image_bytes = base64.b64decode(raw_b64)
+            response = client.models.generate_content(
+                model="gemini-2.5-flash",
+                contents=[
+                    types.Part.from_bytes(data=image_bytes, mime_type="image/png"),
+                    prompt,
+                ]
+            )
+            resp_text = response.text.strip()
+        except Exception:
+            import google.generativeai as genai_legacy
+            genai_legacy.configure(api_key=gemini_key)
+            model = genai_legacy.GenerativeModel("gemini-1.5-flash")
+            image_bytes = base64.b64decode(raw_b64)
+            response = model.generate_content([
+                {"mime_type": "image/png", "data": image_bytes},
+                prompt
+            ])
+            resp_text = response.text.strip()
+
+        resp_text = re.sub(r"^```(json)?", "", resp_text, flags=re.IGNORECASE).strip()
+        resp_text = re.sub(r"```$", "", resp_text).strip()
+        parsed = json.loads(resp_text)
+        return {
+            "status": "SUCCESS",
+            "visual_price": float(parsed.get("spot_price")) if parsed.get("spot_price") is not None else None,
+            "visual_breakout_level": float(parsed.get("breakout_level")) if parsed.get("breakout_level") is not None else None,
+            "visual_support": float(parsed.get("support_level")) if parsed.get("support_level") is not None else None,
+            "visual_pattern": str(parsed.get("visual_pattern", "UNSPECIFIED")),
+            "pattern_confidence": float(parsed.get("pattern_confidence", 0.0)),
+        }
+    except Exception as e:
+        logger.warning("Gemini Vision chart extraction failed: %s", e)
+        return {
+            "status": "DATA_UNAVAILABLE",
+            "reason": str(e),
+            "visual_price": None,
+            "visual_breakout_level": None,
+            "visual_support": None,
+            "visual_pattern": "UNSPECIFIED",
+            "pattern_confidence": 0.0,
+        }
+
+

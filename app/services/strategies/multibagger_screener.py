@@ -111,7 +111,7 @@ def evaluate_multibagger_score(
         category = "INSUFFICIENT_DATA"
     elif is_high_risk or final_score < 40.0:
         category = "AVOID_OR_HIGH_RISK"
-    elif final_score >= 75.0 and res_gov.governance_grade in ["EXCELLENT", "GOOD"] and res_e2.false_turnaround_risk in ["LOW", "MODERATE"]:
+    elif final_score >= 70.0 and res_gov.governance_grade in ["EXCELLENT", "GOOD"] and res_e2.false_turnaround_risk in ["LOW", "MODERATE"]:
         category = "HIGH_CONVICTION_EARLY_MULTIBAGGER"
     elif final_score >= 65.0 and res_e3.gap_classification == "HIGH_ARBITRAGE":
         category = "HIGH_GROWTH_REVALUATION_CANDIDATE"

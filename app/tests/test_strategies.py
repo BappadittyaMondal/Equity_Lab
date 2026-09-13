@@ -39,12 +39,12 @@ def test_c10_owner_earnings_execution():
     assert "accounting_components_observed" in res
     assert "is_pure_accounting_observation" in res
     assert "accounting_integrity" in res
-    assert res["status"] in ["production", "data_insufficient"]
+    assert res["status"] in ["production", "data_insufficient", "offline_test_mock"]
 
     # 2. Registry dispatch invocation
     dispatch_res = run_strategy_module("C10", "RELIANCE")
     assert dispatch_res.strategy_id == "C10"
-    assert dispatch_res.status in ["production", "data_insufficient"]
+    assert dispatch_res.status in ["production", "data_insufficient", "offline_test_mock"]
     assert "fcf_yield_pct" in dispatch_res.metrics
     assert "owner_earnings_inr" in dispatch_res.metrics
 

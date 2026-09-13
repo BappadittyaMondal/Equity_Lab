@@ -1,8 +1,8 @@
 # 03_Engine_Registries_Pipelines
 
 > **IERL AI Equity OS — curated upload artifact**  
-> Project Version: `0.0.0` · Bundle Version: `2.0` · Source Commit: `23385bd`  
-> Generated At: `2026-09-10T04:06:37.039214+00:00` · Source Hash: `273138caa8f0d683` · Compiler: `consolidate_project.py` v2.0
+> Project Version: `0.0.0` · Bundle Version: `2.0` · Source Commit: `b711efe`  
+> Generated At: `2026-09-13T16:47:44.262853+00:00` · Source Hash: `337b171657fda05e` · Compiler: `consolidate_project.py` v2.0
 
 ## Operating contract
 
@@ -51,7 +51,7 @@ The SHA-256 values cover the exact UTF-8 source payload, not this wrapper. Use t
 | 6 | `AI_Geopolitical_Risk_Engine_v_0_0.md` | 1,776 | `04d04e76beaf2f0edd7d95a4314bf83b318197173be9f6325608c4550f7c2272` |
 | 7 | `AI_Expectation_Gap_Engine_v_0_0.md` | 3,075 | `bc25de721f29f328791a5dbc46cd2a5144838e193a5a3975c10cef72ba2371d9` |
 | 8 | `AI_Custom_Screener_Engine_v_0_1.md` | 6,434 | `73eaf37e9954dad165ccdb64749a3a1a58c9bbf5d7d788d175e83b7675589cf9` |
-| 9 | `AI_Institutional_Multibagger_Engine_v_0_1.md` | 6,974 | `75f829094344ff324c8af992fb1fa25cd7d843cfb6b80726462f06d8e2d43bc8` |
+| 9 | `AI_Institutional_Multibagger_Engine_v_0_1.md` | 7,159 | `09c9374448b3a9a25f393079d4ca9546d049129e87e2792c905ad817a2f10c2f` |
 
 ---
 
@@ -2246,14 +2246,14 @@ EPS growth 3Years >= Sales growth 3Years * 1.2 AND Cash from operations last yea
 
 ---
 
-<!-- BEGIN SYSTEM FILE 9: AI_Institutional_Multibagger_Engine_v_0_1.md | SHA256: 75f829094344ff324c8af992fb1fa25cd7d843cfb6b80726462f06d8e2d43bc8 -->
+<!-- BEGIN SYSTEM FILE 9: AI_Institutional_Multibagger_Engine_v_0_1.md | SHA256: 09c9374448b3a9a25f393079d4ca9546d049129e87e2792c905ad817a2f10c2f -->
 ## Embedded source 9: AI Institutional Multibagger Engine v 0 1
 
 <!-- IERL-CANONICAL-METADATA v1.2 -->
-> **Canonical retrieval label:** AI Institutional Multibagger Engine (27-Engine Synthesis)
+> **Canonical retrieval label:** AI Institutional Multibagger Engine (27-Sub-Engine Synthesis within 40 Platform Engines)
 > **Role:** Multi-dimensional early multibagger discovery, archetype classification, and risk penalty audit engine
 > **Use when:** Identifying early-stage 3x–10x multibagger compounders across fundamental quality, cash flow, institutional footprint, technical relative strength, and catalyst triggers.
-> **Evidence rule:** Evaluate all 27 engines independently and enforce hard risk penalties on missing or red-flagged observations.
+> **Evidence rule:** Evaluate all 27 specialized sub-engines independently under the master 40-engine registry (A1–D18, E1–E22) and enforce hard risk penalties on missing or red-flagged observations.
 
 # AI Institutional Multibagger Engine Specification
 
@@ -2266,7 +2266,7 @@ EPS growth 3Years >= Sales growth 3Years * 1.2 AND Cash from operations last yea
 
 ## 1. Executive Summary & Purpose
 
-The AI Institutional Multibagger Engine (`InstitutionalMultibaggerEngine`) synthesizes 27 quantitative and qualitative analytical sub-engines to identify high-conviction early-stage multibaggers in the Indian capital markets. Rather than relying on simple static filters, the engine evaluates multidimensional business acceleration, capital reinvestment intensity, institutional footprints, management commentary sentiment, alt-data signals, and technical market structure.
+The AI Institutional Multibagger Engine (`InstitutionalMultibaggerEngine`) synthesizes 27 quantitative and qualitative analytical sub-engines (operating under the 40 canonical strategy and research engines of the platform) to identify high-conviction early-stage multibaggers in the Indian capital markets. Rather than relying on simple static filters, the engine evaluates multidimensional business acceleration, capital reinvestment intensity, institutional footprints, management commentary sentiment, alt-data signals, and technical market structure.
 
 ---
 

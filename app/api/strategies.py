@@ -54,7 +54,19 @@ def run_strategy(strategy_id: str, req: StrategyRunRequest, as_of: Optional[date
     """Runs screening or diagnostic analysis for a specific strategy module."""
     symbol = req.symbol or "RELIANCE"
     target_as_of = req.as_of or as_of
-    return run_strategy_module(strategy_id, symbol=symbol, as_of=target_as_of)
+    params = req.parameters or {}
+    intent = req.query_intent or params.get("query_intent") or params.get("intent")
+    query_txt = req.query_text or params.get("query_text") or params.get("query")
+    v_feats = req.visual_features or params.get("visual_features")
+    return run_strategy_module(
+        strategy_id,
+        symbol=symbol,
+        as_of=target_as_of,
+        intent=intent,
+        query_text=query_txt,
+        visual_features=v_feats,
+        parameters=params
+    )
 
 
 @router.get("/research/growth-inflection", response_model=GrowthInflectionResponse)

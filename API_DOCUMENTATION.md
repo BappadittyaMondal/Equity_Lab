@@ -2,7 +2,7 @@
 
 > **Version:** 1.0.0  
 > **Source of Truth:** `docs/api_contract.json`  
-> **Total Endpoints:** 79
+> **Total Endpoints:** 93
 
 ---
 
@@ -98,6 +98,7 @@
 
 ### `POST` /api/v1/data/custom-screen
 **Summary:** Run Custom Screen  
+**Description:** Execute custom Screener.in query or preset, with optional 27-factor Multibagger Brain ranking.  
 **Parameters:**
 - `x-api-key` (header, optional)
 
@@ -163,6 +164,8 @@
 **Summary:** Get Decision  
 **Parameters:**
 - `symbol` (path, required)
+- `objective` (query, optional)
+- `as_of` (query, optional)
 - `x-api-key` (header, optional)
 
 ---
@@ -370,6 +373,24 @@ The file is stored under `frontend_deploy/data/digests/watchlist_digest.json`.
 
 ---
 
+### `GET` /api/v1/research/ai-committee/evt-tail/{symbol}
+**Summary:** Get Evt Tail Metrics  
+**Description:** Fetch Extreme Value Theory (EVT) GPD tail-fitting parameters and 99th percentile breakout VaR.  
+**Parameters:**
+- `symbol` (path, required)
+- `x-api-key` (header, optional)
+
+---
+
+### `GET` /api/v1/research/ai-committee/forensics/{symbol}
+**Summary:** Get Company Forensics  
+**Description:** Fetch balance sheet forensic analysis (CWIP turn, working capital drag, Cash-PAT persistence).  
+**Parameters:**
+- `symbol` (path, required)
+- `x-api-key` (header, optional)
+
+---
+
 ### `GET` /api/v1/research/ai-committee/governance-audit/{symbol}
 **Summary:** Audit Governance  
 **Description:** Audit Form AOC-2 RPTs, promoter pledging, and auditor report notes.  
@@ -417,6 +438,16 @@ The file is stored under `frontend_deploy/data/digests/watchlist_digest.json`.
 **Description:** Calculates 1Y, 3Y, 5Y price targets and return CAGRs across 5 growth scenarios (10%-30%).  
 **Parameters:**
 - `symbol` (query, required)
+- `x-api-key` (header, optional)
+
+---
+
+### `GET` /api/v1/research/early-compounder
+**Summary:** Run Early Compounder Endpoint  
+**Description:** Executes Strategy E21: Early-Stage ₹100Cr+ Microcap Compounder Engine (Incremental ROIC, Reverse Valuation, PM Kill-Test).  
+**Parameters:**
+- `symbol` (query, required)
+- `as_of` (query, optional)
 - `x-api-key` (header, optional)
 
 ---
@@ -494,6 +525,16 @@ The file is stored under `frontend_deploy/data/digests/watchlist_digest.json`.
 
 ---
 
+### `GET` /api/v1/research/inflection-multibagger
+**Summary:** Run Inflection Multibagger Endpoint  
+**Description:** Executes Strategy E19: Multibagger Inflection Engine (Volume Z-Score, Delivery Turnover, Earnings Convexity, PEG Mispricing).  
+**Parameters:**
+- `symbol` (query, required)
+- `as_of` (query, optional)
+- `x-api-key` (header, optional)
+
+---
+
 ### `GET` /api/v1/research/multibagger-screener
 **Summary:** Run Multibagger Screener  
 **Description:** Executes Strategy E4: Multi-Factor Multibagger Intelligence & Screening Engine.  
@@ -525,6 +566,25 @@ The file is stored under `frontend_deploy/data/digests/watchlist_digest.json`.
 
 ---
 
+### `GET` /api/v1/research/sip-policy/{symbol}
+**Summary:** Get Valuation-Responsive Dynamic SIP Allocation Policy  
+**Description:** Executes Institutional SIP Policy Engine: Evaluates 10-year ROCE, Debt/Equity, and Valuation Z-score dynamic multipliers.  
+**Parameters:**
+- `symbol` (path, required)
+- `x-api-key` (header, optional)
+
+---
+
+### `GET` /api/v1/research/swing-predictive
+**Summary:** Run Swing Predictive Endpoint  
+**Description:** Executes Strategy E18: 10-30 Day Swing Predictive Engine (Volume Profile POC, Anchored VWAP, Choppiness Index, BOP).  
+**Parameters:**
+- `symbol` (query, required)
+- `as_of` (query, optional)
+- `x-api-key` (header, optional)
+
+---
+
 ### `GET` /api/v1/research/turnaround-stage
 **Summary:** Run Turnaround Stage  
 **Description:** Executes Strategy E2: Turnaround Stage Engine (Distress to Recovery lifecycle & False Turnaround detection).  
@@ -545,7 +605,7 @@ The file is stored under `frontend_deploy/data/digests/watchlist_digest.json`.
 
 ### `GET` /api/v1/research/walk-forward
 **Summary:** Run Walk Forward Backtest  
-**Description:** Executes friction-adjusted walk-forward backtesting evaluation.  
+**Description:** Executes friction-adjusted walk-forward backtesting evaluation with real historical data.  
 **Parameters:**
 - `symbol` (query, required)
 - `horizon_months` (query, optional)
@@ -575,6 +635,7 @@ The file is stored under `frontend_deploy/data/digests/watchlist_digest.json`.
 **Summary:** Fetch Swing Trade Alerts  
 **Description:** Returns active short-to-medium term high-probability swing trade alerts.  
 **Parameters:**
+- `symbol` (query, optional)
 - `universe` (query, optional)
 - `x-api-key` (header, optional)
 
@@ -594,6 +655,15 @@ The file is stored under `frontend_deploy/data/digests/watchlist_digest.json`.
 **Description:** Runs screening or diagnostic analysis for a specific strategy module.  
 **Parameters:**
 - `strategy_id` (path, required)
+- `as_of` (query, optional)
+- `x-api-key` (header, optional)
+
+---
+
+### `POST` /api/v1/technical/chart/reconcile
+**Summary:** Reconcile Chart Vision  
+**Description:** Reconciles visual chart features (pixels/vision extraction) against authoritative numerical OHLCV exchange truth.  
+**Parameters:**
 - `x-api-key` (header, optional)
 
 ---
@@ -630,6 +700,15 @@ The file is stored under `frontend_deploy/data/digests/watchlist_digest.json`.
 **Parameters:**
 - `min_tss_score` (query, optional)
 - `setup_filter` (query, optional)
+- `x-api-key` (header, optional)
+
+---
+
+### `GET` /api/v1/technical/short-term-prediction/{symbol}
+**Summary:** Get Short Term Prediction  
+**Description:** Retrieves high-precision short-term multi-horizon prediction, AVWAPs, Stoch RSI exhaustion, and Conformal Cones.  
+**Parameters:**
+- `symbol` (path, required)
 - `x-api-key` (header, optional)
 
 ---
@@ -681,6 +760,62 @@ The file is stored under `frontend_deploy/data/digests/watchlist_digest.json`.
 - `symbol` (path, required)
 - `period` (query, optional)
 - `interval` (query, optional)
+- `x-api-key` (header, optional)
+
+---
+
+### `GET` /api/v1/turnaround/features/{symbol}
+**Summary:** Get Turnaround Feature Vector  
+**Description:** Get calculated turnaround feature metrics.  
+**Parameters:**
+- `symbol` (path, required)
+- `x-api-key` (header, optional)
+
+---
+
+### `POST` /api/v1/turnaround/prediction
+**Summary:** Post Turnaround Prediction for Symbol  
+**Description:** Runs E20 turnaround engine via POST payload.  
+**Parameters:**
+- `x-api-key` (header, optional)
+
+---
+
+### `GET` /api/v1/turnaround/rank/universe
+**Summary:** Rank Universe for Turnaround Opportunities  
+**Description:** Ranks universe candidates for turnarounds using E20 engine.  
+**Parameters:**
+- `min_score` (query, optional)
+- `universe` (query, optional)
+- `limit` (query, optional)
+- `x-api-key` (header, optional)
+
+---
+
+### `GET` /api/v1/turnaround/stage/{symbol}
+**Summary:** Get Turnaround Stage Details  
+**Description:** Get turnaround stage details for symbol.  
+**Parameters:**
+- `symbol` (path, required)
+- `x-api-key` (header, optional)
+
+---
+
+### `GET` /api/v1/turnaround/transitions/{symbol}
+**Summary:** Get Turnaround Transition History  
+**Description:** Get transition state history for symbol.  
+**Parameters:**
+- `symbol` (path, required)
+- `x-api-key` (header, optional)
+
+---
+
+### `GET` /api/v1/turnaround/{symbol}
+**Summary:** Get Single-Stock Turnaround Intelligence (E20)  
+**Description:** Runs 2-layer turnaround probability model, damage state detection, cash-flow truth, and FRMR expectation gap.  
+**Parameters:**
+- `symbol` (path, required)
+- `as_of` (query, optional)
 - `x-api-key` (header, optional)
 
 ---

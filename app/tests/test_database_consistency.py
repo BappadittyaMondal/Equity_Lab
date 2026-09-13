@@ -217,3 +217,33 @@ def test_alembic_reconcile_foreign_keys_migration_004(monkeypatch):
     assert any("idx_prediction_ledger_conviction_id" in s for s in executed)
     assert any("idx_decision_audit_symbol_timestamp" in s for s in executed)
 
+
+def test_alembic_enforce_fk_constraints_migration_005(monkeypatch):
+    """Verify Alembic migration 005 successfully enforces PostgreSQL FK constraints."""
+    import importlib.util
+    import os
+    spec = importlib.util.spec_from_file_location("migration_005", os.path.join("alembic", "versions", "005_enforce_fk_constraints.py"))
+    mod = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(mod)
+
+    executed = []
+    class MockDialect:
+        name = "postgresql"
+    class MockBind:
+        dialect = MockDialect()
+
+    class MockOp:
+        @staticmethod
+        def get_bind():
+            return MockBind()
+        @staticmethod
+        def execute(sql):
+            executed.append(sql)
+
+    monkeypatch.setattr(mod, "op", MockOp)
+    mod.upgrade()
+
+    assert len(executed) == 1
+    assert "fk_prediction_ledger_conviction_call_id" in executed[0]
+    assert "FOREIGN KEY (conviction_call_id) REFERENCES conviction_calls(id)" in executed[0]
+

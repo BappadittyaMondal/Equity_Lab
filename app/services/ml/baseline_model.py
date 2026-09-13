@@ -493,6 +493,8 @@ LogisticRegression = NumPyLogisticRegression
 # Global model cache
 # ---------------------------------------------------------------------------
 
+_MODEL_CACHES: Dict[str, Dict[str, Any]] = {}
+
 _MODEL_CACHE: Dict[str, Any] = {
     "model": None,
     "scaler": None,
@@ -506,11 +508,23 @@ def _get_db_connection():
     return get_connection()
 
 
-def train_baseline_model(force_retrain: bool = False) -> Dict[str, Any]:
-    """Fetch historical outcomes and fit LogisticRegression classifier."""
+def train_baseline_model(force_retrain: bool = False, horizon: Optional[str] = None) -> Dict[str, Any]:
+    """Fetch historical outcomes and fit LogisticRegression classifier.
+    
+    Supports optional horizon-conditioned training to prevent mixing 3-day return outcomes
+    with 1-year holding periods. Sorts chronologically to preserve temporal causality.
+    """
+    h_key = str(horizon).upper().strip() if horizon else "ALL"
+    if not force_retrain and h_key in _MODEL_CACHES and _MODEL_CACHES[h_key].get("is_trained"):
+        return _MODEL_CACHES[h_key].get("training_summary", {
+            "status": "TRAINED",
+            "version": _MODEL_CACHES[h_key].get("version", "1.0"),
+            "is_trained": True,
+            "sample_count": _MODEL_CACHES[h_key].get("sample_count", 0)
+        })
+
     conn = _get_db_connection()
-    rows = conn.execute(
-        """
+    query = """
         SELECT 
             p.score,
             p.verdict,
@@ -528,8 +542,38 @@ def train_baseline_model(force_retrain: bool = False) -> Dict[str, Any]:
           AND p.symbol NOT LIKE 'FILTX%'
           AND (p.symbol IS NULL OR UPPER(p.symbol) NOT LIKE '%TEST%')
           AND (p.thesis IS NULL OR (UPPER(p.thesis) NOT LIKE '%TEST%' AND UPPER(p.thesis) NOT LIKE '%DUMMY%'))
-        """
-    ).fetchall()
+    """
+    params: List[Any] = []
+    if horizon:
+        h_str = str(horizon).upper().strip()
+        if h_str.endswith("D"):
+            try:
+                days = int(h_str.replace("D", ""))
+                query += " AND (o.horizon_days = ? OR o.horizon_months = ?) "
+                params.extend([days, max(1, days // 30)])
+            except ValueError:
+                query += " AND (o.horizon_days = ? OR o.horizon_months = ?) "
+                params.extend([30, 1])
+        elif h_str.endswith("M"):
+            try:
+                months = int(h_str.replace("M", ""))
+                query += " AND (o.horizon_months = ? OR o.horizon_days = ?) "
+                params.extend([months, months * 30])
+            except ValueError:
+                query += " AND (o.horizon_months = ? OR o.horizon_days = ?) "
+                params.extend([1, 30])
+        elif h_str == "1Y":
+            query += " AND (o.horizon_months = 12 OR o.horizon_days >= 250) "
+        else:
+            try:
+                val = int(h_str)
+                query += " AND (o.horizon_days = ? OR o.horizon_months = ?) "
+                params.extend([val, max(1, val // 30)])
+            except ValueError:
+                pass
+    query += " ORDER BY p.timestamp ASC "
+
+    rows = conn.execute(query, tuple(params)).fetchall()
     conn.close()
 
     if len(rows) < 20:
@@ -583,6 +627,14 @@ def train_baseline_model(force_retrain: bool = False) -> Dict[str, Any]:
     _MODEL_CACHE["scaler"] = scaler
     _MODEL_CACHE["is_trained"] = True
     _MODEL_CACHE["sample_count"] = len(rows)
+
+    _MODEL_CACHES[h_key] = {
+        "model": clf,
+        "scaler": scaler,
+        "is_trained": True,
+        "sample_count": len(rows),
+        "horizon": h_key
+    }
 
     version_str = "v1.0.0-PROD-ML-ENSEMBLE-GBDT"
     try:
@@ -640,16 +692,21 @@ def predict_outperformance_prob_details(
     symbol: str,
     composite_score: float,
     data_backed: bool = False,
-    extra_features: Optional[Dict[str, float]] = None
+    extra_features: Optional[Dict[str, float]] = None,
+    horizon: Optional[str] = None
 ) -> Dict[str, Any]:
     """Predict outperformance probability (0.0 to 1.0) with model provenance metadata (ml_status)."""
-    if not _MODEL_CACHE["is_trained"]:
+    h_key = str(horizon).upper().strip() if horizon else None
+    cache_to_use = _MODEL_CACHES.get(h_key) if (h_key and h_key in _MODEL_CACHES) else _MODEL_CACHE
+
+    if not cache_to_use.get("is_trained"):
         try:
-            train_baseline_model()
+            train_baseline_model(horizon=horizon)
+            cache_to_use = _MODEL_CACHES.get(h_key) if (h_key and h_key in _MODEL_CACHES) else _MODEL_CACHE
         except Exception:
             pass
 
-    if _MODEL_CACHE["is_trained"] and _MODEL_CACHE["model"] is not None:
+    if cache_to_use.get("is_trained") and cache_to_use.get("model") is not None:
         try:
             db_flag = 1.0 if data_backed else 0.0
             verdict_sig = 1.0 if composite_score >= 85 else (0.8 if composite_score >= 70 else (0.6 if composite_score >= 55 else (0.4 if composite_score >= 40 else 0.0)))
@@ -657,15 +714,16 @@ def predict_outperformance_prob_details(
             ref_price_sig = float(extra_features.get("ref_price_valid", 1.0)) if extra_features else 1.0
 
             x_vec = np.array([[float(composite_score), db_flag, verdict_sig, conf_sig, ref_price_sig]], dtype=np.float64)
-            x_scaled = _MODEL_CACHE["scaler"].transform(x_vec)
-            probs = _MODEL_CACHE["model"].predict_proba(x_scaled)[0]
-            class_idx = 1 if 1 in _MODEL_CACHE["model"].classes_ else 0
+            x_scaled = cache_to_use["scaler"].transform(x_vec)
+            probs = cache_to_use["model"].predict_proba(x_scaled)[0]
+            class_idx = 1 if 1 in cache_to_use["model"].classes_ else 0
             prob = float(probs[class_idx])
             return {
                 "outperformance_probability": round(max(0.0, min(1.0, prob)), 4),
                 "ml_status": "trained",
-                "sample_count": _MODEL_CACHE.get("sample_count", 0),
-                "is_fallback": False
+                "sample_count": cache_to_use.get("sample_count", 0),
+                "is_fallback": False,
+                "horizon": h_key or "ALL"
             }
         except Exception:
             pass

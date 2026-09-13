@@ -118,17 +118,17 @@ class TurnaroundStateMachine:
         cls,
         symbol: str,
         current_price: float,
-        disaster_avwap: float,
-        piotroski_score: int,
-        piotroski_prev: int,
-        cfo_cr: float,
-        ebitda_cr: float,
-        debt_reduction_initiated: bool,
+        disaster_avwap: Optional[float] = None,
+        piotroski_score: int = 0,
+        piotroski_prev: Optional[int] = None,
+        cfo_cr: float = 0.0,
+        ebitda_cr: float = 0.0,
+        debt_reduction_initiated: bool = False,
         is_relapse_signal: bool = False,
     ) -> Dict[str, Any]:
         """Evaluates Turnaround lifecycle state."""
         # Hard Rule: If price breaks below Disaster AVWAP floor or relapse fired -> RELAPSE
-        price_below_disaster_floor = (disaster_avwap > 0) and (current_price < (disaster_avwap * 0.97))
+        price_below_disaster_floor = (disaster_avwap is not None and disaster_avwap > 0 and current_price > 0) and (current_price < (disaster_avwap * 0.97))
         if is_relapse_signal or price_below_disaster_floor or (piotroski_score <= 2 and cfo_cr < 0):
             floor_pct = round(((current_price - disaster_avwap) / disaster_avwap) * 100.0, 2) if disaster_avwap and disaster_avwap > 0 else None
             return {
@@ -140,7 +140,7 @@ class TurnaroundStateMachine:
                 "action": "AVOID_VALUE_TRAP_OR_EXIT",
             }
 
-        f_score_delta = piotroski_score - piotroski_prev
+        f_score_delta = (piotroski_score - piotroski_prev) if piotroski_prev is not None else 0
         above_floor = (current_price >= disaster_avwap) if disaster_avwap and disaster_avwap > 0 else True
 
         if piotroski_score >= 7 and cfo_cr > 0 and ebitda_cr > 0 and (cfo_cr >= 0.7 * ebitda_cr) and above_floor:
@@ -258,10 +258,10 @@ class MicrocapRiskFirstGate:
         symbol: str,
         market_cap_cr: Optional[float] = None,
         adtv_30d_cr: Optional[float] = None,
-        rpt_to_net_worth_pct: Optional[float] = 0.0,
+        rpt_to_net_worth_pct: Optional[float] = None,
         has_auditor_resigned_recently: bool = False,
         circuit_frequency_pct: float = 0.0,
-        promoter_holding_pct: float = 0.0,
+        promoter_holding_pct: Optional[float] = None,
         cfo_3y_sum_cr: float = 0.0,
     ) -> Dict[str, Any]:
         """Evaluates microcap eligibility with strict forensic vetoes."""
@@ -274,12 +274,30 @@ class MicrocapRiskFirstGate:
                 "allowed_market_impact_order_cr": 0.0,
             }
 
+        if market_cap_cr > 1500.0:
+            return {
+                "symbol": symbol.upper(),
+                "is_investable": False,
+                "status": "UNIVERSE_OUT_OF_BOUNDS_LARGE_CAP",
+                "forensic_vetoes": [f"Market capitalization (₹{market_cap_cr:.1f} Cr) exceeds microcap upper limit (₹1,500 Cr)."],
+                "allowed_market_impact_order_cr": 0.0,
+            }
+
         if adtv_30d_cr is None:
             return {
                 "symbol": symbol.upper(),
                 "is_investable": False,
                 "status": "CAPACITY_UNVERIFIED_DATA_INSUFFICIENT",
                 "forensic_vetoes": ["ADTV (30-day average daily traded volume) missing or unverified."],
+                "allowed_market_impact_order_cr": 0.0,
+            }
+
+        if promoter_holding_pct is None:
+            return {
+                "symbol": symbol.upper(),
+                "is_investable": False,
+                "status": "ABSTAIN_DATA_INSUFFICIENT",
+                "forensic_vetoes": ["Promoter shareholding missing or unverified."],
                 "allowed_market_impact_order_cr": 0.0,
             }
 
@@ -348,7 +366,7 @@ class SIPPolicyEngine:
         cls,
         symbol: str,
         roce_10y_avg: Optional[float] = None,
-        debt_to_equity: float = 0.0,
+        debt_to_equity: Optional[float] = None,
         valuation_z_score: float = 0.0,
         thesis_intact: bool = True,
         is_price_below_200sma: bool = False,
@@ -374,7 +392,7 @@ class SIPPolicyEngine:
                 "hysteresis_active": prev_multiplier is not None,
             }
 
-        # Available-History Harmonic ROCE calculation
+        # Available-History Weighted Arithmetic ROCE calculation (0.6x 5Y + 0.4x 3Y)
         if roce_10y_avg is not None and roce_10y_avg > 0:
             effective_roce = float(roce_10y_avg)
         elif roce_5y_avg is not None and roce_3y_avg is not None:
@@ -384,13 +402,21 @@ class SIPPolicyEngine:
         else:
             effective_roce = float(roce_10y_avg or 0.0)
 
-        # Hard Invalidation: If thesis broken or ROCE decaying below 15% -> PAUSE
-        if not thesis_intact or effective_roce < 15.0 or debt_to_equity > 1.0:
+        # Hard Invalidation: If thesis broken, ROCE decaying below 15%, or debt missing/excessive -> PAUSE
+        if not thesis_intact or effective_roce < 15.0 or debt_to_equity is None or debt_to_equity > 1.0:
+            if debt_to_equity is None:
+                fail_reason = "Unverified leverage profile: Debt-to-Equity data missing."
+            elif debt_to_equity > 1.0:
+                fail_reason = f"Excessive balance sheet leverage: D/E {debt_to_equity:.2f} exceeds 1.0 ceiling."
+            elif effective_roce < 15.0:
+                fail_reason = f"Secular moat decay: ROCE {effective_roce:.1f}% below 15% threshold."
+            else:
+                fail_reason = "Secular compounder thesis broken or invalidated."
             return {
                 "symbol": symbol.upper(),
                 "policy_action": "PAUSE_SIP_OR_EXIT_REVIEW",
                 "allocation_multiplier": 0.0,
-                "reason": "Secular moat decay: ROCE < 15%, excessive debt, or thesis invalidation.",
+                "reason": fail_reason,
                 "accumulate_dry_powder": False,
                 "hysteresis_active": prev_multiplier is not None,
             }

@@ -7,7 +7,12 @@ const API_BASE = (typeof window !== 'undefined' && (window.API_BASE || window.__
  * Helper wrapper for fetch that automatically attaches the X-API-Key header.
  */
 export async function apiFetch(endpoint, options = {}) {
-  const apiKey = (typeof window !== 'undefined' && (window.__IERL_API_KEY || (window.IERL_CONFIG && window.IERL_CONFIG.apiKey))) || "";
+  const apiKey = (typeof window !== 'undefined' && (
+    sessionStorage.getItem("ierl_session_token") ||
+    window.__IERL_SESSION_KEY ||
+    window.__IERL_API_KEY ||
+    (window.IERL_CONFIG && window.IERL_CONFIG.apiKey)
+  )) || "";
   const headers = {
     ...(options.headers || {}),
   };
@@ -1060,12 +1065,14 @@ export async function loadTurnaroundEvaluation(symbol = "RELIANCE") {
   }
 }
 
-export async function loadStockComparison(symbols = ["RELIANCE", "TCS"]) {
+export async function loadStockComparison(symbols = ["RELIANCE", "TCS"], intent = null) {
   try {
+    const payload = { symbols };
+    if (intent) payload.intent = intent;
     const resp = await apiFetch(`/api/v1/compare`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ symbols }),
+      body: JSON.stringify(payload),
     });
     if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
     return await resp.json();
@@ -1086,6 +1093,21 @@ export async function loadInstitutionalMultibaggerRank(symbols = ["RELIANCE", "T
     return await resp.json();
   } catch (err) {
     console.warn("Institutional multibagger rank load failed:", err.message);
+    return null;
+  }
+}
+
+export async function reconcileChartVision(payload) {
+  try {
+    const resp = await apiFetch(`/api/v1/technical/chart/reconcile`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(payload),
+    });
+    if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
+    return await resp.json();
+  } catch (err) {
+    console.warn("Chart vision reconciliation failed:", err.message);
     return null;
   }
 }

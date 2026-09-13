@@ -327,6 +327,17 @@ def test_microcap_gate_unverified_adtv_and_mcap_fail_closed():
     assert res_no_mcap["status"] == "CAPACITY_UNVERIFIED_DATA_INSUFFICIENT"
     assert "Market capitalization missing or unverified." in res_no_mcap["forensic_vetoes"]
 
+    # 3. Upper Market Cap Boundary Enforcement (> ₹1,500 Cr)
+    res_large_cap = MicrocapRiskFirstGate.evaluate(
+        symbol="RELIANCE_OR_LARGECAP",
+        market_cap_cr=10000.0,
+        adtv_30d_cr=50.0,
+        promoter_holding_pct=50.0,
+    )
+    assert res_large_cap["is_investable"] is False
+    assert res_large_cap["status"] == "UNIVERSE_OUT_OF_BOUNDS_LARGE_CAP"
+    assert any("exceeds microcap upper limit" in v for v in res_large_cap["forensic_vetoes"])
+
 
 
 # ==============================================================================
@@ -588,4 +599,66 @@ def test_swing_engine_corporate_action_split_hold():
     assert s_res["confluence_score"] <= 45.0
 
 
+def test_turnaround_altman_distress_permitted_without_fatal_veto():
+    """Verify that Altman Z distress without fraud is downgraded to Tier 2 for Turnaround objective, but remains fatal for other archetypes or when fraud is present."""
+    from unittest.mock import MagicMock
+    from app.services.decision_brain.arbiter import Arbiter
 
+    arb = Arbiter()
+
+    # Mock C12 output with pure Altman Z distress (Z = 1.25 < 1.81) and zero fraud
+    mock_c12_raw = MagicMock()
+    mock_c12_raw.results = {
+        "forensic_risk": "CRITICAL",
+        "altman_z_score": 1.25,
+        "manipulation_flag": False,
+        "governance_grade": "GOOD",
+    }
+    mock_c12_raw.metrics = {"score": 30.0}
+
+    mock_outputs = [
+        {
+            "engine_id": "C12",
+            "score": 30.0,
+            "raw": mock_c12_raw,
+        }
+    ]
+
+    # 1. Under GENERAL or QUALITY_GROWTH -> Must be a Tier 1 Fatal Veto
+    res_general = arb._classify_three_tier_alerts(mock_outputs, snap=None, objective="GENERAL")
+    assert len(res_general["tier_1_fatal_vetoes"]) > 0
+    assert any("Forensic risk CRITICAL" in v for v in res_general["tier_1_fatal_vetoes"])
+
+    # 2. Under TURNAROUND -> Must NOT be a fatal veto, but downgraded to Tier 2 Critical Warning
+    res_turnaround = arb._classify_three_tier_alerts(mock_outputs, snap=None, objective="TURNAROUND")
+    assert len(res_turnaround["tier_1_fatal_vetoes"]) == 0
+    assert len(res_turnaround["tier_2_critical_warnings"]) > 0
+    assert any("Altman Z-Score distress" in w["alert"] for w in res_turnaround["tier_2_critical_warnings"])
+    assert res_turnaround["tier_2_critical_warnings"][0]["sizing_haircut_pct"] == 25.0
+
+    # 3. Under TURNAROUND with Beneish Fraud (manipulation_flag=True) -> Tier 1 Fatal Veto MUST fire
+    mock_fraud_raw = MagicMock()
+    mock_fraud_raw.results = {
+        "forensic_risk": "CRITICAL",
+        "altman_z_score": 1.25,
+        "manipulation_flag": True,
+        "governance_grade": "POOR",
+    }
+    mock_fraud_outputs = [{"engine_id": "C12", "score": 10.0, "raw": mock_fraud_raw}]
+    res_fraud = arb._classify_three_tier_alerts(mock_fraud_outputs, snap=None, objective="TURNAROUND")
+    assert len(res_fraud["tier_1_fatal_vetoes"]) > 0
+    assert any("Forensic fraud/manipulation" in v for v in res_fraud["tier_1_fatal_vetoes"])
+
+
+def test_sip_policy_fail_closed_on_unobserved_debt():
+    """Verify that SIPPolicyEngine fails-closed when debt_to_equity is unobserved (None)."""
+    res = SIPPolicyEngine.evaluate(
+        symbol="MYSTERY_DEBT_CO",
+        roce_10y_avg=28.0,
+        debt_to_equity=None,  # Unobserved leverage
+        valuation_z_score=0.0,
+        thesis_intact=True,
+    )
+    assert res["policy_action"] == "PAUSE_SIP_OR_EXIT_REVIEW"
+    assert res["allocation_multiplier"] == 0.0
+    assert "Unverified leverage profile" in res["reason"]

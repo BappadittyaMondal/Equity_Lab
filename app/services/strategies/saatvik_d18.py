@@ -159,7 +159,7 @@ def run_saatvik_d18(symbol: str, as_of: Optional[Any] = None) -> StrategyRunResp
 
     metrics = {
         "price": price,
-        "pe_ratio": pe or 0.0,
+        "pe_ratio": pe,
         "debt_to_equity": debt_to_equity,
         "promoter_pledge_pct": promoter_pledge_pct,
         "promoter_holding_pct": promoter_holding_pct,

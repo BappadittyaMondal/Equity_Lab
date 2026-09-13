@@ -576,3 +576,22 @@ class TestPredictionLedgerService:
             assert "10D" in res["outcomes"]
             assert "30D" in res["outcomes"]
 
+    def test_day_based_outcome_evaluation_and_persistence(self, monkeypatch):
+        from app.services.monitoring.outcome_checker import _prediction_is_due, _benchmark_return_for_horizon, run_outcome_checker
+        from app.services.db import get_connection
+
+        # Verify due check with horizon_days
+        assert _prediction_is_due(_iso_past(5), horizon_months=0, horizon_days=3) is True
+        assert _prediction_is_due(_iso_past(2), horizon_months=0, horizon_days=10) is False
+
+        # Verify benchmark return scaling with horizon_days
+        ret_3d = _benchmark_return_for_horizon(horizon_months=0, horizon_days=3)
+        ret_10d = _benchmark_return_for_horizon(horizon_months=0, horizon_days=10)
+        assert 0.0 < ret_3d < ret_10d < 1.0
+
+        # Verify dry-run with short-term day horizons
+        stats = run_outcome_checker(limit=5, dry_run=True, include_short_term=True)
+        assert "predictions_scanned" in stats
+        assert "records" in stats
+
+

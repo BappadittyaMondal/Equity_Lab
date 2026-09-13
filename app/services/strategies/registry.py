@@ -5,7 +5,7 @@ Strictly distinguishes production modules from coming-soon modules.
 """
 
 from datetime import datetime
-from typing import Dict, List, Optional
+from typing import Any, Dict, List, Optional
 from fastapi import HTTPException, status
 from app.models.schemas import StrategyModule, StrategyRunResponse
 from app.services.market_data import get_quote, get_history, create_meta_header, normalize_symbol, get_ist_now_str
@@ -512,32 +512,104 @@ RESEARCH_ENGINES: Dict[str, StrategyModule] = {
     )
 }
 
+# Extended Specialized Research Capabilities (governance registry)
+EXTENDED_RESEARCH_CAPABILITIES: Dict[str, StrategyModule] = {
+    "SIP_POLICY": StrategyModule(
+        id="SIP_POLICY",
+        name="10-Year SIP Compounder Policy Engine",
+        category="Institutional Compounder Strategy",
+        description="Evaluates 10-year capital efficiency consistency (ROCE >= 15%), zero leverage, and dividend compounding stability.",
+        status="production",
+        required_inputs=["symbol"],
+        universe="NSE Broad Universe",
+        metrics=["sip_score", "roce_10y_cagr", "cash_realization_rate"],
+        risk_warnings=["Long-term holding risk; periodic forensic monitoring required."],
+        methodology="10-Year consistency sieve with cash-conversion gating."
+    ),
+    "SHORT_TERM_PREDICTION": StrategyModule(
+        id="SHORT_TERM_PREDICTION",
+        name="Parametric ATR Volatility Cone & Short-Term Prediction Engine",
+        category="Predictive Alpha",
+        description="Generates 5-30 day parametric volatility cones and expected directional trajectory based on ATR, RVOL, and MTF confluence.",
+        status="production",
+        required_inputs=["symbol"],
+        universe="NSE Liquid Equities",
+        metrics=["target_price", "stop_loss", "cone_80_lower", "cone_80_upper"],
+        risk_warnings=["Statistical volatility boundaries; market gap risks apply."],
+        methodology="Parametric Gaussian ATR expansion cone with calibrated historical residuals."
+    ),
+    "INTENT_ADAPTIVE": StrategyModule(
+        id="INTENT_ADAPTIVE",
+        name="Query-Intent Adaptive Dynamic Parameter Routing Engine",
+        category="Master Control Plane",
+        description="Dynamically adjusts parameter strictness across 6 investment archetypes (Turnaround, Value, SIP, Swing, Microcap, Peer).",
+        status="production",
+        required_inputs=["query_string", "symbol"],
+        universe="Multi-Archetype Universe",
+        metrics=["detected_intent", "weight_profile", "status"],
+        risk_warnings=["Context-dependent screening; cross-check macro regime."],
+        methodology="NLP archetype classifier with dynamic weight profiles and context-specific strict/relaxed gating."
+    ),
+    "MULTIMODAL_CHART": StrategyModule(
+        id="MULTIMODAL_CHART",
+        name="Multimodal Chart & Data-Truth Reconciliation Protocol",
+        category="Visual-Quant Alignment",
+        description="Cross-reconciles visual chart features against numerical exchange OHLCV bars, enforcing exchange data truth over visual pixels.",
+        status="production",
+        required_inputs=["symbol", "visual_features"],
+        universe="NSE Technical Charts",
+        metrics=["alignment_score", "price_discrepancy_pct", "is_breakout_confirmed"],
+        risk_warnings=["Pixel distortion; numeric exchange OHLCV strictly authoritative."],
+        methodology="Multimodal visual-numerical alignment with 1.5x ADTV bull-trap volume gate."
+    ),
+    "MICROCAP_GATE": StrategyModule(
+        id="MICROCAP_GATE",
+        name="Microcap Risk-First Incubator Gate",
+        category="Risk-First Governance",
+        description="Applies 3-tier capacity limits (Market impact 3% ADTV, max ₹1.5Cr position, 15% portfolio budget) and fail-closed forensic shields.",
+        status="production",
+        required_inputs=["symbol"],
+        universe="NSE Microcaps (< ₹1000 Cr)",
+        metrics=["is_investable", "status", "capacity_limits"],
+        risk_warnings=["Illiquidity, wide bid-ask spreads, and low float risk."],
+        methodology="Capacity-bounded risk budgeting with mandatory promoter holding and RPT limits."
+    ),
+}
+
+
+def list_extended_capabilities() -> List[StrategyModule]:
+    """Returns list of extended specialized research capabilities."""
+    return list(EXTENDED_RESEARCH_CAPABILITIES.values())
 
 
 def list_strategy_modules() -> List[StrategyModule]:
     """Returns list of all 40 canonical master strategy modules & core research engines with status."""
     from app.core.config import settings
-    if not settings.ENABLE_OPTIONS_A2:
-        STRATEGY_MODULES["A2"].status = "suspended"
-    else:
-        STRATEGY_MODULES["A2"].status = "production"
-    return list(STRATEGY_MODULES.values()) + list(RESEARCH_ENGINES.values())
+    res = []
+    for k, v in STRATEGY_MODULES.items():
+        if k == "A2":
+            st = "suspended" if not settings.ENABLE_OPTIONS_A2 else "production"
+            res.append(v.model_copy(update={"status": st}))
+        else:
+            res.append(v)
+    return res + list(RESEARCH_ENGINES.values())
 
 
 def get_strategy_module(strategy_id: str) -> StrategyModule:
     from app.core.config import settings
-    if not settings.ENABLE_OPTIONS_A2:
-        STRATEGY_MODULES["A2"].status = "suspended"
-    else:
-        STRATEGY_MODULES["A2"].status = "production"
-
     clean_id = strategy_id.upper().strip()
     if clean_id == "E22":
         clean_id = "OBV_ACC"
     if clean_id in STRATEGY_MODULES:
-        return STRATEGY_MODULES[clean_id]
+        mod = STRATEGY_MODULES[clean_id]
+        if clean_id == "A2":
+            st = "suspended" if not settings.ENABLE_OPTIONS_A2 else "production"
+            return mod.model_copy(update={"status": st})
+        return mod
     if clean_id in RESEARCH_ENGINES:
         return RESEARCH_ENGINES[clean_id]
+    if clean_id in EXTENDED_RESEARCH_CAPABILITIES:
+        return EXTENDED_RESEARCH_CAPABILITIES[clean_id]
     raise HTTPException(
         status_code=status.HTTP_404_NOT_FOUND,
         detail=f"Strategy module '{strategy_id}' not found. Valid IDs: {list(STRATEGY_MODULES.keys()) + list(RESEARCH_ENGINES.keys())}"
@@ -545,7 +617,15 @@ def get_strategy_module(strategy_id: str) -> StrategyModule:
 
 
 
-def run_strategy_module(strategy_id: str, symbol: str = "RELIANCE", as_of: Optional[datetime] = None) -> StrategyRunResponse:
+def run_strategy_module(
+    strategy_id: str,
+    symbol: str = "RELIANCE",
+    as_of: Optional[datetime] = None,
+    intent: Optional[str] = None,
+    query_text: Optional[str] = None,
+    visual_features: Optional[Dict[str, Any]] = None,
+    **kwargs
+) -> StrategyRunResponse:
     if isinstance(as_of, str):
         try:
             import pandas as pd
@@ -1049,8 +1129,6 @@ def run_strategy_module(strategy_id: str, symbol: str = "RELIANCE", as_of: Optio
         return run_ath_breakout_d15(symbol, as_of=as_of)
     elif module.id == "D17":
         return run_mean_reversion_d17(symbol, as_of=as_of)
-    elif module.id in ("C11", "C12", "FORENSIC"):
-        return run_forensic_engine(symbol, strategy_id=module.id, as_of=as_of)
     elif module.id == "A1":
         res_a1 = evaluate_option_arbitrage(symbol, as_of=as_of)
         return StrategyRunResponse(
@@ -1197,6 +1275,263 @@ def run_strategy_module(strategy_id: str, symbol: str = "RELIANCE", as_of: Optio
     elif module.id == "E21":
         from app.services.research.early_compounder_engine import run_early_compounder_engine
         return run_early_compounder_engine(symbol, as_of=as_of)
+    elif module.id == "SIP_POLICY":
+        from app.services.research.finder_state_machines import SIPPolicyEngine
+        from app.services.data_ingestion.screener_connector import ScreenerCloudConnector
+        from app.services.research_data import ResearchDataStore
+
+        norm_sym = normalize_symbol(symbol)
+        as_of_str = as_of.isoformat() if hasattr(as_of, "isoformat") else (str(as_of) if as_of else None)
+        q = get_quote(norm_sym, as_of=as_of)
+        cp = float(q.get("price", 0.0) or 0.0)
+        is_below_200 = False
+        try:
+            df_h = get_history(norm_sym, period="1y", as_of=as_of)
+            if df_h is not None and not df_h.empty and len(df_h) >= 200:
+                sma200 = df_h['Close'].rolling(200).mean().iloc[-1]
+                is_below_200 = bool(cp < sma200)
+        except Exception:
+            pass
+
+        roce_10y = None
+        roce_5y = None
+        roce_3y = None
+        de = None
+        sector = None
+
+        # 1. Historical timeline observations from ResearchDataStore for authentic rolling ROCE
+        try:
+            st = ResearchDataStore()
+            timeline = st.get_timeline(norm_sym, as_of=as_of)
+            if timeline and len(timeline) > 1:
+                company_obj = timeline[0]
+                sector = getattr(company_obj, "sector", None)
+                financials = timeline[1]
+                roce_obs = [
+                    float(f.value) for f in financials
+                    if getattr(f, "metric", "").lower() in ("roce", "roce_pct", "return_on_capital_employed")
+                    and getattr(f, "value", None) is not None
+                ]
+                if len(roce_obs) >= 3:
+                    ten_yr = roce_obs[-10:]
+                    roce_10y = round(float(sum(ten_yr) / len(ten_yr)), 2)
+                    if len(roce_obs) >= 5:
+                        five_yr = roce_obs[-5:]
+                        roce_5y = round(float(sum(five_yr) / len(five_yr)), 2)
+                    three_yr = roce_obs[-3:]
+                    roce_3y = round(float(sum(three_yr) / len(three_yr)), 2)
+        except Exception:
+            pass
+
+        # 2. Fundamentals lookup from ScreenerCloudConnector
+        try:
+            fund = ScreenerCloudConnector.get_company_fundamentals(norm_sym)
+            if fund:
+                if de is None:
+                    raw_de = fund.get("debt_to_equity")
+                    if raw_de is not None:
+                        de = float(raw_de)
+                if not sector:
+                    sector = fund.get("sector")
+                if roce_10y is None:
+                    raw_3yr = fund.get("roce_3yr")
+                    raw_latest = fund.get("roce_latest")
+                    if raw_3yr is not None and float(raw_3yr) > 0:
+                        roce_3y = float(raw_3yr)
+                    if raw_latest is not None and float(raw_latest) > 0:
+                        roce_5y = float(raw_latest)
+        except Exception:
+            pass
+
+        # Fail-closed if debt_to_equity is unobserved (CR-007: never default to zero debt)
+        if de is None:
+            return StrategyRunResponse(
+                strategy_id="SIP_POLICY",
+                strategy_name=module.name,
+                status="data_insufficient",
+                executed_at=get_ist_now_str(),
+                symbol=norm_sym,
+                passed_gates=False,
+                results={"error": "Debt-to-equity leverage data missing or unverified. SIP policy suspended to prevent unhedged leverage risk."},
+                metrics={},
+                risk_warnings=module.risk_warnings + ["Debt-to-equity leverage data missing; evaluation aborted to prevent hidden leverage risk."],
+                disclaimer="SIP Long-Horizon Compounder Policy Engine assessment.",
+                meta=create_meta_header(source="SIP Policy Engine", as_of=as_of_str)
+            )
+
+        res_sip = SIPPolicyEngine.evaluate(
+            norm_sym,
+            roce_10y_avg=roce_10y,
+            roce_5y_avg=roce_5y,
+            roce_3y_avg=roce_3y,
+            debt_to_equity=de,
+            sector=sector,
+            is_price_below_200sma=is_below_200
+        )
+        passed = (res_sip.get("policy_action") != "PAUSE_SIP_OR_EXIT_REVIEW")
+        return StrategyRunResponse(
+            strategy_id="SIP_POLICY",
+            strategy_name=module.name,
+            status="production",
+            executed_at=get_ist_now_str(),
+            symbol=norm_sym,
+            passed_gates=passed,
+            results=res_sip,
+            metrics={"allocation_multiplier": res_sip.get("allocation_multiplier", 1.0)},
+            risk_warnings=module.risk_warnings,
+            disclaimer="SIP Long-Horizon Compounder Policy Engine assessment.",
+            meta=create_meta_header(source="SIP Policy Engine", as_of=as_of_str)
+        )
+    elif module.id == "SHORT_TERM_PREDICTION":
+        from app.services.strategies.short_term_prediction_engine import ShortTermPredictionEngine
+        norm_sym = normalize_symbol(symbol)
+        df_hist = get_history(norm_sym, period="6mo", as_of=as_of)
+        if df_hist is None or df_hist.empty or len(df_hist) < 20:
+            return StrategyRunResponse(
+                strategy_id="SHORT_TERM_PREDICTION",
+                strategy_name=module.name,
+                status="data_insufficient",
+                executed_at=get_ist_now_str(),
+                symbol=norm_sym,
+                passed_gates=False,
+                results={"error": "Insufficient OHLCV history for short-term prediction."},
+                metrics={},
+                risk_warnings=module.risk_warnings,
+                disclaimer="Short-Term Quantitative Prediction Engine data error.",
+                meta=create_meta_header(source="Short-Term Prediction Engine")
+            )
+        res_st = ShortTermPredictionEngine.analyze_short_term_technicals(norm_sym, hist_df=df_hist)
+        passed = (res_st.get("recommended_action") == "MOMENTUM_BREAKOUT_SETUP")
+        return StrategyRunResponse(
+            strategy_id="SHORT_TERM_PREDICTION",
+            strategy_name=module.name,
+            status="production",
+            executed_at=get_ist_now_str(),
+            symbol=norm_sym,
+            passed_gates=passed,
+            results=res_st,
+            metrics={
+                "atr_14": res_st.get("atr_14", 0.0),
+                "breakout_prob": res_st.get("scenario_probabilities_pct", {}).get("breakout_expansion", 0.0),
+                "pullback_prob": res_st.get("scenario_probabilities_pct", {}).get("pullback_to_support", 0.0),
+            },
+            risk_warnings=module.risk_warnings,
+            disclaimer="Short-Term Quantitative Prediction Engine assessment.",
+            meta=create_meta_header(source="Short-Term Prediction Engine")
+        )
+    elif module.id == "INTENT_ADAPTIVE":
+        from app.services.research.intent_adaptive_engine import QueryAdaptiveConstraintEngine
+        from app.services.data_ingestion.screener_connector import ScreenerCloudConnector
+        norm_sym = normalize_symbol(symbol)
+        fund = ScreenerCloudConnector.get_company_fundamentals(norm_sym) or {}
+        fund["symbol"] = norm_sym
+
+        active_intent = intent
+        if not active_intent and query_text:
+            active_intent = QueryAdaptiveConstraintEngine.detect_query_intent(query_text)
+        if not active_intent:
+            active_intent = os.getenv("ACTIVE_QUERY_INTENT") or "GENERAL"
+
+        res_intent = QueryAdaptiveConstraintEngine.evaluate_adaptive_constraints(
+            intent=active_intent,
+            data=fund
+        )
+        return StrategyRunResponse(
+            strategy_id="INTENT_ADAPTIVE",
+            strategy_name=module.name,
+            status="production",
+            executed_at=get_ist_now_str(),
+            symbol=norm_sym,
+            passed_gates=res_intent.get("passed", True),
+            results=res_intent,
+            metrics={"intent": res_intent.get("intent", active_intent)},
+            risk_warnings=module.risk_warnings,
+            disclaimer="Query-Intent Adaptive Dynamic Parameter Engine assessment.",
+            meta=create_meta_header(source="Intent Adaptive Engine")
+        )
+    elif module.id == "MULTIMODAL_CHART":
+        from app.services.research.multimodal_chart_reconciliation import MultimodalChartReconciliationEngine
+        norm_sym = normalize_symbol(symbol)
+        df_hist = get_history(norm_sym, period="3mo", as_of=as_of)
+        v_feats = visual_features or kwargs.get("parameters", {}).get("visual_features") or {}
+        res_recon = MultimodalChartReconciliationEngine.reconcile_chart_features(
+            symbol=norm_sym,
+            visual_features=v_feats,
+            df=df_hist
+        )
+        return StrategyRunResponse(
+            strategy_id="MULTIMODAL_CHART",
+            strategy_name=module.name,
+            status="production",
+            executed_at=get_ist_now_str(),
+            symbol=norm_sym,
+            passed_gates=res_recon.get("is_breakout_confirmed", False),
+            results=res_recon,
+            metrics={"alignment_score": res_recon.get("alignment_score_0_100", 50.0)},
+            risk_warnings=module.risk_warnings,
+            disclaimer="Multimodal Technical Chart & Data-Truth Protocol assessment.",
+            meta=create_meta_header(source="Multimodal Chart Protocol")
+        )
+    elif module.id == "MICROCAP_GATE":
+        from app.services.research.finder_state_machines import MicrocapRiskFirstGate
+        norm_sym = normalize_symbol(symbol)
+        q = get_quote(norm_sym, as_of=as_of)
+        mcap = float(q.get("market_cap_cr") or 0.0) or None
+        fund_data = None
+        try:
+            from app.services.data_ingestion.screener_connector import ScreenerCloudConnector
+            fund_data = ScreenerCloudConnector.get_company_fundamentals(norm_sym)
+            if mcap is None and fund_data and fund_data.get("market_cap"):
+                mcap = float(fund_data["market_cap"])
+        except Exception:
+            pass
+
+        adtv = None
+        try:
+            df_30 = get_history(norm_sym, period="1mo", as_of=as_of)
+            if df_30 is not None and not df_30.empty:
+                vols = df_30['Volume'] * df_30['Close']
+                adtv = float(vols.mean()) / 1e7
+        except Exception:
+            pass
+
+        # Fetch real audited promoter holding without fabricating 45.0%
+        prom_pct = None
+        if isinstance(q, dict) and q.get("promoter_holding") is not None:
+            prom_pct = float(q["promoter_holding"])
+        elif fund_data and fund_data.get("promoter_holding") is not None:
+            prom_pct = float(fund_data["promoter_holding"])
+        elif fund_data and fund_data.get("promoter_holding_pct") is not None:
+            prom_pct = float(fund_data["promoter_holding_pct"])
+        else:
+            try:
+                from app.services.research_data import ResearchDataStore
+                ds = ResearchDataStore()
+                _, _, _, _, ownership, _ = ds.get_timeline(norm_sym, as_of=as_of)
+                if ownership:
+                    prom_pct = float(ownership[-1].promoter_pct)
+            except Exception:
+                pass
+
+        res_mg = MicrocapRiskFirstGate.evaluate(
+            symbol=norm_sym,
+            market_cap_cr=mcap,
+            adtv_30d_cr=adtv,
+            promoter_holding_pct=prom_pct
+        )
+        return StrategyRunResponse(
+            strategy_id="MICROCAP_GATE",
+            strategy_name=module.name,
+            status="production",
+            executed_at=get_ist_now_str(),
+            symbol=norm_sym,
+            passed_gates=res_mg.get("is_investable", False),
+            results=res_mg,
+            metrics={"allowed_market_impact_order_cr": res_mg.get("allowed_market_impact_order_cr", 0.0)},
+            risk_warnings=module.risk_warnings,
+            disclaimer="Microcap Risk-First Gate assessment.",
+            meta=create_meta_header(source="Microcap Risk-First Gate")
+        )
     else:
         # No fake scores — return data_insufficient for any genuinely unimplemented module
         return StrategyRunResponse(

@@ -249,7 +249,9 @@ FIELD_MAP: Dict[str, str] = {
     "dma 200": "dma_200",
     "dma 50 previous day": "dma_50",
     "dma 200 previous day": "dma_200",
-    "rsi": "opm_latest",
+    "rsi": "rsi_14",
+    "rsi 14": "rsi_14",
+    "relative strength index": "rsi_14",
 
     # 10. Contract Backlog & Order Book Metrics
     "order book": "order_book",
@@ -401,7 +403,12 @@ class CustomScreenerEngine:
 
         # Cash Conversion Cycle (Days)
         if m in ("cash conversion cycle", "ccc"):
-            return 75.0
+            dso = item.get("debtor_days") or item.get("dso")
+            inv = item.get("inventory_days")
+            pay = item.get("creditor_days") or item.get("payable_days")
+            if dso is not None and inv is not None:
+                return round(float(dso) + float(inv) - float(pay or 0.0), 1)
+            return None
 
         # P/E Ratio
         if m in ("pe", "pe_ratio", "price to earning", "price to earnings", "industry pe"):
@@ -415,7 +422,7 @@ class CustomScreenerEngine:
             pat = float(item.get("net_profit_last_year", 0.0))
             if pat > 0 and mcap > 0:
                 return round(mcap / pat, 2)
-            return 20.0
+            return None
 
         # P/B Ratio
         if m in ("pb", "pb_ratio", "price to book", "price to book value"):
@@ -497,10 +504,12 @@ class CustomScreenerEngine:
 
         # Public Holding (%) = 100 - Promoter - FII - DII
         if m in ("public holding", "public_holding"):
-            prom = float(item.get("promoter_holding", 50.0))
-            fii = float(item.get("fii_holding", 12.0))
-            dii = float(item.get("dii_holding", 8.0))
-            return round(max(0.0, 100.0 - prom - fii - dii), 2)
+            if "promoter_holding" in item and item["promoter_holding"] is not None:
+                prom = float(item["promoter_holding"])
+                fii = float(item.get("fii_holding") or 0.0)
+                dii = float(item.get("dii_holding") or 0.0)
+                return round(max(0.0, 100.0 - prom - fii - dii), 2)
+            return None
 
         # 1-Year Price Return (%)
         if m in ("return over 1 year", "return over 1year", "price_change_1y_pct", "1y return"):
@@ -511,6 +520,28 @@ class CustomScreenerEngine:
             if cp > 0 and low > 0:
                 return round(((cp - low) / low) * 100.0 * 0.7, 2)
             return 25.0
+
+        # Relative Strength Index (14-day Wilder's RSI)
+        if m in ("rsi", "rsi_14", "rsi 14", "relative strength index"):
+            if "rsi_14" in item and item["rsi_14"] is not None:
+                return float(item["rsi_14"])
+            if "rsi" in item and item["rsi"] is not None:
+                return float(item["rsi"])
+            sym = item.get("symbol")
+            if sym:
+                try:
+                    from app.services.market_data import get_history
+                    from app.services.strategies.short_term_indicators import calculate_wilder_rsi
+                    df = get_history(sym, period="6mo", interval="1d")
+                    if df is not None and not df.empty and "Close" in df.columns and len(df) >= 15:
+                        rsi_series = calculate_wilder_rsi(df["Close"], period=14)
+                        if not rsi_series.empty:
+                            val = round(float(rsi_series.iloc[-1]), 2)
+                            item["rsi_14"] = val
+                            return val
+                except Exception:
+                    pass
+            return 50.0
 
         return None
 
@@ -551,19 +582,21 @@ class CustomScreenerEngine:
             except (ValueError, TypeError):
                 pass
 
-        # Contextual defaults based on field types
+        # Contextual lookups based on field types (Strict unobserved handling without positive assumptions)
         if "shares" in t:
-            return 100.0
+            return float(item.get("shares") or item.get("total_shares") or 0.0)
         if "dma" in t:
-            return float(item.get("current_price", 100.0)) * 0.95
+            return float(item.get("dma_200") or item.get("dma_50") or item.get("current_price") or 0.0)
         if "fii" in t:
-            return float(item.get("fii_holding", 12.0))
+            return float(item.get("fii_holding") or 0.0)
         if "dii" in t:
-            return float(item.get("dii_holding", 8.0))
+            return float(item.get("dii_holding") or 0.0)
         if "order" in t and "book" in t:
-            return float(item.get("order_book", 0.0))
+            return float(item.get("order_book") or 0.0)
         if "total assets" in t:
-            return float(item.get("total_assets", item.get("market_cap", 1000.0)))
+            return float(item.get("total_assets") or item.get("market_cap") or 0.0)
+        if "rsi" in t:
+            return float(item.get("rsi_14") or item.get("rsi") or 50.0)
 
         return 0.0
 
@@ -734,9 +767,20 @@ class CustomScreenerEngine:
         return cls._eval_boolean_expr(item, clause)
 
     @classmethod
-    def execute_query(cls, query_string: str) -> Dict[str, Any]:
-        """Parse query string and return matching companies from the fundamental universe."""
+    def execute_query(
+        cls,
+        query_string: str,
+        intent_archetype: Optional[str] = None,
+    ) -> Dict[str, Any]:
+        """Parse query string and return matching companies from the fundamental universe with intent adaptation."""
         fundamentals = ScreenerCloudConnector.get_all_fundamentals()
+
+        from app.services.research.intent_adaptive_engine import QueryAdaptiveConstraintEngine
+        effective_intent = intent_archetype
+        if not effective_intent and query_string:
+            effective_intent = QueryAdaptiveConstraintEngine.detect_query_intent(query_string)
+        if not effective_intent:
+            effective_intent = "GENERAL"
 
         # Clean newlines, strip percent signs, and normalize spaces
         clean_query = query_string.replace("\n", " ").strip()
@@ -744,7 +788,23 @@ class CustomScreenerEngine:
 
         matches = []
         for comp in fundamentals:
-            if cls._eval_boolean_expr(comp, clean_query):
+            matches_ast = cls._eval_boolean_expr(comp, clean_query)
+
+            # Intent-Adaptive Top-of-Funnel Filtering
+            if effective_intent == "TURNAROUND":
+                # In Turnaround intent, verify sequential survival and cash turn
+                cfo = float(comp.get("cfo_last_year", 0.0) or 0.0)
+                ic = float(comp.get("interest_coverage", 5.0) or 5.0)
+                if matches_ast and (cfo < 0 or ic < 1.5):
+                    continue  # Veto insolvent candidate despite loose screen
+            elif effective_intent == "SIP_COMPOUNDER":
+                # In SIP Compounder intent, enforce capital efficiency consistency
+                roce = float(comp.get("roce_latest", 0.0) or 0.0)
+                de = float(comp.get("debt_to_equity", 0.0) or 0.0)
+                if matches_ast and (roce < 15.0 or de > 0.8):
+                    continue
+
+            if matches_ast:
                 matches.append({
                     "symbol": comp["symbol"],
                     "name": comp["company_name"],
@@ -768,6 +828,7 @@ class CustomScreenerEngine:
 
         return {
             "query_string": query_string,
+            "intent_archetype": effective_intent,
             "total_universe_scanned": len(fundamentals),
             "total_results_found": len(matches),
             "results": matches
@@ -778,12 +839,13 @@ class CustomScreenerEngine:
         cls,
         query_string: Optional[str] = None,
         preset_name: Optional[str] = None,
+        intent_archetype: Optional[str] = None,
         min_multibagger_score: float = 65.0,
         top_n: int = 5
     ) -> Dict[str, Any]:
         """Two-Stage Institutional Funnel:
 
-        Stage 1: Filter candidates via flexible Screener.in AST engine.
+        Stage 1: Filter candidates via flexible Screener.in AST engine with intent relaxation.
         Stage 2: Rank passing candidates through the 27-factor Multibagger Decision Brain,
                  enforcing hard governance vetoes and Red-Team thesis invalidation pre-mortems.
         """
@@ -797,8 +859,24 @@ class CustomScreenerEngine:
         if not resolved_query:
             resolved_query = CANONICAL_SCREENER_ARCHETYPES["decade_compounder_accelerator"]["query"]
 
-        # Stage 1: Screener AST Filtering
-        screen_res = cls.execute_query(resolved_query)
+        from app.services.research.intent_adaptive_engine import QueryAdaptiveConstraintEngine
+        effective_intent = intent_archetype
+        if not effective_intent:
+            if preset_name == "fallen_angel_turnaround":
+                effective_intent = "TURNAROUND"
+            elif preset_name == "decade_compounder_accelerator":
+                effective_intent = "SIP_COMPOUNDER"
+            elif preset_name == "institutional_breakout_swing":
+                effective_intent = "SWING_POSITIONAL"
+            elif preset_name == "microcap_discovery":
+                effective_intent = "EARLY_MICROCAP"
+            elif resolved_query:
+                effective_intent = QueryAdaptiveConstraintEngine.detect_query_intent(resolved_query)
+        if not effective_intent:
+            effective_intent = "GENERAL"
+
+        # Stage 1: Screener AST Filtering with intent adaptation
+        screen_res = cls.execute_query(resolved_query, intent_archetype=effective_intent)
         candidates = screen_res.get("results", [])
 
         # Stage 2: Institutional Multibagger Decision Brain Evaluation
@@ -816,6 +894,11 @@ class CustomScreenerEngine:
             gate_res = evaluation.get("hard_risk_gate", {})
             passed_gate = gate_res.get("passed", False)
 
+            # Evaluate Intent-Adaptive Constraints
+            adaptive_eval = QueryAdaptiveConstraintEngine.evaluate_adaptive_constraints(effective_intent, full_data)
+            if not adaptive_eval.get("passed", True):
+                passed_gate = False  # Vetoed under archetype non-negotiable gates
+
             overall_score = float(evaluation.get("overall_score", 0.0))
             if passed_gate and overall_score >= min_multibagger_score:
                 dossiers.append({
@@ -824,6 +907,8 @@ class CustomScreenerEngine:
                     "overall_multibagger_score": overall_score,
                     "confidence_score": evaluation.get("confidence_score", 0.0),
                     "archetype": evaluation.get("archetype", "Compounder"),
+                    "intent_archetype": effective_intent,
+                    "intent_adaptive_evaluation": adaptive_eval,
                     "screener_metrics": cand,
                     "engine_breakdown": evaluation.get("engine_breakdown", {}),
                     "positive_drivers": evaluation.get("positive_drivers", []),
@@ -838,6 +923,7 @@ class CustomScreenerEngine:
         return {
             "query_executed": resolved_query,
             "preset_used": preset_name,
+            "intent_archetype": effective_intent,
             "archetype_meta": archetype_meta,
             "stage_1_screened_count": len(candidates),
             "stage_2_qualified_count": len(dossiers),

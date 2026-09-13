@@ -120,6 +120,33 @@ class TestTurnaroundRegistryDispatch(unittest.TestCase):
             self.assertFalse(resp.passed_gates)
             self.assertEqual(resp.metrics.get("turnaround_score"), 0.0)
 
+    def test_turnaround_engine_with_datastore_timeline(self):
+        import os
+        from unittest.mock import patch, MagicMock
+        from app.services.turnaround.turnaround_engine import run_turnaround_engine
+
+        mock_obs = [
+            MagicMock(period_end="2023-03-31", metric="revenue", value=1000.0),
+            MagicMock(period_end="2023-03-31", metric="opm_pct", value=15.0),
+            MagicMock(period_end="2023-03-31", metric="pat", value=100.0),
+            MagicMock(period_end="2023-03-31", metric="cfo", value=110.0),
+            MagicMock(period_end="2023-03-31", metric="roce", value=18.0),
+            MagicMock(period_end="2023-03-31", metric="debt", value=200.0),
+            MagicMock(period_end="2023-06-30", metric="revenue", value=1100.0),
+            MagicMock(period_end="2023-06-30", metric="opm_pct", value=18.0),
+            MagicMock(period_end="2023-06-30", metric="pat", value=120.0),
+            MagicMock(period_end="2023-06-30", metric="cfo", value=130.0),
+            MagicMock(period_end="2023-06-30", metric="roce", value=20.0),
+            MagicMock(period_end="2023-06-30", metric="debt", value=180.0),
+        ]
+        with patch.dict(os.environ, {"OFFLINE_TEST_MODE": "false"}):
+            with patch("app.services.research_data.ResearchDataStore.get_timeline", return_value=(None, mock_obs, [], [], [], [])):
+                resp = run_turnaround_engine("TATAMOTORS")
+                self.assertEqual(resp.status, "production")
+                self.assertIn("turnaround_score", resp.metrics)
+                self.assertGreater(resp.metrics["turnaround_score"], 0.0)
+
 
 if __name__ == "__main__":
     unittest.main()
+

@@ -33,19 +33,21 @@ def run_reverse_dcf_c9(
     symbol: str,
     discount_rate: float = 0.12,
     terminal_growth: float = 0.04,
+    retention_rate: float = 0.0,
     as_of: Optional[Any] = None,
 ) -> StrategyRunResponse:
     """Execute C9 Reverse DCF Intrinsic Growth Check.
     
     Solves for the market-implied steady-state growth rate (g) using the inverse 
-    Gordon Growth valuation relation: P/E = (1 + g) / (r - g) => g = (r * P/E - 1) / (P/E + 1).
-    In this single-stage formulation, the implied sustainable growth rate g represents 
-    the perpetual rate (where terminal_growth is coincident with g).
+    Gordon Growth valuation relation: P/E = (1 - b) * (1 + g) / (r - g), yielding
+    g = (r * P/E - (1 - b)) / (P/E + (1 - b)), where b is the retention rate.
+    When b = 0 (100% payout heuristic), this reduces to g = (r * P/E - 1) / (P/E + 1).
     
     Args:
         symbol: Target equity symbol.
         discount_rate: Baseline cost of equity discount rate (default: 12%).
         terminal_growth: Perpetual terminal growth benchmark rate (default: 4%).
+        retention_rate: Assumed earnings retention rate b in [0, 0.90] (default: 0.0).
         as_of: Historical point-in-time reference boundary.
     """
     norm_symbol = normalize_symbol(symbol)
@@ -71,8 +73,98 @@ def run_reverse_dcf_c9(
         except Exception:
             pass
 
-    # Fail closed if P/E remains <= 0 (reverse DCF mathematically undefined)
-    if pe <= 0:
+    # Graceful Abstention on Negative/Zero P/E (Turnaround/Distress) with Strict Graham Net-Net Asset Floor
+    if pe is None or pe <= 0:
+        asset_floor_data = {}
+        try:
+            from app.services.data_ingestion.screener_connector import ScreenerCloudConnector
+            fund = ScreenerCloudConnector.get_company_fundamentals(norm_symbol)
+            if fund:
+                ca_val = fund.get("current_assets")
+                tl_val = fund.get("total_liabilities") or fund.get("liabilities")
+
+                # Check for granular balance sheet items: receivables and inventory
+                has_receivables = fund.get("trade_receivables") is not None or fund.get("debtors") is not None
+                has_inventory = fund.get("inventory") is not None or fund.get("inventories") is not None
+
+                if (has_receivables or has_inventory) and tl_val is not None:
+                    cash = float(fund.get("cash_and_equivalents") or fund.get("cash") or 0.0)
+                    receivables = float(fund.get("trade_receivables") or fund.get("debtors") or 0.0)
+                    inventory = float(fund.get("inventory") or fund.get("inventories") or 0.0)
+                    tl = float(tl_val)
+                    strict_liquidation_ncav = cash + (0.75 * receivables) + (0.50 * inventory) - tl
+                    asset_floor_cr = round(max(0.0, strict_liquidation_ncav), 2)
+                    asset_floor_data = {
+                        "asset_floor_model": "STRICT_GRAHAM_LIQUIDATION_NCAV",
+                        "tier": "STRICT_GRAHAM_LIQUIDATION",
+                        "cash_cr": round(cash, 2),
+                        "receivables_cr": round(receivables, 2),
+                        "inventory_cr": round(inventory, 2),
+                        "total_liabilities_cr": round(tl, 2),
+                        "ncav_cr": round(strict_liquidation_ncav, 2),
+                        "estimated_asset_floor_cr": asset_floor_cr,
+                        "turnaround_asset_backing": "ADEQUATE" if asset_floor_cr > 0 else "DEFICIENT"
+                    }
+                elif ca_val is not None and tl_val is not None:
+                    ca = float(ca_val)
+                    tl = float(tl_val)
+                    ncav = ca - tl
+                    asset_floor_cr = round(max(0.0, ncav), 2)
+                    asset_floor_data = {
+                        "asset_floor_model": "AGGREGATE_NET_WORKING_CAPITAL",
+                        "tier": "AGGREGATE_NET_WORKING_CAPITAL",
+                        "current_assets_cr": round(ca, 2),
+                        "total_liabilities_cr": round(tl, 2),
+                        "ncav_cr": round(ncav, 2),
+                        "estimated_asset_floor_cr": asset_floor_cr,
+                        "turnaround_asset_backing": "ADEQUATE" if asset_floor_cr > 0 else "DEFICIENT"
+                    }
+                else:
+                    cash = float(fund.get("cash_and_equivalents") or fund.get("cash") or 0.0)
+                    book_val = float(fund.get("book_value") or 0.0)
+                    asset_floor_cr = round(max(cash, book_val * 0.70), 2)
+                    asset_floor_data = {
+                        "asset_floor_model": "GRAHAM_TANGIBLE_BV_PROXY",
+                        "tier": "GRAHAM_TANGIBLE_BV_PROXY",
+                        "cash_cr": round(cash, 2),
+                        "book_value_proxy_cr": round(book_val, 2),
+                        "estimated_asset_floor_cr": asset_floor_cr,
+                        "turnaround_asset_backing": "ADEQUATE" if asset_floor_cr > 0 else "DEFICIENT"
+                    }
+        except Exception:
+            pass
+
+        results_dict = {
+            "model_type": "PE_IMPLIED_GROWTH_HEURISTIC",
+            "methodology_disclosure": "One-stage Gordon Growth heuristic on trailing P/E: ((r * PE - (1 - b)) / (PE + (1 - b))). For multi-stage FCF DCF, use full financial statement projections.",
+            "implied_10y_cagr": "N/A",
+            "market_expectations_verdict": "DATA_INSUFFICIENT (P/E <= 0 or unobserved - reverse DCF mathematically undefined)",
+            "valuation_abstention_reason": "NEGATIVE_TRAILING_PE_REQUIRING_ASSET_OR_CFO_MODEL",
+            "discount_rate_assumed": f"{int(discount_rate * 100)}%",
+            "terminal_growth_assumed": f"{int(terminal_growth * 100)}%",
+            "earnings_yield": "N/A",
+            "fcf_yield": "N/A",
+            "equity_risk_premium_vs_gsec": "N/A",
+            "sensitivity_matrix": {},
+            "data_status": "DATA_INSUFFICIENT",
+        }
+        results_dict.update(asset_floor_data)
+
+        metrics_dict = {
+            "model_type": "PE_IMPLIED_GROWTH_HEURISTIC",
+            "price": spot,
+            "pe_ratio": pe,
+            "implied_growth_rate_pct": None,
+            "earnings_yield_pct": None,
+            "fcf_yield_pct": None,
+            "equity_risk_premium_pct": None,
+            "discount_rate": discount_rate,
+            "terminal_growth": terminal_growth,
+            "retention_rate": retention_rate,
+            "valuation_abstention_reason": "NEGATIVE_TRAILING_PE_REQUIRING_ASSET_OR_CFO_MODEL",
+        }
+        metrics_dict.update(asset_floor_data)
+
         return StrategyRunResponse(
             strategy_id="C9",
             strategy_name="C9 Reverse DCF Intrinsic Growth Engine",
@@ -80,38 +172,20 @@ def run_reverse_dcf_c9(
             executed_at=get_ist_now_str(),
             symbol=norm_symbol,
             passed_gates=False,
-            results={
-                "model_type": "PE_IMPLIED_GROWTH_HEURISTIC",
-                "methodology_disclosure": "One-stage Gordon Growth heuristic on trailing P/E: ((r * PE - 1) / (PE + 1)). For multi-stage FCF DCF, use full financial statement projections.",
-                "implied_10y_cagr": "N/A",
-                "market_expectations_verdict": "DATA_INSUFFICIENT (P/E <= 0 or unobserved - reverse DCF mathematically undefined)",
-                "discount_rate_assumed": f"{int(discount_rate * 100)}%",
-                "terminal_growth_assumed": f"{int(terminal_growth * 100)}%",
-                "fcf_yield": "N/A",
-                "equity_risk_premium_vs_gsec": "N/A",
-                "sensitivity_matrix": {},
-                "data_status": "DATA_INSUFFICIENT",
-            },
-            metrics={
-                "model_type": "PE_IMPLIED_GROWTH_HEURISTIC",
-                "price": spot,
-                "pe_ratio": pe,
-                "implied_growth_rate_pct": None,
-                "fcf_yield_pct": None,
-                "equity_risk_premium_pct": None,
-                "discount_rate": discount_rate,
-                "terminal_growth": terminal_growth,
-            },
+            results=results_dict,
+            metrics=metrics_dict,
             risk_warnings=[
                 "Reverse DCF model requires positive trailing earnings (P/E > 0).",
-                "Currently unobserved, negative, or zero earnings - valuation gate failed closed."
+                "Currently unobserved, negative, or zero earnings - valuation gate failed closed (Turnaround/Distress requires balance sheet/CFO valuation)."
             ],
             disclaimer="Reverse DCF quantitative model (Gordon Growth P/E inverse heuristic).",
             meta=create_meta_header(source=f"IERL Reverse DCF Engine ({norm_symbol})")
         )
 
-    # 1. Market-Implied CAGR Calculation (Gordon Growth / DCF Approximation)
-    raw_implied = ((discount_rate * pe - 1.0) / (pe + 1.0)) * 100.0
+    # 1. Market-Implied CAGR Calculation with Retention Rate (Gordon Growth / DCF Approximation)
+    b_clamped = max(0.0, min(0.90, float(retention_rate)))
+    payout_ratio = 1.0 - b_clamped
+    raw_implied = ((discount_rate * pe - payout_ratio) / (pe + payout_ratio)) * 100.0
     implied_cagr_pct = round(max(-10.0, min(raw_implied, 55.0)), 2)
 
     # 2. Multi-Scenario Discount & Growth Sensitivity Matrix
@@ -119,13 +193,14 @@ def run_reverse_dcf_c9(
     matrix: Dict[str, float] = {}
     for r in discount_scenarios:
         if pe > 0:
-            val = round(((r * pe - 1.0) / (pe + 1.0)) * 100.0, 2)
+            val = round(((r * pe - payout_ratio) / (pe + payout_ratio)) * 100.0, 2)
             matrix[f"discount_{int(r*100)}pct_implied_growth"] = max(-10.0, min(val, 55.0))
 
-    # 3. FCF Yield vs 10-Yr G-Sec Risk Free Rate (~7.1%)
-    fcf_yield_pct = round((1.0 / pe) * 100.0, 2) if pe > 0 else 0.0
+    # 3. Earnings Yield (Proxy for FCF Yield) vs 10-Yr G-Sec Risk Free Rate (~7.1%)
+    earnings_yield_pct = round((1.0 / pe) * 100.0, 2) if pe > 0 else 0.0
+    fcf_yield_pct = earnings_yield_pct  # Preserved as earnings-yield proxy for backward compatibility
     risk_free_rate_pct = 7.1
-    equity_risk_premium_pct = round(fcf_yield_pct - risk_free_rate_pct, 2)
+    equity_risk_premium_pct = round(earnings_yield_pct - risk_free_rate_pct, 2)
 
     # 4. Valuation Classification
     passed = (0.0 <= implied_cagr_pct <= 22.0)
@@ -143,11 +218,12 @@ def run_reverse_dcf_c9(
 
     results = {
         "model_type": "PE_IMPLIED_GROWTH_HEURISTIC",
-        "methodology_disclosure": "One-stage Gordon Growth heuristic on trailing P/E: ((r * PE - 1) / (PE + 1)). For multi-stage FCF DCF, use full financial statement projections.",
+        "methodology_disclosure": "One-stage Gordon Growth heuristic on trailing P/E: ((r * PE - (1 - b)) / (PE + (1 - b))). For multi-stage FCF DCF, use full financial statement projections.",
         "implied_10y_cagr": f"{implied_cagr_pct}%",
         "market_expectations_verdict": verdict,
         "discount_rate_assumed": f"{int(discount_rate * 100)}%",
         "terminal_growth_assumed": f"{int(terminal_growth * 100)}%",
+        "earnings_yield": f"{earnings_yield_pct}%",
         "fcf_yield": f"{fcf_yield_pct}%",
         "equity_risk_premium_vs_gsec": f"{equity_risk_premium_pct}% (Risk-Free Rate: 7.1%)",
         "sensitivity_matrix": matrix
@@ -158,10 +234,12 @@ def run_reverse_dcf_c9(
         "price": spot,
         "pe_ratio": pe,
         "implied_growth_rate_pct": implied_cagr_pct,
+        "earnings_yield_pct": earnings_yield_pct,
         "fcf_yield_pct": fcf_yield_pct,
         "equity_risk_premium_pct": equity_risk_premium_pct,
         "discount_rate": discount_rate,
-        "terminal_growth": terminal_growth
+        "terminal_growth": terminal_growth,
+        "retention_rate": b_clamped
     }
 
     risk_warnings = [

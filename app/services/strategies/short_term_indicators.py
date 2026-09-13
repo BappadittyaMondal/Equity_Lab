@@ -43,8 +43,13 @@ def calculate_wilder_rsi(series: pd.Series, period: int = 14) -> pd.Series:
         avg_gain.iloc[i] = (avg_gain.iloc[i - 1] * (period - 1) + gain.iloc[i]) / period
         avg_loss.iloc[i] = (avg_loss.iloc[i - 1] * (period - 1) + loss.iloc[i]) / period
 
+    # Mathematical boundary conditions: if avg_loss == 0, RSI = 100; if avg_gain == 0, RSI = 0
+    zero_loss = (avg_loss == 0) & (avg_gain > 0)
+    zero_gain = (avg_gain == 0) & (avg_loss > 0)
+    flat = (avg_gain == 0) & (avg_loss == 0)
     rs = avg_gain / avg_loss.replace(0, np.nan)
     rsi = 100.0 - (100.0 / (1.0 + rs))
+    rsi = rsi.mask(zero_loss, 100.0).mask(zero_gain, 0.0).mask(flat, 50.0)
     rsi = rsi.fillna(50.0)
     return rsi
 

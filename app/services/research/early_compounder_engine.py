@@ -39,6 +39,8 @@ def run_early_compounder_engine(symbol: str, as_of: Optional[str] = None) -> Str
     """Run E21 Early-Stage Compounder Incubator Engine."""
     norm = symbol.upper()
     is_offline = os.getenv("OFFLINE_TEST_MODE", "false").lower() == "true"
+    import pandas as pd
+    as_of_dt = pd.to_datetime(as_of) if as_of else None
     
     # 1. Fetch Financials & Quote
     financials: List[Dict[str, Any]] = []
@@ -55,9 +57,7 @@ def run_early_compounder_engine(symbol: str, as_of: Optional[str] = None) -> Str
         try:
             from app.services.market_data import get_quote
             from app.services.research_data import ResearchDataStore
-            import pandas as pd
             
-            as_of_dt = pd.to_datetime(as_of) if as_of else None
             q = get_quote(norm, as_of=as_of_dt)
             if q and hasattr(q, "market_cap_cr") and q.market_cap_cr:
                 market_cap_cr = float(q.market_cap_cr)
@@ -123,8 +123,8 @@ def run_early_compounder_engine(symbol: str, as_of: Optional[str] = None) -> Str
                 de_list = obs_map.get("debt_to_equity") or []
                 if de_list:
                     de_ratio = float(de_list[-1].value)
-                elif ic_list:
-                    de_ratio = 0.25
+                else:
+                    de_ratio = None
         except Exception:
             pass
 
@@ -142,6 +142,9 @@ def run_early_compounder_engine(symbol: str, as_of: Optional[str] = None) -> Str
 
     # Fail closed on missing required fundamentals in production
     if any(v is None for v in [market_cap_cr, current_rev_cr, trailing_roce, capex_cr, delta_nopat, delta_ic, delta_ebitda, de_ratio]):
+        missing_fields = []
+        if de_ratio is None:
+            missing_fields.append("DATA_GAP_UNOBSERVED_DEBT: Leverage / D/E unobserved")
         return StrategyRunResponse(
             strategy_id="E21",
             strategy_name="Early-Stage ₹100Cr+ Microcap Compounder",
@@ -152,10 +155,10 @@ def run_early_compounder_engine(symbol: str, as_of: Optional[str] = None) -> Str
             results={
                 "status": "data_insufficient",
                 "symbol": norm,
-                "reason": "Insufficient verified financial observations to derive incremental ROIC and Capex productivity without synthetic defaults."
+                "reason": "Insufficient verified financial observations (including Debt-to-Equity / leverage) to derive incremental ROIC and Capex productivity without synthetic defaults."
             },
             metrics={"score": 0.0},
-            risk_warnings=["Microcap fundamentals unverified in official filings."],
+            risk_warnings=["Microcap fundamentals unverified in official filings."] + missing_fields,
             disclaimer="Production microcap evaluation strictly prohibits ungrounded financial defaults.",
             meta=create_meta_header(source="Early-Stage Microcap Compounder (E21)")
         )
@@ -257,7 +260,7 @@ def run_early_compounder_engine(symbol: str, as_of: Optional[str] = None) -> Str
     else:
         mcap_val = None
 
-    promoter_res = evaluate_promoter_behaviour(norm)
+    promoter_res = evaluate_promoter_behaviour(norm, as_of=as_of_dt)
     prom_rf = promoter_res.get("red_flags", [])
     has_auditor_resigned = any("Auditor" in rf or "CFO" in rf for rf in prom_rf)
     
@@ -277,14 +280,14 @@ def run_early_compounder_engine(symbol: str, as_of: Optional[str] = None) -> Str
     elif is_offline:
         prom_holding = 55.0
     else:
-        prom_holding = 45.0  # Safe neutral baseline when unobserved rather than false veto
+        prom_holding = None  # Fail closed when unobserved in production rather than assuming safe baseline
 
     if fund_mcap and fund_mcap.get("cfo_3yr"):
         cfo_3y = float(fund_mcap["cfo_3yr"])
     else:
         cfo_3y = max(10.0, (delta_nopat or 5.0) * 2.0) if is_offline else 0.0
 
-    surv = evaluate_surveillance_and_cost_gate(norm)
+    surv = evaluate_surveillance_and_cost_gate(norm, as_of=as_of_dt)
     circuit_freq = 20.0 if surv.circuit_lock_risk == "HIGH" else (10.0 if surv.circuit_lock_risk == "MODERATE" else 0.0)
 
     # Real ADTV derivation (DEF-007): In production, do not silently seed with 1% Mcap
@@ -292,7 +295,7 @@ def run_early_compounder_engine(symbol: str, as_of: Optional[str] = None) -> Str
         adtv_val = None
         try:
             from app.services.market_data import get_history
-            df_hist = get_history(norm, period="3mo")
+            df_hist = get_history(norm, period="3mo", as_of=as_of_dt)
             if df_hist is not None and not df_hist.empty and "Volume" in df_hist.columns and "Close" in df_hist.columns:
                 adtv_val = round(float((df_hist["Close"] * df_hist["Volume"]).tail(30).mean()) / 1e7, 2)
         except Exception:
@@ -314,6 +317,8 @@ def run_early_compounder_engine(symbol: str, as_of: Optional[str] = None) -> Str
     if not mcap_gate["is_investable"]:
         has_veto = True
         veto_reasons.extend(mcap_gate["forensic_vetoes"])
+        score = min(score, 25.0)
+        tier = "REJECT_KILL_TEST_FAILED"
 
     meta = create_meta_header(source="Early-Stage Compounder Engine (E21)")
 
@@ -337,13 +342,15 @@ def run_early_compounder_engine(symbol: str, as_of: Optional[str] = None) -> Str
         "incremental_roic_pct": inc_roic_val,
     }
 
+    passed_final = bool(passed and mcap_gate.get("is_investable", True) and not has_veto)
+
     return StrategyRunResponse(
         strategy_id="E21",
         strategy_name="Early-Stage ₹100Cr+ Microcap Compounder Engine",
         status="production",
         executed_at=get_ist_now_str(),
         symbol=norm,
-        passed_gates=passed,
+        passed_gates=passed_final,
         results=results_dict,
         metrics=metrics_dict,
         risk_warnings=veto_reasons if has_veto else ["Micro-cap liquidity & volatility risks apply."],

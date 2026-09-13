@@ -590,7 +590,8 @@ class SwingPredictiveEngine:
         surv = evaluate_surveillance_and_cost_gate(sym_name)
         circuit_locked = bool(surv.circuit_lock_risk == "HIGH" or surv.circuit_band_pct <= 2.0 or surv.hard_gate_status == "FAIL")
 
-        order_size_val = order_size_cr if order_size_cr is not None else (0.25 if adtv_val >= 5.0 else (round(0.02 * adtv_val, 2) if adtv_val >= 1.0 else None))
+        is_custom_size = order_size_cr is not None
+        order_size_val = order_size_cr if is_custom_size else (0.25 if adtv_val >= 5.0 else (round(0.02 * adtv_val, 2) if adtv_val >= 1.0 else None))
 
         feasibility_res = SwingTradeFeasibilityEngine.evaluate(
             symbol=sym_name,
@@ -600,6 +601,8 @@ class SwingPredictiveEngine:
             order_size_cr=order_size_val,
             is_circuit_locked=circuit_locked,
         )
+        feasibility_res["capacity_evaluation_mode"] = "EXPLICIT_PORTFOLIO_ORDER" if is_custom_size else "DEFAULT_ASSUMED_LIQUIDITY_TOKEN"
+        feasibility_res["is_custom_order_size"] = is_custom_size
 
         return {
             "current_price": round(cp, 2),

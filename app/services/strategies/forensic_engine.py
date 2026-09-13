@@ -56,6 +56,7 @@ def compute_beneish_mscore(financials: List[Any]) -> Dict[str, Any]:
     cfo_s = _extract_series(financials, ["operating_cash_flow", "cfo"])
     pat_s = _extract_series(financials, ["net_income", "pat"])
     debt_s = _extract_series(financials, ["total_debt", "net_debt"])
+    rec_s = _extract_series(financials, ["receivables", "trade_receivables", "debtors", "accounts_receivable"])
 
     # Need at least 2 periods for year-over-year ratios
     if len(rev_s) < 2 or len(asset_s) < 2:
@@ -88,13 +89,24 @@ def compute_beneish_mscore(financials: List[Any]) -> Dict[str, Any]:
 
     # ── Variable calculations ──────────────────────────────────────────────
 
-    # DSRI: if receivables unavailable, use revenue proxy (conservative)
-    # Typically DSRI = (Receivables_t / Rev_t) / (Receivables_t-1 / Rev_t-1)
-    # We approximate using revenue ratio change as proxy
-    dsri = 1.0  # neutral if not available
-    result["dsri"] = dsri
-    result["dsri_status"] = "PROXY_REVENUE_BASED"
-    evidence.append(f"DSRI: {dsri:.3f} (proxy — receivables not in DB)")
+    # DSRI: Days Sales in Receivables Index
+    # DSRI = (Receivables_t / Rev_t) / (Receivables_t-1 / Rev_t-1)
+    rec_t = _get(rec_s, -1) if len(rec_s) >= 1 else None
+    rec_t1 = _get(rec_s, -2) if len(rec_s) >= 2 else None
+
+    if rec_t is not None and rec_t1 is not None and rec_t1 > 0 and rev_t > 0 and rev_t1 > 0:
+        dsri = (rec_t / rev_t) / (rec_t1 / rev_t1)
+        result["dsri"] = round(dsri, 4)
+        result["dsri_status"] = "AUDITED_RECEIVABLES_OBSERVED"
+        evidence.append(f"DSRI: {dsri:.3f} (computed from audited receivables)")
+        if dsri > 1.25:
+            evidence.append(f"⚠️ DSRI={dsri:.2f} > 1.25: Receivables growing much faster than sales (potential channel stuffing)")
+    else:
+        dsri = 1.0  # neutral proxy when receivables are not separated in DB
+        result["dsri"] = dsri
+        result["dsri_status"] = "RECEIVABLES_UNOBSERVED"
+        result["data_gap_warning"] = "RECEIVABLES_UNOBSERVED: Channel stuffing / DSRI manipulation cannot be ruled out."
+        evidence.append(f"DSRI: {dsri:.3f} (proxy — receivables unobserved in DB; channel stuffing unverified)")
 
     # GMI: Gross Margin Index
     gmi = (gm_t1 / gm_t) if gm_t > 0 else 1.0
@@ -151,11 +163,11 @@ def compute_beneish_mscore(financials: List[Any]) -> Dict[str, Any]:
     )
     m_score = round(m_score, 3)
     result["m_score"] = m_score
-    result["model_variant"] = "BENEISH_M_5_FACTOR_CORE_PROXY"
-    result["approximated_variables"] = ["DSRI", "DEPI", "SGAI"]
+    result["model_variant"] = "BENEISH_M_AUDITED_RECEIVABLES" if result["dsri_status"] == "AUDITED_RECEIVABLES_OBSERVED" else "BENEISH_M_PARTIAL_PROXIED"
+    result["approximated_variables"] = ["DEPI", "SGAI"] if result["dsri_status"] == "AUDITED_RECEIVABLES_OBSERVED" else ["DSRI", "DEPI", "SGAI"]
     result["canonical_specification_note"] = (
         "Calculated using 8-variable formula with empirical neutral proxies for unobserved line items "
-        "(DSRI=1.0, DEPI=1.0, SGAI=1.0) and proxy AQI."
+        "(DEPI=1.0, SGAI=1.0, and DSRI proxy if unobserved) and proxy AQI."
     )
 
     if m_score > -1.78:
@@ -300,6 +312,8 @@ def compute_piotroski_fscore(financials: List[Any]) -> Dict[str, Any]:
     rev_s = _extract_series(financials, ["revenue", "total_revenue"])
     gp_s = _extract_series(financials, ["gross_profit"])
     shares_s = _extract_series(financials, ["shares_outstanding", "equity_shares", "shares", "total_shares"])
+    ca_s = _extract_series(financials, ["current_assets", "other_current_assets"])
+    cl_s = _extract_series(financials, ["current_liabilities", "other_current_liabilities"])
 
     def _binary(condition: bool, label: str, true_msg: str, false_msg: str) -> int:
         if condition:
@@ -346,11 +360,18 @@ def compute_piotroski_fscore(financials: List[Any]) -> Dict[str, Any]:
     lev_t1 = debt_t1 / asset_t1 if asset_t1 > 0 else 0.0
     scores["F5"] = _binary(lev_t <= lev_t1, "F5 Leverage", f"Debt ratio stable/improving ({lev_t1:.2f} → {lev_t:.2f})", f"Debt ratio rising ({lev_t1:.2f} → {lev_t:.2f})")
 
-    # F6: Working capital (proxy: current assets ratio improved)
-    # Proxy: revenue/asset turnover improved
-    turn_t = rev_t / asset_t if asset_t > 0 else 0.0
-    turn_t1 = rev_t1 / asset_t1 if asset_t1 > 0 else 0.0
-    scores["F6"] = _binary(turn_t >= turn_t1, "F6 Liquidity proxy", "Asset turnover improved", "Asset turnover declined")
+    # F6: Current ratio increased YoY (Liquidity)
+    if len(ca_s) >= 2 and len(cl_s) >= 2:
+        ca_t = _get(ca_s, -1) or 0.0
+        ca_t1 = _get(ca_s, -2) or 0.0
+        cl_t = _get(cl_s, -1) or 0.0
+        cl_t1 = _get(cl_s, -2) or 0.0
+        cr_t = (ca_t / cl_t) if cl_t > 0 else 0.0
+        cr_t1 = (ca_t1 / cl_t1) if cl_t1 > 0 else 0.0
+        scores["F6"] = _binary(cr_t > cr_t1, "F6 Liquidity", f"Current ratio improved ({cr_t1:.2f} → {cr_t:.2f})", f"Current ratio declined/stable ({cr_t1:.2f} → {cr_t:.2f})")
+    else:
+        scores["F6"] = 0  # Conservative zero-trust policy: unverified liquidity receives zero points
+        evidence.append("⚪ F6 Liquidity: current assets/liabilities unobserved — zero score awarded (conservative zero-trust policy)")
 
     # F7: No dilution
     if len(shares_s) >= 2:
@@ -367,6 +388,8 @@ def compute_piotroski_fscore(financials: List[Any]) -> Dict[str, Any]:
     scores["F8"] = _binary(gm_t >= gm_t1, "F8 Gross Margin", f"Gross margin stable/improving ({gm_t1*100:.1f}% → {gm_t*100:.1f}%)", f"Gross margin declining ({gm_t1*100:.1f}% → {gm_t*100:.1f}%)")
 
     # F9: Asset turnover improved
+    turn_t = rev_t / asset_t if asset_t > 0 else 0.0
+    turn_t1 = rev_t1 / asset_t1 if asset_t1 > 0 else 0.0
     scores["F9"] = _binary(turn_t > turn_t1, "F9 Asset Turnover", f"Improving ({turn_t1:.2f} → {turn_t:.2f})", f"Declining ({turn_t1:.2f} → {turn_t:.2f})")
 
     f_score = sum(scores.values())

@@ -20,9 +20,9 @@ class MicroCapGateResult:
     status_code: str  # "APPROVED", "REJECTED_LIQUIDITY", "REJECTED_PLEDGE", "REJECTED_SURVEILLANCE", "REJECTED_CFO_QUALITY"
     adv_20d_inr: float
     max_position_size_inr: float  # 10% of 20D ADTV
-    promoter_pledge_pct: float
-    cfo_ebitda_ratio: float
-    asm_gsm_stage: str
+    promoter_pledge_pct: Optional[float] = None
+    cfo_ebitda_ratio: Optional[float] = None
+    asm_gsm_stage: str = "UNKNOWN"
     adv_quality: str = "VERIFIED_20D"  # "VERIFIED_20D", "PROXY_10D_MINIMUM", "INSUFFICIENT"
     order_adv_participation_cap_pct: float = 10.0
     target_portfolio_allocation_cap_pct: float = 5.0
@@ -35,18 +35,24 @@ def evaluate_microcap_integrity_gate(
     promoter_pledge_pct: Optional[float] = None,
     cfo_ebitda_ratio: Optional[float] = None,
     asm_gsm_stage: Optional[str] = None,
-    circuit_band_pct: Optional[float] = None
+    circuit_band_pct: Optional[float] = None,
+    as_of: Optional[Any] = None,
+    market_cap_cr: Optional[float] = None,
 ) -> MicroCapGateResult:
     """Evaluate micro/small-cap liquidity, governance, and surveillance gates for an equity."""
     clean_sym = normalize_symbol(symbol)
     veto_reasons = []
+
+    # 0. Market Cap Upper Boundary Check (Aligned with MicrocapRiskFirstGate <= ₹1,500 Cr)
+    if market_cap_cr is not None and market_cap_cr > 1500.0:
+        veto_reasons.append(f"Market capitalization (₹{market_cap_cr:.1f} Cr) exceeds microcap upper limit (₹1,500 Cr).")
 
     # 1. 20-Day ADTV & Liquidity Sizing (Fail-closed on missing/corrupt data)
     adv_20d_inr = 0.0
     adtv_valid = False
     adv_quality = "INSUFFICIENT"
     try:
-        hist = get_history(clean_sym, period="1m", interval="1d")
+        hist = get_history(clean_sym, period="1m", interval="1d", as_of=as_of)
         if hist is not None and len(hist) >= 10 and 'Close' in hist and 'Volume' in hist:
             prices = hist['Close'].values[-20:]
             vols = hist['Volume'].values[-20:]
@@ -76,7 +82,7 @@ def evaluate_microcap_integrity_gate(
         if pledge > 20.0:
             veto_reasons.append(f"Promoter pledge ({pledge:.1f}%) exceeds maximum 20.0% institutional threshold.")
     else:
-        pledge = 0.0
+        pledge = None
         missing_evidence.append("Promoter pledge data unverified/missing for microcap security.")
 
     # 3. Surveillance Gate (ASM/GSM stage and Circuit Band check)
@@ -99,7 +105,7 @@ def evaluate_microcap_integrity_gate(
         if cfo_ratio < 0.70:
             veto_reasons.append(f"Cash conversion quality (CFO/EBITDA = {cfo_ratio:.2f}) below minimum 0.70 threshold.")
     else:
-        cfo_ratio = 0.0
+        cfo_ratio = None
         missing_evidence.append("Cash conversion ratio (CFO/EBITDA) unverified/missing for microcap security.")
 
     # 5. Position Capacity Check vs ADTV Cap

@@ -36,12 +36,23 @@ export async function initHeaderNav() {
   }
 }
 
-// Global API Key Configuration Modal
+// Global API Key Configuration Modal (Ephemeral Session Storage Hardened)
 window.openApiKeyModal = function() {
   const existingModal = document.getElementById("api-key-modal");
   if (existingModal) existingModal.remove();
 
-  const currentKey = localStorage.getItem("ierl_api_key") || window.__IERL_API_KEY || "";
+  // Auto-migrate & purge legacy localStorage persistence
+  if (typeof localStorage !== "undefined" && localStorage.getItem("ierl_api_key")) {
+    try {
+      sessionStorage.setItem("ierl_session_token", localStorage.getItem("ierl_api_key"));
+      localStorage.removeItem("ierl_api_key");
+    } catch (e) {}
+  }
+
+  const currentKey = (typeof sessionStorage !== "undefined" && sessionStorage.getItem("ierl_session_token"))
+    || window.__IERL_SESSION_KEY
+    || window.__IERL_API_KEY
+    || "";
 
   const modal = document.createElement("div");
   modal.id = "api-key-modal";
@@ -50,8 +61,8 @@ window.openApiKeyModal = function() {
     <div class="bg-surface-low border border-gold/40 rounded-xl p-6 max-w-md w-full shadow-2xl space-y-4">
       <div class="flex items-center justify-between border-b border-surface-border pb-3">
         <div class="flex items-center gap-2">
-          <span class="material-symbols-outlined text-gold">key</span>
-          <h3 class="text-base font-bold text-gold font-serif">API Authentication Key</h3>
+          <span class="material-symbols-outlined text-gold">shield_lock</span>
+          <h3 class="text-base font-bold text-gold font-serif">API Session Authentication</h3>
         </div>
         <button onclick="document.getElementById('api-key-modal').remove()" class="text-muted hover:text-white">
           <span class="material-symbols-outlined text-sm">close</span>
@@ -59,21 +70,21 @@ window.openApiKeyModal = function() {
       </div>
 
       <p class="text-xs text-cream-dark leading-relaxed">
-        Configure your <code>X-API-Key</code> for live backend engine queries. This key will be stored locally in your browser session storage.
+        Configure your <code>X-API-Key</code> for live backend engine queries. Keys are held ephemerally in <strong>tab session memory</strong> (<code>sessionStorage</code>) and purged upon closing to prevent persistent credential leakage.
       </p>
 
       <div class="space-y-1">
-        <label class="text-[11px] font-mono text-muted uppercase">Secret API Key</label>
+        <label class="text-[11px] font-mono text-muted uppercase">Session API Key</label>
         <input type="password" id="api-key-input" value="${currentKey}" placeholder="e.g. ierl_prod_sec_key_..."
                class="w-full px-3 py-2 text-xs font-mono bg-surface-lowest text-white rounded border border-surface-border focus:border-gold outline-none" />
       </div>
 
       <div class="flex items-center justify-end gap-2 pt-2">
-        <button onclick="localStorage.removeItem('ierl_api_key'); window.__IERL_API_KEY = ''; document.getElementById('api-key-modal').remove(); location.reload();"
+        <button onclick="sessionStorage.removeItem('ierl_session_token'); localStorage.removeItem('ierl_api_key'); window.__IERL_SESSION_KEY = ''; window.__IERL_API_KEY = ''; document.getElementById('api-key-modal').remove(); location.reload();"
                 class="px-3 py-1.5 text-xs font-mono bg-red-900/40 hover:bg-red-800/60 text-red-200 rounded border border-red-500/40">
           Clear Key
         </button>
-        <button onclick="const k = document.getElementById('api-key-input').value.trim(); localStorage.setItem('ierl_api_key', k); window.__IERL_API_KEY = k; document.getElementById('api-key-modal').remove(); location.reload();"
+        <button onclick="const k = document.getElementById('api-key-input').value.trim(); sessionStorage.setItem('ierl_session_token', k); localStorage.removeItem('ierl_api_key'); window.__IERL_SESSION_KEY = k; window.__IERL_API_KEY = k; document.getElementById('api-key-modal').remove(); location.reload();"
                 class="px-4 py-1.5 text-xs font-mono bg-gold/20 hover:bg-gold/30 text-gold rounded border border-gold/40 font-semibold">
           Save & Apply
         </button>

@@ -40,9 +40,10 @@ def run_technical_universe_screener(
     universe: Optional[List[str]] = None,
     min_tss_score: float = 65.0,
     setup_filter: Optional[str] = None,
+    intent_archetype: Optional[str] = None,
     as_of: Optional[datetime] = None
 ) -> Dict[str, Any]:
-    """Executes 3-tier technical universe screener and returns top technical probability candidates."""
+    """Executes 3-tier technical universe screener and returns top technical probability candidates with intent routing."""
     symbols = universe or _DEFAULT_UNIVERSE
     regime = classify_market_regime(as_of=as_of)
 
@@ -93,6 +94,14 @@ def run_technical_universe_screener(
 
         tier0_survivors.append(norm)
 
+    # Intent-adaptive strictness thresholds
+    is_swing = (intent_archetype in ("SWING_POSITIONAL", "SWING_TRADING", "SWING"))
+    is_sip = (intent_archetype in ("SIP_COMPOUNDER", "SIP"))
+
+    max_base_depth = 20.0 if is_swing else (35.0 if is_sip else 30.0)
+    effective_min_tss = max(40.0, min_tss_score - 15.0) if is_sip else min_tss_score
+    min_rs = 50 if is_sip else 60
+
     # 2. Tier 1 Trend & RS Filtering (§0)
     for norm in tier0_survivors:
         trend_res = evaluate_technical_trend_and_rs(norm, as_of=as_of)
@@ -101,7 +110,7 @@ def run_technical_universe_screener(
         rs_rating = trend_res.get("rs_rating_0_99", 50)
         base_depth = struct_res.get("base_depth_pct", 30.0)
 
-        if rs_rating >= 60 and base_depth <= 30.0:
+        if rs_rating >= min_rs and base_depth <= max_base_depth:
             tier1_survivors.append((norm, trend_res, struct_res))
 
     # 3. Tier 2 Deep 26-Layer Technical Engine (§0)
@@ -120,6 +129,12 @@ def run_technical_universe_screener(
         setup_class = struct_res.get("setup_class", "SETUP_C_CONTINUATION")
         rejection_risk = struct_res.get("rejection_risk", "LOW")
 
+        # Swing intent strictly requires breakout volume >= 1.5x ADTV and low rejection risk
+        if is_swing:
+            rvol_val = vol_res.get("rvol", 1.0)
+            if rvol_val < 1.4 or rejection_risk == "HIGH":
+                continue
+
         prob_ladder = calculate_calibrated_probability_ladder(
             symbol=norm,
             tss_score=tss_score,
@@ -128,7 +143,7 @@ def run_technical_universe_screener(
             rejection_risk=rejection_risk
         )
 
-        if tss_score >= min_tss_score and surv_res.hard_gate_status not in ("FAIL", "DATA_INSUFFICIENT"):
+        if tss_score >= effective_min_tss and surv_res.hard_gate_status not in ("FAIL", "DATA_INSUFFICIENT"):
             if not setup_filter or setup_class == setup_filter:
                 tier2_candidates.append({
                     "symbol": norm,
@@ -148,19 +163,36 @@ def run_technical_universe_screener(
     # Sort candidates by Technical State Score
     tier2_candidates.sort(key=lambda x: x["tss_score"], reverse=True)
 
-    # Benjamini-Hochberg False Discovery Rate (FDR) multi-testing adjustment
+    # Empirical Percentile Ranking & Benjamini-Hochberg False Discovery Rate (FDR) control
     if tier2_candidates:
+        total_cands = len(tier2_candidates)
         from app.services.ml.statistical_fdr import benjamini_hochberg_fdr
-        raw_p = [max(0.001, min(0.999, round(1.0 - (float(c.get("prob_t2_20d") or 50.0) / 100.0), 4))) for c in tier2_candidates]
+        import math
+        tss_scores = [float(c.get("tss_score", 50.0)) for c in tier2_candidates]
+        mean_tss = float(np.mean(tss_scores)) if total_cands > 1 else 50.0
+        std_tss = float(np.std(tss_scores)) if total_cands > 1 else 15.0
+        if std_tss <= 1e-4:
+            std_tss = 15.0
+
+        raw_p = []
+        for s in tss_scores:
+            z = (s - mean_tss) / std_tss
+            p = max(0.0001, min(0.9999, round(0.5 * math.erfc(z / math.sqrt(2)), 6)))
+            raw_p.append(p)
+
         fdr_outs = benjamini_hochberg_fdr(raw_p, alpha=0.05)
         for idx, c in enumerate(tier2_candidates):
+            c["empirical_percentile_rank"] = round((1.0 - (idx / max(1, total_cands))) * 100.0, 1)
+            c["fdr_raw_p"] = fdr_outs[idx]["raw_p_value"]
             c["fdr_adjusted_p"] = fdr_outs[idx]["adjusted_p_value"]
             c["fdr_statistically_significant"] = fdr_outs[idx]["is_significant"]
+            c["fdr_methodology"] = "EMPIRICAL_GAUSSIAN_NULL_BENJAMINI_HOCHBERG"
 
     return {
         "executed_at": datetime.now().isoformat(),
         "as_of": as_of.isoformat() if as_of else None,
         "total_universe_scanned": len(symbols),
+        "intent_archetype": intent_archetype,
         "tier0_survivors_count": len(tier0_survivors),
         "tier1_survivors_count": len(tier1_survivors),
         "tier2_candidates_count": len(tier2_candidates),

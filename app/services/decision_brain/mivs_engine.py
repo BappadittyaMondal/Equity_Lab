@@ -174,6 +174,31 @@ class MIVSEngine:
                 dimension_map["EVIDENCE_CONFIDENCE"].append(score_0_100)
                 details_map["EVIDENCE_CONFIDENCE"][eng_id] = score_0_100
 
+        # ── 2.5 Corporate Announcements Radar Overlay (§Phase 112) ─────────────
+        try:
+            from app.services.ingestion.announcements_radar import CorporateAnnouncementsRadar
+            clean_sym = norm_symbol.replace(".NS", "").replace(".BO", "").upper()
+            radar_res = CorporateAnnouncementsRadar.get_company_instant_announcements(clean_sym)
+            if radar_res and radar_res.get("material_catalysts"):
+                mat = radar_res["material_catalysts"]
+                recent_ann = radar_res.get("recent_announcements", [])
+                tier1_orders = [a for a in recent_ann if a.get("category") == "MEGA_ORDER_WIN" or a.get("event_tier") == "TIER_1_MOMENTUM_CATALYST"]
+                if tier1_orders or mat.get("order_wins_count", 0) > 0:
+                    emr_scores = [float(a.get("event_materiality_ratio_pct") or 0.0) for a in tier1_orders if a.get("event_materiality_ratio_pct")]
+                    max_emr = max(emr_scores) if emr_scores else 25.0
+                    radar_score = round(min(95.0, 70.0 + min(25.0, max_emr)), 1)
+                    dimension_map["GROWTH_AND_RUNWAY"].append(radar_score)
+                    details_map["GROWTH_AND_RUNWAY"]["REG_30_ORDER_RADAR"] = radar_score
+
+                # Regulatory distress alert check
+                if mat.get("legal_distress_alerts_count", 0) > 0:
+                    dimension_map["GOVERNANCE_PROMOTER_BEHAVIOUR"].append(15.0)
+                    details_map["GOVERNANCE_PROMOTER_BEHAVIOUR"]["REG_30_DISTRESS_ALERT"] = 15.0
+                    gate_reasons.append("Regulatory Distress Veto: Material SEBI/NCLT/Legal Action in Regulation 30 Radar")
+                    passed_hard_gates = False
+        except Exception as radar_err:
+            logger.debug("Announcements radar check deferred in MIVS for %s: %s", norm_symbol, radar_err)
+
         # ── 3. Peer Normalization & Composite Vector Score ─────────────────────
         raw_dimension_scores = {}
         for dim_key in self.DIMENSION_WEIGHTS:

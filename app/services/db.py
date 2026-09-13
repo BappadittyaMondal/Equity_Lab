@@ -192,6 +192,9 @@ def get_connection():
     return conn
 
 
+get_db_connection = get_connection  # Canonical backwards-compatible alias
+
+
 @contextlib.contextmanager
 def db_session():
     """Context manager for automatically managed, scoped database connections."""
@@ -396,6 +399,8 @@ def _ensure_tables() -> None:
         if "pre_fix_unverified" not in existing_outcome_cols:
             conn.execute("ALTER TABLE outcome_ledger ADD COLUMN pre_fix_unverified BOOLEAN DEFAULT 0")
             conn.execute("UPDATE outcome_ledger SET pre_fix_unverified = 1 WHERE pre_fix_unverified IS NULL OR pre_fix_unverified = 0")
+        if "horizon_days" not in existing_outcome_cols:
+            conn.execute("ALTER TABLE outcome_ledger ADD COLUMN horizon_days INTEGER DEFAULT 0")
     except Exception:
         pass
 
@@ -407,6 +412,30 @@ def _ensure_tables() -> None:
             configuration_json TEXT NOT NULL,
             backtest_summary TEXT,
             human_approved_by TEXT NOT NULL
+        )
+        """
+    )
+
+    conn.execute(
+        """
+        CREATE TABLE IF NOT EXISTS execution_orders (
+            order_id TEXT PRIMARY KEY,
+            symbol TEXT NOT NULL,
+            side TEXT NOT NULL,
+            order_type TEXT NOT NULL,
+            status TEXT NOT NULL,
+            requested_quantity INTEGER NOT NULL,
+            filled_quantity INTEGER NOT NULL,
+            reference_price REAL NOT NULL,
+            fill_price REAL NOT NULL,
+            slippage_pct REAL NOT NULL,
+            slippage_inr REAL NOT NULL,
+            regulatory_costs_inr REAL NOT NULL,
+            total_execution_cost_inr REAL NOT NULL,
+            execution_algorithm TEXT NOT NULL,
+            execution_timestamp TEXT NOT NULL,
+            venue TEXT NOT NULL,
+            rejection_reason TEXT
         )
         """
     )
@@ -618,18 +647,6 @@ def _ensure_tables() -> None:
         pass
 
     conn.commit()
-
-    # Seed initial universal fundamentals strictly once if table is completely empty
-    try:
-        row_cnt_cur = conn.execute("SELECT COUNT(*) FROM company_fundamentals")
-        cnt_row = row_cnt_cur.fetchone()
-        cnt_val = cnt_row[0] if cnt_row else 0
-        if cnt_val == 0:
-            from app.services.data_ingestion.screener_connector import ScreenerCloudConnector
-            ScreenerCloudConnector.seed_universe()
-    except Exception:
-        pass
-
     conn.close()
     if conn in _OPEN_CONNECTIONS:
         _OPEN_CONNECTIONS.remove(conn)

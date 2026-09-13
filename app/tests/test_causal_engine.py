@@ -23,12 +23,18 @@ def test_causal_and_thesis_rest_api_endpoints():
     from app.main import app
     client = TestClient(app)
     
-    # Causal inference route test
+    # Causal inference route test with and without as_of
     resp1 = client.post("/api/v1/data/causal-inference", json={"symbol": "RELIANCE"}, headers={"X-API-Key": "test-key"})
     assert resp1.status_code == 200
     res1 = resp1.json()
     assert "status" in res1
     assert "net_causal_conviction_delta" in res1
+
+    resp_as_of = client.post("/api/v1/data/causal-inference", json={"symbol": "RELIANCE", "as_of": "2024-01-01T00:00:00Z"}, headers={"X-API-Key": "test-key"})
+    assert resp_as_of.status_code == 200
+    res_pit = resp_as_of.json()
+    assert "status" in res_pit
+    assert "net_causal_conviction_delta" in res_pit
 
     # Thesis tracker route test
     resp2 = client.get("/api/v1/data/thesis-tracker/RELIANCE", headers={"X-API-Key": "test-key"})

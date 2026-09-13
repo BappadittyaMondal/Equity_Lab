@@ -44,6 +44,7 @@ def test_evaluate_company_integration():
 
 
 def test_vectorized_forward_returns_backtest():
+    np.random.seed(42)
     # Generate synthetic 100 weeks x 10 stocks matrix
     n_times, n_stocks = 100, 10
     prices = np.linspace(100, 200, n_times)[:, None] + np.random.normal(0, 5, (n_times, n_stocks))

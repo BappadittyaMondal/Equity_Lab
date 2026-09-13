@@ -70,9 +70,14 @@ class ComparisonRequest(BaseModel):
     symbols: List[str] = Field(..., min_length=2, max_length=5, description="2 to 5 stock ticker symbols")
     period: str = Field(default="1y", description="Analysis period (e.g. 3m, 6m, 1y, 2y)")
     benchmark: str = Field(default="^NSEI", description="Benchmark index symbol (default ^NSEI for Nifty 50)")
+    as_of: Optional[str] = Field(default=None, description="Optional Point-in-Time reference boundary (YYYY-MM-DD)")
     metrics: List[str] = Field(
         default=["price_return", "volatility", "drawdown", "pe", "market_cap"],
         description="List of requested metrics"
+    )
+    intent: Optional[str] = Field(
+        default=None,
+        description="Optional strategic archetype (e.g. SIP_COMPOUNDER, SWING_POSITIONAL, MULTIBAGGER, TURNAROUND)"
     )
 
 
@@ -80,12 +85,17 @@ class ComparisonResponse(BaseModel):
     symbols: List[str]
     period: str
     benchmark: str
-    benchmark_return_pct: float
+    benchmark_return_pct: Optional[float] = None
     metrics_data: Dict[str, Dict[str, Any]]
     formula_explanations: Dict[str, str]
     score_breakdown: Optional[Dict[str, Dict[str, Any]]] = None
+    pairwise_correlations: Optional[Dict[str, float]] = None
+    correlation_degrees_of_freedom: Optional[Dict[str, Any]] = None
+    intent_conditioned_ranking: Optional[Dict[str, Any]] = None
+    cross_sector_comparison_notes: Optional[List[str]] = None
     disclaimer: str
     meta: MetaHeader
+
 
 
 class ReturnProbabilityRequest(BaseModel):
@@ -93,6 +103,7 @@ class ReturnProbabilityRequest(BaseModel):
     horizon_days: int = Field(default=30, ge=1, le=1825, description="Holding period in trading days (up to 5 years)")
     return_threshold_pct: float = Field(default=5.0, description="Target return threshold percentage (e.g. 5.0 for 5%)")
     method: Literal["historical_empirical", "bootstrap"] = Field(default="historical_empirical")
+    as_of: Optional[str] = Field(default=None, description="Optional Point-in-Time cutoff timestamp (YYYY-MM-DD)")
 
 
 class ReturnProbabilityResponse(BaseModel):
@@ -180,6 +191,9 @@ class StrategyRunRequest(BaseModel):
     universe: Optional[str] = Field(default="NSE500", description="Universe identifier")
     parameters: Optional[Dict[str, Any]] = Field(default_factory=dict)
     as_of: Optional[datetime] = Field(default=None, description="Point-in-time evaluation timestamp for historical backtesting")
+    query_intent: Optional[str] = Field(default=None, description="Request-scoped investment query intent (TURNAROUND, SIP_COMPOUNDER, etc.)")
+    query_text: Optional[str] = Field(default=None, description="Natural language user query string for intent classification")
+    visual_features: Optional[Dict[str, Any]] = Field(default=None, description="Structured visual chart features for multimodal verification")
 
 
 class StrategyRunResponse(BaseModel):
@@ -562,6 +576,19 @@ class WatchlistListResponse(BaseModel):
     count: int
 
 
+class ExecutiveDecisionCard(BaseModel):
+    """Executive 3-Bullet Decision Card synthesizing action, key drivers/risks, and guardrails (§101)."""
+    fiduciary_action: str = Field(..., description="Action verdict: Strong Buy, Buy, Accumulate, Watch, Avoid, etc.")
+    primary_horizon: str = Field(..., description="Primary strategy horizon: e.g. 3D-30D Tactical Swing, 1-3Y Turnaround, 3-10Y Compounder")
+    conviction_tier: str = Field(..., description="Conviction tier: Confirmed, Model-dependent, Contested")
+    top_conviction_drivers: List[str] = Field(default_factory=list, description="Top positive conviction drivers / operational catalysts")
+    primary_invalidation_threat: str = Field(..., description="Top 1 forensic, valuation, or structural risk threat")
+    execution_guardrails: Dict[str, Any] = Field(
+        default_factory=dict,
+        description="Actionable guardrails: position_sizing_pct, stop_loss, target_price, rrr, review_trigger"
+    )
+
+
 class ConvictionCall(BaseModel):
     """Arbitrated decision for a ticker."""
     symbol: str
@@ -587,6 +614,10 @@ class ConvictionCall(BaseModel):
     evidence_coverage_pct: float = Field(default=100.0, description="Percentage of standard category evidence clusters available (0.0 to 100.0)")
     decision_manifest: Optional[Dict[str, Any]] = Field(default=None, description="Immutable Decision Run Manifest containing run_id, dataset lineage, and config hash")
     evidence_clusters: Optional[Dict[str, Any]] = Field(default=None, description="Independent evidence cluster score breakdown")
+    executive_decision_card: Optional[ExecutiveDecisionCard] = Field(
+        default=None,
+        description="Executive 3-Bullet Decision Card synthesizing action, key drivers/risks, and guardrails"
+    )
     disclaimer: str = Field(
         default="Quantitative research report generated for decision support. Not personalized investment advice under SEBI regulations.",
         description="Regulatory disclaimer string"
@@ -946,6 +977,7 @@ class CAGRSensitivityMatrixResponse(BaseModel):
     base_case_cagr_pct: float
     scenario_matrix: List[CAGRScenarioRow]
     key_takeaway: str
+    scenario_grid_3x3: Optional[Dict[str, Any]] = None
     meta: MetaHeader
 
 
@@ -961,12 +993,19 @@ class SwingTradeAlertItem(BaseModel):
     target_price: float
     alert_type: Literal["STAGE_2_POCKET_PIVOT", "VPA_ACCUMULATION_BREAKOUT", "RS_LEADER_PULLBACK"]
     triggered_at: str
+    atr_14: Optional[float] = None
+    risk_reward_ratio: Optional[float] = None
+    stop_loss_distance_pct: Optional[float] = None
+    market_regime: Optional[str] = Field(default=None, description="Benchmark market regime code (e.g. R1_BULL_TREND, R4_BEAR_TREND)")
+    market_regime_favorable: Optional[bool] = Field(default=True, description="True if broader market index is supportive of breakout momentum")
 
 
 class SwingTradeAlertsResponse(BaseModel):
     alerts: List[SwingTradeAlertItem]
     count: int
     scanned_universe: str
+    market_regime: Optional[str] = Field(default=None, description="Benchmark market regime code")
+    market_regime_favorable: Optional[bool] = Field(default=True, description="True if broader market index is supportive of breakout momentum")
     meta: MetaHeader
 
 
@@ -1048,6 +1087,8 @@ class PortfolioPositionSizingSignal(BaseModel):
     scaling_ladder: List[Dict[str, Any]] = Field(default_factory=list)
     exit_triggers: List[str] = Field(default_factory=list)
     drawdown_tolerance_band_pct: float = 25.0
+    event_proximity_multiplier: float = 1.0
+    base_recommended_pct: Optional[float] = None
 
 
 class RedTeamReviewRecord(BaseModel):
@@ -1106,6 +1147,10 @@ class MachineReadableStockReport(BaseModel):
     policy_catalyst_signal: Optional[PolicyCatalystCorporateActionSignal] = None
     position_sizing_signal: Optional[PortfolioPositionSizingSignal] = None
     red_team_record: Optional[RedTeamReviewRecord] = None
+    executive_decision_card: Optional[ExecutiveDecisionCard] = Field(
+        default=None,
+        description="Executive 3-Bullet Decision Card synthesizing action, key drivers/risks, and guardrails"
+    )
     evidence_log: List[str] = Field(default_factory=list)
 
 

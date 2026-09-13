@@ -32,10 +32,10 @@ def evaluate_growth_market_gap(
     price_cagr: Optional[float] = None
     pe_ratio: Optional[float] = None
     try:
-        quote = get_quote(norm_symbol)
-        pe_ratio = quote.pe_ratio
+        quote = get_quote(norm_symbol, as_of=as_of)
+        pe_ratio = quote.pe_ratio if hasattr(quote, "pe_ratio") else (quote.get("pe_ratio") if isinstance(quote, dict) else None)
         
-        hist = get_history(norm_symbol, period="3y")
+        hist = get_history(norm_symbol, period="3y", as_of=as_of)
         if not hist.empty and len(hist) > 250:
             start_price = float(hist['Close'].iloc[0])
             end_price = float(hist['Close'].iloc[-1])

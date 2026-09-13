@@ -29,10 +29,21 @@ def predict_turnaround_probabilities(features: Dict[str, Any]) -> Dict[str, Any]
             "value_trap_risk_score": 50.0,
         }
 
+    cfo_pat_val = features.get("cfo_to_pat")
+    if cfo_pat_val is None:
+        return {
+            "status": "data_insufficient",
+            "reason": "Unobserved operating cash flow conversion (cfo_to_pat); cannot assess relapse risk honestly.",
+            "p_recovery": 0.0,
+            "p_relapse": 0.0,
+            "p_outperformance": 0.0,
+            "value_trap_risk_score": 50.0,
+        }
+
     fund_score = float(features.get("fundamental_recovery_score", 0.0))
     cash_score = float(features.get("cash_score", 0.0))
     frmr_gap = float(features.get("frmr_gap_score", 0.0))
-    cfo_pat = float(features.get("cfo_to_pat", 0.0))
+    cfo_pat = float(cfo_pat_val)
     opm_damage = float(features.get("opm_damage_gap", 0.0))
     improving_q = float(features.get("improving_quarters", 0.0))
 

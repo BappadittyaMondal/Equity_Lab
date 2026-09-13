@@ -196,19 +196,46 @@ class MultiHorizonMatrixEngine:
             m_stage = "M2 -> M3"
             bucket = "Bucket A: High-Asymmetry Early Multibagger"
 
-        # 3. Calculate Horizon CAGR Projections (%)
-        base_cagr = eps_growth * 0.65 + roce * 0.35
+        # 3. Calculate Horizon CAGR Projections (%) (§CRO Valuation-Aware Equity Decomposition)
+        fundamental_growth = eps_growth
         if cfo_pat < 0:
-            base_cagr *= 0.70  # Negative cash flow penalty
+            fundamental_growth *= 0.70  # Negative cash flow penalty
+        elif cfo_pat < 0.60:
+            fundamental_growth *= (0.70 + 0.50 * max(0.0, cfo_pat))
 
-        # Bound realistic limits: [-40%, +85%], avoiding artificial positive floor on negative earnings
-        base_cagr = max(-40.0, min(85.0, base_cagr))
+        # Working Capital & DSO Stress Haircut (§CRO Liquidity Shield)
+        dso = float(data.get("dso") or data.get("debtor_days") or data.get("days_sales_outstanding") or 0.0)
+        if dso > 120.0 and cfo_pat < 0.75:
+            dso_penalty = max(0.0, min(0.35, ((dso - 120.0) / 365.0) * (1.0 - max(0.0, cfo_pat))))
+            fundamental_growth *= (1.0 - dso_penalty)
 
-        cagr_6m = round(base_cagr * 0.85, 1)
-        cagr_1y = round(base_cagr * 0.95, 1)
-        cagr_2y = round(base_cagr * 0.98, 1)
-        cagr_3y = round(base_cagr * 1.00, 1)
-        cagr_5y = round(base_cagr * 1.02, 1)
+        # Valuation multiple adjustment (§CRO Equity Decomposition)
+        curr_pe = float(data.get("pe_ratio") or data.get("pe") or 25.0)
+        if curr_pe <= 0:
+            curr_pe = 25.0
+        median_pe = float(data.get("median_pe") or data.get("historical_pe") or (curr_pe if curr_pe < 35.0 else curr_pe * 0.85))
+        pe_ratio_factor = median_pe / curr_pe if curr_pe > 0 else 1.0
+
+        # Horizon multiple adjustments (incorporating 5-year mean-reversion drift)
+        mult_adj_6m = (pe_ratio_factor ** (0.5 / 5.0))
+        mult_adj_1y = (pe_ratio_factor ** (1.0 / 5.0))
+        mult_adj_2y = (pe_ratio_factor ** (2.0 / 5.0))
+        mult_adj_3y = (pe_ratio_factor ** (3.0 / 5.0))
+        mult_adj_5y = (pe_ratio_factor ** (5.0 / 5.0))
+
+        def compute_cagr(g_rate: float, mult_factor: float, years: float) -> float:
+            if g_rate <= -40.0:
+                return -40.0
+            g_dec = g_rate / 100.0
+            gross_factor = max(0.01, ((1.0 + g_dec) ** years) * mult_factor)
+            annualized = ((gross_factor ** (1.0 / years)) - 1.0) * 100.0
+            return round(max(-40.0, min(85.0, annualized)), 1)
+
+        cagr_6m = compute_cagr(fundamental_growth, mult_adj_6m, 0.5)
+        cagr_1y = compute_cagr(fundamental_growth, mult_adj_1y, 1.0)
+        cagr_2y = compute_cagr(fundamental_growth, mult_adj_2y, 2.0)
+        cagr_3y = compute_cagr(fundamental_growth, mult_adj_3y, 3.0)
+        cagr_5y = compute_cagr(fundamental_growth, mult_adj_5y, 5.0)
 
         # Target Prices (safeguarded against negative base)
         p_6m = round(price * (max(0.01, 1.0 + cagr_6m / 100.0) ** 0.5), 2)
@@ -246,6 +273,8 @@ class MultiHorizonMatrixEngine:
             "Promoter pledge exceeding 25% triggers immediate hard exit gate.",
             f"Share price closing below 200 DMA ({round(price * 0.82, 2)} INR) breaches technical support.",
         ]
+        if dso > 180.0 and cfo_pat < 0.50:
+            invalidation_rules.append(f"Working capital stretch (DSO {dso:.0f}d, CFO/PAT {cfo_pat:.2f}) triggers mandatory 2.5% position cap.")
         if pledge_pct is None:
             invalidation_rules.append("Undisclosed or missing promoter pledge filings requires mandatory forensic verification.")
 
@@ -302,9 +331,13 @@ class MultiHorizonMatrixEngine:
         )
 
         now_str = datetime.now(timezone.utc).isoformat()
+        meta = create_meta_header(source="IERL MultiHorizonMatrixEngine")
+        meta["nature"] = "SCENARIO_GROWTH_SENSITIVITY"
+        meta["methodology"] = "Multi-Horizon Scenario Growth Sensitivity Grid (PE Exit Multiple x Fundamental Growth Trajectory). Not a point forecast or guaranteed directional return."
+
         return MultiHorizonMatrixResponse(
             symbols_evaluated=len(items),
             as_of=now_str,
             matrix=items,
-            meta=create_meta_header(source="IERL MultiHorizonMatrixEngine"),
+            meta=meta,
         )

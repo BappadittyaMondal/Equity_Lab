@@ -30,6 +30,9 @@ export async function renderSwingAlertsPanel() {
     const setupType = alert.setup_type || alert.pattern || "Swing Setup";
     const price = alert.current_price != null ? `₹${alert.current_price.toLocaleString("en-IN")}` : "—";
     const statusClass = score >= 75 ? "badge-success" : "badge-neutral";
+    const stopLoss = alert.stop_loss != null ? `₹${Number(alert.stop_loss).toLocaleString("en-IN")}` : null;
+    const targetPrice = alert.target_price != null ? `₹${Number(alert.target_price).toLocaleString("en-IN")}` : null;
+    const rrr = alert.risk_reward_ratio != null ? `${alert.risk_reward_ratio}:1` : null;
 
     return `
       <div class="p-3.5 bg-surface-low rounded-lg border border-surface-border/40 hover:border-gold/30 transition-all flex items-center justify-between gap-4">
@@ -42,7 +45,9 @@ export async function renderSwingAlertsPanel() {
               <span class="font-mono text-sm font-bold text-white">${sym}</span>
               <span class="badge ${statusClass}">${setupType}</span>
             </div>
-            <p class="text-xs text-muted mt-0.5 font-mono">Spot Price: ${price} • Engine Confirmation: B4/B6/B7/D17</p>
+            <p class="text-xs text-muted mt-0.5 font-mono">
+              Spot: ${price} ${stopLoss ? `• SL: <span class="text-red-400 font-semibold">${stopLoss}</span>` : ""} ${targetPrice ? `• Target: <span class="text-green-400 font-semibold">${targetPrice}</span>` : ""} ${rrr ? `• RRR: <span class="text-gold font-semibold">${rrr}</span>` : ""}
+            </p>
           </div>
         </div>
         <div class="text-right">

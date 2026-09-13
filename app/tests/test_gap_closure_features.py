@@ -42,6 +42,11 @@ def test_cagr_sensitivity_matrix():
     assert len(res.scenario_matrix) == 5
     assert res.scenario_matrix[0].revenue_eps_cagr_pct == 10.0
     assert res.scenario_matrix[4].revenue_eps_cagr_pct == 30.0
+    assert res.scenario_grid_3x3 is not None
+    assert res.scenario_grid_3x3["grid_cells_count"] == 9
+    assert len(res.scenario_grid_3x3["cells"]) == 9
+    assert res.scenario_grid_3x3["cells"][0]["multiple_expansion_pct"] == -25.0
+
 
 
 def test_swing_trade_alerts_service():

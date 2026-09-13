@@ -23,10 +23,12 @@ class ConformalPredictionInterval:
     upper_bound_95: float
     coverage_guarantee_pct: float  # e.g., 90.0
     strata: str  # Mondrian category (e.g., "MICRO_CAP_HIGH_VOL")
-    interval_width: float
-    is_calibrated: bool = True
+    interval_width: float = 0.0
+    is_calibrated: bool = False
     calibration_sample_size: int = 0
-    calibration_status: str = "PILOT_SAMPLE"
+    calibration_status: str = "UNVERIFIED"
+    coverage_nature: str = "EMPIRICAL_RESIDUAL_QUANTILE"
+    exchangeability_assumption: str = "Assumes stationary residuals under exchangeability."
 
 
 class ConformalPredictor:
@@ -104,21 +106,34 @@ class ConformalPredictor:
         point_estimate: float,
         strata: str = "GENERAL"
     ) -> ConformalPredictionInterval:
-        """Generate conformal interval around point estimate."""
+        """Generate conformal interval around point estimate with Mondrian stratification (§Phase 108 DEF-016)."""
+        is_microcap = strata.upper() in ("MICRO_CAP", "EARLY_MICROCAP", "MICRO_CAP_HIGH_VOL")
         abs_res = self.residuals_by_strata.get(strata)
         if abs_res is None or len(abs_res) == 0:
             q_90 = 0.12
             q_95 = 0.18
+            # Under unobserved strata, apply 1.5x volatility scaling for microcaps
+            if is_microcap:
+                q_90 *= 1.50
+                q_95 *= 1.50
             is_calibrated = False
             calib_sample_size = 0
-            calib_status = "UNREPRESENTATIVE"
+            calib_status = "ABSTAIN_INSUFFICIENT_DATA"
         else:
             n = len(abs_res)
             q_90 = float(np.quantile(abs_res, min(0.99, 0.90 * (1.0 + 1.0 / n))))
             q_95 = float(np.quantile(abs_res, min(0.99, 0.95 * (1.0 + 1.0 / n))))
-            is_calibrated = (n >= 50)
-            calib_sample_size = n
-            calib_status = "EMPIRICALLY_VERIFIED" if n >= 50 else ("PILOT_SAMPLE_BELOW_N50" if n >= 15 else "UNREPRESENTATIVE_SAMPLE")
+            if n < 10:
+                if is_microcap:
+                    q_90 *= 1.50
+                    q_95 *= 1.50
+                is_calibrated = False
+                calib_sample_size = n
+                calib_status = "ABSTAIN_INSUFFICIENT_DATA"
+            else:
+                is_calibrated = (n >= 50)
+                calib_sample_size = n
+                calib_status = "EMPIRICALLY_VERIFIED" if n >= 50 else ("PILOT_SAMPLE_BELOW_N50" if n >= 15 else "UNREPRESENTATIVE_SAMPLE")
 
         lower_90 = round(point_estimate - q_90, 4)
         upper_90 = round(point_estimate + q_90, 4)

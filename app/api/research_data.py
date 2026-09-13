@@ -160,9 +160,20 @@ def run_custom_screen(payload: dict):
 
 @router.post("/causal-inference")
 def run_causal_inference(payload: dict):
+    from datetime import datetime
     from app.services.research.causal_engine import analyze_causal_event_impacts
     symbol = payload.get("symbol", "RELIANCE")
-    return analyze_causal_event_impacts(symbol=symbol)
+    as_of_raw = payload.get("as_of")
+    as_of_dt = None
+    if as_of_raw:
+        if isinstance(as_of_raw, datetime):
+            as_of_dt = as_of_raw
+        elif isinstance(as_of_raw, str):
+            try:
+                as_of_dt = datetime.fromisoformat(as_of_raw.replace("Z", "+00:00"))
+            except Exception:
+                as_of_dt = None
+    return analyze_causal_event_impacts(symbol=symbol, as_of=as_of_dt)
 
 
 @router.get("/thesis-tracker/{symbol}")

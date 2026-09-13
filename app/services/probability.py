@@ -59,11 +59,12 @@ def calculate_return_probability(req: ReturnProbabilityRequest) -> ReturnProbabi
     horizon = req.horizon_days
     threshold = req.return_threshold_pct
     method = req.method or "historical_empirical"
+    as_of = getattr(req, "as_of", None)
 
     # Fetch historical daily data for statistical sampling (max/5y for multi-year horizons)
     period = "max" if horizon > 756 else ("5y" if horizon > 252 else "3y")
     try:
-        hist = get_history(symbol, period=period, interval="1d")
+        hist = get_history(symbol, period=period, interval="1d", as_of=as_of)
         if len(hist) < horizon + 10:
             raise ValueError(f"Insufficient historical data ({len(hist)} rows) for horizon {horizon} days.")
     except Exception as e:
@@ -81,14 +82,16 @@ def calculate_return_probability(req: ReturnProbabilityRequest) -> ReturnProbabi
     if method == "bootstrap":
         # Institutional Block-bootstrap resampling to preserve autocorrelation & volatility clustering
         daily_rets = pd.Series(closes).pct_change().dropna().values
-        np.random.seed(42)  # Deterministic seed for reproducible tests
+        # Thread-safe deterministic RNG keyed by symbol and horizon (R2-SEED)
+        seed_int = abs(hash(f"{symbol}_{horizon}")) % (2**31)
+        rng = np.random.default_rng(seed_int)
         num_simulations = 1000
         block_size = min(10, max(2, horizon // 4))
 
         for _ in range(num_simulations):
             sampled_daily = []
             while len(sampled_daily) < horizon:
-                start_idx = np.random.randint(0, len(daily_rets) - block_size + 1)
+                start_idx = int(rng.integers(0, len(daily_rets) - block_size + 1))
                 sampled_daily.extend(daily_rets[start_idx : start_idx + block_size])
             sampled_rets = np.array(sampled_daily[:horizon])
             compounded = float((np.prod(1 + sampled_rets) - 1) * 100)
@@ -190,5 +193,5 @@ def calculate_return_probability(req: ReturnProbabilityRequest) -> ReturnProbabi
         },
         assumptions=assumptions,
         warnings=warnings,
-        meta=create_meta_header(source=f"yfinance ({symbol} 3y historical empirical series)")
+        meta=create_meta_header(source=f"yfinance ({symbol} historical empirical series)", as_of=as_of)
     )

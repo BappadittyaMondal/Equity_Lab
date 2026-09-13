@@ -107,3 +107,42 @@ def get_short_term_prediction(symbol: str) -> Dict[str, Any]:
         return ShortTermPredictionEngine.evaluate_short_term_prediction(symbol)
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Failed to generate short-term prediction for {symbol}: {str(e)}")
+
+
+@router.post("/chart/reconcile")
+def reconcile_chart_vision(payload: Dict[str, Any]) -> Dict[str, Any]:
+    """Reconciles visual chart features (pixels/vision extraction) against authoritative numerical OHLCV exchange truth."""
+    try:
+        from app.services.research.multimodal_chart_reconciliation import MultimodalChartReconciliationEngine
+        from app.services.market_data import get_history
+
+        symbol = str(payload.get("symbol", "RELIANCE")).upper().strip()
+        as_of = payload.get("as_of")
+        tolerance_pct = float(payload.get("tolerance_pct", 2.0))
+
+        visual_features = payload.get("visual_features") or {}
+        if not visual_features:
+            base64_img = payload.get("image_base64")
+            metadata = payload.get("metadata")
+            visual_features = MultimodalChartReconciliationEngine.parse_chart_image_or_mock(
+                base64_str=base64_img,
+                metadata=metadata
+            )
+
+        df_hist = get_history(symbol, period="3mo", as_of=as_of)
+        recon_res = MultimodalChartReconciliationEngine.reconcile_chart_features(
+            symbol=symbol,
+            visual_features=visual_features,
+            df=df_hist,
+            tolerance_pct=tolerance_pct
+        )
+        geom_res = MultimodalChartReconciliationEngine.analyze_geometric_chart_patterns(
+            symbol=symbol,
+            df=df_hist,
+            visual_features=visual_features
+        )
+        recon_res["geometric_patterns"] = geom_res
+        return recon_res
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Failed to reconcile chart vision for {payload.get('symbol')}: {str(e)}")
+

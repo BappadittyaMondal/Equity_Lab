@@ -47,10 +47,107 @@ TICKER_GEOPOLITICAL_OVERLAYS: Dict[str, Dict[str, Any]] = {
 }
 
 
+def calculate_dynamic_geographic_overlay(
+    sector: str,
+    split: Dict[str, float],
+    symbol: str = ""
+) -> Dict[str, Any]:
+    """Calculates weighted macro/geopolitical overlay based on empirical geographic revenue shares.
+    
+    Corridor risk factors:
+      - domestic: Policy protection, PLI & re-armament capex (+15% for Defense/Renewable/Engineering, 0% neutral)
+      - us_na: Enterprise IT budget freeze (-25% for IT/Software, -10% general tariffs)
+      - eu: CBAM carbon tariff & tech spend slowdown (-20% for IT/Software, -15% for Metals)
+      - middle_east_red_sea: Shipping route disruption & freight rate spikes (-15% for Shipping/Oil)
+      - china_apac: Supply chain & dumping risk (-10% for Metals/Chemicals)
+      - rest_of_world: Baseline emerging market FX/tariff risk (-5%)
+    """
+    total_weight = sum(split.values())
+    if total_weight <= 0:
+        return {"overlay_pct": 0.0, "overlay_type": "NEUTRAL", "reason": "Zero geographic weight observed."}
+    
+    norm_split = {k.lower(): v / total_weight for k, v in split.items()}
+    sec = sector.upper()
+    
+    corridor_impacts: Dict[str, float] = {}
+    
+    # 1. Domestic Corridor
+    dom_share = norm_split.get("domestic", 0.0) + norm_split.get("india", 0.0)
+    if sec in ("DEFENSE", "HEAVY_ENGINEERING", "ENGINEERING", "CAPITAL GOODS", "CAPITAL_GOODS", "AEROSPACE"):
+        corridor_impacts["domestic"] = dom_share * 15.0
+    elif sec in ("RENEWABLE", "POWER", "TRANSFORMERS", "UTILITIES"):
+        corridor_impacts["domestic"] = dom_share * 10.0
+    else:
+        corridor_impacts["domestic"] = 0.0
+
+    # 2. US / North America Corridor
+    us_share = norm_split.get("us_na", 0.0) + norm_split.get("us", 0.0) + norm_split.get("north_america", 0.0)
+    if sec in ("IT", "SOFTWARE", "TECHNOLOGY", "IT_SERVICES"):
+        corridor_impacts["us_na"] = us_share * (-25.0)
+    elif sec in ("METALS", "MINING"):
+        corridor_impacts["us_na"] = us_share * (-12.0)
+    else:
+        corridor_impacts["us_na"] = us_share * (-5.0)
+
+    # 3. European Union Corridor
+    eu_share = norm_split.get("eu", 0.0) + norm_split.get("europe", 0.0)
+    if sec in ("IT", "SOFTWARE", "TECHNOLOGY", "IT_SERVICES"):
+        corridor_impacts["eu"] = eu_share * (-20.0)
+    elif sec in ("METALS", "MINING"):
+        corridor_impacts["eu"] = eu_share * (-15.0)
+    else:
+        corridor_impacts["eu"] = eu_share * (-5.0)
+
+    # 4. Middle East & Red Sea Transit Corridor
+    me_share = norm_split.get("middle_east", 0.0) + norm_split.get("red_sea", 0.0) + norm_split.get("shipping_corridor", 0.0)
+    if sec in ("SHIPPING", "LOGISTICS"):
+        corridor_impacts["middle_east_red_sea"] = me_share * (-15.0)
+    elif sec in ("OIL_GAS",):
+        corridor_impacts["middle_east_red_sea"] = me_share * (-12.0)
+    else:
+        corridor_impacts["middle_east_red_sea"] = me_share * (-3.0)
+
+    # 5. China / APAC Corridor
+    apac_share = norm_split.get("apac", 0.0) + norm_split.get("china", 0.0) + norm_split.get("asia", 0.0)
+    if sec in ("METALS", "PAINTS"):
+        corridor_impacts["china_apac"] = apac_share * (-10.0)
+    else:
+        corridor_impacts["china_apac"] = apac_share * (-2.0)
+
+    # 6. Rest of World
+    row_share = norm_split.get("row", 0.0) + norm_split.get("rest_of_world", 0.0)
+    corridor_impacts["rest_of_world"] = row_share * (-5.0)
+
+    net_overlay = round(sum(corridor_impacts.values()), 2)
+
+    if net_overlay >= 8.0:
+        o_type = "TAILWIND_PREMIUM"
+        reason = f"High domestic/allied market exposure ({dom_share*100:.0f}% Domestic) driving strategic policy premium."
+    elif net_overlay <= -12.0:
+        o_type = "MACRO_RISK_PENALTY"
+        reason = f"Elevated exposure to high-risk geopolitical trade corridors ({us_share*100:.0f}% US, {eu_share*100:.0f}% EU)."
+    elif net_overlay < 0.0:
+        o_type = "VOLATILITY_INDEX"
+        reason = f"Moderate trade corridor exposure with regional macro volatility."
+    else:
+        o_type = "POLICY_PROTECTION" if net_overlay > 0 else "NEUTRAL"
+        reason = f"Balanced geographic revenue footprint with net neutral macro impact."
+
+    return {
+        "overlay_pct": net_overlay,
+        "overlay_type": o_type,
+        "reason": reason,
+        "corridor_breakdown": {k: round(v, 2) for k, v in corridor_impacts.items() if v != 0.0},
+        "geographic_shares": norm_split
+    }
+
+
 def evaluate_geopolitical_risk(
     symbol: str,
     as_of: Optional[datetime] = None,
     store: Optional[ResearchDataStore] = None,
+    geographic_split: Optional[Dict[str, float]] = None,
+    sector: Optional[str] = None,
 ) -> Dict[str, Any]:
     """Evaluate geopolitical and macro-economic event risks (Phase 3 Enhanced)."""
     norm_symbol = normalize_symbol(symbol)
@@ -67,11 +164,28 @@ def evaluate_geopolitical_risk(
 
     clean_symbol = norm_symbol.replace(".NS", "").replace(".BO", "").upper()
 
+    # Dynamic Geographic Exposure Check
+    effective_split = geographic_split
+    if not effective_split and company and hasattr(company, "metadata") and isinstance(company.metadata, dict):
+        effective_split = company.metadata.get("geographic_revenue_split")
+
     # Ticker Geopolitical Overlays check
     ticker_overlay = TICKER_GEOPOLITICAL_OVERLAYS.get(clean_symbol) or TICKER_GEOPOLITICAL_OVERLAYS.get(norm_symbol)
 
+    # Resolve sector
+    detected_sector = (sector or getattr(company, "sector", "UNKNOWN")).upper() if (company or sector) else "UNKNOWN"
+    if detected_sector == "UNKNOWN" and ticker_overlay:
+        detected_sector = ticker_overlay.get("sector", "UNKNOWN").upper()
+    if detected_sector == "UNKNOWN":
+        if any(t in clean_symbol for t in ("INFY", "TCS", "WIPRO", "HCLTECH", "LTIM", "COFORGE", "PERSISTENT")):
+            detected_sector = "IT"
+        elif any(t in clean_symbol for t in ("HAL", "BEL", "BDL", "HBLPOWER", "MAZDOCK")):
+            detected_sector = "DEFENSE"
+        elif any(t in clean_symbol for t in ("GESHIP", "SCI", "COCHINSHIP")):
+            detected_sector = "SHIPPING"
+
     # Genuine early-return for true no-data case when company is unknown, events is empty, and ticker has no overlay
-    if company is None and not events and not ticker_overlay:
+    if company is None and not events and not ticker_overlay and not effective_split:
         return {
             "symbol": norm_symbol,
             "status": "DATA_UNAVAILABLE",
@@ -87,11 +201,19 @@ def evaluate_geopolitical_risk(
             "meta": create_meta_header(source=f"Phase 3 MacroGeopoliticalOverlay ({norm_symbol})")
         }
 
-    sector = getattr(company, "sector", "UNKNOWN").upper() if company else "UNKNOWN"
-    
+    sector = detected_sector
+    geographic_breakdown = None
+
     # 1. MacroGeopoliticalOverlay Factor Matrix Check
-    # SECTOR_GEOPOLITICAL_SENSITIVITIES fallback is retained ONLY for known/resolved company sectors when no ticker overlay or event data exists.
-    if ticker_overlay:
+    # Priority: 1. Dynamic Geographic Split (if observed) -> 2. Ticker Overlay -> 3. Sector Profile
+    if effective_split:
+        geo_res = calculate_dynamic_geographic_overlay(sector, effective_split, symbol=clean_symbol)
+        overlay_pct = geo_res["overlay_pct"]
+        overlay_type = geo_res["overlay_type"]
+        overlay_reason = geo_res["reason"]
+        sector_name = sector
+        geographic_breakdown = geo_res.get("corridor_breakdown")
+    elif ticker_overlay:
         overlay_pct = ticker_overlay["overlay_pct"]
         overlay_type = ticker_overlay["overlay_type"]
         overlay_reason = ticker_overlay["reason"]
@@ -160,6 +282,7 @@ def evaluate_geopolitical_risk(
         "overlay_reason": overlay_reason,
         "active_triggers": active_triggers,
         "conviction_penalty_pct": conviction_penalty_pct,
+        "geographic_exposure_breakdown": geographic_breakdown,
         "evidence": evidence,
         "meta": create_meta_header(source=f"Phase 3 MacroGeopoliticalOverlay ({norm_symbol})")
     }
