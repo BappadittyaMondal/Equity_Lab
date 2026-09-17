@@ -22,3 +22,5 @@ cryptography>=42.0.0
 lxml>=5.0.0
 httplib2>=0.22.0
 idna>=3.6
+youtube-transcript-api>=1.2.0
+

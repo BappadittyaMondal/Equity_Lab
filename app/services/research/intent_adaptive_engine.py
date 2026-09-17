@@ -64,6 +64,36 @@ ARCHETYPE_WEIGHT_PROFILES = {
         "OTHER":       0.00,
         "OPTIONS":     0.00,
     },
+    "SWING_3D": {
+        "TECHNICAL":   0.65,  # Pure microstructure, Intraday VWAP, Opening Range Breakout
+        "MACRO":       0.15,  # Intraday / sector tailwind
+        "FORENSIC":    0.15,  # Circuit proximity and daily traded turnover guard
+        "FUNDAMENTAL": 0.05,  # Minimal sanity only
+        "VALUATION":   0.00,  # DCF completely zeroed out for 72-hour holding
+        "GOVERNANCE":  0.00,
+        "OTHER":       0.00,
+        "OPTIONS":     0.00,
+    },
+    "SWING_10D": {
+        "TECHNICAL":   0.55,  # TTM Squeeze, 10/20 EMA ribbon pullback & volume surge
+        "MACRO":       0.20,  # Sector momentum & Mansfield Relative Strength
+        "FORENSIC":    0.15,  # Earnings gap event guard & circuit safety
+        "FUNDAMENTAL": 0.10,  # Quarterly sanity check
+        "VALUATION":   0.00,  # Long-term DCF ignored
+        "GOVERNANCE":  0.00,
+        "OTHER":       0.00,
+        "OPTIONS":     0.00,
+    },
+    "POSITIONAL_30D": {
+        "TECHNICAL":   0.45,  # Minervini Stage 2 uptrend, base breakout volume >= 2.0x
+        "FUNDAMENTAL": 0.30,  # Quarterly PAT acceleration >= 15% / SEBI Reg 30 order wins
+        "MACRO":       0.15,  # Industry cycle momentum
+        "FORENSIC":    0.10,  # Clean accounting & auditor tenure
+        "VALUATION":   0.00,  # 10Y DCF relaxed in favor of intermediate catalyst
+        "GOVERNANCE":  0.00,
+        "OTHER":       0.00,
+        "OPTIONS":     0.00,
+    },
     "MULTIBAGGER": {
         "FUNDAMENTAL": 0.35,  # Capacity expansion, incremental ROIC > 25%, 35% TAM ceiling
         "VALUATION":   0.25,  # Re-rating runway & valuation asymmetry
@@ -173,7 +203,7 @@ class QueryAdaptiveConstraintEngine:
 
     @classmethod
     def detect_query_intent(cls, query_text: str) -> str:
-        """Classifies a user query string into one of the 6 canonical strategic archetypes."""
+        """Classifies a user query string into one of the canonical strategic archetypes."""
         if not query_text or not isinstance(query_text, str):
             return "GENERAL"
 
@@ -183,6 +213,12 @@ class QueryAdaptiveConstraintEngine:
         for archetype in ARCHETYPE_WEIGHT_PROFILES:
             if f"intent_{archetype.lower()}" in q_lower or f"intent:{archetype.lower()}" in q_lower:
                 return archetype
+
+        # Check explicit sub-horizon swing/positional patterns before generic keywords
+        if re.search(r'\b(3\s*day|3d|3-day)\b', q_lower):
+            return "SWING_3D"
+        if re.search(r'\b(30\s*day|30d|30-day|monthly positional)\b', q_lower):
+            return "POSITIONAL_30D"
 
         # Score keyword matches
         scores = {arch: 0 for arch in cls.INTENT_KEYWORDS}
@@ -215,6 +251,12 @@ class QueryAdaptiveConstraintEngine:
             norm_intent = "SIP_COMPOUNDER"
         elif norm_intent in ("VALUE", "DEEP_VALUE"):
             norm_intent = "VALUE_BUYING"
+        elif norm_intent in ("SWING_3D", "3D", "TACTICAL", "3_DAY", "3DAY"):
+            norm_intent = "SWING_3D"
+        elif norm_intent in ("SWING_10D", "10D", "10_DAY", "10DAY"):
+            norm_intent = "SWING_10D"
+        elif norm_intent in ("POSITIONAL_30D", "30D", "MONTHLY", "30_DAY", "30DAY"):
+            norm_intent = "POSITIONAL_30D"
         elif norm_intent in ("SWING", "POSITIONAL"):
             norm_intent = "SWING_POSITIONAL"
         elif norm_intent in ("MICROCAP", "NANO_CAP", "EARLY_STAGE"):
@@ -262,6 +304,11 @@ class QueryAdaptiveConstraintEngine:
         delivery_turnover = _get_opt_float(["delivery_turnover_5d", "delivery_turnover", "dtr_5d"])
         inc_roic = _get_opt_float(["incremental_roic", "inc_roic", "roic", "roce"])
         prom_hold = _get_opt_float(["promoter_holding", "promoter_holding_pct"])
+        circuit_headroom = _get_opt_float(["circuit_headroom", "circuit_headroom_pct", "circuit_distance_pct", "dist_to_circuit_pct"])
+        adtv = _get_opt_float(["adtv_cr", "daily_turnover_cr", "turnover_cr", "avg_daily_turnover_cr"])
+        close_pos = _get_opt_float(["close_position", "close_pos", "cp_ratio"])
+        days_to_earnings = _get_opt_float(["days_to_earnings", "earnings_in_days"])
+        breakout_vol = _get_opt_float(["breakout_volume_mult", "breakout_vol", "volume_multiple"])
 
         # ── 1. TURNAROUND INTENT ─────────────────────────────────────────
         if norm_intent == "TURNAROUND":
@@ -470,6 +517,62 @@ class QueryAdaptiveConstraintEngine:
             # Tighten liquidity and risk geometry
             if dso is not None and dso > 180:
                 warnings.append(f"CAUTION: Elevated working capital (DSO {dso:.0f}d) flagged, but trade governed by chart setup.")
+
+        elif norm_intent == "SWING_3D":
+            # 72-Hour Tactical Momentum Horizon
+            relaxed.append("Multi-year 5Y/10Y DCF, long-term ROCE, and terminal valuation completely relaxed for 72-hour tactical swing.")
+            tightened.append("Intraday Anchored VWAP, volume Z-score, close position >= 0.75, and upper circuit distance strictly enforced.")
+
+            if vol_z is not None and vol_z < 2.0:
+                warnings.append(f"CAUTION: Volume Z-score ({vol_z:.1f}s) below strong momentum threshold (2.0s).")
+            elif vol_z is not None:
+                tightened.append(f"Momentum volume surge confirmed (Z-score: +{vol_z:.1f}s).")
+
+            if close_pos is not None and close_pos < 0.60:
+                warnings.append(f"CAUTION: Close position ({close_pos:.2f}) indicates intraday selling pressure (< 0.60).")
+
+            # Circuit Headroom Gate: must be at least 3.0% away from upper circuit
+            if circuit_headroom is not None:
+                if circuit_headroom < 3.0:
+                    msg = f"OBJECTIVE_BLOCK: Insufficient upper circuit headroom ({circuit_headroom:.1f}% < 3.0%); immediate liquidity freeze risk."
+                    objective_blocks.append(msg)
+                    vetoes.append(msg)
+                    tightened.append(f"Upper circuit headroom >= 3.0% strictly enforced (failed: {circuit_headroom:.1f}%).")
+                else:
+                    tightened.append(f"Safe circuit headroom verified ({circuit_headroom:.1f}% >= 3.0%).")
+
+            # Daily turnover liquidity floor (min Rs 5 Cr ADTV for clean exit)
+            if adtv is not None:
+                if adtv < 5.0:
+                    warnings.append(f"CAUTION: Daily turnover (₹{adtv:.1f}Cr) is below optimal 3-day tactical liquidity benchmark (₹5.0Cr).")
+                else:
+                    tightened.append(f"Tactical exit liquidity verified (ADTV: ₹{adtv:.1f}Cr >= ₹5.0Cr).")
+
+        elif norm_intent == "SWING_10D":
+            # 1-2 Week Multi-Session Swing Horizon
+            relaxed.append("10-Year DCF intrinsic valuation and multi-decade reinvestment runway relaxed for 10-day multi-session swing.")
+            tightened.append("TTM Squeeze compression/expansion, 10/20 EMA ribbon support, and event risk safety strictly enforced.")
+
+            # Event Risk: earnings gap avoidance
+            if days_to_earnings is not None and 0 <= days_to_earnings <= 5:
+                warnings.append(f"CAUTION: Corporate earnings announcement scheduled in {int(days_to_earnings)} days; binary overnight gap risk present.")
+
+            if vol_z is not None and vol_z >= 1.5:
+                tightened.append(f"Accumulation volume surge verified (Z-score: +{vol_z:.1f}s).")
+
+        elif norm_intent == "POSITIONAL_30D":
+            # 1-Month Base Breakout & Intermediate Catalyst Horizon
+            relaxed.append("Multi-decade terminal growth models relaxed in favor of intermediate base breakout structure and quarterly catalysts.")
+            tightened.append("Minervini Stage 2 uptrend, base consolidation depth, and quarterly PAT acceleration strictly enforced.")
+
+            eff_pat = pat_growth_latest if pat_growth_latest is not None else pat_cagr_3y
+            if eff_pat is not None and eff_pat < 15.0:
+                warnings.append(f"CAUTION: Quarterly PAT acceleration ({eff_pat:.1f}%) is below preferred 30-day breakout benchmark (15.0%).")
+            elif eff_pat is not None:
+                tightened.append(f"Quarterly earnings acceleration verified (PAT Growth: {eff_pat:.1f}% >= 15.0%).")
+
+            if breakout_vol is not None and breakout_vol >= 2.0:
+                tightened.append(f"Base breakout volume confirmation verified ({breakout_vol:.1f}x average volume).")
 
         # ── 5. SCALED MULTIBAGGER INTENT ─────────────────────────────────
         elif norm_intent == "MULTIBAGGER":

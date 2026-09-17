@@ -238,3 +238,65 @@ def test_bfsi_subsector_branching_lending_vs_asset_light_vs_insurance():
     assert res_bank_fail["passed"] is False
     assert any("gross npa" in v.lower() for v in res_bank_fail["vetoes"])
 
+
+def test_sub_horizon_swing_and_positional_routing():
+    """Verify granular sub-horizon intent detection, weight profiling, and adaptive constraint logic."""
+    # 1. Intent detection
+    assert QueryAdaptiveConstraintEngine.detect_query_intent("3 day tactical momentum breakout") == "SWING_3D"
+    assert QueryAdaptiveConstraintEngine.detect_query_intent("30 day monthly positional trade") == "POSITIONAL_30D"
+    assert QueryAdaptiveConstraintEngine.detect_query_intent("3d quick scalp setup") == "SWING_3D"
+    assert QueryAdaptiveConstraintEngine.detect_query_intent("30d base breakout setup") == "POSITIONAL_30D"
+
+    # 2. Weight profiles
+    w_3d = QueryAdaptiveConstraintEngine.get_weight_profile("SWING_3D")
+    assert w_3d["TECHNICAL"] == 0.65
+    assert w_3d["VALUATION"] == 0.00
+
+    w_10d = QueryAdaptiveConstraintEngine.get_weight_profile("SWING_10D")
+    assert w_10d["TECHNICAL"] == 0.55
+    assert w_10d["VALUATION"] == 0.00
+
+    w_30d = QueryAdaptiveConstraintEngine.get_weight_profile("POSITIONAL_30D")
+    assert w_30d["TECHNICAL"] == 0.45
+    assert w_30d["FUNDAMENTAL"] == 0.30
+
+    # 3. SWING_3D circuit headroom test
+    pass_3d = {
+        "volume_z_score": 2.8,
+        "close_position": 0.82,
+        "circuit_headroom": 5.2,
+        "adtv_cr": 12.0
+    }
+    res_3d_pass = QueryAdaptiveConstraintEngine.evaluate_adaptive_constraints("SWING_3D", pass_3d)
+    assert res_3d_pass["passed"] is True
+    assert any("circuit headroom" in t.lower() for t in res_3d_pass["tightened_parameters"])
+
+    fail_3d = {
+        "volume_z_score": 2.8,
+        "close_position": 0.82,
+        "circuit_headroom": 1.2,  # < 3.0% headroom
+        "adtv_cr": 12.0
+    }
+    res_3d_fail = QueryAdaptiveConstraintEngine.evaluate_adaptive_constraints("SWING_3D", fail_3d)
+    assert res_3d_fail["passed"] is False
+    assert any("circuit headroom" in v.lower() for v in res_3d_fail["vetoes"])
+
+    # 4. SWING_10D earnings binary gap risk
+    warn_10d = {
+        "volume_z_score": 2.1,
+        "days_to_earnings": 3  # Binary event risk within 5 sessions
+    }
+    res_10d = QueryAdaptiveConstraintEngine.evaluate_adaptive_constraints("SWING_10D", warn_10d)
+    assert res_10d["passed"] is True
+    assert any("earnings announcement" in w.lower() for w in res_10d["warnings"])
+
+    # 5. POSITIONAL_30D PAT acceleration
+    pass_30d = {
+        "pat_growth_latest": 26.5,
+        "breakout_volume_mult": 2.4
+    }
+    res_30d = QueryAdaptiveConstraintEngine.evaluate_adaptive_constraints("POSITIONAL_30D", pass_30d)
+    assert res_30d["passed"] is True
+    assert any("quarterly earnings acceleration" in t.lower() for t in res_30d["tightened_parameters"])
+
+

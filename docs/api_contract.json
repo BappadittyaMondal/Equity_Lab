@@ -1809,6 +1809,114 @@
         }
       }
     },
+    "/api/v1/research/youtube-analyze": {
+      "post": {
+        "tags": [
+          "AI Strategy Assistant"
+        ],
+        "summary": "Handle Youtube Analyze",
+        "description": "Processes a YouTube video link: extracts transcript, fact-checks against audited financials, synthesizes Q&A, and activates the Innovation Radar.",
+        "operationId": "handle_youtube_analyze_api_v1_research_youtube_analyze_post",
+        "parameters": [
+          {
+            "name": "x-api-key",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "default": "",
+              "title": "X-Api-Key"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/YouTubeAnalyzeRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/YouTubeAnalyzeResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/youtube-analyze": {
+      "post": {
+        "tags": [
+          "AI Strategy Assistant"
+        ],
+        "summary": "Handle Youtube Analyze",
+        "description": "Processes a YouTube video link: extracts transcript, fact-checks against audited financials, synthesizes Q&A, and activates the Innovation Radar.",
+        "operationId": "handle_youtube_analyze_api_v1_youtube_analyze_post",
+        "parameters": [
+          {
+            "name": "x-api-key",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "default": "",
+              "title": "X-Api-Key"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/YouTubeAnalyzeRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/YouTubeAnalyzeResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/v1/data/companies": {
       "post": {
         "tags": [
@@ -10836,6 +10944,165 @@
           "count"
         ],
         "title": "WatchlistListResponse"
+      },
+      "YouTubeAnalyzeRequest": {
+        "properties": {
+          "url": {
+            "type": "string",
+            "title": "Url",
+            "description": "YouTube video URL or bare 11-character video ID"
+          },
+          "query": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Query",
+            "description": "User question or research focus"
+          },
+          "symbol": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Symbol",
+            "description": "Optional NSE/BSE stock ticker for audited fact-checking"
+          },
+          "language_pref": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Language Pref",
+            "description": "Preferred output language: 'en', 'hi', or 'bn'",
+            "default": "en"
+          },
+          "title": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Title",
+            "description": "Optional title or context",
+            "default": "Corporate Management Analysis"
+          }
+        },
+        "type": "object",
+        "required": [
+          "url"
+        ],
+        "title": "YouTubeAnalyzeRequest"
+      },
+      "YouTubeAnalyzeResponse": {
+        "properties": {
+          "status": {
+            "type": "string",
+            "title": "Status"
+          },
+          "video_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Video Id"
+          },
+          "title": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Title"
+          },
+          "language_detected": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Language Detected"
+          },
+          "source_classification": {
+            "additionalProperties": true,
+            "type": "object",
+            "title": "Source Classification"
+          },
+          "fact_checks": {
+            "items": {
+              "additionalProperties": true,
+              "type": "object"
+            },
+            "type": "array",
+            "title": "Fact Checks"
+          },
+          "discrepancies_count": {
+            "type": "integer",
+            "title": "Discrepancies Count",
+            "default": 0
+          },
+          "qa_synthesis": {
+            "additionalProperties": true,
+            "type": "object",
+            "title": "Qa Synthesis"
+          },
+          "platform_innovation_radar": {
+            "additionalProperties": true,
+            "type": "object",
+            "title": "Platform Innovation Radar"
+          },
+          "total_segments": {
+            "type": "integer",
+            "title": "Total Segments",
+            "default": 0
+          },
+          "duration_sec": {
+            "type": "number",
+            "title": "Duration Sec",
+            "default": 0.0
+          },
+          "error": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Error"
+          }
+        },
+        "type": "object",
+        "required": [
+          "status"
+        ],
+        "title": "YouTubeAnalyzeResponse"
       }
     }
   }

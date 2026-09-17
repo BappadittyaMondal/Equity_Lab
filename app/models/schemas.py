@@ -1374,6 +1374,30 @@ class QualitativeMultiplierOutput(BaseModel):
         return round(v, 4)
 
 
+class YouTubeAnalyzeRequest(BaseModel):
+    url: str = Field(..., description="YouTube video URL or bare 11-character video ID")
+    query: Optional[str] = Field(default=None, description="User question or research focus")
+    symbol: Optional[str] = Field(default=None, description="Optional NSE/BSE stock ticker for audited fact-checking")
+    language_pref: Optional[str] = Field(default="en", description="Preferred output language: 'en', 'hi', or 'bn'")
+    title: Optional[str] = Field(default="Corporate Management Analysis", description="Optional title or context")
+
+
+class YouTubeAnalyzeResponse(BaseModel):
+    status: str
+    video_id: Optional[str] = None
+    title: Optional[str] = None
+    language_detected: Optional[str] = None
+    source_classification: Dict[str, Any] = Field(default_factory=dict)
+    fact_checks: List[Dict[str, Any]] = Field(default_factory=list)
+    discrepancies_count: int = 0
+    qa_synthesis: Dict[str, Any] = Field(default_factory=dict)
+    platform_innovation_radar: Dict[str, Any] = Field(default_factory=dict)
+    total_segments: int = 0
+    duration_sec: float = 0.0
+    error: Optional[str] = None
+
+
+
 
 
 
