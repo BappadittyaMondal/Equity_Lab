@@ -600,7 +600,7 @@ class Arbiter:
 
         # Tier 2 Critical Warning Checks
         circuit_band_pct = float(getattr(snap, "circuit_band_pct", 20.0) or 20.0) if snap else 20.0
-        if circuit_band_pct <= 5.0 and obj_upper in ("SWING_POSITIONAL", "EARLY_MICROCAP"):
+        if circuit_band_pct <= 5.0 and obj_upper in ("SWING_POSITIONAL", "SWING_3D", "SWING_10D", "POSITIONAL_30D", "EARLY_MICROCAP"):
             critical_warnings.append({
                 "alert": f"Tier 2 Critical Warning: Ultra-narrow circuit band ({circuit_band_pct:.0f}%) restricts swing liquidity and increases circuit-lock risk",
                 "metric": "circuit_band_pct",
@@ -610,7 +610,7 @@ class Arbiter:
             })
 
         sector_regime = str(getattr(snap, "sector_regime", "") or "").upper() if snap else ""
-        if sector_regime in ("STAGE_4_DISTRIBUTION", "SEVERE_BEARISH_TIDE") and obj_upper in ("SWING_POSITIONAL", "EARLY_MICROCAP"):
+        if sector_regime in ("STAGE_4_DISTRIBUTION", "SEVERE_BEARISH_TIDE") and obj_upper in ("SWING_POSITIONAL", "SWING_3D", "SWING_10D", "POSITIONAL_30D", "EARLY_MICROCAP"):
             critical_warnings.append({
                 "alert": f"Tier 2 Critical Warning: Sector index in distribution ({sector_regime}); headwind against individual breakouts",
                 "metric": "sector_regime",
@@ -654,8 +654,8 @@ class Arbiter:
             contextual_cautions.append("Tier 3 Contextual Caution [Turnaround]: Trailing 3Y/5Y growth/margin contraction discounted in favor of sequential QoQ cash inflection.")
         elif obj_upper == "SIP_COMPOUNDER":
             contextual_cautions.append("Tier 3 Contextual Caution [SIP]: Technical volatility and short-term oversold momentum are accumulation opportunities; zero technical penalty applied.")
-        elif obj_upper == "SWING_POSITIONAL":
-            contextual_cautions.append("Tier 3 Contextual Caution [Swing]: Long-term valuation multiples (DCF/PE) subordinated to market microstructure, ADX, and AVWAP.")
+        elif obj_upper in ("SWING_POSITIONAL", "SWING_3D", "SWING_10D", "POSITIONAL_30D"):
+            contextual_cautions.append(f"Tier 3 Contextual Caution [{obj_upper}]: Long-term valuation multiples (DCF/PE) subordinated to market microstructure, ADX, and AVWAP.")
         elif obj_upper == "EARLY_MICROCAP":
             contextual_cautions.append("Tier 3 Contextual Caution [Microcap]: Low institutional ownership is standard pre-discovery; capacity caps active.")
         else:
