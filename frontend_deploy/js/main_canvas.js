@@ -16,6 +16,7 @@ import { renderProbabilityPanel } from "./probability_panel.js";
 import { renderScorecardPanel } from "./scorecard_panel.js";
 import { renderConvictionPanel } from "./conviction_panel.js";
 import { renderMultibaggerPanel } from "./multibagger_panel.js";
+import { renderVideoIntelligencePanel } from "./video_intelligence.js";
 
 export function initMainCanvas() {
   window.__IERL_SELECTED_SYMBOL = window.__IERL_SELECTED_SYMBOL || "RELIANCE";
@@ -43,7 +44,8 @@ export function switchView(viewName) {
     "compare-panel",
     "swing-alerts-panel",
     "watchlist-panel",
-    "probability-panel"
+    "probability-panel",
+    "video-intelligence-panel"
   ];
 
   sectionIds.forEach(id => {
@@ -79,6 +81,9 @@ export function switchView(viewName) {
     if (el) { el.classList.remove("hidden"); renderProbabilityPanel(); }
   } else if (viewName === "multibagger") {
     renderMultibaggerPanel();
+  } else if (viewName === "video" || viewName === "youtube") {
+    const el = document.getElementById("video-intelligence-panel");
+    if (el) { el.classList.remove("hidden"); renderVideoIntelligencePanel(); }
   }
 }
 

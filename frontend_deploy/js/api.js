@@ -1112,5 +1112,21 @@ export async function reconcileChartVision(payload) {
   }
 }
 
+export async function analyzeYouTubeVideo(payload) {
+  try {
+    const resp = await apiFetch(`/api/v1/youtube-analyze`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(payload),
+    });
+    if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
+    return await resp.json();
+  } catch (err) {
+    console.warn("YouTube video intelligence analysis failed:", err.message);
+    return null;
+  }
+}
+
+
 
 

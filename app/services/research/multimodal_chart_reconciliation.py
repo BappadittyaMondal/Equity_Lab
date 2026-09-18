@@ -172,18 +172,20 @@ class MultimodalChartReconciliationEngine:
         cls,
         image_bytes: Optional[bytes] = None,
         base64_str: Optional[str] = None,
-        metadata: Optional[Dict[str, Any]] = None
+        metadata: Optional[Dict[str, Any]] = None,
+        df: Optional[pd.DataFrame] = None
     ) -> Dict[str, Any]:
         """Parses an input chart image (bytes or base64) into structured visual features.
         
         If metadata dictionary is provided directly, it extracts visual features.
-        If raw image/base64 is provided, it handles payload normalization and attaches
-        diagnostic tracking.
+        If Gemini Vision API is available and online, it extracts features from pixels.
+        If Gemini Vision is offline or disabled, and df is provided, it falls back to
+        deterministic algorithmic OHLCV pattern detection (KDE + VCP / Cup & Handle).
         """
         if metadata and isinstance(metadata, dict):
             return cls.extract_visual_features_from_payload(metadata)
 
-        if not image_bytes and not base64_str:
+        if not image_bytes and not base64_str and df is None:
             return {}
 
         raw_b64 = base64_str
@@ -217,6 +219,42 @@ class MultimodalChartReconciliationEngine:
                     }
             except Exception:
                 pass
+
+        if df is not None and not df.empty and len(df) >= 15:
+            # Deterministic offline algorithmic geometric pattern fallback
+            kde_res = GeometricPatternDetector.detect_kde_support_resistance(df)
+            vcp_res = GeometricPatternDetector.detect_vcp_pattern(df)
+            ch_res = GeometricPatternDetector.detect_cup_and_handle(df)
+
+            close_col = "close" if "close" in df.columns else "Close"
+            latest_close = float(df[close_col].iloc[-1])
+            pivot_breakout = vcp_res.get("pivot_resistance") or ch_res.get("breakout_pivot") or kde_res.get("primary_resistance")
+            support_level = kde_res.get("primary_support")
+
+            detected_pat = "UNSPECIFIED"
+            conf = 0.70
+            if vcp_res.get("is_vcp_detected"):
+                detected_pat = "MINERVINI_VCP"
+                conf = 0.88 if vcp_res.get("volume_dryup_confirmed") else 0.80
+            elif ch_res.get("is_cup_and_handle"):
+                detected_pat = "CUP_AND_HANDLE"
+                conf = 0.85
+            elif kde_res.get("status") == "SUCCESS":
+                detected_pat = "KDE_RANGE_SHELVES"
+                conf = 0.75
+
+            return {
+                "image_received": bool(image_bytes or raw_b64),
+                "image_payload_len": len(image_bytes) if image_bytes else (len(raw_b64) if raw_b64 else 0),
+                "extraction_status": "OFFLINE_GEOMETRIC_FALLBACK",
+                "provenance": "Offline deterministic algorithmic OHLCV pattern detection (KDE & Minervini VCP / Cup & Handle).",
+                "is_mock_fallback": False,
+                "visual_price": latest_close,
+                "visual_breakout_level": pivot_breakout,
+                "visual_support": support_level,
+                "visual_pattern": detected_pat,
+                "pattern_confidence": conf,
+            }
 
         return {
             "image_received": True,

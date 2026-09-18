@@ -43,6 +43,7 @@ function toggleMobileDrawer() {
             <li><button class="w-full text-left btn-primary" onclick="switchView('compare'); toggleMobileDrawer();">Stock Comparison</button></li>
             <li><button class="w-full text-left btn-primary" onclick="switchView('probability'); toggleMobileDrawer();">Return Probability</button></li>
             <li><button class="w-full text-left btn-primary" onclick="switchView('strategies'); toggleMobileDrawer();">Strategy Screening</button></li>
+            <li><button class="w-full text-left btn-primary" onclick="switchView('video'); toggleMobileDrawer();">Video Intelligence</button></li>
             <li><button class="w-full text-left btn-primary" onclick="switchView('aiassistant'); toggleMobileDrawer();">AI Assistant</button></li>
           </ul>
         </div>`;

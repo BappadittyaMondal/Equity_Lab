@@ -164,8 +164,24 @@ export async function renderConvictionPanel(symbol, objective = "ALL", query = "
             <div class="flex items-center gap-2 mt-2">
               <label for="conviction-objective-select" class="text-xs text-muted font-mono">Objective:</label>
               <select id="conviction-objective-select" class="bg-surface-high border border-surface-border text-xs text-gold rounded px-2 py-0.5 font-mono focus:outline-none focus:ring-1 focus:ring-gold">
-                ${["ALL", "GENERAL", "TURNAROUND", "VALUE_BUYING", "SIP_COMPOUNDER", "SWING_POSITIONAL", "EARLY_MICROCAP"].map(o => `
-                  <option value="${o}" ${objective === o ? "selected" : ""}>${o}</option>
+                ${[
+                  { id: "ALL", label: "ALL — Default Multi-Factor" },
+                  { id: "GENERAL", label: "GENERAL — Standard Arbitrated" },
+                  { id: "TURNAROUND", label: "TURNAROUND — QoQ Cash Recovery" },
+                  { id: "VALUE_BUYING", label: "VALUE — Graham Margin of Safety" },
+                  { id: "SIP_COMPOUNDER", label: "SIP — 10Y Moat & High ROCE" },
+                  { id: "SWING_3D", label: "SWING 3D — Tactical Volume Surge & VWAP" },
+                  { id: "SWING_10D", label: "SWING 10D — TTM Squeeze & EMA Ribbon" },
+                  { id: "POSITIONAL_30D", label: "POSITIONAL 30D — Stage 2 Breakout" },
+                  { id: "SWING_POSITIONAL", label: "SWING/POS — General Momentum" },
+                  { id: "EARLY_MICROCAP", label: "MICROCAP — Asymmetric Growth" },
+                  { id: "MULTIBAGGER", label: "MULTIBAGGER — Incremental ROIC" },
+                  { id: "PEER_COMPARE", label: "COMPARE — Relative Valuation" },
+                  { id: "KEDIA_SMILE", label: "KEDIA SMILE — Promoter Alignment" },
+                  { id: "KACHOLIA_SCALABILITY", label: "KACHOLIA — Capital Scalability" },
+                  { id: "AGRAWAL_INFLECTION", label: "AGRAWAL — Techno-Funda Inflection" }
+                ].map(o => `
+                  <option value="${o.id}" ${objective === o.id ? "selected" : ""}>${o.label}</option>
                 `).join('')}
               </select>
             </div>

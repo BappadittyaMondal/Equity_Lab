@@ -58,3 +58,33 @@ def test_parse_chart_image_or_mock_wires_gemini_vision(monkeypatch):
         assert parsed["visual_breakout_level"] == 1100.0
         assert parsed["visual_pattern"] == "CUP_AND_HANDLE"
         assert parsed["pattern_confidence"] == 0.92
+
+
+def test_parse_chart_image_offline_geometric_fallback(monkeypatch):
+    """Verify parse_chart_image_or_mock triggers deterministic geometric fallback when vision is offline."""
+    import pandas as pd
+    import numpy as np
+
+    # Ensure Gemini API key is unset
+    monkeypatch.delenv("GEMINI_API_KEY", raising=False)
+    monkeypatch.delenv("GOOGLE_API_KEY", raising=False)
+
+    dates = pd.date_range("2026-01-01", periods=30, freq="B")
+    closes = np.linspace(100.0, 150.0, 30)
+    highs = closes + 2.0
+    lows = closes - 2.0
+    volumes = np.full(30, 100000.0)
+
+    df_test = pd.DataFrame({
+        "close": closes,
+        "high": highs,
+        "low": lows,
+        "volume": volumes
+    }, index=dates)
+
+    parsed = MultimodalChartReconciliationEngine.parse_chart_image_or_mock(df=df_test)
+    assert parsed["extraction_status"] == "OFFLINE_GEOMETRIC_FALLBACK"
+    assert parsed["visual_price"] == 150.0
+    assert parsed["visual_breakout_level"] is not None
+    assert parsed["pattern_confidence"] >= 0.70
+    assert parsed["is_mock_fallback"] is False

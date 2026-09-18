@@ -1,8 +1,8 @@
 # 04_Master_Knowledge_Base_Vol_1_Fundamentals_Valuation_Governance
 
 > **IERL AI Equity OS — curated upload artifact**  
-> Project Version: `0.0.0` · Bundle Version: `2.0` · Source Commit: `6fb61c3`  
-> Generated At: `2026-09-17T08:10:34.896839+00:00` · Source Hash: `80b5dfde4d6173d6` · Compiler: `consolidate_project.py` v2.0
+> Project Version: `0.0.0` · Bundle Version: `2.0` · Source Commit: `54ca34f`  
+> Generated At: `2026-09-18T20:49:50.670498+00:00` · Source Hash: `d36f1f28f3c948f2` · Compiler: `consolidate_project.py` v2.0
 
 ## Operating contract
 

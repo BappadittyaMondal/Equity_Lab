@@ -119,6 +119,7 @@ def reconcile_chart_vision(payload: Dict[str, Any]) -> Dict[str, Any]:
         symbol = str(payload.get("symbol", "RELIANCE")).upper().strip()
         as_of = payload.get("as_of")
         tolerance_pct = float(payload.get("tolerance_pct", 2.0))
+        df_hist = get_history(symbol, period="3mo", as_of=as_of)
 
         visual_features = payload.get("visual_features") or {}
         if not visual_features:
@@ -126,10 +127,10 @@ def reconcile_chart_vision(payload: Dict[str, Any]) -> Dict[str, Any]:
             metadata = payload.get("metadata")
             visual_features = MultimodalChartReconciliationEngine.parse_chart_image_or_mock(
                 base64_str=base64_img,
-                metadata=metadata
+                metadata=metadata,
+                df=df_hist
             )
 
-        df_hist = get_history(symbol, period="3mo", as_of=as_of)
         recon_res = MultimodalChartReconciliationEngine.reconcile_chart_features(
             symbol=symbol,
             visual_features=visual_features,
