@@ -785,64 +785,64 @@
         {
             "filename": "01_System_Core_Instructions_Architecture.md",
             "bytes": 143676,
-            "sha256": "be9d1274bdab563f2f5c6b1a8ea0d8781db0c9c7c078247c91a9d19141b1b236"
+            "sha256": "beebc3d35b0bbfc099b7df1fa75ba6f17aea3483cb4d21cce02e7d2f36377982"
         },
         {
             "filename": "02_Engine_Contracts_Schemas.md",
             "bytes": 209206,
-            "sha256": "729af1d426e7dc06cc3a28a5ae449b39c05d0af839a871b3fab87ace9b2acfe8"
+            "sha256": "fb187bf320a5ba364d548c7f70fc49ec87f53a0ff346a0841feff2996f7b966f"
         },
         {
             "filename": "03_Engine_Registries_Pipelines.md",
             "bytes": 66561,
-            "sha256": "556347995d26042874de9b37df0c99857cd7ef8f7b009653cda6981f8736c5e1"
+            "sha256": "ee6a6b991c2abe3ecf92f9197c7158a0b5116bb205549498b31bd8fd5e5d67ae"
         },
         {
             "filename": "04_Workflow_Skills_01_to_09.md",
             "bytes": 308502,
-            "sha256": "810ffaf620a5a286d32f854bab574013cfc0277f73f54ff6b38785e02956204a"
+            "sha256": "65b405b50af03268f81473ea698cbcfdd82c266f02a8c6cdcfef6ec91729adea"
         },
         {
             "filename": "05_Workflow_Skills_10_to_25.md",
             "bytes": 72668,
-            "sha256": "ee4a771c52c4ef15401b6b716f07fc61e1b2b37dec36e287683f8204ed0e43f9"
+            "sha256": "262a750a3a474b31c82b0c0ad47739561edc65a8a66f1ab2e3e844e2b36205b3"
         },
         {
             "filename": "06_Analytical_Lens_Skills_26_to_34.md",
             "bytes": 145261,
-            "sha256": "14e257523a599f89ef401d5d87c30c438ad57827168bd48b52127e98c3201542"
+            "sha256": "511cc2f276af845ad9eb8db574f3492fd6a7cb52622faa19d336173e766f2858"
         },
         {
             "filename": "07_Analytical_Lens_Skills_35_to_41.md",
             "bytes": 132869,
-            "sha256": "3f5dcf69089e122361da22f8a12e2a483be520337a14fef319d81540982413c2"
+            "sha256": "efde9fd44063c519ee91b56c662039d070464d96320c7ddc64901769d7c3b7fe"
         },
         {
             "filename": "08_Knowledge_Base_Vol_1_Economics_Financials.md",
             "bytes": 88363,
-            "sha256": "b40d1e4df71fe01e20f8ed52bf4a68102aa96d4de1c976e0fd596c742f9e0e13"
+            "sha256": "505eae5ab6a0567698b097b702d3c34ac9b9b3f77dbc41482ce9eb9dd264f0b8"
         },
         {
             "filename": "09_Knowledge_Base_Vol_2_Markets_Governance_Macro.md",
             "bytes": 86188,
-            "sha256": "1134609dfdfc5f2c1b9334345eadf83de942f7cfc679c9124cde24868bccf946"
+            "sha256": "9ae02a3aed625e1128c42254420606f8f31baf6e1e5ad0afc58abb8d43d49d50"
         },
         {
             "filename": "10_Knowledge_Base_Vol_3_Forensics_Moats_Banking.md",
             "bytes": 65774,
-            "sha256": "7147f2f446c0293a0aa131462651bde86e70337d03c72140172aed715f228ddf"
+            "sha256": "0e6ac243b54876c438dc3f3ff9d6776601d3831d5c722360df7cd03f8eba7bf5"
         },
         {
             "filename": "11_Knowledge_Base_Vol_4_Sector_Deep_Dives.md",
             "bytes": 72239,
-            "sha256": "19b0ed24ecccf33b1093a0d89c79e0a3c5751a343e7fb06397c76915028a9b36"
+            "sha256": "d95acc6c391456fc997bdeaa2633184a11954f317bab053ea907f5f7bb1fcb0f"
         },
         {
             "filename": "12_Knowledge_Base_Vol_5_Screening_Portfolio_Glossaries.md",
             "bytes": 89553,
-            "sha256": "fad43f832b53423d6684cf0fa7f92929a7ff8faa41642e9961c0745bbfde4020"
+            "sha256": "ba1f70a52083b43ab4dced5b0f0ade3582b9fb144b0527747904921af1fd9cda"
         }
     ],
-    "GIT_COMMIT_SOURCE": "54ca34f",
-    "GIT_COMMIT": "54ca34f"
+    "GIT_COMMIT_SOURCE": "a4549d6",
+    "GIT_COMMIT": "a4549d6"
 }

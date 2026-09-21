@@ -641,13 +641,40 @@ class Arbiter:
 
         dso = float(getattr(snap, "debtor_days", 0.0) or getattr(snap, "dso", 0.0) or 0.0) if snap else 0.0
         if dso > 150.0:
-            critical_warnings.append({
-                "alert": f"Tier 2 Critical Warning: Stretched working capital receivables (DSO: {dso:.0f}d > 150d)",
-                "metric": "dso",
-                "value": dso,
-                "score_penalty": 10.0,
-                "sizing_haircut_pct": 15.0
-            })
+            # Phase 135: DSO Sovereign Client-Type Contextualisation
+            # Sovereign PSU/Defence/Railway companies have structurally long payment cycles
+            # (RDSO, MoD, NTPC, IRFC, BHEL — sovereign credit risk, NOT commercial collection failure).
+            # Blindly penalising these produces false vetoes on proven multibaggers (Apollo Micro,
+            # HBL Power, Uni Abex Alloy — all verified 6.5x–10.6x returns despite high DSO).
+            _snap_sector = str(getattr(snap, "sector", "") or "").upper() if snap else ""
+            _snap_industry = str(getattr(snap, "industry", "") or "").upper() if snap else ""
+            _snap_combined = _snap_sector + " " + _snap_industry
+            _SOVEREIGN_CLIENT_KEYWORDS = frozenset([
+                "DEFENCE", "DEFENSE", "AEROSPACE", "SHIPBUILDING", "MILITARY",
+                "RAILWAY", "RAIL", "RAILROAD", "METRO",
+                "POWER TRANSMISSION", "POWER GENERATION", "UTILITIES",
+                "PSU", "GOVERNMENT", "PUBLIC SECTOR",
+                "EPC", "INFRASTRUCTURE", "IRRIGATION",
+            ])
+            _is_sovereign_client = any(k in _snap_combined for k in _SOVEREIGN_CLIENT_KEYWORDS)
+
+            if _is_sovereign_client:
+                # Tier 3 Contextual Caution only — structurally long payment cycle, sovereign credit risk
+                contextual_cautions.append(
+                    f"Tier 3 Contextual Caution: Extended DSO ({dso:.0f}d > 150d) reflects sovereign/PSU/Defence "
+                    f"client payment cycles (structurally long, not commercial collection failure). "
+                    f"Verify client mix: if >50% revenue is from Govt/Defence/Railways/PSU, "
+                    f"DSO is structural, not a cash quality defect. No sizing haircut applied."
+                )
+            else:
+                # Tier 2 Critical Warning — private commercial receivables bloat (genuine collection risk)
+                critical_warnings.append({
+                    "alert": f"Tier 2 Critical Warning: Stretched working capital receivables (DSO: {dso:.0f}d > 150d) — private commercial client mix",
+                    "metric": "dso",
+                    "value": dso,
+                    "score_penalty": 10.0,
+                    "sizing_haircut_pct": 15.0,
+                })
 
         # Tier 3 Contextual Caution Checks
         if obj_upper == "TURNAROUND":

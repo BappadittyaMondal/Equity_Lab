@@ -1,11 +1,156 @@
 """Governance & Forensic Red-Flag Veto Engine.
 
 Performs forensic accounting audits to detect governance anomalies, earnings manipulation,
-auditor resignations, and related-party transaction red flags before capital commitment.
+auditor resignations, related-party transaction red flags, and share dilution velocity
+before capital commitment.
+
+Phase 135 Enhancement: Compound Annual Dilution Rate (CADR) Gate
+- Warrant/Preferential allotments CADR >= 5%/yr → Tier 2 Objective Block for EARLY_MICROCAP
+- Rights/QIP for genuine capacity expansion CADR >= 12%/yr → Tier 3 Contextual Caution
+- Differentiates dilution TYPE: extraction (warrants) vs structural expansion (rights/QIP)
+- Non-circular: additive to F13 (historical drag computation). F13 measures EPS drag;
+  CADR gate measures forward velocity with archetype-conditional severity.
 """
 
 from dataclasses import dataclass, field
 from typing import List, Dict, Any, Optional
+
+
+# ---------------------------------------------------------------------------
+# CADR Sovereign Sector Keywords — used to classify dilution instrument type
+# ---------------------------------------------------------------------------
+_EXPANSION_DILUTION_KEYWORDS = frozenset([
+    "rights issue", "rights entitlement", "rights shares",
+    "qip", "qualified institutional placement",
+    "fpo", "follow-on public offer",
+    "preferential allotment for capex", "preferential allotment for expansion",
+])
+
+_EXTRACTION_DILUTION_KEYWORDS = frozenset([
+    "warrants", "convertible warrants", "preferential warrants",
+    "esop", "employee stock option", "stock option plan",
+    "preferential allotment", "preferential issue",
+])
+
+# CADR threshold constants (% per year)
+_CADR_WARRANT_BLOCK_THRESHOLD = 0.05   # 5% p.a. → Tier 2 Objective Block (EARLY_MICROCAP)
+_CADR_EXPANSION_CAUTION_THRESHOLD = 0.12  # 12% p.a. → Tier 3 Contextual Caution (all archetypes)
+
+
+@dataclass
+class CADRResult:
+    """Compound Annual Dilution Rate (CADR) forensic result."""
+    cadr: Optional[float]              # annualised dilution rate (0.0–1.0+), or None if data absent
+    dilution_type: str                 # "WARRANT_EXTRACTION" | "EXPANSION_CAPITAL" | "MIXED" | "UNKNOWN"
+    shares_t0: Optional[float]         # share count 3 years ago
+    shares_t1: Optional[float]         # share count latest
+    years: float                       # lookback window used (typically 3.0)
+    severity: str                      # "TIER2_OBJECTIVE_BLOCK" | "TIER3_CONTEXTUAL_CAUTION" | "CLEAN" | "DATA_ABSENT"
+    flag_message: Optional[str]        # human-readable flag or None
+
+
+def compute_cadr(
+    shares_latest: Optional[float],
+    shares_3y_ago: Optional[float],
+    dilution_instrument_hint: Optional[str] = None,
+    archetype: str = "GENERAL",
+    years: float = 3.0,
+) -> CADRResult:
+    """Compute CADR and classify severity with dilution-type branching.
+
+    Args:
+        shares_latest: Current total shares outstanding (any unit).
+        shares_3y_ago: Shares outstanding 3 years prior (same unit).
+        dilution_instrument_hint: Free-text hint from annual report / BSE filing
+            (e.g. "preferential warrants to promoters", "QIP for capex").
+        archetype: Strategy archetype string (e.g. "EARLY_MICROCAP", "MULTIBAGGER").
+        years: Lookback window used (default 3.0).
+
+    Returns:
+        CADRResult with severity classification.
+    """
+    if shares_latest is None or shares_3y_ago is None or shares_3y_ago <= 0:
+        return CADRResult(
+            cadr=None, dilution_type="UNKNOWN",
+            shares_t0=shares_3y_ago, shares_t1=shares_latest, years=years,
+            severity="DATA_ABSENT",
+            flag_message="CADR: Share count data absent; dilution velocity unverifiable.",
+        )
+
+    cadr = (shares_latest / shares_3y_ago) ** (1.0 / years) - 1.0
+
+    if cadr <= 0.0:
+        # Net share reduction (buyback) — positive signal, no flag
+        return CADRResult(
+            cadr=round(cadr, 4), dilution_type="UNKNOWN",
+            shares_t0=shares_3y_ago, shares_t1=shares_latest, years=years,
+            severity="CLEAN",
+            flag_message=None,
+        )
+
+    # --- Classify dilution instrument type ---
+    hint_lower = (dilution_instrument_hint or "").lower()
+    is_extraction = any(k in hint_lower for k in _EXTRACTION_DILUTION_KEYWORDS)
+    is_expansion = any(k in hint_lower for k in _EXPANSION_DILUTION_KEYWORDS)
+
+    if is_expansion and not is_extraction:
+        dilution_type = "EXPANSION_CAPITAL"
+        effective_threshold = _CADR_EXPANSION_CAUTION_THRESHOLD
+        block_severity = "TIER3_CONTEXTUAL_CAUTION"
+    elif hint_lower and not is_expansion:
+        dilution_type = "WARRANT_EXTRACTION"
+        effective_threshold = _CADR_WARRANT_BLOCK_THRESHOLD
+        block_severity = "TIER2_OBJECTIVE_BLOCK"
+    elif is_extraction and is_expansion:
+        # Mixed — apply stricter warrant threshold
+        dilution_type = "MIXED"
+        effective_threshold = _CADR_WARRANT_BLOCK_THRESHOLD
+        block_severity = "TIER2_OBJECTIVE_BLOCK"
+    else:
+        # Hint absent — default conservative: treat as WARRANT_EXTRACTION if archetype is EARLY_MICROCAP
+        dilution_type = "UNKNOWN"
+        if archetype.upper() in ("EARLY_MICROCAP", "MULTIBAGGER"):
+            effective_threshold = _CADR_WARRANT_BLOCK_THRESHOLD
+            block_severity = "TIER2_OBJECTIVE_BLOCK"
+        else:
+            effective_threshold = _CADR_EXPANSION_CAUTION_THRESHOLD
+            block_severity = "TIER3_CONTEXTUAL_CAUTION"
+
+    cadr_pct = round(cadr * 100.0, 2)
+
+    if cadr < effective_threshold:
+        return CADRResult(
+            cadr=round(cadr, 4), dilution_type=dilution_type,
+            shares_t0=shares_3y_ago, shares_t1=shares_latest, years=years,
+            severity="CLEAN",
+            flag_message=None,
+        )
+
+    # Threshold breached — compute flag message
+    threshold_pct = round(effective_threshold * 100.0, 1)
+    if block_severity == "TIER2_OBJECTIVE_BLOCK":
+        msg = (
+            f"CADR DILUTION VELOCITY BLOCK ({dilution_type}): "
+            f"3Y CADR={cadr_pct:.2f}% >= {threshold_pct}% p.a. threshold. "
+            f"Shares grew from {shares_3y_ago:,.0f} to {shares_latest:,.0f} "
+            f"over {years:.0f}Y via {dilution_type.lower().replace('_', ' ')}. "
+            f"EPS compounding structurally impaired; Tier 2 Objective Block for EARLY_MICROCAP archetype."
+        )
+    else:
+        msg = (
+            f"CADR DILUTION CAUTION ({dilution_type}): "
+            f"3Y CADR={cadr_pct:.2f}% >= {threshold_pct}% p.a. threshold. "
+            f"Shares grew from {shares_3y_ago:,.0f} to {shares_latest:,.0f} "
+            f"over {years:.0f}Y. Verify that capex-linked equity expansion "
+            f"translates to proportional ROIC and EPS accretion."
+        )
+
+    return CADRResult(
+        cadr=round(cadr, 4), dilution_type=dilution_type,
+        shares_t0=shares_3y_ago, shares_t1=shares_latest, years=years,
+        severity=block_severity,
+        flag_message=msg,
+    )
 
 
 @dataclass
@@ -22,6 +167,7 @@ class ForensicAuditResult:
     data_mode: str = "OBSERVED"  # "OBSERVED" | "PARTIAL_DATA" | "INSUFFICIENT_DATA" | "MOCK"
     confidence_score: float = 1.0
     missing_metrics: List[str] = field(default_factory=list)
+    cadr_result: Optional[CADRResult] = None   # Phase 135: CADR gate result
 
 
 class ForensicAuditor:
@@ -34,9 +180,21 @@ class ForensicAuditor:
         auditor_resigned_recently: Optional[bool] = None,
         net_income_3y_cagr: Optional[float] = None,
         ocf_3y_cagr: Optional[float] = None,
-        is_mock: bool = False
+        is_mock: bool = False,
+        # Phase 135: CADR parameters
+        shares_latest: Optional[float] = None,
+        shares_3y_ago: Optional[float] = None,
+        dilution_instrument_hint: Optional[str] = None,
+        archetype: str = "GENERAL",
     ) -> ForensicAuditResult:
-        """Perform comprehensive forensic audit on an equity without silent default assumptions."""
+        """Perform comprehensive forensic audit on an equity without silent default assumptions.
+
+        Phase 135 Additions:
+            shares_latest: Current total shares outstanding (any unit).
+            shares_3y_ago: Shares outstanding 3 years prior (same unit).
+            dilution_instrument_hint: Free-text describing dilution instrument (warrants, QIP, rights).
+            archetype: Investment archetype to calibrate CADR severity.
+        """
         # Attempt to populate missing parameters from canonical ResearchDataStore timeline
         if related_party_pct is None or auditor_resigned_recently is None or net_income_3y_cagr is None or ocf_3y_cagr is None:
             try:
@@ -49,6 +207,11 @@ class ForensicAuditor:
                         net_income_3y_cagr = float(obs.value)
                     elif ocf_3y_cagr is None and obs.metric == "ocf_3y_cagr":
                         ocf_3y_cagr = float(obs.value)
+                    # Phase 135: pull share count data from timeline if not provided
+                    elif shares_latest is None and obs.metric in ("shares_outstanding", "total_shares"):
+                        shares_latest = float(obs.value)
+                    elif shares_3y_ago is None and obs.metric in ("shares_outstanding_3y", "shares_3y_ago"):
+                        shares_3y_ago = float(obs.value)
                 for ev in timeline.events:
                     if auditor_resigned_recently is None and getattr(ev, "event_type", None) == "auditor_resignation":
                         auditor_resigned_recently = True
@@ -125,6 +288,22 @@ class ForensicAuditor:
             score = max(0.0, score)
             governance_veto = score < 60.0 or bool(auditor_resigned_recently) or (m_score is not None and m_score > -1.78) or (z_score is not None and z_score < 1.81)
 
+        # 6. Phase 135: CADR Dilution Velocity Gate (additive to F13 drag; non-circular)
+        cadr_result = compute_cadr(
+            shares_latest=shares_latest,
+            shares_3y_ago=shares_3y_ago,
+            dilution_instrument_hint=dilution_instrument_hint,
+            archetype=archetype,
+            years=3.0,
+        )
+        if cadr_result.severity == "TIER2_OBJECTIVE_BLOCK" and cadr_result.flag_message:
+            # Only penalise score for extraction-type dilution; expansion capital gets caution only
+            score = max(0.0, score - 20.0)
+            red_flags.append(cadr_result.flag_message)
+        elif cadr_result.severity == "TIER3_CONTEXTUAL_CAUTION" and cadr_result.flag_message:
+            # No score penalty — contextual advisory only
+            red_flags.append(f"[CAUTION] {cadr_result.flag_message}")
+
         divergence = bool(
             net_income_3y_cagr is not None and ocf_3y_cagr is not None and
             net_income_3y_cagr > 10.0 and ocf_3y_cagr < 0.0
@@ -143,5 +322,5 @@ class ForensicAuditor:
             data_mode=data_mode,
             confidence_score=confidence_score,
             missing_metrics=missing_metrics,
+            cadr_result=cadr_result,
         )
-

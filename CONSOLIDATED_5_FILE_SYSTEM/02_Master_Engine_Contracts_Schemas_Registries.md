@@ -1,7 +1,7 @@
 # 02_Master_Engine_Contracts_Schemas_Registries
 
 > **IERL AI Equity OS — curated upload artifact**  
-> Project Version: `0.0.0` · Bundle Version: `2.0` · Source Commit: `54ca34f`  
+> Project Version: `0.0.0` · Bundle Version: `2.0` · Source Commit: `a4549d6`  
 > Generated At: `2026-09-18T20:49:50.670498+00:00` · Source Hash: `d36f1f28f3c948f2` · Compiler: `consolidate_project.py` v2.0
 
 ## Operating contract
