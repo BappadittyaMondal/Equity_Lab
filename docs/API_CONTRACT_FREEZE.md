@@ -1,10 +1,10 @@
-# API Contract Freeze — Equity Lab OS v0.0.0
+# API Contract Freeze â€” Equity Lab OS v0.0.0
 
 > **FREEZE NOTICE**: All 87 backend REST endpoints are frozen and certified for production handoff. 100% of frontend calls map cleanly to valid backend routes.
 
 ## 1. Summary Metrics
 
-- **Total Backend Endpoints**: 98
+- **Total Backend Endpoints**: 101
 - **API Spec Contract File**: `docs/api_contract.json`
 
 ---
@@ -40,17 +40,17 @@
 | `/api/v1/monitoring/prediction-ledger` | GET | Live Monitoring & Calibration | Get Prediction Ledger |
 | `/api/v1/monitoring/prediction-ledger` | POST | Live Monitoring & Calibration | Log Prediction |
 | `/api/v1/monitoring/strategy-health` | GET | Live Monitoring & Calibration | Get Strategy Health Summary |
-| `/api/v1/multibagger/altdata/{symbol}` | GET | Institutional Multibagger Framework | Get Indian Alt-Data & Scuttlebutt Signal (§26, §27) |
-| `/api/v1/multibagger/catalysts/{symbol}` | GET | Institutional Multibagger Framework | Get Policy Catalysts & Corporate Actions Signal (§47, §48) |
-| `/api/v1/multibagger/concall/{symbol}` | GET | Institutional Multibagger Framework | Get Management Commentary Concall NLP Signal (§30) |
+| `/api/v1/multibagger/altdata/{symbol}` | GET | Institutional Multibagger Framework | Get Indian Alt-Data & Scuttlebutt Signal (Â§26, Â§27) |
+| `/api/v1/multibagger/catalysts/{symbol}` | GET | Institutional Multibagger Framework | Get Policy Catalysts & Corporate Actions Signal (Â§47, Â§48) |
+| `/api/v1/multibagger/concall/{symbol}` | GET | Institutional Multibagger Framework | Get Management Commentary Concall NLP Signal (Â§30) |
 | `/api/v1/multibagger/institutional-rank` | POST | Institutional Multibagger Framework | Rank Universe via 27-Engine Multibagger Framework |
 | `/api/v1/multibagger/institutional-score/{symbol}` | GET | Institutional Multibagger Framework | Get Single Stock 27-Engine Scorecard & Archetype |
-| `/api/v1/multibagger/mivs/{symbol}` | GET | Institutional Multibagger Framework | Get MIVS 100-Point Score & 7 Hard Gates (§51, §52) |
+| `/api/v1/multibagger/mivs/{symbol}` | GET | Institutional Multibagger Framework | Get MIVS 100-Point Score & 7 Hard Gates (Â§51, Â§52) |
 | `/api/v1/multibagger/multi-horizon-matrix` | POST | Institutional Multibagger Framework | Generate Multi-Horizon CAGR & Conformal Return Probability Matrix |
-| `/api/v1/multibagger/portfolio/{symbol}` | GET | Institutional Multibagger Framework | Get Position Sizing & Drawdown Discipline Signal (§35, §36, §37) |
-| `/api/v1/multibagger/promoter/{symbol}` | GET | Institutional Multibagger Framework | Get Promoter & Insider Behaviour Signal (§29) |
-| `/api/v1/multibagger/report/{symbol}` | GET | Institutional Multibagger Framework | Get Machine-Readable Stock Report (§58) |
-| `/api/v1/multibagger/shareholding/{symbol}` | GET | Institutional Multibagger Framework | Get Shareholding Pattern Intelligence Signal (§28) |
+| `/api/v1/multibagger/portfolio/{symbol}` | GET | Institutional Multibagger Framework | Get Position Sizing & Drawdown Discipline Signal (Â§35, Â§36, Â§37) |
+| `/api/v1/multibagger/promoter/{symbol}` | GET | Institutional Multibagger Framework | Get Promoter & Insider Behaviour Signal (Â§29) |
+| `/api/v1/multibagger/report/{symbol}` | GET | Institutional Multibagger Framework | Get Machine-Readable Stock Report (Â§58) |
+| `/api/v1/multibagger/shareholding/{symbol}` | GET | Institutional Multibagger Framework | Get Shareholding Pattern Intelligence Signal (Â§28) |
 | `/api/v1/options/a2-payoff` | POST | Options Strategy Engine | Execute A2 Options Payoff |
 | `/api/v1/portfolio/` | GET | Portfolio | Get Portfolio |
 | `/api/v1/portfolio/narrate/{symbol}` | GET | Portfolio | Narrate |
@@ -102,3 +102,4 @@
 | `/api/v1/watchlist` | GET | Watchlist | Get Watchlist |
 | `/api/v1/watchlist` | POST | Watchlist | Add To Watchlist |
 | `/api/v1/watchlist/{symbol}` | DELETE | Watchlist | Delete From Watchlist |
+

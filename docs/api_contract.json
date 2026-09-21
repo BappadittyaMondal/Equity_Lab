@@ -5576,6 +5576,185 @@
         }
       }
     },
+    "/api/v1/research/rank-candidates": {
+      "post": {
+        "tags": [
+          "Research Engines \u2014 Phase 139"
+        ],
+        "summary": "MAP-Rank: Multi-Asset Pareto Ranking Tournament (Phase 139)",
+        "description": "Cross-sectional Pareto 4-dimension ranking of N candidate stocks.\n\nScores each stock simultaneously on:\n- Solvency (D/E, interest coverage)\n- Cash Quality (CAQI = CFO / PAT \u2265 0.80 gate)\n- Valuation Headroom (DEME-HR = sector P/E ceiling / trailing P/E)\n- Geopolitical Moat (aggregate \u03b2_geo from 5-shock sensitivity matrix)\n\nReturns ranked list sorted by intent-weighted composite score.",
+        "operationId": "rank_candidates_endpoint_api_v1_research_rank_candidates_post",
+        "parameters": [
+          {
+            "name": "x-api-key",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "default": "",
+              "title": "X-Api-Key"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/MultiAssetRankRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MultiAssetRankResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/research/geopolitical-shock-sensitivity/{symbol}": {
+      "get": {
+        "tags": [
+          "Research Engines \u2014 Phase 139"
+        ],
+        "summary": "\u03b2_geo Vectorized Geopolitical Shock Sensitivity (Phase 139)",
+        "description": "Returns asset-level \u03b2_geo shock sensitivity vector across 5 global scenarios:\n\n1. Crude Oil Spike +30%\n2. Maritime Chokepoint (Red Sea / Hormuz)\n3. China Export Dumping\n4. Grid Hardware Deficit (transformers / semiconductors)\n5. US Interest Rate Hike +100bps\n\nBeta convention: positive = tailwind, negative = headwind (range: -1.0 to +1.0).",
+        "operationId": "get_geo_shock_sensitivity_api_v1_research_geopolitical_shock_sensitivity__symbol__get",
+        "parameters": [
+          {
+            "name": "symbol",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Symbol"
+            }
+          },
+          {
+            "name": "sector",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Sector key (e.g. DEFENSE, IT, METALS). Auto-detected from ticker overlays if omitted.",
+              "title": "Sector"
+            },
+            "description": "Sector key (e.g. DEFENSE, IT, METALS). Auto-detected from ticker overlays if omitted."
+          },
+          {
+            "name": "x-api-key",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "default": "",
+              "title": "X-Api-Key"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GeoShockSensitivityResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/research/multimodal-watchlist-audit": {
+      "post": {
+        "tags": [
+          "Research Engines \u2014 Phase 139"
+        ],
+        "summary": "Multimodal Watchlist Bridge: Image/Symbols \u2192 Full Audit (Phase 139)",
+        "description": "Full Multimodal Watchlist Audit Pipeline:\n\n1. (Optional) Gemini Vision OCR extracts ticker symbols from a brokerage screenshot.\n2. ScreenerCloudConnector fetches fundamentals for each symbol.\n3. InstitutionalMultibaggerEngine audits each symbol (CAQI gate, DEME-HR, risk flags).\n4. MAP-Rank Pareto tournament ranks all symbols cross-sectionally.\n\nSupply either `image_base64` (screenshot) or `raw_symbols` (pre-parsed list).\nIf both supplied, `raw_symbols` takes precedence (skips OCR).",
+        "operationId": "multimodal_watchlist_audit_api_v1_research_multimodal_watchlist_audit_post",
+        "parameters": [
+          {
+            "name": "x-api-key",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "default": "",
+              "title": "X-Api-Key"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/MultimodalWatchlistRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MultimodalWatchlistResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/v1/admin/llm-usage": {
       "get": {
         "tags": [
@@ -7492,6 +7671,89 @@
         ],
         "title": "FinancialObservationResponse"
       },
+      "GeoShockSensitivityResponse": {
+        "properties": {
+          "symbol": {
+            "type": "string",
+            "title": "Symbol"
+          },
+          "sector": {
+            "type": "string",
+            "title": "Sector"
+          },
+          "beta_crude_spike": {
+            "type": "number",
+            "title": "Beta Crude Spike",
+            "description": "Sensitivity to Crude Oil Spike (+30%)"
+          },
+          "beta_maritime_chokepoint": {
+            "type": "number",
+            "title": "Beta Maritime Chokepoint",
+            "description": "Sensitivity to Maritime Chokepoint disruption (Strait of Hormuz/Red Sea)"
+          },
+          "beta_china_dumping": {
+            "type": "number",
+            "title": "Beta China Dumping",
+            "description": "Sensitivity to China export dumping pressure"
+          },
+          "beta_grid_hardware_deficit": {
+            "type": "number",
+            "title": "Beta Grid Hardware Deficit",
+            "description": "Sensitivity to global grid hardware / transformer deficit"
+          },
+          "beta_us_rate_hike": {
+            "type": "number",
+            "title": "Beta Us Rate Hike",
+            "description": "Sensitivity to US interest rate hike (+100bps)"
+          },
+          "aggregate_geo_beta": {
+            "type": "number",
+            "title": "Aggregate Geo Beta",
+            "description": "Equal-weighted aggregate of 5 betas"
+          },
+          "dominant_shock": {
+            "type": "string",
+            "title": "Dominant Shock",
+            "description": "The scenario with maximum absolute beta impact"
+          },
+          "verdict": {
+            "type": "string",
+            "title": "Verdict",
+            "description": "GEO_TAILWIND | GEO_NEUTRAL | GEO_HEADWIND | GEO_CRITICAL"
+          },
+          "evidence": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Evidence"
+          },
+          "executed_at": {
+            "type": "string",
+            "title": "Executed At"
+          },
+          "meta": {
+            "$ref": "#/components/schemas/MetaHeader"
+          }
+        },
+        "type": "object",
+        "required": [
+          "symbol",
+          "sector",
+          "beta_crude_spike",
+          "beta_maritime_chokepoint",
+          "beta_china_dumping",
+          "beta_grid_hardware_deficit",
+          "beta_us_rate_hike",
+          "aggregate_geo_beta",
+          "dominant_shock",
+          "verdict",
+          "executed_at",
+          "meta"
+        ],
+        "title": "GeoShockSensitivityResponse",
+        "description": "Asset-level \u03b2_geo sensitivity vector across 5 global shock scenarios."
+      },
       "GovernanceQualityResponse": {
         "properties": {
           "symbol": {
@@ -8109,6 +8371,117 @@
         ],
         "title": "LogPredictionRequest"
       },
+      "MAPRankEntry": {
+        "properties": {
+          "symbol": {
+            "type": "string",
+            "title": "Symbol"
+          },
+          "pareto_rank": {
+            "type": "integer",
+            "title": "Pareto Rank",
+            "description": "Cross-sectional rank (1 = best)"
+          },
+          "composite_score": {
+            "type": "number",
+            "title": "Composite Score",
+            "description": "Weighted composite MAP score [0, 100]"
+          },
+          "solvency_score": {
+            "type": "number",
+            "title": "Solvency Score"
+          },
+          "cash_quality_score": {
+            "type": "number",
+            "title": "Cash Quality Score"
+          },
+          "valuation_headroom_score": {
+            "type": "number",
+            "title": "Valuation Headroom Score"
+          },
+          "geopolitical_moat_score": {
+            "type": "number",
+            "title": "Geopolitical Moat Score"
+          },
+          "caqi": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Caqi",
+            "description": "Cash Accrual Quality Index = CFO_TTM / PAT_TTM"
+          },
+          "caqi_gate": {
+            "type": "string",
+            "title": "Caqi Gate",
+            "description": "PASS | FAIL | DATA_UNAVAILABLE",
+            "default": "PASS"
+          },
+          "deme_hr": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Deme Hr",
+            "description": "DEME-HR = Sector P/E Ceiling / Current Trailing P/E"
+          },
+          "deme_hr_verdict": {
+            "type": "string",
+            "title": "Deme Hr Verdict",
+            "description": "UNDERVALUED | FAIR_VALUE | VALUATION_CONSTRAINED | DATA_UNAVAILABLE",
+            "default": "FAIR_VALUE"
+          },
+          "archetype": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Archetype"
+          },
+          "confidence_label": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Confidence Label"
+          },
+          "risk_flags": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Risk Flags"
+          }
+        },
+        "type": "object",
+        "required": [
+          "symbol",
+          "pareto_rank",
+          "composite_score",
+          "solvency_score",
+          "cash_quality_score",
+          "valuation_headroom_score",
+          "geopolitical_moat_score"
+        ],
+        "title": "MAPRankEntry",
+        "description": "Single ranked stock entry from the MAP-Rank Pareto tournament."
+      },
       "MachineReadableStockReport": {
         "properties": {
           "symbol": {
@@ -8651,6 +9024,103 @@
         ],
         "title": "MetaHeader"
       },
+      "MultiAssetRankRequest": {
+        "properties": {
+          "symbols": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "maxItems": 50,
+            "minItems": 2,
+            "title": "Symbols",
+            "description": "2\u201350 NSE/BSE ticker symbols to rank simultaneously"
+          },
+          "intent": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Intent",
+            "description": "Optional archetype intent (e.g. MULTIBAGGER, SIP_COMPOUNDER, TURNAROUND, SWING_3D)"
+          },
+          "top_n": {
+            "anyOf": [
+              {
+                "type": "integer",
+                "minimum": 1.0
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Top N",
+            "description": "Return only the top-N ranked stocks. Omit to return all."
+          }
+        },
+        "type": "object",
+        "required": [
+          "symbols"
+        ],
+        "title": "MultiAssetRankRequest",
+        "description": "Request model for MAP-Rank cross-sectional Pareto ranking of N candidate stocks."
+      },
+      "MultiAssetRankResponse": {
+        "properties": {
+          "status": {
+            "type": "string",
+            "title": "Status"
+          },
+          "intent": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Intent"
+          },
+          "total_candidates": {
+            "type": "integer",
+            "title": "Total Candidates"
+          },
+          "ranked": {
+            "items": {
+              "$ref": "#/components/schemas/MAPRankEntry"
+            },
+            "type": "array",
+            "title": "Ranked"
+          },
+          "methodology": {
+            "type": "string",
+            "title": "Methodology",
+            "default": "Pareto 4-Dimension: Solvency \u00d7 CashQuality \u00d7 ValuationHeadroom \u00d7 GeopoliticalMoat"
+          },
+          "executed_at": {
+            "type": "string",
+            "title": "Executed At"
+          },
+          "meta": {
+            "$ref": "#/components/schemas/MetaHeader"
+          }
+        },
+        "type": "object",
+        "required": [
+          "status",
+          "total_candidates",
+          "ranked",
+          "executed_at",
+          "meta"
+        ],
+        "title": "MultiAssetRankResponse",
+        "description": "MAP-Rank cross-sectional Pareto tournament result."
+      },
       "MultiHorizonMatrixItem": {
         "properties": {
           "symbol": {
@@ -8945,6 +9415,119 @@
           "meta"
         ],
         "title": "MultibaggerScreenerResponse"
+      },
+      "MultimodalWatchlistRequest": {
+        "properties": {
+          "image_base64": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Image Base64",
+            "description": "Base64-encoded image of a brokerage watchlist screenshot (PNG/JPEG)"
+          },
+          "raw_symbols": {
+            "anyOf": [
+              {
+                "items": {
+                  "type": "string"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Raw Symbols",
+            "description": "Optional list of symbols if already parsed (skips OCR step)"
+          },
+          "intent": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Intent",
+            "description": "Investment intent archetype for all symbols (e.g. MULTIBAGGER, SIP_COMPOUNDER)"
+          }
+        },
+        "type": "object",
+        "title": "MultimodalWatchlistRequest",
+        "description": "Request model for image-uploaded brokerage watchlist OCR \u2192 Arbiter pipeline."
+      },
+      "MultimodalWatchlistResponse": {
+        "properties": {
+          "status": {
+            "type": "string",
+            "title": "Status"
+          },
+          "ocr_symbols_detected": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Ocr Symbols Detected"
+          },
+          "total_audited": {
+            "type": "integer",
+            "title": "Total Audited"
+          },
+          "intent": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Intent"
+          },
+          "audit_results": {
+            "items": {
+              "$ref": "#/components/schemas/WatchlistAuditEntry"
+            },
+            "type": "array",
+            "title": "Audit Results"
+          },
+          "map_rank_summary": {
+            "anyOf": [
+              {
+                "items": {
+                  "$ref": "#/components/schemas/MAPRankEntry"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Map Rank Summary"
+          },
+          "executed_at": {
+            "type": "string",
+            "title": "Executed At"
+          },
+          "meta": {
+            "$ref": "#/components/schemas/MetaHeader"
+          }
+        },
+        "type": "object",
+        "required": [
+          "status",
+          "total_audited",
+          "executed_at",
+          "meta"
+        ],
+        "title": "MultimodalWatchlistResponse",
+        "description": "Full Multimodal Watchlist Bridge audit response."
       },
       "NLQueryRequest": {
         "properties": {
@@ -10780,6 +11363,108 @@
           "type"
         ],
         "title": "ValidationError"
+      },
+      "WatchlistAuditEntry": {
+        "properties": {
+          "symbol": {
+            "type": "string",
+            "title": "Symbol"
+          },
+          "verdict": {
+            "type": "string",
+            "title": "Verdict"
+          },
+          "conviction_score": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Conviction Score"
+          },
+          "archetype": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Archetype"
+          },
+          "risk_flags": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Risk Flags"
+          },
+          "caqi": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Caqi"
+          },
+          "caqi_gate": {
+            "type": "string",
+            "title": "Caqi Gate",
+            "default": "DATA_UNAVAILABLE"
+          },
+          "deme_hr": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Deme Hr"
+          },
+          "deme_hr_verdict": {
+            "type": "string",
+            "title": "Deme Hr Verdict",
+            "default": "DATA_UNAVAILABLE"
+          },
+          "pareto_rank": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Pareto Rank"
+          },
+          "error": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Error"
+          }
+        },
+        "type": "object",
+        "required": [
+          "symbol",
+          "verdict"
+        ],
+        "title": "WatchlistAuditEntry",
+        "description": "Arbiter audit result for a single symbol from the watchlist."
       },
       "WatchlistItemRequest": {
         "properties": {

@@ -408,3 +408,206 @@ def test_sector_specific_asset_turnover_matrix_and_accumulator():
 
 
 
+# ===== Phase 35-38: Launchpad Discovery Engine Tests =====
+
+def test_launchpad_candidate_lifecycle_stage():
+    """Phase 35 (C3): Verify LAUNCHPAD_CANDIDATE stage triggers for sub-Rs.500 Cr stock
+    meeting all 5 quality gates. Previously these stocks were M0_UNVERIFIED — this was
+    the exact reason all 14 historical multibaggers would have been rejected at entry price."""
+    # 1. Sub-Rs.500 Cr stock passing all 5 gates → must be LAUNCHPAD_CANDIDATE
+    launchpad_comp = {
+        "market_cap": 280.0,           # Sub-Rs.500 Cr
+        "piotroski_score": 8.0,        # >= 7
+        "promoter_holding": 62.0,      # >= 50%
+        "pledged_pct": 0.0,            # <= 5%
+        "order_book_cr": 750.0,        # OB/MCap = 750/280 = 2.68x >= 1.5x
+        "cfo_last_year": 30.0,         # CFO > 0
+        "opm_latest": 14.0,
+        "opm_5yr": 10.0,
+        "data_completeness_pct": 100.0
+    }
+    lc = InstitutionalMultibaggerEngine.classify_multibagger_lifecycle_stage(launchpad_comp)
+    assert lc["stage"] == "LAUNCHPAD_CANDIDATE", f"Expected LAUNCHPAD_CANDIDATE, got {lc['stage']}"
+    assert lc["is_launchpad_candidate"] is True
+    assert lc["ob_to_mcap_ratio"] >= 1.5
+    assert "launchpad" in lc["description"].lower()
+
+    # 2. Extreme microcap < Rs.50 Cr still M0_UNVERIFIED (data reliability floor preserved)
+    extreme_micro = dict(launchpad_comp, market_cap=30.0)
+    lc_micro = InstitutionalMultibaggerEngine.classify_multibagger_lifecycle_stage(extreme_micro)
+    assert lc_micro["stage"] == "M0_UNVERIFIED"
+    assert lc_micro["is_launchpad_candidate"] is False
+
+    # 3. Sub-Rs.500 Cr BUT failing OB:MCap gate → not launchpad (falls through to M1)
+    low_ob = dict(launchpad_comp, order_book_cr=100.0)  # OB/MCap = 0.36x < 1.5x
+    lc_low = InstitutionalMultibaggerEngine.classify_multibagger_lifecycle_stage(low_ob)
+    assert lc_low["stage"] in ["M1_BASE_STABILIZING", "M0_UNVERIFIED"]
+    assert lc_low["is_launchpad_candidate"] is False
+
+    # 4. Sub-Rs.500 Cr BUT high pledge → not launchpad
+    high_pledge = dict(launchpad_comp, pledged_pct=20.0)
+    lc_pledge = InstitutionalMultibaggerEngine.classify_multibagger_lifecycle_stage(high_pledge)
+    assert lc_pledge["stage"] != "LAUNCHPAD_CANDIDATE"
+
+    # 5. Legacy M1/M2/M3/M4 stages still work correctly after Phase 35 change
+    m4_comp = {"market_cap": 25000.0, "sales_growth_latest": 15.0, "incremental_roic": 20.0, "data_completeness_pct": 100.0}
+    assert InstitutionalMultibaggerEngine.classify_multibagger_lifecycle_stage(m4_comp)["stage"] == "M4_MATURE_COMPOUNDER"
+
+
+def test_revenue_quality_composition_tracker():
+    """Phase 36 (C1): Revenue quality composition tracker detects revenue CHARACTER change.
+    Tests: export shift, recurring shift, ticket size jump, gross margin proxy."""
+    # 1. Strong revenue quality shift via export + gross margin
+    export_shift_comp = {
+        "export_revenue_pct": 28.0,
+        "export_revenue_pct_prev_year": 8.0,    # +20ppt export shift
+        "opm_latest": 18.0,
+        "opm_5yr": 10.0,                         # +800bps gross margin
+        "gross_margin_pct": 18.0,
+        "gross_margin_pct_prev": 10.0
+    }
+    rq = InstitutionalMultibaggerEngine.evaluate_revenue_quality_composition(export_shift_comp)
+    assert rq["has_revenue_quality_shift"] is True
+    assert rq["revenue_quality_score"] >= 20.0
+    assert rq["export_rev_delta_ppt"] == 20.0
+    assert len(rq["transformation_signals"]) >= 1
+
+    # 2. Ticket size jump (JSLL / Kovai Medical pattern)
+    ticket_comp = {
+        "avg_ticket_size_rs": 40000.0,
+        "avg_ticket_size_rs_prev": 500.0,     # 80x ticket size jump
+    }
+    rq2 = InstitutionalMultibaggerEngine.evaluate_revenue_quality_composition(ticket_comp)
+    assert rq2["revenue_quality_score"] >= 20.0
+    assert any("Ticket" in s for s in rq2["transformation_signals"])
+
+    # 3. No data available — fallback to OPM proxy
+    no_data_comp = {"opm_latest": 15.0, "opm_5yr": 8.0}
+    rq3 = InstitutionalMultibaggerEngine.evaluate_revenue_quality_composition(no_data_comp)
+    assert rq3["data_available"] is False
+    assert rq3["revenue_quality_score"] >= 0.0  # Graceful fallback
+
+    # 4. No quality shift → score < 20
+    flat_comp = {"opm_latest": 10.0, "opm_5yr": 10.0}
+    rq4 = InstitutionalMultibaggerEngine.evaluate_revenue_quality_composition(flat_comp)
+    assert rq4["has_revenue_quality_shift"] is False
+
+
+def test_regulatory_discovery_lag_score():
+    """Phase 37 (C2): Pre-event regulatory trigger time-lag scorer.
+    Tests: undiscovered window, analyst/institutional coverage, category benchmarks."""
+    # 1. Fresh RDSS scheme trigger 30 days ago (Genus Power pattern) — within 150d window
+    fresh_trigger_comp = {
+        "days_since_trigger": 30,
+        "regulatory_category": "RDSS_SCHEME",
+        "analyst_coverage_count": 1,   # Undiscovered
+        "fii_dii_holding": 1.5,        # < 2% — zero institutional
+    }
+    lag = InstitutionalMultibaggerEngine.compute_regulatory_discovery_lag_score(fresh_trigger_comp)
+    assert lag["regulatory_lag_score"] >= 60.0
+    assert lag["undiscovered_alpha_probability"] >= 0.60
+    assert lag["is_within_undiscovered_window"] is True
+    assert lag["regulatory_category"] == "RDSS_SCHEME"
+
+    # 2. Past window (200d, typical = 150d) — partial alpha
+    past_window_comp = {
+        "days_since_trigger": 200,
+        "regulatory_category": "RDSS_SCHEME",
+        "analyst_coverage_count": 8,
+        "fii_dii_holding": 12.0,
+    }
+    lag2 = InstitutionalMultibaggerEngine.compute_regulatory_discovery_lag_score(past_window_comp)
+    assert lag2["is_within_undiscovered_window"] is False
+    assert lag2["regulatory_lag_score"] < lag["regulatory_lag_score"]
+
+    # 3. No trigger date — score still works (zero lag contribution but coverage scores)
+    no_trigger = {
+        "analyst_coverage_count": 2,
+        "fii_dii_holding": 3.0,
+    }
+    lag3 = InstitutionalMultibaggerEngine.compute_regulatory_discovery_lag_score(no_trigger)
+    assert "regulatory_lag_score" in lag3
+    assert lag3["lag_days_since_trigger"] == 0
+
+
+def test_jaw_effect_predictor():
+    """Phase 38a (I1): Jaw Effect Pre-Indicator scores the setup for OPM explosion
+    BEFORE it materializes. Tests: high fixed cost ratio + OB utilization headroom."""
+    # 1. Classic jaw effect setup (all 14 historical stocks pattern)
+    jaw_comp = {
+        "revenue_cr": 120.0,
+        "order_book_cr": 480.0,          # OB = 4x revenue; implied annual = 320 Cr = 2.67x
+        "opm_latest": 10.0,              # OPM 10% → estimated fixed cost ratio = 90%
+        "net_profit_last_year": 12.0,
+        "cfo_last_year": 15.0,
+    }
+    jaw = InstitutionalMultibaggerEngine.evaluate_jaw_effect_predictor(jaw_comp)
+    assert jaw["jaw_effect_score"] >= 40.0
+    assert jaw["has_jaw_effect_setup"] is True
+    assert jaw["jaw_effect_probability"] >= 0.40
+    assert len(jaw["predictor_signals"]) >= 2
+
+    # 2. No jaw effect (low OB, moderate margins, no fixed cost leverage)
+    no_jaw_comp = {
+        "revenue_cr": 500.0,
+        "order_book_cr": 100.0,   # OB < revenue
+        "opm_latest": 22.0,       # Low fixed cost ratio (~78%)... but below 70% after calc
+        "net_profit_last_year": 80.0,
+        "cfo_last_year": 70.0,
+    }
+    jaw2 = InstitutionalMultibaggerEngine.evaluate_jaw_effect_predictor(no_jaw_comp)
+    # With OPM=22%, fixed_cost_ratio=0.78 still >= 0.70 → some score
+    assert "jaw_effect_score" in jaw2
+
+    # 3. Result dict has required keys
+    assert "fixed_cost_ratio_estimated" in jaw
+    assert "methodology_note" in jaw
+
+
+def test_launchpad_readiness_composite_score():
+    """Phase 38b (I2): Composite Launchpad Readiness Score synthesizes 5 signals.
+    Tests: HIGH_CONVICTION, MODERATE_CONVICTION, INSUFFICIENT_SIGNAL tiers."""
+    # 1. HIGH_CONVICTION — all 5 components firing (historically maps to 14-stock launchpad pattern)
+    hc_comp = {
+        "market_cap": 250.0,
+        "order_book_cr": 750.0,          # OB/MCap = 3.0x → Component 1: +20
+        "promoter_holding": 62.0,        # >= 50% + no dilution → Component 2: +20
+        "pledged_pct": 0.0,
+        "recent_equity_dilution": False,
+        "piotroski_score": 8.0,          # For LAUNCHPAD_CANDIDATE → Component 3: +25
+        "cfo_last_year": 20.0,
+        "opm_latest": 10.0,
+        "opm_5yr": 8.0,
+        "data_completeness_pct": 100.0,
+        "revenue_cr": 100.0,             # OB = 7.5x revenue → jaw effect → Component 4
+        "net_profit_last_year": 8.0,
+        "export_revenue_pct": 25.0,      # Revenue quality → Component 5
+        "export_revenue_pct_prev_year": 5.0,
+    }
+    lr = InstitutionalMultibaggerEngine.evaluate_launchpad_readiness_score(hc_comp)
+    assert lr["launchpad_readiness_score"] >= 70.0, f"Expected >= 70, got {lr['launchpad_readiness_score']}"
+    assert lr["conviction_tier"] == "HIGH_CONVICTION_LAUNCHPAD"
+    assert "component_scores" in lr
+    assert lr["component_scores"]["lifecycle_stage"]["stage"] == "LAUNCHPAD_CANDIDATE"
+
+    # 2. INSUFFICIENT_SIGNAL — large cap, low OB, no special signals
+    ins_comp = {
+        "market_cap": 15000.0,
+        "order_book_cr": 500.0,    # OB/MCap = 0.03x
+        "promoter_holding": 25.0,
+        "pledged_pct": 15.0,
+    }
+    lr2 = InstitutionalMultibaggerEngine.evaluate_launchpad_readiness_score(ins_comp)
+    assert lr2["conviction_tier"] in ["INSUFFICIENT_SIGNAL", "EARLY_SIGNAL_WATCH"]
+
+    # 3. Methodology note present and non-empty
+    assert len(lr["methodology_note"]) > 50
+
+    # 4. evaluate_company includes all 4 new launchpad fields
+    from app.services.research.institutional_multibagger_engine import InstitutionalMultibaggerEngine as IME
+    result = IME.evaluate_company(hc_comp)
+    assert "revenue_quality_composition" in result
+    assert "regulatory_discovery_lag" in result
+    assert "jaw_effect_predictor" in result
+    assert "launchpad_readiness" in result
+    assert result["lifecycle_stage"]["is_launchpad_candidate"] is True

@@ -1397,6 +1397,119 @@ class YouTubeAnalyzeResponse(BaseModel):
     error: Optional[str] = None
 
 
+# ── Phase 139: MAP-Rank — Multi-Asset Pareto Ranking Engine ───────────────────
+
+class MultiAssetRankRequest(BaseModel):
+    """Request model for MAP-Rank cross-sectional Pareto ranking of N candidate stocks."""
+    symbols: List[str] = Field(
+        ..., min_length=2, max_length=50,
+        description="2–50 NSE/BSE ticker symbols to rank simultaneously"
+    )
+    intent: Optional[str] = Field(
+        default=None,
+        description="Optional archetype intent (e.g. MULTIBAGGER, SIP_COMPOUNDER, TURNAROUND, SWING_3D)"
+    )
+    top_n: Optional[int] = Field(
+        default=None, ge=1,
+        description="Return only the top-N ranked stocks. Omit to return all."
+    )
+
+
+class MAPRankEntry(BaseModel):
+    """Single ranked stock entry from the MAP-Rank Pareto tournament."""
+    symbol: str
+    pareto_rank: int = Field(description="Cross-sectional rank (1 = best)")
+    composite_score: float = Field(description="Weighted composite MAP score [0, 100]")
+    solvency_score: float
+    cash_quality_score: float
+    valuation_headroom_score: float
+    geopolitical_moat_score: float
+    caqi: Optional[float] = Field(default=None, description="Cash Accrual Quality Index = CFO_TTM / PAT_TTM")
+    caqi_gate: str = Field(default="PASS", description="PASS | FAIL | DATA_UNAVAILABLE")
+    deme_hr: Optional[float] = Field(default=None, description="DEME-HR = Sector P/E Ceiling / Current Trailing P/E")
+    deme_hr_verdict: str = Field(default="FAIR_VALUE", description="UNDERVALUED | FAIR_VALUE | VALUATION_CONSTRAINED | DATA_UNAVAILABLE")
+    archetype: Optional[str] = None
+    confidence_label: Optional[str] = None
+    risk_flags: List[str] = Field(default_factory=list)
+
+
+class MultiAssetRankResponse(BaseModel):
+    """MAP-Rank cross-sectional Pareto tournament result."""
+    status: str
+    intent: Optional[str] = None
+    total_candidates: int
+    ranked: List[MAPRankEntry]
+    methodology: str = Field(
+        default="Pareto 4-Dimension: Solvency × CashQuality × ValuationHeadroom × GeopoliticalMoat"
+    )
+    executed_at: str
+    meta: MetaHeader
+
+
+# ── Phase 139: β_geo Shock Matrix — Vectorized Geopolitical Sensitivity ───────
+
+class GeoShockSensitivityResponse(BaseModel):
+    """Asset-level β_geo sensitivity vector across 5 global shock scenarios."""
+    symbol: str
+    sector: str
+    beta_crude_spike: float = Field(description="Sensitivity to Crude Oil Spike (+30%)")
+    beta_maritime_chokepoint: float = Field(description="Sensitivity to Maritime Chokepoint disruption (Strait of Hormuz/Red Sea)")
+    beta_china_dumping: float = Field(description="Sensitivity to China export dumping pressure")
+    beta_grid_hardware_deficit: float = Field(description="Sensitivity to global grid hardware / transformer deficit")
+    beta_us_rate_hike: float = Field(description="Sensitivity to US interest rate hike (+100bps)")
+    aggregate_geo_beta: float = Field(description="Equal-weighted aggregate of 5 betas")
+    dominant_shock: str = Field(description="The scenario with maximum absolute beta impact")
+    verdict: str = Field(description="GEO_TAILWIND | GEO_NEUTRAL | GEO_HEADWIND | GEO_CRITICAL")
+    evidence: List[str] = Field(default_factory=list)
+    executed_at: str
+    meta: MetaHeader
+
+
+# ── Phase 139: Multimodal Watchlist Bridge ────────────────────────────────────
+
+class MultimodalWatchlistRequest(BaseModel):
+    """Request model for image-uploaded brokerage watchlist OCR → Arbiter pipeline."""
+    image_base64: Optional[str] = Field(
+        default=None,
+        description="Base64-encoded image of a brokerage watchlist screenshot (PNG/JPEG)"
+    )
+    raw_symbols: Optional[List[str]] = Field(
+        default=None,
+        description="Optional list of symbols if already parsed (skips OCR step)"
+    )
+    intent: Optional[str] = Field(
+        default=None,
+        description="Investment intent archetype for all symbols (e.g. MULTIBAGGER, SIP_COMPOUNDER)"
+    )
+
+
+class WatchlistAuditEntry(BaseModel):
+    """Arbiter audit result for a single symbol from the watchlist."""
+    symbol: str
+    verdict: str
+    conviction_score: Optional[float] = None
+    archetype: Optional[str] = None
+    risk_flags: List[str] = Field(default_factory=list)
+    caqi: Optional[float] = None
+    caqi_gate: str = Field(default="DATA_UNAVAILABLE")
+    deme_hr: Optional[float] = None
+    deme_hr_verdict: str = Field(default="DATA_UNAVAILABLE")
+    pareto_rank: Optional[int] = None
+    error: Optional[str] = None
+
+
+class MultimodalWatchlistResponse(BaseModel):
+    """Full Multimodal Watchlist Bridge audit response."""
+    status: str
+    ocr_symbols_detected: List[str] = Field(default_factory=list)
+    total_audited: int
+    intent: Optional[str] = None
+    audit_results: List[WatchlistAuditEntry] = Field(default_factory=list)
+    map_rank_summary: Optional[List[MAPRankEntry]] = None
+    executed_at: str
+    meta: MetaHeader
+
+
 
 
 

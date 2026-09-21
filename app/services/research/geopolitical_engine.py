@@ -286,3 +286,126 @@ def evaluate_geopolitical_risk(
         "evidence": evidence,
         "meta": create_meta_header(source=f"Phase 3 MacroGeopoliticalOverlay ({norm_symbol})")
     }
+
+
+# ── Phase 139: β_geo Vectorized Geopolitical Shock Sensitivity Matrix ──────────
+# Asset-level sensitivity vectors across 5 global shock scenarios.
+# Beta convention: +1.0 = full tailwind, -1.0 = full headwind per unit shock magnitude.
+
+# Sector-level β_geo matrix [Crude Spike, Maritime Chokepoint, China Dumping, Grid Hardware Deficit, US Rate Hike]
+# Values are β multipliers: positive = tailwind, negative = headwind (scaled -1.0 to +1.0)
+_GEO_SHOCK_BETA_MATRIX: Dict[str, Dict[str, float]] = {
+    # (Crude Spike +30%, Maritime Chokepoint, China Dumping, Grid HW Deficit, US +100bps)
+    "OIL_GAS":          {"crude": +0.80, "maritime": -0.60, "china_dump": +0.10, "grid_hw": -0.10, "us_rate": -0.20},
+    "REFINING":         {"crude": -0.50, "maritime": -0.30, "china_dump": +0.05, "grid_hw": -0.05, "us_rate": -0.15},
+    "SHIPPING":         {"crude": -0.30, "maritime": -0.90, "china_dump": -0.10, "grid_hw": -0.05, "us_rate": -0.10},
+    "LOGISTICS":        {"crude": -0.20, "maritime": -0.50, "china_dump": -0.10, "grid_hw": -0.05, "us_rate": -0.05},
+    "PAINTS":           {"crude": -0.60, "maritime": -0.10, "china_dump": -0.15, "grid_hw": -0.05, "us_rate": -0.10},
+    "CHEMICALS":        {"crude": -0.40, "maritime": -0.15, "china_dump": -0.20, "grid_hw": -0.05, "us_rate": -0.10},
+    "METALS":           {"crude": -0.15, "maritime": -0.20, "china_dump": -0.70, "grid_hw": +0.20, "us_rate": -0.25},
+    "MINING":           {"crude": -0.10, "maritime": -0.15, "china_dump": -0.50, "grid_hw": +0.25, "us_rate": -0.20},
+    "IT":               {"crude": +0.05, "maritime": +0.00, "china_dump": +0.10, "grid_hw": -0.05, "us_rate": -0.40},
+    "SOFTWARE":         {"crude": +0.05, "maritime": +0.00, "china_dump": +0.10, "grid_hw": -0.05, "us_rate": -0.40},
+    "BANKING":          {"crude": -0.20, "maritime": -0.05, "china_dump": -0.10, "grid_hw": -0.05, "us_rate": -0.55},
+    "NBFC":             {"crude": -0.15, "maritime": -0.05, "china_dump": -0.05, "grid_hw": -0.05, "us_rate": -0.50},
+    "DEFENSE":          {"crude": -0.05, "maritime": +0.10, "china_dump": +0.10, "grid_hw": +0.30, "us_rate": -0.05},
+    "HEAVY_ENGINEERING":{"crude": -0.10, "maritime": +0.05, "china_dump": -0.20, "grid_hw": +0.50, "us_rate": -0.10},
+    "CAPITAL_GOODS":    {"crude": -0.10, "maritime": +0.05, "china_dump": -0.15, "grid_hw": +0.45, "us_rate": -0.10},
+    "RENEWABLE":        {"crude": +0.30, "maritime": -0.05, "china_dump": -0.20, "grid_hw": +0.70, "us_rate": -0.10},
+    "POWER":            {"crude": -0.10, "maritime": -0.05, "china_dump": -0.10, "grid_hw": +0.40, "us_rate": -0.10},
+    "TRANSFORMERS":     {"crude": -0.05, "maritime": -0.05, "china_dump": -0.15, "grid_hw": +0.85, "us_rate": -0.05},
+    "PHARMA":           {"crude": -0.10, "maritime": -0.10, "china_dump": -0.15, "grid_hw": -0.05, "us_rate": -0.15},
+    "FMCG":             {"crude": -0.20, "maritime": -0.05, "china_dump": -0.10, "grid_hw": -0.05, "us_rate": -0.15},
+    "CONSUMER":         {"crude": -0.15, "maritime": -0.05, "china_dump": -0.10, "grid_hw": -0.05, "us_rate": -0.20},
+    "AUTO":             {"crude": -0.30, "maritime": -0.10, "china_dump": -0.20, "grid_hw": -0.10, "us_rate": -0.20},
+    "AUTO_ANCILLARY":   {"crude": -0.20, "maritime": -0.10, "china_dump": -0.25, "grid_hw": -0.10, "us_rate": -0.15},
+    "CEMENT":           {"crude": -0.15, "maritime": -0.05, "china_dump": -0.10, "grid_hw": -0.05, "us_rate": -0.20},
+    "REAL_ESTATE":      {"crude": -0.15, "maritime": -0.05, "china_dump": -0.05, "grid_hw": -0.05, "us_rate": -0.40},
+    "TEXTILES":         {"crude": -0.10, "maritime": -0.15, "china_dump": -0.30, "grid_hw": -0.05, "us_rate": -0.10},
+    "AGRI":             {"crude": -0.15, "maritime": -0.10, "china_dump": -0.10, "grid_hw": -0.05, "us_rate": -0.10},
+    "DIVERSIFIED":      {"crude": -0.10, "maritime": -0.05, "china_dump": -0.10, "grid_hw": +0.05, "us_rate": -0.20},
+}
+
+_DEFAULT_GEO_BETA: Dict[str, float] = {
+    "crude": -0.10, "maritime": -0.05, "china_dump": -0.10, "grid_hw": +0.05, "us_rate": -0.20
+}
+
+
+def compute_geo_shock_sensitivity(
+    symbol: str,
+    sector: Optional[str] = None,
+) -> Dict[str, Any]:
+    """Compute vectorized β_geo geopolitical shock sensitivity for a single asset.
+
+    Returns 5 scenario betas and aggregate geo-beta verdict.
+    Beta convention: positive = tailwind, negative = headwind.
+    Magnitude: |β| in [0.0, 1.0]. Equal-weighted aggregate over 5 shocks.
+
+    Shock scenarios:
+      1. Crude Oil Spike +30% (Brent from $85 → $110)
+      2. Maritime Chokepoint (Strait of Hormuz / Red Sea blockade)
+      3. China Export Dumping (steel, chemicals, solar panels)
+      4. Grid Hardware Deficit (transformer / semiconductor shortages)
+      5. US Interest Rate Hike +100bps (Fed funds target increase)
+    """
+    norm_symbol = normalize_symbol(symbol)
+    sector_key = str(sector or "DIVERSIFIED").upper().replace(" ", "_")
+
+    # Ticker-level override: pull sector from TICKER_GEOPOLITICAL_OVERLAYS if available
+    if norm_symbol in TICKER_GEOPOLITICAL_OVERLAYS:
+        sector_key = TICKER_GEOPOLITICAL_OVERLAYS[norm_symbol].get("sector", sector_key).upper()
+
+    betas = _GEO_SHOCK_BETA_MATRIX.get(sector_key, _DEFAULT_GEO_BETA)
+
+    b_crude = betas["crude"]
+    b_maritime = betas["maritime"]
+    b_china = betas["china_dump"]
+    b_grid = betas["grid_hw"]
+    b_us_rate = betas["us_rate"]
+
+    aggregate = round((b_crude + b_maritime + b_china + b_grid + b_us_rate) / 5.0, 4)
+
+    # Dominant shock: scenario with maximum absolute impact
+    shock_map = {
+        "CRUDE_SPIKE_30PCT": b_crude,
+        "MARITIME_CHOKEPOINT": b_maritime,
+        "CHINA_DUMPING": b_china,
+        "GRID_HARDWARE_DEFICIT": b_grid,
+        "US_RATE_HIKE_100BPS": b_us_rate,
+    }
+    dominant_shock = max(shock_map, key=lambda k: abs(shock_map[k]))
+
+    # Verdict classification
+    if aggregate >= 0.15:
+        verdict = "GEO_TAILWIND"
+    elif aggregate >= -0.05:
+        verdict = "GEO_NEUTRAL"
+    elif aggregate >= -0.25:
+        verdict = "GEO_HEADWIND"
+    else:
+        verdict = "GEO_CRITICAL"
+
+    evidence: List[str] = [
+        f"β_crude_spike = {b_crude:+.2f} | β_maritime = {b_maritime:+.2f} | β_china_dumping = {b_china:+.2f}",
+        f"β_grid_hw_deficit = {b_grid:+.2f} | β_us_rate_hike = {b_us_rate:+.2f}",
+        f"Aggregate β_geo = {aggregate:+.4f} → {verdict}",
+        f"Dominant shock scenario: {dominant_shock} (β = {shock_map[dominant_shock]:+.2f})",
+        f"Sector key used: {sector_key}",
+    ]
+
+    return {
+        "symbol": norm_symbol,
+        "sector": sector_key,
+        "beta_crude_spike": b_crude,
+        "beta_maritime_chokepoint": b_maritime,
+        "beta_china_dumping": b_china,
+        "beta_grid_hardware_deficit": b_grid,
+        "beta_us_rate_hike": b_us_rate,
+        "aggregate_geo_beta": aggregate,
+        "dominant_shock": dominant_shock,
+        "verdict": verdict,
+        "evidence": evidence,
+        "executed_at": get_ist_now_str(),
+        "meta": create_meta_header(source=f"Phase 139 β_geo ShockMatrix ({norm_symbol})")
+    }
+
