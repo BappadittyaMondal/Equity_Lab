@@ -8,8 +8,10 @@ are found in the point-in-time observation store, emits explicit DATA_UNAVAILABL
 """
 
 import logging
+import math
 from datetime import datetime
 from typing import Any, Dict, List, Optional
+from pydantic import BaseModel, Field
 
 from app.services.market_data import normalize_symbol, create_meta_header, get_ist_now_str
 from app.services.research_data import ResearchDataStore
@@ -26,6 +28,8 @@ SECTOR_GEOPOLITICAL_SENSITIVITIES: Dict[str, Dict[str, Any]] = {
     "IT": {"primary_risk": "US_BUDGET_FREEZE", "sensitivity": "HIGH", "overlay_pct": -20.0, "overlay_type": "MACRO_RISK_PENALTY", "reason": "Vulnerable to US corporate budget cuts, GenAI billing deflation & visa restrictions"},
     "SOFTWARE": {"primary_risk": "US_BUDGET_FREEZE", "sensitivity": "HIGH", "overlay_pct": -20.0, "overlay_type": "MACRO_RISK_PENALTY", "reason": "Vulnerable to US corporate budget cuts & GenAI billing deflation"},
     "SHIPPING": {"primary_risk": "TRADE_BOTTLENECK", "sensitivity": "CRITICAL", "overlay_pct": -10.0, "overlay_type": "VOLATILITY_INDEX", "reason": "Sensitive to Middle East trade bottlenecks & freight rate spikes"},
+    "SHIPPING_TANKERS": {"primary_risk": "TON_MILE_EXPANSION", "sensitivity": "HIGH", "overlay_pct": 15.0, "overlay_type": "TAILWIND_PREMIUM", "reason": "Crude/product tanker day-charter rate surge from Cape of Good Hope rerouting & ton-mile demand expansion"},
+    "CONTAINER_CARGO": {"primary_risk": "TRADE_BOTTLENECK", "sensitivity": "CRITICAL", "overlay_pct": -10.0, "overlay_type": "VOLATILITY_INDEX", "reason": "Sensitive to Middle East trade bottlenecks & unhedged demurrage risk"},
     "LOGISTICS": {"primary_risk": "TRADE_BOTTLENECK", "sensitivity": "HIGH", "overlay_pct": -10.0, "overlay_type": "VOLATILITY_INDEX", "reason": "Sensitive to geopolitical trade route bottlenecks"},
     "OIL_GAS": {"primary_risk": "CRUDE_OIL_SHOCK", "sensitivity": "CRITICAL", "overlay_pct": -15.0, "overlay_type": "COMMODITY_SHOCK", "reason": "High crude oil price volatility & refining margin risk"},
     "PAINTS": {"primary_risk": "CRUDE_OIL_SHOCK", "sensitivity": "HIGH", "overlay_pct": -10.0, "overlay_type": "COMMODITY_SHOCK", "reason": "Crude derivative input cost inflation risk"},
@@ -100,7 +104,9 @@ def calculate_dynamic_geographic_overlay(
 
     # 4. Middle East & Red Sea Transit Corridor
     me_share = norm_split.get("middle_east", 0.0) + norm_split.get("red_sea", 0.0) + norm_split.get("shipping_corridor", 0.0)
-    if sec in ("SHIPPING", "LOGISTICS"):
+    if sec in ("SHIPPING_TANKERS", "TANKERS"):
+        corridor_impacts["middle_east_red_sea"] = me_share * (+15.0)
+    elif sec in ("SHIPPING", "LOGISTICS", "CONTAINER_CARGO"):
         corridor_impacts["middle_east_red_sea"] = me_share * (-15.0)
     elif sec in ("OIL_GAS",):
         corridor_impacts["middle_east_red_sea"] = me_share * (-12.0)
@@ -148,8 +154,10 @@ def evaluate_geopolitical_risk(
     store: Optional[ResearchDataStore] = None,
     geographic_split: Optional[Dict[str, float]] = None,
     sector: Optional[str] = None,
+    sub_segment: Optional[str] = None,
+    pdlr: Optional[float] = None,
 ) -> Dict[str, Any]:
-    """Evaluate geopolitical and macro-economic event risks (Phase 3 Enhanced)."""
+    """Evaluate geopolitical and macro-economic event risks (Phase 3 & Phase 140 Enhanced)."""
     norm_symbol = normalize_symbol(symbol)
     data_store = store or ResearchDataStore()
 
@@ -174,7 +182,9 @@ def evaluate_geopolitical_risk(
 
     # Resolve sector
     detected_sector = (sector or getattr(company, "sector", "UNKNOWN")).upper() if (company or sector) else "UNKNOWN"
-    if detected_sector == "UNKNOWN" and ticker_overlay:
+    if sub_segment and str(sub_segment).upper() in ("TANKERS", "SHIPPING_TANKERS", "CRUDE_TANKER", "PRODUCT_TANKER"):
+        detected_sector = "SHIPPING_TANKERS"
+    elif detected_sector == "UNKNOWN" and ticker_overlay:
         detected_sector = ticker_overlay.get("sector", "UNKNOWN").upper()
     if detected_sector == "UNKNOWN":
         if any(t in clean_symbol for t in ("INFY", "TCS", "WIPRO", "HCLTECH", "LTIM", "COFORGE", "PERSISTENT")):
@@ -213,6 +223,12 @@ def evaluate_geopolitical_risk(
         overlay_reason = geo_res["reason"]
         sector_name = sector
         geographic_breakdown = geo_res.get("corridor_breakdown")
+    elif sub_segment and str(sub_segment).upper() in ("TANKERS", "SHIPPING_TANKERS", "CRUDE_TANKER", "PRODUCT_TANKER"):
+        sec_prof = SECTOR_GEOPOLITICAL_SENSITIVITIES["SHIPPING_TANKERS"]
+        overlay_pct = sec_prof["overlay_pct"]
+        overlay_type = sec_prof["overlay_type"]
+        overlay_reason = sec_prof["reason"]
+        sector_name = "SHIPPING_TANKERS"
     elif ticker_overlay:
         overlay_pct = ticker_overlay["overlay_pct"]
         overlay_type = ticker_overlay["overlay_type"]
@@ -257,27 +273,37 @@ def evaluate_geopolitical_risk(
     # Add overlay evidence
     evidence.append(f"Phase 3 MacroGeopoliticalOverlay: {overlay_type} ({overlay_pct:+.1f}%) — {overlay_reason}")
 
-    # Determine Macro Risk Rating
-    if overlay_pct <= -15.0:
+    # Determine Macro Risk Rating & Apply PDLR Gate if supplied
+    pdlr_gate_data = None
+    if pdlr is not None:
+        pdlr_res = evaluate_physical_disruption_gate(pdlr=pdlr, raw_overlay_pct=overlay_pct, sector=sector_name)
+        effective_pct = pdlr_res["effective_overlay_pct"]
+        pdlr_gate_data = pdlr_res
+        evidence.append(f"Phase 140 PDLR Gate: {pdlr_res['classification']} (PDLR={pdlr:.2f}) → Effective Overlay {effective_pct:+.1f}%")
+    else:
+        effective_pct = overlay_pct
+
+    if effective_pct <= -15.0:
         macro_risk_rating = "HIGH"
-        conviction_penalty_pct = abs(overlay_pct)
-    elif overlay_pct < 0.0:
+        conviction_penalty_pct = abs(effective_pct)
+    elif effective_pct < 0.0:
         macro_risk_rating = "MODERATE"
-        conviction_penalty_pct = abs(overlay_pct)
-    elif overlay_pct > 0.0:
+        conviction_penalty_pct = abs(effective_pct)
+    elif effective_pct > 0.0:
         macro_risk_rating = "LOW"
         conviction_penalty_pct = 0.0  # Premium awarded
     else:
         macro_risk_rating = "LOW"
         conviction_penalty_pct = 0.0
 
-    return {
+    res_dict = {
         "symbol": norm_symbol,
         "status": "PRODUCTION",
         "executed_at": get_ist_now_str(),
         "sector": sector_name,
         "macro_risk_rating": macro_risk_rating,
         "overlay_pct": overlay_pct,
+        "effective_overlay_pct": effective_pct,
         "overlay_type": overlay_type,
         "overlay_reason": overlay_reason,
         "active_triggers": active_triggers,
@@ -286,6 +312,11 @@ def evaluate_geopolitical_risk(
         "evidence": evidence,
         "meta": create_meta_header(source=f"Phase 3 MacroGeopoliticalOverlay ({norm_symbol})")
     }
+    if pdlr_gate_data:
+        res_dict["pdlr_gate"] = pdlr_gate_data
+
+    return res_dict
+
 
 
 # ── Phase 139: β_geo Vectorized Geopolitical Shock Sensitivity Matrix ──────────
@@ -299,6 +330,8 @@ _GEO_SHOCK_BETA_MATRIX: Dict[str, Dict[str, float]] = {
     "OIL_GAS":          {"crude": +0.80, "maritime": -0.60, "china_dump": +0.10, "grid_hw": -0.10, "us_rate": -0.20},
     "REFINING":         {"crude": -0.50, "maritime": -0.30, "china_dump": +0.05, "grid_hw": -0.05, "us_rate": -0.15},
     "SHIPPING":         {"crude": -0.30, "maritime": -0.90, "china_dump": -0.10, "grid_hw": -0.05, "us_rate": -0.10},
+    "SHIPPING_TANKERS": {"crude": +0.50, "maritime": +0.85, "china_dump": -0.05, "grid_hw": -0.05, "us_rate": -0.10},
+    "CONTAINER_CARGO":  {"crude": -0.40, "maritime": -0.90, "china_dump": -0.15, "grid_hw": -0.05, "us_rate": -0.10},
     "LOGISTICS":        {"crude": -0.20, "maritime": -0.50, "china_dump": -0.10, "grid_hw": -0.05, "us_rate": -0.05},
     "PAINTS":           {"crude": -0.60, "maritime": -0.10, "china_dump": -0.15, "grid_hw": -0.05, "us_rate": -0.10},
     "CHEMICALS":        {"crude": -0.40, "maritime": -0.15, "china_dump": -0.20, "grid_hw": -0.05, "us_rate": -0.10},
@@ -334,6 +367,8 @@ _DEFAULT_GEO_BETA: Dict[str, float] = {
 def compute_geo_shock_sensitivity(
     symbol: str,
     sector: Optional[str] = None,
+    sub_segment: Optional[str] = None,
+    use_calibrated_matrix: bool = True,
 ) -> Dict[str, Any]:
     """Compute vectorized β_geo geopolitical shock sensitivity for a single asset.
 
@@ -351,11 +386,21 @@ def compute_geo_shock_sensitivity(
     norm_symbol = normalize_symbol(symbol)
     sector_key = str(sector or "DIVERSIFIED").upper().replace(" ", "_")
 
-    # Ticker-level override: pull sector from TICKER_GEOPOLITICAL_OVERLAYS if available
-    if norm_symbol in TICKER_GEOPOLITICAL_OVERLAYS:
+    # Tanker sub-segment routing
+    if sub_segment and str(sub_segment).upper() in ("TANKERS", "SHIPPING_TANKERS", "CRUDE_TANKER", "PRODUCT_TANKER"):
+        sector_key = "SHIPPING_TANKERS"
+    elif norm_symbol in TICKER_GEOPOLITICAL_OVERLAYS and not sector:
         sector_key = TICKER_GEOPOLITICAL_OVERLAYS[norm_symbol].get("sector", sector_key).upper()
 
-    betas = _GEO_SHOCK_BETA_MATRIX.get(sector_key, _DEFAULT_GEO_BETA)
+    active_matrix = _GEO_SHOCK_BETA_MATRIX
+    if use_calibrated_matrix:
+        try:
+            from app.services.monitoring.event_prediction_ledger import EventPredictionLedgerService
+            active_matrix = EventPredictionLedgerService.get_calibrated_beta_matrix()
+        except Exception:
+            active_matrix = _GEO_SHOCK_BETA_MATRIX
+
+    betas = active_matrix.get(sector_key, _DEFAULT_GEO_BETA)
 
     b_crude = betas["crude"]
     b_maritime = betas["maritime"]
@@ -408,4 +453,190 @@ def compute_geo_shock_sensitivity(
         "executed_at": get_ist_now_str(),
         "meta": create_meta_header(source=f"Phase 139 β_geo ShockMatrix ({norm_symbol})")
     }
+
+
+# ── Phase 140: Pre-Event Weak Signal (PEWS) & Physical Disruption Gate (PDLR) ──
+
+class PreEventSignal(BaseModel):
+    """Container for an observed geopolitical leading indicator / weak signal."""
+    signal_type: str  # AIRSPACE_NOTAM_CLOSURE, AIS_TRANSPONDER_DARK, DIPLOMATIC_SCHEDULE_COLLAPSE, CRUDE_CALL_SKEW_SPIKE, SOVEREIGN_FX_SWAP_EMERGENCY, LEADER_SIGNALLING_ANOMALY
+    intensity: float = 1.0  # Normalized intensity [0.0, 1.0]
+    likelihood_ratio: Optional[float] = None  # Likelihood ratio P(S|Event)/P(S|¬Event)
+    confidence: float = 1.0  # Observation confidence [0.0, 1.0]
+    age_hours: float = 0.0  # Elapsed hours since detection
+    theater: str = "GLOBAL"  # MIDDLE_EAST, SOUTH_ASIA, TAIWAN_STRAIT, EASTERN_EUROPE, GLOBAL
+    source_description: str = ""
+
+
+PEWS_SIGNAL_PROFILES: Dict[str, Dict[str, float]] = {
+    "AIRSPACE_NOTAM_CLOSURE": {"lr": 8.5, "half_life_hours": 36.0},
+    "AIS_TRANSPONDER_DARK": {"lr": 6.0, "half_life_hours": 24.0},
+    "DIPLOMATIC_SCHEDULE_COLLAPSE": {"lr": 4.5, "half_life_hours": 48.0},
+    "CRUDE_CALL_SKEW_SPIKE": {"lr": 5.2, "half_life_hours": 24.0},
+    "SOVEREIGN_FX_SWAP_EMERGENCY": {"lr": 3.5, "half_life_hours": 72.0},
+    "LEADER_SIGNALLING_ANOMALY": {"lr": 2.8, "half_life_hours": 48.0},
+}
+
+
+def evaluate_pre_event_weak_signals(
+    signals: List[PreEventSignal],
+    prior_probability: float = 0.10,
+    theater: str = "GLOBAL",
+) -> Dict[str, Any]:
+    """Evaluates heterogeneous weak signals via Bayesian log-odds updating.
+
+    Calculates the posterior strike/shock probability P(Event | S_1, ..., S_n)
+    before kinetic or market open reality unfolds.
+    """
+    if not signals:
+        return {
+            "status": "NO_SIGNALS_OBSERVED",
+            "pews_probability": prior_probability,
+            "imminence_rating": "BASELINE_MONITORING",
+            "log_odds_delta": 0.0,
+            "dominant_signals": [],
+            "theaters_at_risk": [theater],
+            "recommended_stance": "STATUS_QUO",
+            "executed_at": get_ist_now_str(),
+            "meta": create_meta_header(source="Phase 140 PEWS Evaluator")
+        }
+
+    # Clamped prior probability [0.01, 0.99]
+    p0 = max(0.01, min(0.99, prior_probability))
+    prior_logit = math.log(p0 / (1.0 - p0))
+
+    total_delta_logit = 0.0
+    signal_contributions = []
+
+    for s in signals:
+        stype = s.signal_type.upper()
+        prof = PEWS_SIGNAL_PROFILES.get(stype, {"lr": 2.5, "half_life_hours": 48.0})
+        lr = s.likelihood_ratio if s.likelihood_ratio is not None and s.likelihood_ratio > 0 else prof["lr"]
+        half_life = prof["half_life_hours"]
+
+        # Temporal decay: weight = 0.5^(age / half_life)
+        decay = 0.5 ** (max(0.0, s.age_hours) / max(1.0, half_life))
+        eff_weight = max(0.0, min(1.0, s.intensity)) * max(0.0, min(1.0, s.confidence)) * decay
+        delta_logit = eff_weight * math.log(max(0.1, lr))
+
+        total_delta_logit += delta_logit
+        signal_contributions.append({
+            "signal_type": stype,
+            "raw_lr": round(lr, 2),
+            "effective_weight": round(eff_weight, 3),
+            "delta_logit": round(delta_logit, 3),
+            "theater": s.theater,
+            "source_description": s.source_description,
+        })
+
+    posterior_logit = prior_logit + total_delta_logit
+    # Sigmoid posterior probability
+    try:
+        posterior_prob = 1.0 / (1.0 + math.exp(-posterior_logit))
+    except OverflowError:
+        posterior_prob = 1.0 if posterior_logit > 0 else 0.0
+    posterior_prob = round(max(0.0, min(1.0, posterior_prob)), 4)
+
+    # Imminence classification
+    if posterior_prob >= 0.80:
+        imminence = "CRITICAL_IMMINENT_INTERVENTION"
+        stance = "EXECUTE_PRE_EVENT_HEDGES"
+    elif posterior_prob >= 0.55:
+        imminence = "ELEVATED_PRE_STRIKE_PROBABILITY"
+        stance = "RAISE_CASH_AND_TACTICAL_VOLATILITY_STOPS"
+    elif posterior_prob >= 0.25:
+        imminence = "WATCHLIST_STAGE_TENSION"
+        stance = "SURVEILLANCE_ACTIVE"
+    else:
+        imminence = "BASELINE_NOISE"
+        stance = "STATUS_QUO"
+
+    # Sort dominant signals by delta_logit descending
+    dominant_signals = sorted(signal_contributions, key=lambda x: x["delta_logit"], reverse=True)
+    theaters = list(set([s.theater for s in signals if s.theater] + [theater]))
+
+    return {
+        "status": "EVALUATED",
+        "pews_probability": posterior_prob,
+        "imminence_rating": imminence,
+        "prior_probability": p0,
+        "posterior_logit": round(posterior_logit, 4),
+        "dominant_signals": dominant_signals,
+        "theaters_at_risk": theaters,
+        "recommended_stance": stance,
+        "executed_at": get_ist_now_str(),
+        "meta": create_meta_header(source="Phase 140 PEWS Evaluator")
+    }
+
+
+def evaluate_physical_disruption_gate(
+    pdlr: float,
+    raw_overlay_pct: float,
+    sector: Optional[str] = None,
+) -> Dict[str, Any]:
+    """Physical Disruption Likelihood Ratio (PDLR) Gate.
+
+    Distinguishes symbolic political rhetoric / posturing (PDLR < 0.40) from
+    actual physical supply destruction / chokepoint blockades (PDLR >= 0.40).
+
+    Rules:
+      - PDLR < 0.40 (Symbolic Theater):
+          Caps negative macro penalties to tactical volatility limit (max -3.0%).
+          Blocks Tier 1 fatal vetoes and structural portfolio liquidations.
+      - 0.40 <= PDLR < 0.70 (Elevated Friction):
+          Applies 75% damped macro overlay. Allows tactical sizing haircuts (max 15%).
+      - PDLR >= 0.70 (Physical Disruption Confirmed):
+          Enforces full structural overlay and conviction rating downgrades.
+    """
+    ratio = round(max(0.0, float(pdlr)), 4)
+    raw_pct = float(raw_overlay_pct)
+
+    if ratio < 0.40:
+        classification = "SYMBOLIC_THEATER_OR_POSTURING"
+        # Cap negative penalty to max -3.0% tactical volatility hedge; preserve positive tailwinds
+        effective_pct = max(raw_pct, -3.0) if raw_pct < 0.0 else raw_pct
+        allow_fatal_veto = False
+        allow_sizing_haircut = False
+        gate_action = "CAP_PENALTY_TO_TACTICAL_VOLATILITY"
+        thesis = (
+            f"PDLR ({ratio:.2f} < 0.40) flags political posturing/theater without verified physical "
+            f"supply destruction. Macro penalty capped at {effective_pct:+.1f}% (vs raw {raw_pct:+.1f}%). "
+            f"Fatal portfolio liquidation blocked."
+        )
+    elif ratio < 0.70:
+        classification = "ELEVATED_FRICTION_RISK"
+        effective_pct = round(raw_pct * 0.75, 2)
+        allow_fatal_veto = False
+        allow_sizing_haircut = True
+        gate_action = "DAMPED_MACRO_OVERLAY"
+        thesis = (
+            f"PDLR ({ratio:.2f}) indicates elevated friction and diplomatic tension. "
+            f"Applying 75% damped macro overlay ({effective_pct:+.1f}%). Fatal vetoes withheld."
+        )
+    else:
+        classification = "PHYSICAL_DISRUPTION_CONFIRMED"
+        effective_pct = raw_pct
+        allow_fatal_veto = True
+        allow_sizing_haircut = True
+        gate_action = "FULL_STRUCTURAL_MACRO_OVERLAY"
+        thesis = (
+            f"PDLR ({ratio:.2f} >= 0.70) confirms kinetic infrastructure strike / physical chokepoint blockade. "
+            f"Full structural macro overlay enforced ({effective_pct:+.1f}%)."
+        )
+
+    return {
+        "status": "GATED",
+        "pdlr_ratio": ratio,
+        "classification": classification,
+        "gate_action": gate_action,
+        "raw_overlay_pct": raw_pct,
+        "effective_overlay_pct": effective_pct,
+        "allow_fatal_veto": allow_fatal_veto,
+        "allow_sizing_haircut": allow_sizing_haircut,
+        "sector": sector or "UNKNOWN",
+        "thesis": thesis,
+        "executed_at": get_ist_now_str(),
+        "meta": create_meta_header(source="Phase 140 PDLR Gate")
+    }
+
 

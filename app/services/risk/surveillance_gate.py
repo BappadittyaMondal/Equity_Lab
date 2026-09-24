@@ -37,6 +37,7 @@ def evaluate_surveillance_and_cost_gate(
         return SurveillanceRiskGate(
             asm_stage="UNKNOWN",
             gsm_stage="UNKNOWN",
+            esm_stage="UNKNOWN",
             t2t_flag=False,
             fo_ban_flag=False,
             circuit_band_pct=20.0,
@@ -50,21 +51,22 @@ def evaluate_surveillance_and_cost_gate(
 
     asm_stage = str(data.get("asm_stage", "CLEAN")).upper()
     gsm_stage = str(data.get("gsm_stage", "CLEAN")).upper()
+    esm_stage = str(data.get("esm_stage", "CLEAN")).upper()
     t2t_flag = bool(data.get("t2t_flag", False))
     fo_ban_flag = bool(data.get("fo_ban_flag", False))
     circuit_band_pct = float(data.get("circuit_band_pct", 20.0))
 
-    # 1. Circuit Lock Risk Evaluation
+    # 1. Circuit Lock Risk Evaluation (SEBI ESM Stage II triggers Periodic Call Auction)
     circuit_lock_risk = "LOW"
-    if circuit_band_pct <= 5.0 or asm_stage in ["STAGE_III", "STAGE_IV"] or gsm_stage != "CLEAN" or fo_ban_flag:
-        circuit_lock_risk = "HIGH"
-    elif circuit_band_pct <= 10.0 or asm_stage in ["STAGE_I", "STAGE_II"]:
+    if circuit_band_pct <= 5.0 or asm_stage in ["STAGE_III", "STAGE_IV"] or gsm_stage != "CLEAN" or esm_stage == "STAGE_II" or fo_ban_flag:
+        circuit_lock_risk = "CRITICAL_CALL_AUCTION" if esm_stage == "STAGE_II" else "HIGH"
+    elif circuit_band_pct <= 10.0 or asm_stage in ["STAGE_I", "STAGE_II"] or esm_stage == "STAGE_I":
         circuit_lock_risk = "MODERATE"
 
-    # 2. Slippage Ceiling Calculation based on Circuit Band
-    if circuit_band_pct <= 2.0:
+    # 2. Slippage Ceiling Calculation based on Circuit Band and ESM stage
+    if circuit_band_pct <= 2.0 or esm_stage == "STAGE_II":
         slippage_ceiling = 2.0
-    elif circuit_band_pct <= 5.0:
+    elif circuit_band_pct <= 5.0 or esm_stage == "STAGE_I":
         slippage_ceiling = 1.25
     elif circuit_band_pct <= 10.0:
         slippage_ceiling = 0.65
@@ -81,10 +83,10 @@ def evaluate_surveillance_and_cost_gate(
 
     total_roundtrip_cost = round(stt_pct + stamp_duty_pct + exchange_chg_pct + sebi_fee_pct + gst_pct + dp_fee_pct, 3)
 
-    # 4. Hard Gate Veto Check
-    if asm_stage in ["STAGE_III", "STAGE_IV"] or gsm_stage in ["STAGE_II", "STAGE_III", "STAGE_IV"] or fo_ban_flag or circuit_band_pct <= 5.0:
+    # 4. Hard Gate Veto Check (ESM Stage II triggers unconditional FAIL)
+    if asm_stage in ["STAGE_III", "STAGE_IV"] or gsm_stage in ["STAGE_II", "STAGE_III", "STAGE_IV"] or esm_stage == "STAGE_II" or fo_ban_flag or circuit_band_pct <= 5.0:
         hard_gate_status = "FAIL"
-    elif asm_stage in ["STAGE_I", "STAGE_II"] or t2t_flag or circuit_band_pct <= 10.0:
+    elif asm_stage in ["STAGE_I", "STAGE_II"] or esm_stage == "STAGE_I" or t2t_flag or circuit_band_pct <= 10.0:
         hard_gate_status = "AMBER"
     else:
         hard_gate_status = "PASS"
@@ -92,6 +94,7 @@ def evaluate_surveillance_and_cost_gate(
     return SurveillanceRiskGate(
         asm_stage=asm_stage,
         gsm_stage=gsm_stage,
+        esm_stage=esm_stage,
         t2t_flag=t2t_flag,
         fo_ban_flag=fo_ban_flag,
         circuit_band_pct=circuit_band_pct,
@@ -103,9 +106,11 @@ def evaluate_surveillance_and_cost_gate(
 
 
 def is_surveillance_cleared(gate: SurveillanceRiskGate) -> bool:
-    """Checks whether the surveillance gate permits trading execution (PASS or AMBER without F&O ban).
-    Strictly fails closed on FAIL or DATA_INSUFFICIENT.
+    """Checks whether the surveillance gate permits trading execution (PASS or AMBER without F&O ban or ESM Stage II).
+    Strictly fails closed on FAIL, DATA_INSUFFICIENT, or ESM Stage II.
     """
     if gate is None:
+        return False
+    if getattr(gate, "esm_stage", "CLEAN") == "STAGE_II":
         return False
     return getattr(gate, "is_cleared_for_trading", gate.hard_gate_status in ("PASS", "AMBER") and not gate.fo_ban_flag)

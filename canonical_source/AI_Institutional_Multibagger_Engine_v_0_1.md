@@ -171,3 +171,17 @@ The engine applies strict mandatory risk penalties before issuing final rankings
   "passed_hard_gates": true
 }
 ```
+
+---
+
+## 6. Surveillance Veto & Horizon-Adaptive Capacity Guards (Phases 141 & 142)
+
+### 6.1 SEBI Enhanced Surveillance Measure (ESM Stage I & II) Hard Gate
+- **ESM Stage II Hard Veto:** Any scrip categorized under SEBI ESM Stage II (2% price circuit, periodic call auction) is unconditionally disqualified from active entry (`conviction_tier = SPECULATIVE_MONITORING_ESM_LOCKED`).
+- **ESM Stage I Amber Gate:** 100% upfront margin and capped circuit band triggers elevated slippage ceiling (1.25%–2.0%) and position size hair-cutting.
+
+### 6.2 ADTV Capacity Ceiling & Liquidity Protection
+- **Institutional Max Position:** $\text{Cap}_{\text{inst}} \le 10\% \times \text{ADTV}_{20\text{d}}$.
+- **Retail Single-Day Order:** $\text{Cap}_{\text{retail}} \le 2\% \times \text{ADTV}_{20\text{d}}$.
+- **Illiquidity Gate:** Stocks with $\text{ADTV}_{20\text{d}} < ₹0.50\text{ Cr}$ are flagged as `ILLIQUID_HAZARD` with mandatory capital restriction.
+

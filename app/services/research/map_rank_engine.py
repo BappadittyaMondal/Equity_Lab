@@ -204,6 +204,13 @@ def rank_candidates(
     w_geo = weights["geo_moat"]
 
     entries: List[Dict[str, Any]] = []
+    if fundamentals_lookup is None:
+        try:
+            from app.services.research.multimodal_watchlist_bridge import _get_fundamentals_for_symbols
+            fundamentals_lookup = _get_fundamentals_for_symbols(symbols)
+        except Exception as e:
+            logger.warning("MAP-Rank standalone fundamentals auto-resolution skipped: %s", e)
+            fundamentals_lookup = {}
     fmap = fundamentals_lookup or {}
 
     for sym in symbols:

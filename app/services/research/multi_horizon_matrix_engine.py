@@ -209,6 +209,30 @@ class MultiHorizonMatrixEngine:
             dso_penalty = max(0.0, min(0.35, ((dso - 120.0) / 365.0) * (1.0 - max(0.0, cfo_pat))))
             fundamental_growth *= (1.0 - dso_penalty)
 
+        # Share Dilution Velocity (CADR) Haircut (§CRO Equity Accretion Shield)
+        # Dilution from warrants/preferential expansion reduces per-share forward compounding
+        shares_curr = data.get("shares_count") or data.get("shares_outstanding") or data.get("total_shares")
+        shares_past = data.get("shares_count_10yr_back") or data.get("shares_outstanding_3y") or data.get("shares_3y_ago")
+        dilution_hint = str(data.get("dilution_instrument_hint") or data.get("dilution_hint") or "")
+        if shares_curr is not None and shares_past is not None:
+            try:
+                s_curr = float(shares_curr)
+                s_past = float(shares_past)
+                if s_past > 0 and s_curr > s_past:
+                    from app.services.research.forensic_auditor import compute_cadr
+                    cadr_res = compute_cadr(
+                        shares_latest=s_curr,
+                        shares_3y_ago=s_past,
+                        dilution_instrument_hint=dilution_hint,
+                        archetype=archetype
+                    )
+                    if cadr_res.cadr is not None and cadr_res.cadr > 0.02:
+                        gross_growth_dec = fundamental_growth / 100.0
+                        net_per_share_growth = ((1.0 + gross_growth_dec) / (1.0 + cadr_res.cadr) - 1.0) * 100.0
+                        fundamental_growth = round(net_per_share_growth, 2)
+            except Exception as e:
+                logger.debug(f"CADR dilution adjustment skipped for {norm_sym}: {e}")
+
         # Valuation multiple adjustment (§CRO Equity Decomposition)
         curr_pe = float(data.get("pe_ratio") or data.get("pe") or 25.0)
         if curr_pe <= 0:

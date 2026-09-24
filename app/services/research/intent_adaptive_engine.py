@@ -500,6 +500,18 @@ class QueryAdaptiveConstraintEngine:
                 else:
                     tightened.append(f"Pristine cash realization verified (CFO/PAT: {cfo_pat:.2f} >= 0.80).")
 
+                # Phase 140: CAQI Hard Gate evaluation
+                caqi_val = _get_opt_float(["caqi"])
+                caqi_gate = str(data.get("caqi_gate") or "")
+                if caqi_gate == "FAIL" or (caqi_val is not None and caqi_val < 0.80):
+                    caqi_msg = f"OBJECTIVE_BLOCK: CAQI Gate FAIL: Cash Accrual Quality ({caqi_val or 0.0:.2f}x) fails compounder hurdle (0.80x minimum)."
+                    if caqi_msg not in objective_blocks:
+                        objective_blocks.append(caqi_msg)
+                        vetoes.append(caqi_msg)
+                    tightened.append(f"CAQI cash accrual quality >= 0.80x strictly enforced (failed: {caqi_val or 0.0:.2f}x).")
+                elif caqi_gate == "PASS" or (caqi_val is not None and caqi_val >= 0.80):
+                    tightened.append(f"Pristine CAQI cash accrual verified ({caqi_val:.2f}x >= 0.80x threshold).")
+
                 if debt_eq is not None and debt_eq > 0.30:
                     warnings.append(f"CAUTION: Balance sheet leverage (D/E: {debt_eq:.2f}) is above pristine compounder tier (< 0.30).")
 
@@ -599,6 +611,15 @@ class QueryAdaptiveConstraintEngine:
                 tightened.append(f"Addressable market headroom verified (TAM share: {tam_share:.1f}% <= 35.0%).")
             else:
                 tightened.append("Sector TAM headroom and addressable runway strictly enforced.")
+
+            # Phase 140: DEME-HR Multiple Expansion Ceiling Gate
+            deme_hr = _get_opt_float(["deme_hr"])
+            deme_verdict = str(data.get("deme_hr_verdict") or "")
+            if deme_verdict == "VALUATION_CONSTRAINED" or (deme_hr is not None and deme_hr <= 1.0):
+                warnings.append(f"CAUTION: DEME-HR ({deme_hr or 1.0:.2f} <= 1.0) trailing P/E at or above sector benchmark ceiling; multiple expansion room exhausted.")
+                tightened.append(f"Multiple expansion headroom: DEME-HR > 1.0 required for asymmetric re-rating (constrained: {deme_hr or 1.0:.2f}).")
+            elif deme_verdict == "UNDERVALUED" or (deme_hr is not None and deme_hr > 2.0):
+                tightened.append(f"Strong multiple expansion headroom verified: DEME-HR ({deme_hr or 2.0:.2f} > 2.0x ceiling buffer).")
 
         # ── 6. EARLY MICROCAP RISK-FIRST INTENT ──────────────────────────
         elif norm_intent in ("EARLY_MICROCAP", "MICROCAP_RISK"):

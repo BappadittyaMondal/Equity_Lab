@@ -1,8 +1,8 @@
 # 02_Master_Engine_Contracts_Schemas_Registries
 
 > **IERL AI Equity OS — curated upload artifact**  
-> Project Version: `0.0.0` · Bundle Version: `2.0` · Source Commit: `52a6834`  
-> Generated At: `2026-09-21T18:13:48.672434+00:00` · Source Hash: `a1b5e6dddfc1c888` · Compiler: `consolidate_project.py` v2.0
+> Project Version: `0.0.0` · Bundle Version: `2.0` · Source Commit: `8c4faa0`  
+> Generated At: `2026-09-24T11:03:57.302571+00:00` · Source Hash: `e23e0316c82d0ce9` · Compiler: `consolidate_project.py` v2.0
 
 ## Operating contract
 
@@ -53,7 +53,7 @@ The SHA-256 values cover the exact UTF-8 source payload, not this wrapper. Use t
 | 15 | `AI_Geopolitical_Risk_Engine_v_0_0.md` | 1,776 | `04d04e76beaf2f0edd7d95a4314bf83b318197173be9f6325608c4550f7c2272` |
 | 16 | `AI_Expectation_Gap_Engine_v_0_0.md` | 3,075 | `bc25de721f29f328791a5dbc46cd2a5144838e193a5a3975c10cef72ba2371d9` |
 | 17 | `AI_Custom_Screener_Engine_v_0_1.md` | 6,434 | `73eaf37e9954dad165ccdb64749a3a1a58c9bbf5d7d788d175e83b7675589cf9` |
-| 18 | `AI_Institutional_Multibagger_Engine_v_0_1.md` | 7,159 | `09c9374448b3a9a25f393079d4ca9546d049129e87e2792c905ad817a2f10c2f` |
+| 18 | `AI_Institutional_Multibagger_Engine_v_0_1.md` | 8,108 | `e673da1f7d3e3cfe2b7603f43668989233246b17d9189afdcab6dbefb73cfcc9` |
 
 ---
 
@@ -9884,7 +9884,7 @@ EPS growth 3Years >= Sales growth 3Years * 1.2 AND Cash from operations last yea
 
 ---
 
-<!-- BEGIN SYSTEM FILE 18: AI_Institutional_Multibagger_Engine_v_0_1.md | SHA256: 09c9374448b3a9a25f393079d4ca9546d049129e87e2792c905ad817a2f10c2f -->
+<!-- BEGIN SYSTEM FILE 18: AI_Institutional_Multibagger_Engine_v_0_1.md | SHA256: e673da1f7d3e3cfe2b7603f43668989233246b17d9189afdcab6dbefb73cfcc9 -->
 ## Embedded source 18: AI Institutional Multibagger Engine v 0 1
 
 <!-- IERL-CANONICAL-METADATA v1.2 -->
@@ -10060,6 +10060,20 @@ The engine applies strict mandatory risk penalties before issuing final rankings
   "passed_hard_gates": true
 }
 ```
+
+---
+
+## 6. Surveillance Veto & Horizon-Adaptive Capacity Guards (Phases 141 & 142)
+
+### 6.1 SEBI Enhanced Surveillance Measure (ESM Stage I & II) Hard Gate
+- **ESM Stage II Hard Veto:** Any scrip categorized under SEBI ESM Stage II (2% price circuit, periodic call auction) is unconditionally disqualified from active entry (`conviction_tier = SPECULATIVE_MONITORING_ESM_LOCKED`).
+- **ESM Stage I Amber Gate:** 100% upfront margin and capped circuit band triggers elevated slippage ceiling (1.25%–2.0%) and position size hair-cutting.
+
+### 6.2 ADTV Capacity Ceiling & Liquidity Protection
+- **Institutional Max Position:** $\text{Cap}_{\text{inst}} \le 10\% \times \text{ADTV}_{20\text{d}}$.
+- **Retail Single-Day Order:** $\text{Cap}_{\text{retail}} \le 2\% \times \text{ADTV}_{20\text{d}}$.
+- **Illiquidity Gate:** Stocks with $\text{ADTV}_{20\text{d}} < ₹0.50\text{ Cr}$ are flagged as `ILLIQUID_HAZARD` with mandatory capital restriction.
+
 <!-- END SYSTEM FILE 18: AI_Institutional_Multibagger_Engine_v_0_1.md -->
 
 ---

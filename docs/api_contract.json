@@ -5635,7 +5635,7 @@
         "tags": [
           "Research Engines \u2014 Phase 139"
         ],
-        "summary": "\u03b2_geo Vectorized Geopolitical Shock Sensitivity (Phase 139)",
+        "summary": "\u03b2_geo Vectorized Geopolitical Shock Sensitivity (Phase 139/140)",
         "description": "Returns asset-level \u03b2_geo shock sensitivity vector across 5 global scenarios:\n\n1. Crude Oil Spike +30%\n2. Maritime Chokepoint (Red Sea / Hormuz)\n3. China Export Dumping\n4. Grid Hardware Deficit (transformers / semiconductors)\n5. US Interest Rate Hike +100bps\n\nBeta convention: positive = tailwind, negative = headwind (range: -1.0 to +1.0).",
         "operationId": "get_geo_shock_sensitivity_api_v1_research_geopolitical_shock_sensitivity__symbol__get",
         "parameters": [
@@ -5665,6 +5665,24 @@
               "title": "Sector"
             },
             "description": "Sector key (e.g. DEFENSE, IT, METALS). Auto-detected from ticker overlays if omitted."
+          },
+          {
+            "name": "sub_segment",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Optional specialized sub-segment (e.g. TANKERS, CONTAINER_CARGO).",
+              "title": "Sub Segment"
+            },
+            "description": "Optional specialized sub-segment (e.g. TANKERS, CONTAINER_CARGO)."
           },
           {
             "name": "x-api-key",
@@ -5738,6 +5756,428 @@
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/MultimodalWatchlistResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/research/geopolitical/pre-event-eval": {
+      "post": {
+        "tags": [
+          "Research Engines \u2014 Phase 139"
+        ],
+        "summary": "PEWS: Pre-Event Weak Signal Bayesian Imminence Evaluator (Phase 140)",
+        "description": "Evaluates heterogeneous weak signals (NOTAMs, AIS dark transponders, diplomatic collapses,\ncrude call option skews, leader signaling) using Bayesian log-odds updating.",
+        "operationId": "evaluate_pews_endpoint_api_v1_research_geopolitical_pre_event_eval_post",
+        "parameters": [
+          {
+            "name": "x-api-key",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "default": "",
+              "title": "X-Api-Key"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PreEventEvaluationRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PreEventEvaluationResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/research/geopolitical/pdlr-gate-eval": {
+      "post": {
+        "tags": [
+          "Research Engines \u2014 Phase 139"
+        ],
+        "summary": "PDLR Gate: Physical Disruption vs Political Theater Evaluator (Phase 140)",
+        "description": "Physical Disruption Likelihood Ratio (PDLR) Gate.\n\nDistinguishes symbolic political rhetoric / posturing (PDLR < 0.40) from\nactual physical supply destruction / blockade (PDLR >= 0.40).",
+        "operationId": "evaluate_pdlr_endpoint_api_v1_research_geopolitical_pdlr_gate_eval_post",
+        "parameters": [
+          {
+            "name": "x-api-key",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "default": "",
+              "title": "X-Api-Key"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PhysicalDisruptionGateRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PhysicalDisruptionGateResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/research/geopolitical/log-event": {
+      "post": {
+        "tags": [
+          "Research Engines \u2014 Phase 139"
+        ],
+        "summary": "Log Pre-Event Prediction to Event Prediction Ledger (Phase 140)",
+        "description": "Persists a pre-event geopolitical prediction into the event prediction ledger.",
+        "operationId": "log_geopolitical_event_endpoint_api_v1_research_geopolitical_log_event_post",
+        "parameters": [
+          {
+            "name": "x-api-key",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "default": "",
+              "title": "X-Api-Key"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/GeopoliticalEventLogRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GeopoliticalEventLogResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/research/geopolitical/calibrate-event": {
+      "post": {
+        "tags": [
+          "Research Engines \u2014 Phase 139"
+        ],
+        "summary": "Execute Bayesian Kalman Self-Learning Beta Calibration (Phase 140)",
+        "description": "Records empirical shock moves and triggers recursive Bayesian Kalman beta calibration.",
+        "operationId": "calibrate_geopolitical_event_endpoint_api_v1_research_geopolitical_calibrate_event_post",
+        "parameters": [
+          {
+            "name": "x-api-key",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "default": "",
+              "title": "X-Api-Key"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/GeopoliticalEventCalibrateRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GeopoliticalEventCalibrateResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/research/ipo/listing-gain-eval": {
+      "post": {
+        "tags": [
+          "Research Engines \u2014 Phase 139"
+        ],
+        "summary": "IPO Listing Gain Probability Evaluator (Phase 143)",
+        "description": "Evaluates 5-factor quantitative listing gain probability for an upcoming NSE/BSE IPO:\nP(Gain) = 0.35*QIB + 0.30*GMP + 0.15*ValuationHeadroom + 0.10*MarketTrend + 0.10*IssueStructure.",
+        "operationId": "evaluate_ipo_listing_gain_endpoint_api_v1_research_ipo_listing_gain_eval_post",
+        "parameters": [
+          {
+            "name": "x-api-key",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "default": "",
+              "title": "X-Api-Key"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/IPOLookupRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/IPOLookupResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/research/ipo/pipeline": {
+      "get": {
+        "tags": [
+          "Research Engines \u2014 Phase 139"
+        ],
+        "summary": "Pre-IPO & Unlisted Indian Company Pipeline (Phase 143)",
+        "description": "Returns verified pipeline of top upcoming unlisted Indian companies (NSE, Tata Capital, HDB, NSDL, etc.).",
+        "operationId": "get_ipo_pipeline_endpoint_api_v1_research_ipo_pipeline_get",
+        "parameters": [
+          {
+            "name": "x-api-key",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "default": "",
+              "title": "X-Api-Key"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/IPOPipelineResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/research/geopolitical/ingest-weak-signal": {
+      "post": {
+        "tags": [
+          "Research Engines \u2014 Phase 139"
+        ],
+        "summary": "Ingest & Parse Weak Geopolitical Signals (Phase 144)",
+        "description": "Parses raw text/OSINT headlines for leader symbolic anomalies, NOTAMs, AIS transponders,\nand calculates posterior imminence probability.",
+        "operationId": "ingest_weak_signal_endpoint_api_v1_research_geopolitical_ingest_weak_signal_post",
+        "parameters": [
+          {
+            "name": "x-api-key",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "default": "",
+              "title": "X-Api-Key"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/WeakSignalIngestRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/WeakSignalIngestResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/research/geopolitical/auto-collect-outcomes": {
+      "post": {
+        "tags": [
+          "Research Engines \u2014 Phase 139"
+        ],
+        "summary": "Trigger Autonomous Geopolitical Outcome Collection Cycle (Phase 145)",
+        "description": "Scans pending predictions, derives market realizations, and executes Bayesian Kalman updates.",
+        "operationId": "auto_collect_geopolitical_outcomes_endpoint_api_v1_research_geopolitical_auto_collect_outcomes_post",
+        "parameters": [
+          {
+            "name": "x-api-key",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "default": "",
+              "title": "X-Api-Key"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/GeopoliticalAutoCollectRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GeopoliticalAutoCollectResponse"
                 }
               }
             }
@@ -7754,6 +8194,406 @@
         "title": "GeoShockSensitivityResponse",
         "description": "Asset-level \u03b2_geo sensitivity vector across 5 global shock scenarios."
       },
+      "GeopoliticalAutoCollectRequest": {
+        "properties": {
+          "min_age_hours": {
+            "type": "number",
+            "minimum": 0.0,
+            "title": "Min Age Hours",
+            "description": "Minimum post-event maturity in hours",
+            "default": 24.0
+          },
+          "force_event_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Force Event Id",
+            "description": "Specific event_id to force calibration"
+          },
+          "custom_realized_shock": {
+            "anyOf": [
+              {
+                "additionalProperties": {
+                  "type": "number"
+                },
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Custom Realized Shock",
+            "description": "Optional override for observed shocks"
+          },
+          "custom_empirical_returns": {
+            "anyOf": [
+              {
+                "additionalProperties": {
+                  "type": "number"
+                },
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Custom Empirical Returns",
+            "description": "Optional override for asset returns"
+          },
+          "event_occurred": {
+            "type": "boolean",
+            "title": "Event Occurred",
+            "description": "Whether the kinetic event materialized",
+            "default": true
+          },
+          "benchmark_symbol": {
+            "type": "string",
+            "title": "Benchmark Symbol",
+            "description": "Benchmark symbol",
+            "default": "^NSEI"
+          }
+        },
+        "type": "object",
+        "title": "GeopoliticalAutoCollectRequest",
+        "description": "Payload to trigger autonomous collection of geopolitical outcomes."
+      },
+      "GeopoliticalAutoCollectResponse": {
+        "properties": {
+          "events_scanned": {
+            "type": "integer",
+            "title": "Events Scanned"
+          },
+          "events_matured": {
+            "type": "integer",
+            "title": "Events Matured"
+          },
+          "calibrations_executed": {
+            "type": "integer",
+            "title": "Calibrations Executed"
+          },
+          "calibration_records": {
+            "items": {
+              "additionalProperties": true,
+              "type": "object"
+            },
+            "type": "array",
+            "title": "Calibration Records"
+          },
+          "average_brier_score": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Average Brier Score"
+          },
+          "summary": {
+            "type": "string",
+            "title": "Summary"
+          },
+          "meta": {
+            "$ref": "#/components/schemas/MetaHeader"
+          }
+        },
+        "type": "object",
+        "required": [
+          "events_scanned",
+          "events_matured",
+          "calibrations_executed",
+          "calibration_records",
+          "summary",
+          "meta"
+        ],
+        "title": "GeopoliticalAutoCollectResponse",
+        "description": "Output summary of autonomous outcome collection cycle."
+      },
+      "GeopoliticalEventCalibrateRequest": {
+        "properties": {
+          "event_id": {
+            "type": "string",
+            "title": "Event Id",
+            "description": "Unique event identifier"
+          },
+          "realized_shock": {
+            "additionalProperties": {
+              "type": "number"
+            },
+            "type": "object",
+            "title": "Realized Shock",
+            "description": "Actual observed shock magnitudes (e.g. {'crude': 0.25})"
+          },
+          "empirical_asset_returns": {
+            "additionalProperties": {
+              "type": "number"
+            },
+            "type": "object",
+            "title": "Empirical Asset Returns",
+            "description": "Observed asset and benchmark returns"
+          },
+          "event_occurred": {
+            "type": "boolean",
+            "title": "Event Occurred",
+            "description": "Whether the kinetic event materialized",
+            "default": true
+          },
+          "benchmark_symbol": {
+            "type": "string",
+            "title": "Benchmark Symbol",
+            "description": "Benchmark symbol for excess returns",
+            "default": "^NSEI"
+          }
+        },
+        "type": "object",
+        "required": [
+          "event_id",
+          "realized_shock",
+          "empirical_asset_returns"
+        ],
+        "title": "GeopoliticalEventCalibrateRequest",
+        "description": "Payload to record actual market moves and trigger Bayesian Kalman calibration."
+      },
+      "GeopoliticalEventCalibrateResponse": {
+        "properties": {
+          "event_id": {
+            "type": "string",
+            "title": "Event Id"
+          },
+          "status": {
+            "type": "string",
+            "title": "Status"
+          },
+          "brier_score": {
+            "type": "number",
+            "title": "Brier Score"
+          },
+          "kalman_gain": {
+            "type": "number",
+            "title": "Kalman Gain"
+          },
+          "dominant_shock_key": {
+            "type": "string",
+            "title": "Dominant Shock Key"
+          },
+          "shock_magnitude": {
+            "type": "number",
+            "title": "Shock Magnitude"
+          },
+          "prior_betas": {
+            "additionalProperties": {
+              "type": "number"
+            },
+            "type": "object",
+            "title": "Prior Betas"
+          },
+          "calibrated_betas": {
+            "additionalProperties": {
+              "type": "number"
+            },
+            "type": "object",
+            "title": "Calibrated Betas"
+          },
+          "drift_guard_applied": {
+            "type": "boolean",
+            "title": "Drift Guard Applied"
+          },
+          "max_drift_step": {
+            "type": "number",
+            "title": "Max Drift Step"
+          },
+          "calibrated_at": {
+            "type": "string",
+            "title": "Calibrated At"
+          },
+          "meta": {
+            "$ref": "#/components/schemas/MetaHeader"
+          }
+        },
+        "type": "object",
+        "required": [
+          "event_id",
+          "status",
+          "brier_score",
+          "kalman_gain",
+          "dominant_shock_key",
+          "shock_magnitude",
+          "prior_betas",
+          "calibrated_betas",
+          "drift_guard_applied",
+          "max_drift_step",
+          "calibrated_at",
+          "meta"
+        ],
+        "title": "GeopoliticalEventCalibrateResponse",
+        "description": "Response from Bayesian Kalman beta calibration."
+      },
+      "GeopoliticalEventLogRequest": {
+        "properties": {
+          "event_id": {
+            "type": "string",
+            "title": "Event Id",
+            "description": "Unique event identifier"
+          },
+          "title": {
+            "type": "string",
+            "title": "Title",
+            "description": "Event title or crisis summary"
+          },
+          "event_type": {
+            "type": "string",
+            "title": "Event Type",
+            "description": "Event classification"
+          },
+          "theater": {
+            "type": "string",
+            "title": "Theater",
+            "description": "Geographic theater",
+            "default": "GLOBAL"
+          },
+          "pews_probability": {
+            "type": "number",
+            "maximum": 1.0,
+            "minimum": 0.0,
+            "title": "Pews Probability",
+            "default": 0.5
+          },
+          "pdlr_ratio": {
+            "type": "number",
+            "minimum": 0.0,
+            "title": "Pdlr Ratio",
+            "default": 0.5
+          },
+          "pdlr_classification": {
+            "type": "string",
+            "title": "Pdlr Classification",
+            "default": "ELEVATED_FRICTION_RISK"
+          },
+          "shock_vector": {
+            "anyOf": [
+              {
+                "additionalProperties": {
+                  "type": "number"
+                },
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Shock Vector"
+          },
+          "predicted_betas": {
+            "anyOf": [
+              {
+                "additionalProperties": {
+                  "type": "number"
+                },
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Predicted Betas"
+          },
+          "notes": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Notes"
+          }
+        },
+        "type": "object",
+        "required": [
+          "event_id",
+          "title",
+          "event_type"
+        ],
+        "title": "GeopoliticalEventLogRequest",
+        "description": "Payload to log a new pre-event prediction into the event prediction ledger."
+      },
+      "GeopoliticalEventLogResponse": {
+        "properties": {
+          "event_id": {
+            "type": "string",
+            "title": "Event Id"
+          },
+          "title": {
+            "type": "string",
+            "title": "Title"
+          },
+          "event_type": {
+            "type": "string",
+            "title": "Event Type"
+          },
+          "theater": {
+            "type": "string",
+            "title": "Theater"
+          },
+          "status": {
+            "type": "string",
+            "title": "Status"
+          },
+          "pews_probability": {
+            "type": "number",
+            "title": "Pews Probability"
+          },
+          "pdlr_ratio": {
+            "type": "number",
+            "title": "Pdlr Ratio"
+          },
+          "pdlr_classification": {
+            "type": "string",
+            "title": "Pdlr Classification"
+          },
+          "shock_vector": {
+            "additionalProperties": {
+              "type": "number"
+            },
+            "type": "object",
+            "title": "Shock Vector"
+          },
+          "predicted_betas": {
+            "additionalProperties": {
+              "type": "number"
+            },
+            "type": "object",
+            "title": "Predicted Betas"
+          },
+          "created_at": {
+            "type": "string",
+            "title": "Created At"
+          }
+        },
+        "type": "object",
+        "required": [
+          "event_id",
+          "title",
+          "event_type",
+          "theater",
+          "status",
+          "pews_probability",
+          "pdlr_ratio",
+          "pdlr_classification",
+          "shock_vector",
+          "predicted_betas",
+          "created_at"
+        ],
+        "title": "GeopoliticalEventLogResponse",
+        "description": "Response from logging an event prediction."
+      },
       "GovernanceQualityResponse": {
         "properties": {
           "symbol": {
@@ -8263,6 +9103,315 @@
           "symbol"
         ],
         "title": "ICReviewRequest"
+      },
+      "IPOLookupRequest": {
+        "properties": {
+          "company_name": {
+            "type": "string",
+            "title": "Company Name",
+            "description": "Issuer company name"
+          },
+          "symbol": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Symbol",
+            "description": "Proposed NSE/BSE trading symbol"
+          },
+          "sector": {
+            "type": "string",
+            "title": "Sector",
+            "description": "Primary operating sector",
+            "default": "GENERAL"
+          },
+          "gmp_inr": {
+            "type": "number",
+            "title": "Gmp Inr",
+            "description": "Grey market premium in \u20b9",
+            "default": 0.0
+          },
+          "qib_multiple": {
+            "type": "number",
+            "minimum": 0.0,
+            "title": "Qib Multiple",
+            "description": "QIB bidding multiple (x)",
+            "default": 0.0
+          },
+          "nii_multiple": {
+            "type": "number",
+            "minimum": 0.0,
+            "title": "Nii Multiple",
+            "description": "NII bidding multiple (x)",
+            "default": 0.0
+          },
+          "rii_multiple": {
+            "type": "number",
+            "minimum": 0.0,
+            "title": "Rii Multiple",
+            "description": "Retail bidding multiple (x)",
+            "default": 0.0
+          },
+          "total_multiple": {
+            "type": "number",
+            "minimum": 0.0,
+            "title": "Total Multiple",
+            "description": "Total book multiple (x)",
+            "default": 0.0
+          },
+          "total_issue_size_cr": {
+            "type": "number",
+            "exclusiveMinimum": 0.0,
+            "title": "Total Issue Size Cr",
+            "description": "Total offer size in \u20b9 Cr"
+          },
+          "fresh_issue_cr": {
+            "type": "number",
+            "minimum": 0.0,
+            "title": "Fresh Issue Cr",
+            "description": "Fresh issue component in \u20b9 Cr",
+            "default": 0.0
+          },
+          "offer_for_sale_cr": {
+            "type": "number",
+            "minimum": 0.0,
+            "title": "Offer For Sale Cr",
+            "description": "Offer for sale component in \u20b9 Cr",
+            "default": 0.0
+          },
+          "price_band_lower": {
+            "type": "number",
+            "exclusiveMinimum": 0.0,
+            "title": "Price Band Lower",
+            "description": "Floor price band in \u20b9"
+          },
+          "price_band_upper": {
+            "type": "number",
+            "exclusiveMinimum": 0.0,
+            "title": "Price Band Upper",
+            "description": "Cap price band in \u20b9"
+          },
+          "post_issue_promoter_holding_pct": {
+            "type": "number",
+            "maximum": 100.0,
+            "minimum": 0.0,
+            "title": "Post Issue Promoter Holding Pct",
+            "description": "Promoter holding % post-issue",
+            "default": 50.0
+          },
+          "anchor_lockin_days": {
+            "type": "integer",
+            "title": "Anchor Lockin Days",
+            "description": "Anchor investor lock-in days",
+            "default": 90
+          },
+          "implied_pe": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Implied Pe",
+            "description": "Implied P/E multiple at upper band"
+          },
+          "peer_median_pe": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Peer Median Pe",
+            "description": "Median P/E of listed peers"
+          },
+          "implied_pb": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Implied Pb",
+            "description": "Implied P/B multiple"
+          },
+          "peer_median_pb": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Peer Median Pb",
+            "description": "Median P/B of listed peers"
+          },
+          "roe_pct": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Roe Pct",
+            "description": "Return on Equity %"
+          },
+          "pat_cagr_3y_pct": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Pat Cagr 3Y Pct",
+            "description": "3-year PAT CAGR %"
+          },
+          "market_regime_favorable": {
+            "type": "boolean",
+            "title": "Market Regime Favorable",
+            "description": "Market trend favorable",
+            "default": true
+          },
+          "india_vix": {
+            "type": "number",
+            "minimum": 0.0,
+            "title": "India Vix",
+            "description": "Current India VIX",
+            "default": 13.5
+          }
+        },
+        "type": "object",
+        "required": [
+          "company_name",
+          "total_issue_size_cr",
+          "price_band_lower",
+          "price_band_upper"
+        ],
+        "title": "IPOLookupRequest",
+        "description": "Payload to evaluate listing gain probability for an upcoming IPO."
+      },
+      "IPOLookupResponse": {
+        "properties": {
+          "company_name": {
+            "type": "string",
+            "title": "Company Name"
+          },
+          "symbol": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Symbol"
+          },
+          "sector": {
+            "type": "string",
+            "title": "Sector"
+          },
+          "listing_gain_probability": {
+            "type": "number",
+            "title": "Listing Gain Probability"
+          },
+          "expected_listing_pop_pct": {
+            "type": "number",
+            "title": "Expected Listing Pop Pct"
+          },
+          "verdict": {
+            "type": "string",
+            "title": "Verdict"
+          },
+          "conviction_tier": {
+            "type": "string",
+            "title": "Conviction Tier"
+          },
+          "sub_scores": {
+            "additionalProperties": {
+              "type": "number"
+            },
+            "type": "object",
+            "title": "Sub Scores"
+          },
+          "risk_flags": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Risk Flags"
+          },
+          "methodology_note": {
+            "type": "string",
+            "title": "Methodology Note"
+          },
+          "meta": {
+            "$ref": "#/components/schemas/MetaHeader"
+          }
+        },
+        "type": "object",
+        "required": [
+          "company_name",
+          "symbol",
+          "sector",
+          "listing_gain_probability",
+          "expected_listing_pop_pct",
+          "verdict",
+          "conviction_tier",
+          "sub_scores",
+          "risk_flags",
+          "methodology_note",
+          "meta"
+        ],
+        "title": "IPOLookupResponse",
+        "description": "Quantitative listing gain probability and IPO advisory verdict."
+      },
+      "IPOPipelineResponse": {
+        "properties": {
+          "pipeline": {
+            "items": {
+              "additionalProperties": true,
+              "type": "object"
+            },
+            "type": "array",
+            "title": "Pipeline"
+          },
+          "count": {
+            "type": "integer",
+            "title": "Count"
+          },
+          "summary": {
+            "type": "string",
+            "title": "Summary"
+          },
+          "meta": {
+            "$ref": "#/components/schemas/MetaHeader"
+          }
+        },
+        "type": "object",
+        "required": [
+          "pipeline",
+          "count",
+          "summary",
+          "meta"
+        ],
+        "title": "IPOPipelineResponse",
+        "description": "Registry response of top upcoming pre-IPO and unlisted Indian companies."
       },
       "InsiderConvictionSignal": {
         "properties": {
@@ -10111,6 +11260,109 @@
         ],
         "title": "OwnershipSnapshotResponse"
       },
+      "PhysicalDisruptionGateRequest": {
+        "properties": {
+          "pdlr": {
+            "type": "number",
+            "minimum": 0.0,
+            "title": "Pdlr",
+            "description": "Physical Disruption Likelihood Ratio"
+          },
+          "raw_overlay_pct": {
+            "type": "number",
+            "title": "Raw Overlay Pct",
+            "description": "Un-gated macro overlay percentage"
+          },
+          "sector": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Sector",
+            "description": "Asset sector"
+          }
+        },
+        "type": "object",
+        "required": [
+          "pdlr",
+          "raw_overlay_pct"
+        ],
+        "title": "PhysicalDisruptionGateRequest",
+        "description": "Request payload for evaluating the PDLR Gate."
+      },
+      "PhysicalDisruptionGateResponse": {
+        "properties": {
+          "status": {
+            "type": "string",
+            "title": "Status"
+          },
+          "pdlr_ratio": {
+            "type": "number",
+            "title": "Pdlr Ratio"
+          },
+          "classification": {
+            "type": "string",
+            "title": "Classification",
+            "description": "SYMBOLIC_THEATER_OR_POSTURING | ELEVATED_FRICTION_RISK | PHYSICAL_DISRUPTION_CONFIRMED"
+          },
+          "gate_action": {
+            "type": "string",
+            "title": "Gate Action"
+          },
+          "raw_overlay_pct": {
+            "type": "number",
+            "title": "Raw Overlay Pct"
+          },
+          "effective_overlay_pct": {
+            "type": "number",
+            "title": "Effective Overlay Pct"
+          },
+          "allow_fatal_veto": {
+            "type": "boolean",
+            "title": "Allow Fatal Veto"
+          },
+          "allow_sizing_haircut": {
+            "type": "boolean",
+            "title": "Allow Sizing Haircut"
+          },
+          "sector": {
+            "type": "string",
+            "title": "Sector"
+          },
+          "thesis": {
+            "type": "string",
+            "title": "Thesis"
+          },
+          "executed_at": {
+            "type": "string",
+            "title": "Executed At"
+          },
+          "meta": {
+            "$ref": "#/components/schemas/MetaHeader"
+          }
+        },
+        "type": "object",
+        "required": [
+          "status",
+          "pdlr_ratio",
+          "classification",
+          "gate_action",
+          "raw_overlay_pct",
+          "effective_overlay_pct",
+          "allow_fatal_veto",
+          "allow_sizing_haircut",
+          "sector",
+          "thesis",
+          "executed_at",
+          "meta"
+        ],
+        "title": "PhysicalDisruptionGateResponse",
+        "description": "Response payload for PDLR Gate."
+      },
       "PolicyCatalystCorporateActionSignal": {
         "properties": {
           "pli_scheme_eligibility": {
@@ -10269,6 +11521,165 @@
           "symbol"
         ],
         "title": "PostMortemAuditRequest"
+      },
+      "PreEventEvaluationRequest": {
+        "properties": {
+          "signals": {
+            "items": {
+              "$ref": "#/components/schemas/PreEventSignalInput"
+            },
+            "type": "array",
+            "title": "Signals",
+            "description": "Array of observed leading indicator signals"
+          },
+          "prior_probability": {
+            "type": "number",
+            "maximum": 0.99,
+            "minimum": 0.01,
+            "title": "Prior Probability",
+            "description": "Baseline tension prior probability P_0",
+            "default": 0.1
+          },
+          "theater": {
+            "type": "string",
+            "title": "Theater",
+            "description": "Primary theater of interest",
+            "default": "GLOBAL"
+          }
+        },
+        "type": "object",
+        "required": [
+          "signals"
+        ],
+        "title": "PreEventEvaluationRequest",
+        "description": "Request payload for PEWS Bayesian log-odds evaluation."
+      },
+      "PreEventEvaluationResponse": {
+        "properties": {
+          "status": {
+            "type": "string",
+            "title": "Status"
+          },
+          "pews_probability": {
+            "type": "number",
+            "title": "Pews Probability",
+            "description": "Bayesian posterior event imminence probability P(Event|S)"
+          },
+          "imminence_rating": {
+            "type": "string",
+            "title": "Imminence Rating",
+            "description": "CRITICAL_IMMINENT_INTERVENTION | ELEVATED_PRE_STRIKE_PROBABILITY | WATCHLIST_STAGE_TENSION | BASELINE_NOISE"
+          },
+          "prior_probability": {
+            "type": "number",
+            "title": "Prior Probability"
+          },
+          "posterior_logit": {
+            "type": "number",
+            "title": "Posterior Logit"
+          },
+          "dominant_signals": {
+            "items": {
+              "additionalProperties": true,
+              "type": "object"
+            },
+            "type": "array",
+            "title": "Dominant Signals"
+          },
+          "theaters_at_risk": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Theaters At Risk"
+          },
+          "recommended_stance": {
+            "type": "string",
+            "title": "Recommended Stance"
+          },
+          "executed_at": {
+            "type": "string",
+            "title": "Executed At"
+          },
+          "meta": {
+            "$ref": "#/components/schemas/MetaHeader"
+          }
+        },
+        "type": "object",
+        "required": [
+          "status",
+          "pews_probability",
+          "imminence_rating",
+          "prior_probability",
+          "posterior_logit",
+          "recommended_stance",
+          "executed_at",
+          "meta"
+        ],
+        "title": "PreEventEvaluationResponse",
+        "description": "Response payload for PEWS Bayesian imminence calculation."
+      },
+      "PreEventSignalInput": {
+        "properties": {
+          "signal_type": {
+            "type": "string",
+            "title": "Signal Type",
+            "description": "Signal identifier: AIRSPACE_NOTAM_CLOSURE, AIS_TRANSPONDER_DARK, DIPLOMATIC_SCHEDULE_COLLAPSE, CRUDE_CALL_SKEW_SPIKE, SOVEREIGN_FX_SWAP_EMERGENCY, LEADER_SIGNALLING_ANOMALY"
+          },
+          "intensity": {
+            "type": "number",
+            "maximum": 1.0,
+            "minimum": 0.0,
+            "title": "Intensity",
+            "description": "Normalized signal intensity",
+            "default": 1.0
+          },
+          "likelihood_ratio": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Likelihood Ratio",
+            "description": "Optional custom Likelihood Ratio P(S|E)/P(S|\u00acE)"
+          },
+          "confidence": {
+            "type": "number",
+            "maximum": 1.0,
+            "minimum": 0.0,
+            "title": "Confidence",
+            "description": "Observation confidence",
+            "default": 1.0
+          },
+          "age_hours": {
+            "type": "number",
+            "minimum": 0.0,
+            "title": "Age Hours",
+            "description": "Hours elapsed since observation",
+            "default": 0.0
+          },
+          "theater": {
+            "type": "string",
+            "title": "Theater",
+            "description": "Geopolitical theater",
+            "default": "GLOBAL"
+          },
+          "source_description": {
+            "type": "string",
+            "title": "Source Description",
+            "description": "Descriptive metadata on signal origin",
+            "default": ""
+          }
+        },
+        "type": "object",
+        "required": [
+          "signal_type"
+        ],
+        "title": "PreEventSignalInput",
+        "description": "Input representation of a pre-event weak signal."
       },
       "PredictionRecord": {
         "properties": {
@@ -11629,6 +13040,96 @@
           "count"
         ],
         "title": "WatchlistListResponse"
+      },
+      "WeakSignalIngestRequest": {
+        "properties": {
+          "text": {
+            "type": "string",
+            "title": "Text",
+            "description": "Raw intelligence text, news headline, or OSINT dispatch"
+          },
+          "source": {
+            "type": "string",
+            "title": "Source",
+            "description": "Source descriptor",
+            "default": "OSINT_MONITOR"
+          },
+          "prior_probability": {
+            "type": "number",
+            "maximum": 1.0,
+            "minimum": 0.0,
+            "title": "Prior Probability",
+            "description": "Baseline tension prior",
+            "default": 0.05
+          },
+          "age_hours": {
+            "type": "number",
+            "minimum": 0.0,
+            "title": "Age Hours",
+            "description": "Estimated signal age in hours",
+            "default": 1.0
+          }
+        },
+        "type": "object",
+        "required": [
+          "text"
+        ],
+        "title": "WeakSignalIngestRequest",
+        "description": "Payload to ingest and parse unstructured geopolitical weak signals."
+      },
+      "WeakSignalIngestResponse": {
+        "properties": {
+          "status": {
+            "type": "string",
+            "title": "Status"
+          },
+          "theater": {
+            "type": "string",
+            "title": "Theater"
+          },
+          "parsed_signals_count": {
+            "type": "integer",
+            "title": "Parsed Signals Count"
+          },
+          "signals": {
+            "items": {
+              "additionalProperties": true,
+              "type": "object"
+            },
+            "type": "array",
+            "title": "Signals"
+          },
+          "evaluation": {
+            "anyOf": [
+              {
+                "additionalProperties": true,
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Evaluation"
+          },
+          "summary": {
+            "type": "string",
+            "title": "Summary"
+          },
+          "meta": {
+            "$ref": "#/components/schemas/MetaHeader"
+          }
+        },
+        "type": "object",
+        "required": [
+          "status",
+          "theater",
+          "parsed_signals_count",
+          "signals",
+          "summary",
+          "meta"
+        ],
+        "title": "WeakSignalIngestResponse",
+        "description": "Output from automated weak signal parsing and Bayesian imminence calculation."
       },
       "YouTubeAnalyzeRequest": {
         "properties": {

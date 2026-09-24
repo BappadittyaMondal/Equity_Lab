@@ -545,6 +545,35 @@ def _ensure_tables() -> None:
     )
     conn.execute("CREATE INDEX IF NOT EXISTS idx_hist_px_sym_date ON historical_prices(symbol, date)")
 
+    conn.execute(
+        """
+        CREATE TABLE IF NOT EXISTS geopolitical_event_ledger (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            event_id TEXT UNIQUE NOT NULL,
+            title TEXT NOT NULL,
+            event_type TEXT NOT NULL,
+            theater TEXT NOT NULL,
+            status TEXT NOT NULL,
+            pews_probability REAL NOT NULL,
+            pdlr_ratio REAL NOT NULL,
+            pdlr_classification TEXT NOT NULL,
+            shock_vector_json TEXT NOT NULL,
+            predicted_betas_json TEXT NOT NULL,
+            realized_shock_json TEXT,
+            empirical_asset_returns_json TEXT,
+            calibrated_betas_json TEXT,
+            kalman_gain REAL,
+            brier_score REAL,
+            notes TEXT,
+            created_at TEXT NOT NULL,
+            calibrated_at TEXT
+        )
+        """
+    )
+    conn.execute("CREATE INDEX IF NOT EXISTS idx_geo_event_id ON geopolitical_event_ledger(event_id)")
+    conn.execute("CREATE INDEX IF NOT EXISTS idx_geo_event_theater ON geopolitical_event_ledger(theater)")
+
+
     # Auto-migration for published_at, available_at, effective_at columns across point-in-time tables
     try:
         pit_tables = ["earnings_estimates", "quarterly_financials", "promoter_shareholding", "market_corporate_actions", "historical_prices"]

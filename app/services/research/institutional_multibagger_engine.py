@@ -294,15 +294,14 @@ class InstitutionalMultibaggerEngine:
         _pe_ceiling = _SECTOR_PE_CEILING.get(_sector_key, 40.0)  # conservative default
         _deme_hr: Optional[float] = None
         _deme_hr_verdict: str = "DATA_UNAVAILABLE"
-        if peg_ratio is not None and peg_ratio > 0:
-            # Trailing P/E = PEG * EPS growth (3yr CAGR approximation)
-            # If we only have PEG and growth, reconstruct trailing P/E: pe = peg * growth
-            _trailing_pe = peg_ratio * max(sales_growth_3yr, 1.0)  # use PEG × revenue growth proxy
-        elif item.get("pe_ratio") is not None:
+        if item.get("pe_ratio") is not None:
             try:
                 _trailing_pe = float(item.get("pe_ratio"))
             except (TypeError, ValueError):
                 _trailing_pe = None
+        elif peg_ratio is not None and peg_ratio > 0:
+            # Trailing P/E = PEG * EPS growth (3yr CAGR approximation) fallback proxy
+            _trailing_pe = peg_ratio * max(sales_growth_3yr, 1.0)
         else:
             _trailing_pe = None
 
@@ -1695,6 +1694,27 @@ class InstitutionalMultibaggerEngine:
 
         total = round(min(100.0, total), 1)
 
+        # Check SEBI surveillance / ESM Stage II circuit lock risk (Phase 141)
+        surveillance = item.get("surveillance") or {}
+        esm_stage = str(surveillance.get("esm_stage") or item.get("esm_stage") or "CLEAN").upper()
+        circuit_band_pct = float(surveillance.get("circuit_band_pct") or item.get("circuit_band_pct") or 20.0)
+        has_esm_lock = (esm_stage == "STAGE_II") or (circuit_band_pct <= 2.0 and esm_stage != "CLEAN")
+
+        # Capacity guard calculation (Phase 142 ADTV Capacity Ceiling)
+        adtv_cr = float(item.get("adtv_cr") or item.get("adtv_30d_cr") or 0.0)
+        if adtv_cr <= 0.0:
+            vol = float(item.get("volume") or item.get("avg_volume_20d") or 0.0)
+            px = float(item.get("current_price") or item.get("price") or 0.0)
+            if vol > 0 and px > 0:
+                adtv_cr = round((vol * px) / 1e7, 2)
+
+        capacity_guard = {
+            "adtv_cr": adtv_cr,
+            "max_institutional_position_cr": round(0.10 * adtv_cr, 2) if adtv_cr > 0 else None,
+            "max_retail_order_cr": round(0.02 * adtv_cr, 2) if adtv_cr > 0 else None,
+            "liquidity_status": "LIQUID" if adtv_cr >= 2.0 else ("MICRO_LIQUID" if adtv_cr >= 0.5 else "ILLIQUID_CAUTION")
+        }
+
         if total >= 70.0:
             conviction_tier = "HIGH_CONVICTION_LAUNCHPAD"
             tier_note = "4-5 signals simultaneously present — historically matches all 14 launchpad multibaggers"
@@ -1708,17 +1728,26 @@ class InstitutionalMultibaggerEngine:
             conviction_tier = "INSUFFICIENT_SIGNAL"
             tier_note = "No launchpad signals detected at current metrics"
 
+        if has_esm_lock:
+            conviction_tier = "SPECULATIVE_MONITORING_ESM_LOCKED"
+            tier_note = (
+                f"FATAL SURVEILLANCE OVERLAY: Scrip under ESM Stage II / 2% circuit band ({esm_stage}). "
+                "Periodic call auction prevents orderly entry/exit. Capital deployment prohibited until surveillance exit."
+            )
+
         return {
             "launchpad_readiness_score": total,
             "conviction_tier": conviction_tier,
             "conviction_tier_note": tier_note,
+            "has_esm_circuit_lock": has_esm_lock,
+            "capacity_guard": capacity_guard,
             "component_scores": component_scores,
             "ob_to_mcap_ratio": round(ob_to_mcap, 2),
             "methodology_note": (
-                "Composite Launchpad Readiness Score (Phase 38b-I2). Synthesizes 5 individual engine "
+                "Composite Launchpad Readiness Score (Phase 38b-I2 / Phase 141-142). Synthesizes 5 individual engine "
                 "signals: OB:MCap asymmetry, Promoter quality/no-dilution, Lifecycle stage, "
-                "Jaw Effect predictor, Revenue quality shift. Individual components are "
-                "non-redundant: each fires on a different dimension of the pre-discovery setup. "
+                "Jaw Effect predictor, Revenue quality shift, bounded by ESM Stage II surveillance "
+                "and ADTV capacity limits. Individual components are non-redundant. "
                 "Threshold evidence: all 14 historical multibaggers scored >= 70 at launchpad prices."
             )
         }

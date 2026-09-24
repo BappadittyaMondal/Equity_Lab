@@ -1207,6 +1207,7 @@ class CalibratedProbabilityLadder(BaseModel):
 class SurveillanceRiskGate(BaseModel):
     asm_stage: str = "CLEAN"  # CLEAN, STAGE_I, STAGE_II, STAGE_III, STAGE_IV, UNKNOWN
     gsm_stage: str = "CLEAN"
+    esm_stage: str = "CLEAN"  # CLEAN, STAGE_I, STAGE_II, UNKNOWN (SEBI Enhanced Surveillance Measure)
     t2t_flag: bool = False
     fo_ban_flag: bool = False
     circuit_band_pct: float = 20.0
@@ -1218,10 +1219,12 @@ class SurveillanceRiskGate(BaseModel):
     @property
     def is_cleared_for_trading(self) -> bool:
         """Strict institutional fail-closed trading clearance.
-        Only PASS (or AMBER if not in F&O ban) permits trading.
-        FAIL and DATA_INSUFFICIENT unconditionally prohibit trading.
+        Only PASS (or AMBER if not in F&O ban and not in ESM Stage II) permits trading.
+        FAIL, DATA_INSUFFICIENT, and ESM Stage II unconditionally prohibit trading.
         """
         if self.hard_gate_status in ("FAIL", "DATA_INSUFFICIENT") or self.fo_ban_flag:
+            return False
+        if self.esm_stage == "STAGE_II":
             return False
         return self.hard_gate_status in ("PASS", "AMBER")
 
@@ -1508,6 +1511,215 @@ class MultimodalWatchlistResponse(BaseModel):
     map_rank_summary: Optional[List[MAPRankEntry]] = None
     executed_at: str
     meta: MetaHeader
+
+
+# ── Phase 140: Geopolitical PEWS, PDLR Gate, & Event Self-Learning Schemas ──
+
+class PreEventSignalInput(BaseModel):
+    """Input representation of a pre-event weak signal."""
+    signal_type: str = Field(description="Signal identifier: AIRSPACE_NOTAM_CLOSURE, AIS_TRANSPONDER_DARK, DIPLOMATIC_SCHEDULE_COLLAPSE, CRUDE_CALL_SKEW_SPIKE, SOVEREIGN_FX_SWAP_EMERGENCY, LEADER_SIGNALLING_ANOMALY")
+    intensity: float = Field(default=1.0, ge=0.0, le=1.0, description="Normalized signal intensity")
+    likelihood_ratio: Optional[float] = Field(default=None, description="Optional custom Likelihood Ratio P(S|E)/P(S|¬E)")
+    confidence: float = Field(default=1.0, ge=0.0, le=1.0, description="Observation confidence")
+    age_hours: float = Field(default=0.0, ge=0.0, description="Hours elapsed since observation")
+    theater: str = Field(default="GLOBAL", description="Geopolitical theater")
+    source_description: str = Field(default="", description="Descriptive metadata on signal origin")
+
+
+class PreEventEvaluationRequest(BaseModel):
+    """Request payload for PEWS Bayesian log-odds evaluation."""
+    signals: List[PreEventSignalInput] = Field(..., description="Array of observed leading indicator signals")
+    prior_probability: float = Field(default=0.10, ge=0.01, le=0.99, description="Baseline tension prior probability P_0")
+    theater: str = Field(default="GLOBAL", description="Primary theater of interest")
+
+
+class PreEventEvaluationResponse(BaseModel):
+    """Response payload for PEWS Bayesian imminence calculation."""
+    status: str
+    pews_probability: float = Field(description="Bayesian posterior event imminence probability P(Event|S)")
+    imminence_rating: str = Field(description="CRITICAL_IMMINENT_INTERVENTION | ELEVATED_PRE_STRIKE_PROBABILITY | WATCHLIST_STAGE_TENSION | BASELINE_NOISE")
+    prior_probability: float
+    posterior_logit: float
+    dominant_signals: List[Dict[str, Any]] = Field(default_factory=list)
+    theaters_at_risk: List[str] = Field(default_factory=list)
+    recommended_stance: str
+    executed_at: str
+    meta: MetaHeader
+
+
+class PhysicalDisruptionGateRequest(BaseModel):
+    """Request payload for evaluating the PDLR Gate."""
+    pdlr: float = Field(..., ge=0.0, description="Physical Disruption Likelihood Ratio")
+    raw_overlay_pct: float = Field(..., description="Un-gated macro overlay percentage")
+    sector: Optional[str] = Field(default=None, description="Asset sector")
+
+
+class PhysicalDisruptionGateResponse(BaseModel):
+    """Response payload for PDLR Gate."""
+    status: str
+    pdlr_ratio: float
+    classification: str = Field(description="SYMBOLIC_THEATER_OR_POSTURING | ELEVATED_FRICTION_RISK | PHYSICAL_DISRUPTION_CONFIRMED")
+    gate_action: str
+    raw_overlay_pct: float
+    effective_overlay_pct: float
+    allow_fatal_veto: bool
+    allow_sizing_haircut: bool
+    sector: str
+    thesis: str
+    executed_at: str
+    meta: MetaHeader
+
+
+class GeopoliticalEventLogRequest(BaseModel):
+    """Payload to log a new pre-event prediction into the event prediction ledger."""
+    event_id: str = Field(..., description="Unique event identifier")
+    title: str = Field(..., description="Event title or crisis summary")
+    event_type: str = Field(..., description="Event classification")
+    theater: str = Field(default="GLOBAL", description="Geographic theater")
+    pews_probability: float = Field(default=0.50, ge=0.0, le=1.0)
+    pdlr_ratio: float = Field(default=0.50, ge=0.0)
+    pdlr_classification: str = Field(default="ELEVATED_FRICTION_RISK")
+    shock_vector: Optional[Dict[str, float]] = None
+    predicted_betas: Optional[Dict[str, float]] = None
+    notes: Optional[str] = None
+
+
+class GeopoliticalEventLogResponse(BaseModel):
+    """Response from logging an event prediction."""
+    event_id: str
+    title: str
+    event_type: str
+    theater: str
+    status: str
+    pews_probability: float
+    pdlr_ratio: float
+    pdlr_classification: str
+    shock_vector: Dict[str, float]
+    predicted_betas: Dict[str, float]
+    created_at: str
+
+
+class GeopoliticalEventCalibrateRequest(BaseModel):
+    """Payload to record actual market moves and trigger Bayesian Kalman calibration."""
+    event_id: str = Field(..., description="Unique event identifier")
+    realized_shock: Dict[str, float] = Field(..., description="Actual observed shock magnitudes (e.g. {'crude': 0.25})")
+    empirical_asset_returns: Dict[str, float] = Field(..., description="Observed asset and benchmark returns")
+    event_occurred: bool = Field(default=True, description="Whether the kinetic event materialized")
+    benchmark_symbol: str = Field(default="^NSEI", description="Benchmark symbol for excess returns")
+
+
+class GeopoliticalEventCalibrateResponse(BaseModel):
+    """Response from Bayesian Kalman beta calibration."""
+    event_id: str
+    status: str
+    brier_score: float
+    kalman_gain: float
+    dominant_shock_key: str
+    shock_magnitude: float
+    prior_betas: Dict[str, float]
+    calibrated_betas: Dict[str, float]
+    drift_guard_applied: bool
+    max_drift_step: float
+    calibrated_at: str
+    meta: MetaHeader
+
+
+# ── Phase 143: IPO Intelligence & Listing Gain Models ──
+
+class IPOLookupRequest(BaseModel):
+    """Payload to evaluate listing gain probability for an upcoming IPO."""
+    company_name: str = Field(..., description="Issuer company name")
+    symbol: Optional[str] = Field(None, description="Proposed NSE/BSE trading symbol")
+    sector: str = Field(default="GENERAL", description="Primary operating sector")
+    gmp_inr: float = Field(default=0.0, description="Grey market premium in ₹")
+    qib_multiple: float = Field(default=0.0, ge=0.0, description="QIB bidding multiple (x)")
+    nii_multiple: float = Field(default=0.0, ge=0.0, description="NII bidding multiple (x)")
+    rii_multiple: float = Field(default=0.0, ge=0.0, description="Retail bidding multiple (x)")
+    total_multiple: float = Field(default=0.0, ge=0.0, description="Total book multiple (x)")
+    total_issue_size_cr: float = Field(..., gt=0.0, description="Total offer size in ₹ Cr")
+    fresh_issue_cr: float = Field(default=0.0, ge=0.0, description="Fresh issue component in ₹ Cr")
+    offer_for_sale_cr: float = Field(default=0.0, ge=0.0, description="Offer for sale component in ₹ Cr")
+    price_band_lower: float = Field(..., gt=0.0, description="Floor price band in ₹")
+    price_band_upper: float = Field(..., gt=0.0, description="Cap price band in ₹")
+    post_issue_promoter_holding_pct: float = Field(default=50.0, ge=0.0, le=100.0, description="Promoter holding % post-issue")
+    anchor_lockin_days: int = Field(default=90, description="Anchor investor lock-in days")
+    implied_pe: Optional[float] = Field(None, description="Implied P/E multiple at upper band")
+    peer_median_pe: Optional[float] = Field(None, description="Median P/E of listed peers")
+    implied_pb: Optional[float] = Field(None, description="Implied P/B multiple")
+    peer_median_pb: Optional[float] = Field(None, description="Median P/B of listed peers")
+    roe_pct: Optional[float] = Field(None, description="Return on Equity %")
+    pat_cagr_3y_pct: Optional[float] = Field(None, description="3-year PAT CAGR %")
+    market_regime_favorable: bool = Field(default=True, description="Market trend favorable")
+    india_vix: float = Field(default=13.5, ge=0.0, description="Current India VIX")
+
+
+class IPOLookupResponse(BaseModel):
+    """Quantitative listing gain probability and IPO advisory verdict."""
+    company_name: str
+    symbol: Optional[str]
+    sector: str
+    listing_gain_probability: float
+    expected_listing_pop_pct: float
+    verdict: str
+    conviction_tier: str
+    sub_scores: Dict[str, float]
+    risk_flags: List[str]
+    methodology_note: str
+    meta: MetaHeader
+
+
+class IPOPipelineResponse(BaseModel):
+    """Registry response of top upcoming pre-IPO and unlisted Indian companies."""
+    pipeline: List[Dict[str, Any]]
+    count: int
+    summary: str
+    meta: MetaHeader
+
+
+# ── Phase 144: Weak Signal Ingestion & Parser Models ──
+
+class WeakSignalIngestRequest(BaseModel):
+    """Payload to ingest and parse unstructured geopolitical weak signals."""
+    text: str = Field(..., description="Raw intelligence text, news headline, or OSINT dispatch")
+    source: str = Field(default="OSINT_MONITOR", description="Source descriptor")
+    prior_probability: float = Field(default=0.05, ge=0.0, le=1.0, description="Baseline tension prior")
+    age_hours: float = Field(default=1.0, ge=0.0, description="Estimated signal age in hours")
+
+
+class WeakSignalIngestResponse(BaseModel):
+    """Output from automated weak signal parsing and Bayesian imminence calculation."""
+    status: str
+    theater: str
+    parsed_signals_count: int
+    signals: List[Dict[str, Any]]
+    evaluation: Optional[Dict[str, Any]] = None
+    summary: str
+    meta: MetaHeader
+
+
+# ── Phase 145: Closed-Loop Geopolitical Outcome Collector Models ──
+
+class GeopoliticalAutoCollectRequest(BaseModel):
+    """Payload to trigger autonomous collection of geopolitical outcomes."""
+    min_age_hours: float = Field(default=24.0, ge=0.0, description="Minimum post-event maturity in hours")
+    force_event_id: Optional[str] = Field(None, description="Specific event_id to force calibration")
+    custom_realized_shock: Optional[Dict[str, float]] = Field(None, description="Optional override for observed shocks")
+    custom_empirical_returns: Optional[Dict[str, float]] = Field(None, description="Optional override for asset returns")
+    event_occurred: bool = Field(default=True, description="Whether the kinetic event materialized")
+    benchmark_symbol: str = Field(default="^NSEI", description="Benchmark symbol")
+
+
+class GeopoliticalAutoCollectResponse(BaseModel):
+    """Output summary of autonomous outcome collection cycle."""
+    events_scanned: int
+    events_matured: int
+    calibrations_executed: int
+    calibration_records: List[Dict[str, Any]]
+    average_brier_score: Optional[float] = None
+    summary: str
+    meta: MetaHeader
+
+
 
 
 
