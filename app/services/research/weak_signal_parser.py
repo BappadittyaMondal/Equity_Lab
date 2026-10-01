@@ -98,10 +98,50 @@ class WeakSignalParserService:
             ],
             "description": "Emergency central bank foreign exchange liquidity lines or reserve defense.",
         },
+        "CULTURAL_BOYCOTT_ACCELERATION": {
+            "default_lr": 3.8,
+            "patterns": [
+                r"\b(boycott|consumer\s*boycott|divestment\s*campaign)\b",
+                r"\b(religious\s*backlash|cultural\s*boycott|anti-corporate\s*protest)\b",
+                r"\b(footfall\s*(collapse|plunge|drop)|store\s*closures\s*protest)\b",
+                r"\b(franchise\s*(sales\s*slump|boycott\s*impact))\b",
+            ],
+            "description": "Coordinated consumer or faith-based boycotts accelerating across regional retail footprints.",
+        },
+        "CHOKEPOINT_ALLIANCE_ALIGNMENT": {
+            "default_lr": 5.5,
+            "patterns": [
+                r"\b(axis\s*of\s*resistance|theological\s*alliance|sectarian\s*militia)\b",
+                r"\b(red\s*sea\s*blockade|bab\s*el-?mandeb\s*attack|houthi\s*targeting)\b",
+                r"\b(strait\s*of\s*hormuz\s*seizure|maritime\s*choke\s*point\s*threat)\b",
+                r"\b(drone\s*swarm\s*tanker|missile\s*strike\s*cargo)\b",
+            ],
+            "description": "Non-state ideological or theological proxy alignment actively contesting strategic maritime chokepoints.",
+        },
+        "TRADE_SETTLEMENT_DEVIATION": {
+            "default_lr": 3.2,
+            "patterns": [
+                r"\b(local\s*currency\s*settlement|non-?dollar\s*(trade|invoicing|clearing))\b",
+                r"\b(rupee-?dirham|ruble-?yuan|inr-?aed\s*settlement|bilateral\s*currency\s*swap)\b",
+                r"\b(dedollarization|de-dollarisation|alternative\s*payment\s*system)\b",
+                r"\b(brics\s*bridge|cross-?border\s*cbdc\s*mbridge)\b",
+            ],
+            "description": "Structural shifts toward non-dollar bilateral settlement corridors and alternative clearing mechanisms.",
+        },
+        "SOCIO_RELIGIOUS_SEASONAL_CYCLE": {
+            "default_lr": 2.5,
+            "patterns": [
+                r"\b(muhurat\s*(trading|buying|cluster)|auspicious\s*(gold|purchase|window))\b",
+                r"\b(diwali\s*demand|dhanteras\s*sales|navratri\s*consumption)\b",
+                r"\b(kharif\s*harvest\s*cash|rabi\s*sowing\s*liquidity|rural\s*cash\s*inflow)\b",
+                r"\b(wedding\s*season\s*dates|monsoon\s*bounty\s*demand)\b",
+            ],
+            "description": "Socio-religious and agro-climatic festive purchasing super-cycles driving domestic consumption.",
+        },
     }
 
     _THEATER_PATTERNS = {
-        "MIDDLE_EAST": [r"\b(middle\s*east|iran|israel|houthi|yemen|red\s*sea|hormuz|tehran|tel\s*aviv|gulf|lebanon|syria)\b"],
+        "MIDDLE_EAST": [r"\b(middle\s*east|iran|israel|houthi|yemen|red\s*sea|hormuz|bab\s*el-?mandeb|suez|tehran|tel\s*aviv|gulf|lebanon|syria)\b"],
         "SOUTH_ASIA": [r"\b(south\s*asia|india|pakistan|kashmir|loc|balakot|punjab\s*border|ladakh|china\s*border)\b"],
         "TAIWAN_STRAIT": [r"\b(taiwan\s*strait|taiwan|pla|beijing|taipei|south\s*china\s*sea)\b"],
         "EASTERN_EUROPE": [r"\b(eastern\s*europe|russia|ukraine|black\s*sea|crimea|nato|baltic)\b"],

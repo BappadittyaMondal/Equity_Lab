@@ -90,8 +90,27 @@ def build_research_context(symbol: str, max_context_tokens: int = 8000) -> str:
                     context_lines.append(f"{metric_name.upper()}: {values}")
             context_lines.append("")
         else:
-            context_lines.append("Financial observations: None in database (run seed_watchlist)")
-            context_lines.append("")
+            # Phase 148 Grounded Financial Context Bridge: fallback to company_fundamentals store
+            try:
+                from app.services.data_ingestion.screener_connector import ScreenerCloudConnector
+                f_data = ScreenerCloudConnector.get_or_fetch_fundamentals(norm)
+                if f_data:
+                    context_lines.append("── AUDITED COMPANY FUNDAMENTALS (Live/Cached Fundamental Store) ──")
+                    mcap_raw = float(f_data.get('market_cap', 0) or 0)
+                    mcap_cr = round(mcap_raw / 1e7, 1) if mcap_raw > 1e7 else round(mcap_raw, 1)
+                    context_lines.append(f"Market Cap: ₹{mcap_cr} Cr | Current Price: ₹{f_data.get('current_price', 'N/A')} | P/E: {f_data.get('pe_ratio', 'N/A') or 'N/A'}")
+                    roce_val = f_data.get('roce_annualized') or f_data.get('roce_ttm') or (round(float(f_data['roce_latest']) * 4.0, 1) if f_data.get('roce_latest') else None)
+                    roe_val = f_data.get('roe_annualized') or f_data.get('roe_ttm') or (round(float(f_data['roe_latest']) * 4.0, 1) if f_data.get('roe_latest') else None)
+                    context_lines.append(f"RoCE: {f'{roce_val:.1f}%' if roce_val is not None else 'N/A'} | RoE: {f'{roe_val:.1f}%' if roe_val is not None else 'N/A'} | OPM: {f_data.get('opm_latest', 'N/A')}%")
+                    context_lines.append(f"Debt/Equity: {f_data.get('debt_to_equity', 'N/A')} | Interest Coverage: {f_data.get('interest_coverage', 'N/A')}x | Sales Growth: {f_data.get('sales_growth_latest', 'N/A')}%")
+                    context_lines.append(f"Promoter Holding: {f_data.get('promoter_holding', 'N/A')}% | Pledged: {f_data.get('pledged_pct', 'N/A')}% | DII: {f_data.get('dii_holding', 'N/A')}% | FII: {f_data.get('fii_holding', 'N/A')}%")
+                    context_lines.append("")
+                else:
+                    context_lines.append("Financial observations: None in database (run seed_watchlist)")
+                    context_lines.append("")
+            except Exception:
+                context_lines.append("Financial observations: None in database (run seed_watchlist)")
+                context_lines.append("")
 
         if ownership:
             latest_own = sorted(ownership, key=lambda x: str(x.period_end))[-1]
@@ -206,19 +225,34 @@ def process_llm_query(req: QueryRequest) -> QueryResponse:
     conn_check.close()
     fallback = daily_calls >= settings.LLM_DAILY_CALL_LIMIT
 
-    # ── Symbol extraction ─────────────────────────────────────────────────
-    STOP_VERBS = {
+    # ── Symbol extraction with Conversational Intent Routing ─────────────
+    STOP_WORDS = {
         "SHOW", "WHAT", "CHECK", "ANALYZE", "PLEASE", "PRICE", "RETURN",
         "FETCH", "MODE", "QUICK", "RESEARCH", "WITH", "FROM", "THAT", "THIS",
         "YOUR", "THE", "AND", "STOCK", "GIVE", "TELL", "FIND", "VIEW",
-        "CALCULATE", "WILL", "SOME", "MANY", "ABOUT", "INFO", "DATA", "LOOK"
+        "CALCULATE", "WILL", "SOME", "MANY", "ABOUT", "INFO", "DATA", "LOOK",
+        "HOW", "WHY", "CAN", "SHOULD", "COULD", "WOULD", "EXPLAIN", "COMPARE",
+        "MARKET", "TODAY", "REGIME", "SECTOR", "SECTORS", "BEST", "TOP", "GOOD",
+        "BAD", "WHERE", "WHEN", "WHICH", "INDIA", "NIFTY", "SENSEX", "INVEST",
+        "INVESTING", "TRADE", "TRADING", "MONEY", "PORTFOLIO", "SHARE", "SHARES",
+        "CURRENT", "OUTLOOK", "TREND", "GROWTH", "EARNINGS", "BUY", "SELL",
+        "IS", "IN", "AS", "AT", "ON", "BY", "IT", "TO", "DO", "GO", "NO", "SO",
+        "UP", "AN", "MY", "ME", "WE", "US", "BE", "HE", "OR", "OF", "IF", "THE",
+        "FOR", "ARE", "WAS", "HAS", "HAD", "NOT", "BUT", "ALL", "ANY", "ITS",
+        "NOW", "NEW", "OUR", "OUT", "SEE", "WAY", "WHO", "HIM", "HER", "THEY",
+        "THEM", "THAN", "THEN", "EACH", "ECONOMIC", "ECONOMY"
     }
     candidates = re.findall(r'\b[A-Z0-9^]{2,12}\b', query_text.upper())
-    symbol = "RELIANCE"
+    symbol = None
     for cand in candidates:
-        if cand not in STOP_VERBS and len(cand) >= 2:
+        if cand not in STOP_WORDS and len(cand) >= 2:
             symbol = cand
             break
+
+    # If no specific company ticker found, route macro/regime queries cleanly to NIFTY context
+    if not symbol:
+        is_macro = any(w in query_text.upper() for w in ["MARKET", "REGIME", "MACRO", "ECONOMY", "NIFTY", "INDEX", "TREND", "OVERVIEW"])
+        symbol = "^NSEI" if is_macro else "RELIANCE"
 
     # ── Build Research Context (Phase 3 core) ────────────────────────────
     research_context = build_research_context(symbol)

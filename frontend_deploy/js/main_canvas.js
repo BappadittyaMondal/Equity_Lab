@@ -87,16 +87,17 @@ export function switchView(viewName) {
   }
 }
 
-export function selectSymbol(symbol) {
+export function selectSymbol(symbol, query = "") {
   if (!symbol) return;
   const cleanSymbol = symbol.trim().toUpperCase().replace(".NS", "").replace(".BO", "");
   window.__IERL_SELECTED_SYMBOL = cleanSymbol;
+  window.__IERL_ACTIVE_QUERY = query;
 
   updateSelectedSymbolUI(cleanSymbol);
   renderCentralHub(cleanSymbol);
 
-  // Re-render active subpanel for new symbol
-  renderConvictionPanel(cleanSymbol);
+  // Re-render active subpanel for new symbol with query context
+  renderConvictionPanel(cleanSymbol, "ALL", query);
   renderScorecardPanel(cleanSymbol);
 
   const cagrEl = document.getElementById("cagr-matrix-panel");

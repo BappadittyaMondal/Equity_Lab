@@ -9,8 +9,25 @@ Provides context-aware parameter relaxation and tightening across 6 strategic in
   6. INTENT_PEER_COMPARE: Normalizes sector capital intensity (Rule of 40 for SaaS vs Book-to-Bill for ESDM).
 """
 
+import math
 import re
 from typing import Dict, Any, List, Optional
+
+
+def compute_horizon_grayzone_weight(horizon_days: float) -> float:
+    """Computes monotonic decay weight for geopolitical/cultural grayzones based on horizon days.
+    
+    Formula: W(H) = round(1.0 - exp(-0.015 * H), 4)
+    - 3D: ~0.04 -> suppressed (0.0 effective for tactical setups)
+    - 10D: ~0.14 -> noise floor (0.05 capped)
+    - 30D: ~0.36 -> moderate intermediate weight
+    - 365D+: ~1.0 -> full transmission for long-term compounders
+    """
+    if horizon_days <= 3.0:
+        return 0.0
+    if horizon_days <= 10.0:
+        return 0.05
+    return round(float(1.0 - math.exp(-0.015 * max(0.0, horizon_days))), 4)
 
 
 ARCHETYPE_WEIGHT_PROFILES = {
@@ -401,6 +418,7 @@ class QueryAdaptiveConstraintEngine:
         elif norm_intent == "SIP_COMPOUNDER":
             # Relax short-term technicals
             relaxed.append("Short-term technical indicators (3D/10D RSI, breakout volume) completely relaxed for long-duration SIP.")
+            tightened.append("Long-term sovereign stability, regulatory resilience, and cultural grayzone alignment strictly evaluated (W_grayzone=1.0).")
 
             # Check if company is in BFSI / Financial sector
             sector_val = str(data.get("sector") or data.get("industry") or "").upper().strip()
@@ -533,6 +551,7 @@ class QueryAdaptiveConstraintEngine:
         elif norm_intent == "SWING_3D":
             # 72-Hour Tactical Momentum Horizon
             relaxed.append("Multi-year 5Y/10Y DCF, long-term ROCE, and terminal valuation completely relaxed for 72-hour tactical swing.")
+            relaxed.append("Geopolitical grayzone risks and narrative weak signals completely suppressed (W_grayzone=0.0) for 72-hour tactical holding.")
             tightened.append("Intraday Anchored VWAP, volume Z-score, close position >= 0.75, and upper circuit distance strictly enforced.")
 
             if vol_z is not None and vol_z < 2.0:
@@ -563,6 +582,7 @@ class QueryAdaptiveConstraintEngine:
         elif norm_intent == "SWING_10D":
             # 1-2 Week Multi-Session Swing Horizon
             relaxed.append("10-Year DCF intrinsic valuation and multi-decade reinvestment runway relaxed for 10-day multi-session swing.")
+            relaxed.append("Long-term cultural/religious grayzones and speculative macro narratives suppressed (W_grayzone<=0.05) for 10D multi-session swing.")
             tightened.append("TTM Squeeze compression/expansion, 10/20 EMA ribbon support, and event risk safety strictly enforced.")
 
             # Event Risk: earnings gap avoidance
@@ -576,6 +596,7 @@ class QueryAdaptiveConstraintEngine:
             # 1-Month Base Breakout & Intermediate Catalyst Horizon
             relaxed.append("Multi-decade terminal growth models relaxed in favor of intermediate base breakout structure and quarterly catalysts.")
             tightened.append("Minervini Stage 2 uptrend, base consolidation depth, and quarterly PAT acceleration strictly enforced.")
+            tightened.append("Intermediate supply-chain disruption and trade settlement friction monitored with moderate horizon weight (W_grayzone=0.36).")
 
             eff_pat = pat_growth_latest if pat_growth_latest is not None else pat_cagr_3y
             if eff_pat is not None and eff_pat < 15.0:

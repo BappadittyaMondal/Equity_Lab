@@ -147,10 +147,22 @@ class UserFeedbackEngine:
                 f"While historical financial score is strong, forward geopolitical penalty is active ({geo_res.get('macro_risk_rating')} Risk)."
             )
 
+        # Phase 142: Trigger autonomous epistemic self-learning on user query
+        learned_entities_summary = []
+        try:
+            from app.services.research.self_learning_engine import SelfLearningEngine
+            learner = SelfLearningEngine()
+            learned_entities = learner.learn_from_text(user_query, source_origin=f"USER_FEEDBACK_{feedback_id}")
+            if learned_entities:
+                learned_entities_summary = [e.canonical_name for e in learned_entities]
+                findings.append(f"Autonomous Learning Engine ingested {len(learned_entities)} dynamic concept(s): {learned_entities_summary}.")
+        except Exception:
+            pass
+
         if not findings:
             findings.append(f"Ingested counter-question regarding {', '.join(extracted_symbols or ['Universe'])}. Applied Phase 2 FCF & Geopolitical risk matrices.")
 
-        analytical_response = "\n".join(findings)
+        analytical_response = "\n\n".join(findings)
 
         # 3. Store feedback in DB
         record = FeedbackQueryRecord(

@@ -58,6 +58,9 @@ export async function renderConvictionPanel(symbol, objective = "ALL", query = "
     // Data provenance: only display confidence if server provides it
     const dataConfidence = data.data_confidence_score;
     const stale = data.stale || false;
+    const activeObjective = (data.decision_manifest && data.decision_manifest.objective) ||
+      (data.executive_decision_card && data.executive_decision_card.fiduciary_guardrails && data.executive_decision_card.fiduciary_guardrails.objective) ||
+      (objective && objective !== "ALL" ? objective : "");
 
     // Determine Gauge & Verdict Color — matches backend ConvictionCall verdicts (§106)
     const normVerdict = (verdict || "").toUpperCase().trim();
@@ -157,6 +160,10 @@ export async function renderConvictionPanel(symbol, objective = "ALL", query = "
               <span class="px-3 py-1 text-xs font-bold font-mono rounded-full border ${verdictBg}">
                 ${verdict}
               </span>
+              ${activeObjective ? `
+              <span class="px-2.5 py-0.5 text-[11px] font-mono font-semibold rounded bg-surface-high text-cream-dark border border-gold/40 shadow-sm" title="Dynamic Query-Adaptive Strategic Archetype">
+                🎯 ${activeObjective}
+              </span>` : ''}
             </div>
             <p class="text-xs text-muted mt-1">
               ${dataConfidence != null ? `Data Confidence: <strong class="text-gold font-mono">${dataConfidence}%</strong> | ` : ""}Tier: <span class="font-semibold text-white">${confidence_tier}</span>

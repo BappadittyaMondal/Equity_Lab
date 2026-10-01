@@ -24,7 +24,7 @@ try:
     # Validate CORS settings for production environment
     settings._validate_cors_settings()
     from app.core.security import ApiSecurityMiddleware, SecurityHeadersMiddleware, verify_api_key
-    from app.api import health, market, comparison, probability, options, strategies, query, research_data, watchlist, decision, watchlist_digest, monitoring, admin, portfolio, multibagger, technical, user_feedback, genai_redteam, ai_committee_api, turnaround, research_phase139
+    from app.api import health, market, comparison, probability, options, strategies, query, research_data, watchlist, decision, watchlist_digest, monitoring, admin, portfolio, multibagger, technical, user_feedback, genai_redteam, ai_committee_api, turnaround, research_phase139, surveillance_data
 except ModuleNotFoundError as err:
     # If the error is due to top-level app package resolution, try fallback, otherwise re-raise the missing package error loudly
     if err.name in ("app", "core", "api") or (err.name and err.name.startswith("app.")):
@@ -32,7 +32,7 @@ except ModuleNotFoundError as err:
             from core.config import settings
             settings._validate_cors_settings()
             from core.security import ApiSecurityMiddleware, SecurityHeadersMiddleware, verify_api_key
-            import health, market, comparison, probability, options, strategies, query, research_data, watchlist, decision, watchlist_digest, monitoring, admin, portfolio, multibagger, technical, user_feedback, genai_redteam, ai_committee_api, turnaround
+            import health, market, comparison, probability, options, strategies, query, research_data, watchlist, decision, watchlist_digest, monitoring, admin, portfolio, multibagger, technical, user_feedback, genai_redteam, ai_committee_api, turnaround, surveillance_data
         except ModuleNotFoundError as inner_err:
             import logging
             logging.getLogger(__name__).error(f"Failed to import required backend router: {inner_err}")
@@ -189,6 +189,8 @@ app.include_router(turnaround.router, dependencies=auth_deps)
 app.include_router(research_phase139.router, dependencies=auth_deps)
 app.include_router(admin.router, dependencies=auth_deps)
 
+from app.api.surveillance_data import router as surveillance_data_router
+app.include_router(surveillance_data_router)
 # Mount Frontend Assets
 frontend_dir = os.path.join(os.path.dirname(__file__), "../frontend_deploy")
 if os.path.exists(frontend_dir):

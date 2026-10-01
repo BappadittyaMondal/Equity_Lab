@@ -1117,3 +1117,30 @@ class ScreenerCloudConnector:
         finally:
             conn.close()
 
+    @staticmethod
+    def get_or_fetch_fundamentals(symbol: str) -> Optional[Dict[str, Any]]:
+        """Fetch fundamentals from DB cache; if missing or stale (>24h), auto-fetch via yfinance."""
+        # 1. Try local DB first
+        cached = ScreenerCloudConnector.get_company_fundamentals(symbol)
+        if cached:
+            # Check freshness
+            updated = cached.get("updated_at", "")
+            if updated:
+                try:
+                    from datetime import datetime, timezone, timedelta
+                    updated_dt = datetime.fromisoformat(updated.replace("Z", "+00:00"))
+                    if datetime.now(timezone.utc) - updated_dt < timedelta(hours=24):
+                        return cached
+                except Exception:
+                    return cached  # If parse fails, use cached
+        
+        # 2. Cache miss or stale: fetch live via yfinance
+        try:
+            from app.services.data_ingestion.fundamental_fetcher import FundamentalFetcher
+            result = FundamentalFetcher.fetch_and_store(symbol)
+            return result
+        except Exception as exc:
+            import logging
+            logging.getLogger(__name__).warning("Live fundamental fetch failed for %s: %s", symbol, exc)
+            return cached  # Fall back to stale cache if available
+

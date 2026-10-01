@@ -6325,6 +6325,119 @@
           }
         }
       }
+    },
+    "/api/v1/data/surveillance": {
+      "post": {
+        "tags": [
+          "Surveillance Data"
+        ],
+        "summary": "Bulk Update Surveillance",
+        "operationId": "bulk_update_surveillance_api_v1_data_surveillance_post",
+        "parameters": [
+          {
+            "name": "x-api-key",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "X-Api-Key"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "array",
+                "items": {
+                  "$ref": "#/components/schemas/SurveillanceRecord"
+                },
+                "title": "Records"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/data/surveillance/flagged": {
+      "get": {
+        "tags": [
+          "Surveillance Data"
+        ],
+        "summary": "Get Flagged Surveillance",
+        "operationId": "get_flagged_surveillance_api_v1_data_surveillance_flagged_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/data/surveillance/{symbol}": {
+      "get": {
+        "tags": [
+          "Surveillance Data"
+        ],
+        "summary": "Get Surveillance",
+        "operationId": "get_surveillance_api_v1_data_surveillance__symbol__get",
+        "parameters": [
+          {
+            "name": "symbol",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Symbol"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
     }
   },
   "components": {
@@ -12495,6 +12608,49 @@
           "symbol"
         ],
         "title": "StressTestRequest"
+      },
+      "SurveillanceRecord": {
+        "properties": {
+          "symbol": {
+            "type": "string",
+            "title": "Symbol"
+          },
+          "asm_stage": {
+            "type": "string",
+            "title": "Asm Stage",
+            "default": "CLEAN"
+          },
+          "gsm_stage": {
+            "type": "string",
+            "title": "Gsm Stage",
+            "default": "CLEAN"
+          },
+          "esm_stage": {
+            "type": "string",
+            "title": "Esm Stage",
+            "default": "CLEAN"
+          },
+          "t2t_flag": {
+            "type": "boolean",
+            "title": "T2T Flag",
+            "default": false
+          },
+          "fo_ban_flag": {
+            "type": "boolean",
+            "title": "Fo Ban Flag",
+            "default": false
+          },
+          "circuit_band_pct": {
+            "type": "number",
+            "title": "Circuit Band Pct",
+            "default": 20.0
+          }
+        },
+        "type": "object",
+        "required": [
+          "symbol"
+        ],
+        "title": "SurveillanceRecord"
       },
       "TickerQuoteResponse": {
         "properties": {

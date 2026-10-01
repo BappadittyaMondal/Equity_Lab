@@ -1127,6 +1127,45 @@ export async function analyzeYouTubeVideo(payload) {
   }
 }
 
+/**
+ * Executes MAP-Rank Multi-Dimensional Pareto Ranking over a candidate list.
+ */
+export async function rankCandidates(candidates = [], horizon = "1y", intent = "GENERAL", fundamentalsLookup = null) {
+  try {
+    const payload = {
+      candidates,
+      horizon,
+      intent,
+      fundamentals_lookup: fundamentalsLookup
+    };
+    const resp = await apiFetch(`/api/v1/research/rank-candidates`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(payload),
+    });
+    if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
+    return await resp.json();
+  } catch (err) {
+    console.warn("Rank candidates failed:", err.message);
+    return null;
+  }
+}
 
-
-
+/**
+ * Loads institutional ConvictionCall from the Decision Brain Arbiter with dynamic query intent.
+ */
+export async function loadDecisionCall(symbol = "RELIANCE", objective = "GENERAL", query = "") {
+  try {
+    const sym = encodeURIComponent(symbol);
+    const params = new URLSearchParams();
+    if (objective && objective !== "ALL") params.append("objective", objective);
+    if (query && query.trim()) params.append("query", query.trim());
+    const queryParam = params.toString() ? `?${params.toString()}` : "";
+    const resp = await apiFetch(`/api/v1/decision/${sym}${queryParam}`);
+    if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
+    return await resp.json();
+  } catch (err) {
+    console.warn("Decision call failed:", err.message);
+    return null;
+  }
+}

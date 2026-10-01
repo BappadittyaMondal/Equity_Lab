@@ -13,9 +13,12 @@ export async function initHeaderNav() {
 
     const handleSearch = () => {
       if (searchInput && searchInput.value.trim()) {
-        const sym = searchInput.value.trim();
+        const rawInput = searchInput.value.trim();
+        const tokens = rawInput.split(/\s+/);
+        const sym = tokens[0].toUpperCase().replace('.NS', '').replace('.BO', '');
+        const queryText = tokens.length > 1 ? rawInput : '';
         if (typeof window.selectSymbol === 'function') {
-          window.selectSymbol(sym);
+          window.selectSymbol(sym, queryText);
         }
         searchInput.value = '';
       }
