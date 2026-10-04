@@ -43,7 +43,7 @@ def test_fundamental_fetcher_dual_roce_and_roe():
             assert res["roce_annualized"] == 10.0
             assert res["roe_latest"] == 3.2
             assert res["roe_annualized"] == 12.8
-            assert res["pledge_provenance"] == "UNVERIFIED_IN_YFINANCE_FEED"
+            assert res["pledge_provenance"] == "NOT_AVAILABLE_YFINANCE"  # Updated Phase 150 C2
 
 
 def test_llm_build_research_context_fallback_to_company_fundamentals():

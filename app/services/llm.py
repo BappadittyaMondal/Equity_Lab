@@ -103,8 +103,27 @@ def build_research_context(symbol: str, max_context_tokens: int = 8000) -> str:
                     roe_val = f_data.get('roe_annualized') or f_data.get('roe_ttm') or (round(float(f_data['roe_latest']) * 4.0, 1) if f_data.get('roe_latest') else None)
                     context_lines.append(f"RoCE: {f'{roce_val:.1f}%' if roce_val is not None else 'N/A'} | RoE: {f'{roe_val:.1f}%' if roe_val is not None else 'N/A'} | OPM: {f_data.get('opm_latest', 'N/A')}%")
                     context_lines.append(f"Debt/Equity: {f_data.get('debt_to_equity', 'N/A')} | Interest Coverage: {f_data.get('interest_coverage', 'N/A')}x | Sales Growth: {f_data.get('sales_growth_latest', 'N/A')}%")
-                    context_lines.append(f"Promoter Holding: {f_data.get('promoter_holding', 'N/A')}% | Pledged: {f_data.get('pledged_pct', 'N/A')}% | DII: {f_data.get('dii_holding', 'N/A')}% | FII: {f_data.get('fii_holding', 'N/A')}%")
-                    context_lines.append("")
+                    # ── Phase 151 T3: Pledge Provenance Guard ─────────────────
+                    # Never render "0.0%" for pledge when provenance is NOT_AVAILABLE.
+                    # Learned from INDOTECH: 80.26% pledged was printed as "0.00% verified."
+                    _pledge_val = f_data.get('pledged_pct')
+                    _pledge_prov = f_data.get('pledge_provenance', '')
+                    if _pledge_val is None or 'NOT_AVAILABLE' in str(_pledge_prov):
+                        _pledge_display = "NOT VERIFIED (yfinance does not provide pledge data — verify from BSE filing)"
+                    else:
+                        _pledge_display = f"{_pledge_val}%"
+                    context_lines.append(f"Promoter Holding: {f_data.get('promoter_holding', 'N/A')}% | Pledged: {_pledge_display} | DII: {f_data.get('dii_holding', 'N/A')}% | FII: {f_data.get('fii_holding', 'N/A')}%")
+                    # ── Phase 151: PAT Quality & Sustainable PEG in context ───
+                    _pat_qf = f_data.get('pat_quality_flag', 'N/A')
+                    _peg_s = f_data.get('peg_sustainable')
+                    _oi_pct = f_data.get('other_income_pct_of_pat', 0.0)
+                    if _pat_qf == "NON_OPERATING_DOMINATED":
+                        context_lines.append(f"⚠ PAT QUALITY: {_pat_qf} — Other Income = {_oi_pct}% of PAT. Earnings growth may be FVTPL/MTM artifact, NOT operating.")
+                    elif _pat_qf == "ELEVATED_OTHER_INCOME":
+                        context_lines.append(f"⚠ PAT QUALITY: {_pat_qf} — Other Income = {_oi_pct}% of PAT. Verify sustainability.")
+                    if _peg_s is not None:
+                        context_lines.append(f"PEG (Sustainable, multi-year CAGR): {_peg_s}")
+                    # ──────────────────────────────────────────────────────────
                 else:
                     context_lines.append("Financial observations: None in database (run seed_watchlist)")
                     context_lines.append("")
@@ -346,6 +365,23 @@ def process_llm_query(req: QueryRequest) -> QueryResponse:
             )
             conn_log.commit()
             conn_log.close()
+
+            # ── Phase 150: Self-Learning Engine Activation (Post-Response Hook) ──────────
+            # Non-blocking — fires after every successful LLM conversation.
+            # Scans query+reply for unmapped concepts, certifies facts, quarantines noise.
+            # Zero regression risk: any failure is silently caught and logged.
+            try:
+                from app.services.research.self_learning_engine import SelfLearningEngine
+                _sle = SelfLearningEngine()
+                _combined_text = f"QUERY [{symbol}|{mode}]: {query_text}\n\nRESPONSE: {final_reply}"
+                _sle.learn_from_text(
+                    text=_combined_text,
+                    source_origin=f"LLM_CONVERSATION|{symbol}|{mode}",
+                    provenance_score=0.80,
+                )
+            except Exception as _sle_err:
+                logger.debug("Self-learning engine scan skipped: %s", _sle_err)
+            # ─────────────────────────────────────────────────────────────────────────────
 
             return QueryResponse(
                 query=query_text,

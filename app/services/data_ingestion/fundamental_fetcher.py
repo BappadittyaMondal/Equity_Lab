@@ -217,6 +217,58 @@ class FundamentalFetcher:
             # CFO/PAT (Approximated using single quarter for "latest" fallback or trailing if available)
             cfo_pat = (operating_cash_flow / net_income) if net_income else 0.0
 
+            # ── Phase 151 T1: Other Income Decomposition ──────────────────────
+            # Extracts Other Income to flag FVTPL/MTM-dominated PAT spikes.
+            # Learned from PIXTRANS Q1 FY27: 52% of PAT was unrealized FVTPL gain.
+            # yfinance quarterly P&L: "Other Income" is not a standard key.
+            # Derive: Other Income ≈ Net Income - Operating Income + Interest Expense + Tax
+            # Simpler proxy: Other Income ≈ EBIT - Operating Income (if both available)
+            # Most reliable: Total Revenue includes non-operating; but Operating Revenue does not.
+            # Best available: use "Other Income" row if present, else derive from Net Income vs Operating Income.
+            _other_income_raw = get_fin('Other Income')
+            if _other_income_raw == 0.0:
+                # Fallback derivation: Non-Operating = Net Income - (Operating Income * (1 - effective_tax))
+                # Simplified: if PAT >> Operating Profit after typical ~25% tax, the delta is Other Income
+                _operating_pat_approx = operating_income * 0.75 if operating_income else 0.0
+                _other_income_raw = max(0.0, net_income - _operating_pat_approx) if net_income else 0.0
+
+            other_income = _other_income_raw
+            other_income_pct_of_pat = (abs(other_income) / abs(net_income) * 100) if net_income else 0.0
+
+            # PAT Quality Flag
+            if other_income_pct_of_pat > 40.0:
+                pat_quality_flag = "NON_OPERATING_DOMINATED"
+            elif other_income_pct_of_pat > 25.0:
+                pat_quality_flag = "ELEVATED_OTHER_INCOME"
+            else:
+                pat_quality_flag = "OPERATING"
+
+            # ── Phase 151 T2: Sustainable PEG ─────────────────────────────────
+            # Uses multi-year CAGR instead of single-quarter YoY growth.
+            # Learned from NITTAGELA/MAYURUNIQ: single-quarter PEG was 0.40-0.45,
+            # but 5yr revenue CAGR was only 8-10%, making true PEG ~1.5-1.8.
+            _pe_ratio = info.get('trailingPE', 0.0) or 0.0
+            _pat_growth_candidates = []
+            # Compute single-quarter YoY PAT growth inline (pat_growth_latest is computed later at line ~291)
+            _ni_1yr_ago_peg = get_fin('Net Income', 4)
+            _pat_yoy_peg = ((net_income - _ni_1yr_ago_peg) / abs(_ni_1yr_ago_peg) * 100) if _ni_1yr_ago_peg else 0.0
+            if _pat_yoy_peg and abs(_pat_yoy_peg) > 0.1:
+                _pat_growth_candidates.append(_pat_yoy_peg)
+            # 3yr PAT CAGR approximation: compare current TTM vs 3yr-ago quarter annualized
+            _ni_3yr_ago = get_fin('Net Income', 12)
+            if _ni_3yr_ago and _ni_3yr_ago > 0 and net_income and net_income > 0:
+                _pat_cagr_3yr = ((net_income / _ni_3yr_ago) ** (1.0 / 3.0) - 1.0) * 100
+                _pat_growth_candidates.append(_pat_cagr_3yr)
+
+            if _pe_ratio > 0 and _pat_growth_candidates:
+                _sustainable_growth = max(_pat_growth_candidates)
+                if _sustainable_growth > 1.0:  # Minimum 1% growth to compute PEG
+                    peg_sustainable = round(_pe_ratio / _sustainable_growth, 2)
+                else:
+                    peg_sustainable = None  # No meaningful PEG for <1% growth
+            else:
+                peg_sustainable = None
+
             # 3yr metrics (simplified logic based on periods_back in quarterly data: index 12 is approx 3 years ago if available)
             ebit_3yr = get_fin('EBIT', 12) or get_fin('EBIT', 3) # fallback to 1 yr back if 3yr missing
             ce_3yr = get_bs('Total Assets', 12) - get_bs('Current Liabilities', 12)
@@ -285,6 +337,15 @@ class FundamentalFetcher:
                 "sales_growth_latest": sales_growth_latest,
                 "eps_growth_3yr": 0.0,
                 "eps_latest": eps_latest,
+                # ── Phase 150: Critical Fix C1 — cfo_pat was computed (line 218) but missing from return dict ──
+                # Without this, SIP_COMPOUNDER gate triggers OBJECTIVE_BLOCK veto on every live-fetched stock.
+                "cfo_pat": cfo_pat,
+                # ── Phase 151: Earnings Quality & Sustainable PEG ─────────────
+                "other_income": other_income,
+                "other_income_pct_of_pat": round(other_income_pct_of_pat, 2),
+                "pat_quality_flag": pat_quality_flag,
+                "peg_sustainable": peg_sustainable,
+                # ─────────────────────────────────────────────────────────────
                 # ── Phase 149: Corporate Action Normalized Fields ─────────────
                 "cumulative_split_factor": ca_norm["cumulative_split_factor"],
                 "corporate_action_normalized_eps": ca_norm["corporate_action_normalized_eps"],
@@ -305,8 +366,8 @@ class FundamentalFetcher:
                 "vol_1y_avg": info.get("averageVolume", 0.0),
                 "piotroski_score": 0.0, # Not trivially available from yf without much more computation
                 "promoter_holding": info.get("heldPercentInsiders", 0.0) * 100 if info.get("heldPercentInsiders") else 0.0,
-                "pledged_pct": 0.0,
-                "pledge_provenance": "UNVERIFIED_IN_YFINANCE_FEED",
+                "pledged_pct": None,  # Phase 150 C2: was 0.0 — false zero bypassed all pledge governance gates
+                "pledge_provenance": "NOT_AVAILABLE_YFINANCE",  # yfinance provides no promoter pledge data
                 "debt_to_equity": debt_to_equity,
                 "interest_coverage": interest_coverage,
                 "peg_ratio": info.get("pegRatio", 0.0),

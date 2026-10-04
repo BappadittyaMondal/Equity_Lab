@@ -190,7 +190,7 @@ app.include_router(research_phase139.router, dependencies=auth_deps)
 app.include_router(admin.router, dependencies=auth_deps)
 
 from app.api.surveillance_data import router as surveillance_data_router
-app.include_router(surveillance_data_router)
+app.include_router(surveillance_data_router, dependencies=auth_deps)  # Phase 150 C3: secured — was unauthenticated
 # Mount Frontend Assets
 frontend_dir = os.path.join(os.path.dirname(__file__), "../frontend_deploy")
 if os.path.exists(frontend_dir):
