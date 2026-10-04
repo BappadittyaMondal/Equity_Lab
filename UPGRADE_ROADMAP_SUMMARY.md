@@ -4831,3 +4831,80 @@ All other 20 product routers are protected. Surveillance POST endpoints accept A
 - **Test Result:** 11/11 PASSED (0 regressions across 64+ targeted tests).
 
 ---
+
+## Phase 156: Institutional-Grade Multiplicative Pipeline & 9-Gap Final Closure (04 Oct 2026)
+
+**Classification:** CRITICAL INSTITUTIONAL UPGRADE  
+**Trigger:** Comprehensive forensic cross-audit against institutional BlackRock/J.P. Morgan and multi-expert standards identified 9 specific structural gaps in the deadliest combination pipeline, portfolio construction layer, and self-learning calibration.
+
+### The 9 Reconciled Gaps & Formal Implementations
+
+#### 1. MCap Band Boundary Expansion
+- **File:** `app/services/research/deadliest_combo_pipeline.py`
+- **Specification:** Refactored hard gates from ₹100–9,000 Cr to **₹150 Cr – ₹15,000 Cr** minimum/maximum boundaries matching institutional micro-multibagger mandate (`mcap_cr < 150.0` and `mcap_cr > 15000.0`).
+
+#### 2. Multiplicative Cross-Product Scoring Formulation
+- **File:** `app/services/research/deadliest_combo_pipeline.py`
+- **Mathematical Formula:** Replaced additive linear scoring with non-linear Cobb-Douglas style cross-product:
+  $$\text{Deadliest Score} = 100 \times \left(\text{Potential}^{0.55} \times \text{Timing}^{0.30} \times \text{CeilingFactor}^{0.15}\right) \times Q_{\text{continuous}}$$
+- **Properties:** Eliminates false-positive accumulation where a stock with zero timing or zero fundamental potential could accumulate high composite scores through unrelated sub-metrics.
+
+#### 3. Continuous Balance Sheet & Earnings Quality Multiplier ($Q_{\text{continuous}}$)
+- **File:** `app/services/research/deadliest_combo_pipeline.py`
+- **Function:** `_calculate_continuous_q(fundamentals)`
+- **Mathematical Formula:**
+  $$Q = 0.40 \times \min(1.0, \max(0.0, \text{CFO/PAT})) + 0.30 \times \max(0.0, 1.0 - \text{Pledge}/10.0) + 0.30 \times \max(0.0, 1.0 - \text{D/E}/0.50)$$
+  Clamped strictly to range $[0.50, 1.00]$.
+- **Impact:** Converts redundant binary kill-switches into a continuous quality gradient that rewards pristine balance sheets ($Q \to 1.00$) while heavily penalizing strained cash flows and promoter debt encumbrance ($Q \to 0.50$).
+
+#### 4. Operating Leverage Convexity Factor ($\Omega$)
+- **File:** `app/services/research/deadliest_combo_pipeline.py`
+- **Function:** `_calculate_operating_leverage_convexity(fundamentals)`
+- **Mathematical Formula:**
+  $$\Omega = \min\left(2.5, \max\left(1.0, \frac{\text{TTM Operating PAT Growth } \%}{\max(5.0, \text{TTM Revenue Growth } \%)}\right)\right)$$
+- **Impact:** Captures operating margin expansion dynamics where operating profit outpaces revenue growth, amplifying the base potential factor without distorting non-growing companies.
+
+#### 5. Order-Book Conversion Burn Rate ($\kappa$)
+- **File:** `app/services/research/deadliest_combo_pipeline.py`
+- **Function:** `_calculate_order_book_burn_rate(fundamentals)`
+- **Mathematical Formula:**
+  $$\kappa = \frac{\text{Annual Operating Revenue}_t}{\text{Opening Order Book}_{t-1}} \ge 0.20$$
+- **Impact:** Verifies execution velocity for capital goods, EPC, and defense contractors, guarding against inflated order books that suffer from multi-year execution stagnation.
+
+#### 6. Institutional Portfolio Construction Layer
+- **File:** `app/services/research/deadliest_combo_pipeline.py`
+- **Parameters:** `enforce_portfolio_constraints: bool = True`, `max_sector_exposure: float = 0.30`
+- **Mechanisms:**
+  - **Sector Concentration Cap:** Restricts any single sector from exceeding 30% of portfolio allocations.
+  - **ADTV Liquidity Limits & Correlation Diversification:** Ensures high ranking candidates are diversified across sectors before allocating downstream capital.
+
+#### 7. Epistemic Calibration in Dynamic Knowledge Registry
+- **File:** `data/dynamic_knowledge/learned_rules_registry.json`
+- **Added Entities:**
+  1. `OTHER_INCOME_EARNINGS_ILLUSION` (Confidence 0.70, Status `PROVISIONAL_OBSERVATION`)
+  2. `PROMOTER_PLEDGE_PARENT_NCD_CONTAGION` (Confidence 0.70, Status `PROVISIONAL_OBSERVATION`)
+  3. `ORDER_BOOK_CONVERSION_BURN_RATE` (Confidence 0.70, Status `PROVISIONAL_OBSERVATION`)
+  4. `REVERSE_DCF_RETURN_CEILING_GATE` (Confidence 0.70, Status `PROVISIONAL_OBSERVATION`)
+- **Impact:** Calibrates machine learning Bayesian priors with verified epistemic confidence rather than overfitted certainty.
+
+#### 8. Segmented Capacity & Efficiency Tapering
+- **File:** `app/services/research/deadliest_combo_pipeline.py`
+- **Function:** `_get_segmented_thresholds(mcap_cr)`
+- **Thresholds:**
+  - **Micro (₹150–1,500 Cr):** CWIP $\ge 15\%$, Inc-ROIC $\ge 22\%$
+  - **Small (₹1,500–6,000 Cr):** CWIP $\ge 12\%$, Inc-ROIC $\ge 20\%$
+  - **Mid (₹6,000–15,000 Cr):** CWIP $\ge 8\%$, Inc-ROIC $\ge 16\%$
+
+#### 9. Segment-Relative Headroom & Delivery Benchmark
+- **File:** `app/services/research/deadliest_combo_pipeline.py`
+- **Function:** `_calculate_headroom_and_delivery(fundamentals)`
+- **Formulas:**
+  - Headroom scaled to $\min(3.0\%, 0.75 \times \text{Price Band})$
+  - Delivery benchmark verified against 60-day median ($\ge 1.30\times$)
+
+### Test Verification
+- **New Test Suite:** `app/tests/test_phase156_institutional_pipeline_refinement.py` (14 tests)
+- **Updated Test Suite:** `app/tests/test_phase155_deadliest_combo_pipeline.py` (11 tests)
+- **Results:** 25/25 PASSED with zero regressions across the entire project test suite.
+
+---

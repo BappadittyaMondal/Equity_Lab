@@ -51,6 +51,7 @@ upload_*_AI_project/
 *.zip
 unnecessary_files_archive/
 Not_Required_Upload/
+DELETION_REQUIRED/
 backups/
 scratch/
 ~$*

@@ -1,0 +1,152 @@
+{
+  "version": "1.1.0",
+  "last_updated_utc": "2026-10-04T11:00:09.440226+00:00",
+  "entities": {
+    "EXCHANGE_CASS_MECHANISM": {
+      "entity_id": "EXCHANGE_CASS_MECHANISM",
+      "canonical_name": "Exchange Closing Auction Session System (CASS)",
+      "category": "MARKET_MICROSTRUCTURE",
+      "confidence_score": 0.71,
+      "verification_status": "CERTIFIED_FACT",
+      "source_origin": "USER_FEEDBACK_FB-1791111609",
+      "relevance_vector": {
+        "swing_3d": 0.15,
+        "swing_10d": 0.1,
+        "sip_compounder": 0.0,
+        "turnaround": 0.05
+      },
+      "bayesian_prior_modifier": {
+        "metric": "closing_vwap_stability",
+        "weight_delta": 0.1
+      },
+      "description": "Post-market multilateral closing auction establishing deterministic VWAP and dampening end-of-session volatility.",
+      "sensationalism_penalty": 0.0,
+      "created_at_utc": "2026-10-04T11:00:09.425709+00:00",
+      "last_validated_at_utc": "2026-10-04T11:00:09.425709+00:00"
+    },
+    "CONSPIRACY_THEORY_TEST": {
+      "entity_id": "CONSPIRACY_THEORY_TEST",
+      "canonical_name": "Conspiracy Theory Test",
+      "category": "MARKET_MICROSTRUCTURE",
+      "confidence_score": 0.05,
+      "verification_status": "SPECULATIVE_NARRATIVE_NOISE",
+      "source_origin": "INTERACTION_DIALOGUE",
+      "relevance_vector": {
+        "general": 0.5
+      },
+      "bayesian_prior_modifier": {
+        "status": "ACTIVE"
+      },
+      "description": "Learned concept: Secret plan to invade and secretly capture Argentina for lithium with guaranteed 100x return and market apocalypse 2027!",
+      "sensationalism_penalty": 1.0,
+      "created_at_utc": "2026-09-27T12:27:58.061069+00:00",
+      "last_validated_at_utc": "2026-09-27T12:27:58.061069+00:00"
+    },
+    "LITHIUM_CORRIDOR_RIGI": {
+      "entity_id": "LITHIUM_CORRIDOR_RIGI",
+      "canonical_name": "Lithium Triangle Strategic Resource Concessions",
+      "category": "GEOPOLITICAL_CORRIDOR",
+      "confidence_score": 0.71,
+      "verification_status": "CERTIFIED_FACT",
+      "source_origin": "USER_FEEDBACK_FB-1791111609",
+      "relevance_vector": {
+        "swing_3d": 0.0,
+        "swing_10d": 0.05,
+        "sip_compounder": 0.35,
+        "multibagger": 0.6
+      },
+      "bayesian_prior_modifier": {
+        "metric": "ev_battery_input_elasticity",
+        "weight_delta": 0.15
+      },
+      "description": "Bilateral foreign direct investment in South American lithium brine reserves under RIGI regulatory concessions.",
+      "sensationalism_penalty": 0.0,
+      "created_at_utc": "2026-10-04T11:00:09.427482+00:00",
+      "last_validated_at_utc": "2026-10-04T11:00:09.427482+00:00"
+    },
+    "OTHER_INCOME_EARNINGS_ILLUSION": {
+      "entity_id": "OTHER_INCOME_EARNINGS_ILLUSION",
+      "canonical_name": "Other Income Earnings Illusion (FVTPL Spike Disqualification)",
+      "category": "EARNINGS_QUALITY",
+      "confidence_score": 0.7,
+      "verification_status": "PROVISIONAL_OBSERVATION",
+      "source_origin": "INSTITUTIONAL_FORENSIC_AUDIT_PHASE156",
+      "relevance_vector": {
+        "multibagger": 0.85,
+        "sip_compounder": 0.75,
+        "turnaround": 0.6
+      },
+      "bayesian_prior_modifier": {
+        "metric": "pat_quality_gate",
+        "weight_delta": -0.4
+      },
+      "description": "Hard-gates and penalizes quarterly earnings spikes where non-operating or unrealized FVTPL gains exceed 40% of reported PAT.",
+      "sensationalism_penalty": 0.0,
+      "created_at_utc": "2026-10-04T10:45:00.000000+00:00",
+      "last_validated_at_utc": "2026-10-04T10:45:00.000000+00:00"
+    },
+    "PROMOTER_PLEDGE_PARENT_NCD_CONTAGION": {
+      "entity_id": "PROMOTER_PLEDGE_PARENT_NCD_CONTAGION",
+      "canonical_name": "Promoter Pledge & Parent NCD Contagion",
+      "category": "GOVERNANCE_RISK",
+      "confidence_score": 0.7,
+      "verification_status": "PROVISIONAL_OBSERVATION",
+      "source_origin": "INSTITUTIONAL_FORENSIC_AUDIT_PHASE156",
+      "relevance_vector": {
+        "multibagger": 0.9,
+        "sip_compounder": 0.95,
+        "swing_30d": 0.5
+      },
+      "bayesian_prior_modifier": {
+        "metric": "governance_pledge_gate",
+        "weight_delta": -0.5
+      },
+      "description": "Enforces mandatory BSE filing verification for promoter encumbrances to prevent structural parent entity debt contagion bypassing unverified feeds.",
+      "sensationalism_penalty": 0.0,
+      "created_at_utc": "2026-10-04T10:45:00.000000+00:00",
+      "last_validated_at_utc": "2026-10-04T10:45:00.000000+00:00"
+    },
+    "ORDER_BOOK_CONVERSION_BURN_RATE": {
+      "entity_id": "ORDER_BOOK_CONVERSION_BURN_RATE",
+      "canonical_name": "Order Book Conversion Burn Rate Threshold",
+      "category": "FUNDAMENTAL_CONVERSION",
+      "confidence_score": 0.7,
+      "verification_status": "PROVISIONAL_OBSERVATION",
+      "source_origin": "INSTITUTIONAL_FORENSIC_AUDIT_PHASE156",
+      "relevance_vector": {
+        "multibagger": 0.75,
+        "turnaround": 0.7,
+        "swing_30d": 0.4
+      },
+      "bayesian_prior_modifier": {
+        "metric": "revenue_conversion_burn_rate",
+        "weight_delta": 0.2
+      },
+      "description": "Requires annual operating revenue to opening order book ratio kappa >= 0.20 to confirm project execution velocity and eliminate dead order book inflation.",
+      "sensationalism_penalty": 0.0,
+      "created_at_utc": "2026-10-04T10:45:00.000000+00:00",
+      "last_validated_at_utc": "2026-10-04T10:45:00.000000+00:00"
+    },
+    "REVERSE_DCF_RETURN_CEILING_GATE": {
+      "entity_id": "REVERSE_DCF_RETURN_CEILING_GATE",
+      "canonical_name": "Reverse-DCF Return Ceiling Valuation Gate",
+      "category": "VALUATION_REALISM",
+      "confidence_score": 0.7,
+      "verification_status": "PROVISIONAL_OBSERVATION",
+      "source_origin": "INSTITUTIONAL_FORENSIC_AUDIT_PHASE156",
+      "relevance_vector": {
+        "multibagger": 0.85,
+        "sip_compounder": 0.8,
+        "turnaround": 0.65
+      },
+      "bayesian_prior_modifier": {
+        "metric": "valuation_ceiling_multiple",
+        "weight_delta": 0.25
+      },
+      "description": "Restricts speculative multibagger classification unless 3-year Reverse-DCF base scenario implies at least 3.0x return under sustainable PAT CAGR assumptions.",
+      "sensationalism_penalty": 0.0,
+      "created_at_utc": "2026-10-04T10:45:00.000000+00:00",
+      "last_validated_at_utc": "2026-10-04T10:45:00.000000+00:00"
+    }
+  }
+}
