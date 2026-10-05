@@ -1,6 +1,6 @@
 {
-  "version": "1.1.0",
-  "last_updated_utc": "2026-10-04T11:00:09.440226+00:00",
+  "version": "1.2.0",
+  "last_updated_utc": "2026-10-05T18:37:52.809912+00:00",
   "entities": {
     "EXCHANGE_CASS_MECHANISM": {
       "entity_id": "EXCHANGE_CASS_MECHANISM",
@@ -8,7 +8,7 @@
       "category": "MARKET_MICROSTRUCTURE",
       "confidence_score": 0.71,
       "verification_status": "CERTIFIED_FACT",
-      "source_origin": "USER_FEEDBACK_FB-1791111609",
+      "source_origin": "USER_FEEDBACK_FB-1791225472",
       "relevance_vector": {
         "swing_3d": 0.15,
         "swing_10d": 0.1,
@@ -21,8 +21,8 @@
       },
       "description": "Post-market multilateral closing auction establishing deterministic VWAP and dampening end-of-session volatility.",
       "sensationalism_penalty": 0.0,
-      "created_at_utc": "2026-10-04T11:00:09.425709+00:00",
-      "last_validated_at_utc": "2026-10-04T11:00:09.425709+00:00"
+      "created_at_utc": "2026-10-05T18:37:52.793976+00:00",
+      "last_validated_at_utc": "2026-10-05T18:37:52.793976+00:00"
     },
     "CONSPIRACY_THEORY_TEST": {
       "entity_id": "CONSPIRACY_THEORY_TEST",
@@ -48,7 +48,7 @@
       "category": "GEOPOLITICAL_CORRIDOR",
       "confidence_score": 0.71,
       "verification_status": "CERTIFIED_FACT",
-      "source_origin": "USER_FEEDBACK_FB-1791111609",
+      "source_origin": "USER_FEEDBACK_FB-1791225472",
       "relevance_vector": {
         "swing_3d": 0.0,
         "swing_10d": 0.05,
@@ -61,8 +61,8 @@
       },
       "description": "Bilateral foreign direct investment in South American lithium brine reserves under RIGI regulatory concessions.",
       "sensationalism_penalty": 0.0,
-      "created_at_utc": "2026-10-04T11:00:09.427482+00:00",
-      "last_validated_at_utc": "2026-10-04T11:00:09.427482+00:00"
+      "created_at_utc": "2026-10-05T18:37:52.798205+00:00",
+      "last_validated_at_utc": "2026-10-05T18:37:52.798205+00:00"
     },
     "OTHER_INCOME_EARNINGS_ILLUSION": {
       "entity_id": "OTHER_INCOME_EARNINGS_ILLUSION",
@@ -147,6 +147,95 @@
       "sensationalism_penalty": 0.0,
       "created_at_utc": "2026-10-04T10:45:00.000000+00:00",
       "last_validated_at_utc": "2026-10-04T10:45:00.000000+00:00"
+    },
+    "OPTIONS_CHART_GREEK_CORRUPTION_VETO": {
+      "entity_id": "OPTIONS_CHART_GREEK_CORRUPTION_VETO",
+      "canonical_name": "Options Premium Chart Greek Decay Veto",
+      "category": "MARKET_MICROSTRUCTURE",
+      "confidence_score": 0.7,
+      "verification_status": "PROVISIONAL_OBSERVATION",
+      "source_origin": "MULTIMODAL_YOUTUBE_INTELLIGENCE_ZaniJwJIwJg",
+      "relevance_vector": {
+        "swing_3d": 0.85,
+        "swing_10d": 0.65,
+        "positional_30d": 0.3,
+        "sip_compounder": 0.0,
+        "multibagger": 0.0
+      },
+      "bayesian_prior_modifier": {
+        "metric": "options_chart_signal_validity",
+        "weight_delta": -0.5
+      },
+      "description": "Strictly vetoes geometric/technical support-resistance charting directly on strike option premium charts due to non-linear Theta decay, Vega distortion, and Greek convexity; mandates underlying Spot/Futures charting.",
+      "sensationalism_penalty": 0.0,
+      "created_at_utc": "2026-10-05T18:30:58.678085+00:00",
+      "last_validated_at_utc": "2026-10-05T18:30:58.678085+00:00"
+    },
+    "NIFTY_SMALLCAP_EARNINGS_DIVERGENCE_REGIME": {
+      "entity_id": "NIFTY_SMALLCAP_EARNINGS_DIVERGENCE_REGIME",
+      "canonical_name": "Macro Large-Cap vs Small-Cap EPS Growth Divergence Regime",
+      "category": "MACROECONOMIC_REGIME",
+      "confidence_score": 0.7,
+      "verification_status": "PROVISIONAL_OBSERVATION",
+      "source_origin": "MULTIMODAL_YOUTUBE_INTELLIGENCE_Kay6ETGz4rc",
+      "relevance_vector": {
+        "multibagger": 0.85,
+        "turnaround": 0.8,
+        "sip_compounder": 0.75,
+        "positional_30d": 0.6,
+        "swing_10d": 0.3
+      },
+      "bayesian_prior_modifier": {
+        "metric": "macro_valuation_strictness_buffer",
+        "weight_delta": 0.2
+      },
+      "description": "Tightens valuation headroom and margin-of-safety buffers by 20% when Large-Cap EPS growth falls below 6% and Mid/Small-Cap aggregate earnings turn negative, signaling multiple-expansion bull traps.",
+      "sensationalism_penalty": 0.0,
+      "created_at_utc": "2026-10-05T18:30:58.678085+00:00",
+      "last_validated_at_utc": "2026-10-05T18:30:58.678085+00:00"
+    },
+    "GESTATION_LAG_ORDERBOOK_HAIRCUT": {
+      "entity_id": "GESTATION_LAG_ORDERBOOK_HAIRCUT",
+      "canonical_name": "Long-Gestation Order Book Execution Lag Haircut",
+      "category": "FUNDAMENTAL_CONVERSION",
+      "confidence_score": 0.7,
+      "verification_status": "PROVISIONAL_OBSERVATION",
+      "source_origin": "MULTIMODAL_YOUTUBE_INTELLIGENCE_OMSHiRBWW7s",
+      "relevance_vector": {
+        "multibagger": 0.9,
+        "turnaround": 0.85,
+        "sip_compounder": 0.7,
+        "positional_30d": 0.4
+      },
+      "bayesian_prior_modifier": {
+        "metric": "backlog_execution_discount_factor",
+        "weight_delta": -0.4
+      },
+      "description": "Mandates an explicit 40% valuation multiple haircut on unexecuted order books where project delivery exceeds 5 years or historical revenue burn rate kappa < 0.20 (e.g. mega redevelopment/FSI projects).",
+      "sensationalism_penalty": 0.0,
+      "created_at_utc": "2026-10-05T18:30:58.678085+00:00",
+      "last_validated_at_utc": "2026-10-05T18:30:58.678085+00:00"
+    },
+    "CLIENT_CONCENTRATION_HERFINDAHL_RISK": {
+      "entity_id": "CLIENT_CONCENTRATION_HERFINDAHL_RISK",
+      "canonical_name": "Asset-Light Platform Client Concentration Risk",
+      "category": "GOVERNANCE_RISK",
+      "confidence_score": 0.7,
+      "verification_status": "PROVISIONAL_OBSERVATION",
+      "source_origin": "MULTIMODAL_YOUTUBE_INTELLIGENCE_Zzw6wkLjRvc",
+      "relevance_vector": {
+        "multibagger": 0.85,
+        "sip_compounder": 0.8,
+        "turnaround": 0.5
+      },
+      "bayesian_prior_modifier": {
+        "metric": "terminal_multiple_governance_haircut",
+        "weight_delta": -0.2
+      },
+      "description": "Applies a mandatory 20% terminal multiple haircut on high-ROCE asset-light BPM/SaaS platform monopolies if Top 5 clients exceed 55% of consolidated revenues due to asymmetric contract churn risk.",
+      "sensationalism_penalty": 0.0,
+      "created_at_utc": "2026-10-05T18:30:58.678085+00:00",
+      "last_validated_at_utc": "2026-10-05T18:30:58.678085+00:00"
     }
   }
 }
