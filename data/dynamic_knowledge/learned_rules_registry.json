@@ -1,6 +1,6 @@
 {
   "version": "1.2.0",
-  "last_updated_utc": "2026-10-05T18:37:52.809912+00:00",
+  "last_updated_utc": "2026-10-06T10:32:19.590692+00:00",
   "entities": {
     "EXCHANGE_CASS_MECHANISM": {
       "entity_id": "EXCHANGE_CASS_MECHANISM",
@@ -8,7 +8,7 @@
       "category": "MARKET_MICROSTRUCTURE",
       "confidence_score": 0.71,
       "verification_status": "CERTIFIED_FACT",
-      "source_origin": "USER_FEEDBACK_FB-1791225472",
+      "source_origin": "USER_FEEDBACK_FB-1791282739",
       "relevance_vector": {
         "swing_3d": 0.15,
         "swing_10d": 0.1,
@@ -21,8 +21,8 @@
       },
       "description": "Post-market multilateral closing auction establishing deterministic VWAP and dampening end-of-session volatility.",
       "sensationalism_penalty": 0.0,
-      "created_at_utc": "2026-10-05T18:37:52.793976+00:00",
-      "last_validated_at_utc": "2026-10-05T18:37:52.793976+00:00"
+      "created_at_utc": "2026-10-06T10:32:19.579849+00:00",
+      "last_validated_at_utc": "2026-10-06T10:32:19.579849+00:00"
     },
     "CONSPIRACY_THEORY_TEST": {
       "entity_id": "CONSPIRACY_THEORY_TEST",
@@ -48,7 +48,7 @@
       "category": "GEOPOLITICAL_CORRIDOR",
       "confidence_score": 0.71,
       "verification_status": "CERTIFIED_FACT",
-      "source_origin": "USER_FEEDBACK_FB-1791225472",
+      "source_origin": "USER_FEEDBACK_FB-1791282739",
       "relevance_vector": {
         "swing_3d": 0.0,
         "swing_10d": 0.05,
@@ -61,8 +61,8 @@
       },
       "description": "Bilateral foreign direct investment in South American lithium brine reserves under RIGI regulatory concessions.",
       "sensationalism_penalty": 0.0,
-      "created_at_utc": "2026-10-05T18:37:52.798205+00:00",
-      "last_validated_at_utc": "2026-10-05T18:37:52.798205+00:00"
+      "created_at_utc": "2026-10-06T10:32:19.581646+00:00",
+      "last_validated_at_utc": "2026-10-06T10:32:19.581646+00:00"
     },
     "OTHER_INCOME_EARNINGS_ILLUSION": {
       "entity_id": "OTHER_INCOME_EARNINGS_ILLUSION",
@@ -153,7 +153,7 @@
       "canonical_name": "Options Premium Chart Greek Decay Veto",
       "category": "MARKET_MICROSTRUCTURE",
       "confidence_score": 0.7,
-      "verification_status": "PROVISIONAL_OBSERVATION",
+      "verification_status": "SHADOW_OBSERVATION",
       "source_origin": "MULTIMODAL_YOUTUBE_INTELLIGENCE_ZaniJwJIwJg",
       "relevance_vector": {
         "swing_3d": 0.85,
@@ -176,7 +176,7 @@
       "canonical_name": "Macro Large-Cap vs Small-Cap EPS Growth Divergence Regime",
       "category": "MACROECONOMIC_REGIME",
       "confidence_score": 0.7,
-      "verification_status": "PROVISIONAL_OBSERVATION",
+      "verification_status": "SHADOW_OBSERVATION",
       "source_origin": "MULTIMODAL_YOUTUBE_INTELLIGENCE_Kay6ETGz4rc",
       "relevance_vector": {
         "multibagger": 0.85,
@@ -199,7 +199,7 @@
       "canonical_name": "Long-Gestation Order Book Execution Lag Haircut",
       "category": "FUNDAMENTAL_CONVERSION",
       "confidence_score": 0.7,
-      "verification_status": "PROVISIONAL_OBSERVATION",
+      "verification_status": "SHADOW_OBSERVATION",
       "source_origin": "MULTIMODAL_YOUTUBE_INTELLIGENCE_OMSHiRBWW7s",
       "relevance_vector": {
         "multibagger": 0.9,
@@ -221,7 +221,7 @@
       "canonical_name": "Asset-Light Platform Client Concentration Risk",
       "category": "GOVERNANCE_RISK",
       "confidence_score": 0.7,
-      "verification_status": "PROVISIONAL_OBSERVATION",
+      "verification_status": "SHADOW_OBSERVATION",
       "source_origin": "MULTIMODAL_YOUTUBE_INTELLIGENCE_Zzw6wkLjRvc",
       "relevance_vector": {
         "multibagger": 0.85,

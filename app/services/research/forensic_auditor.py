@@ -47,6 +47,7 @@ class CADRResult:
     years: float                       # lookback window used (typically 3.0)
     severity: str                      # "TIER2_OBJECTIVE_BLOCK" | "TIER3_CONTEXTUAL_CAUTION" | "CLEAN" | "DATA_ABSENT"
     flag_message: Optional[str]        # human-readable flag or None
+    split_adjustment_factor: float = 1.0
 
 
 def compute_cadr(
@@ -55,6 +56,7 @@ def compute_cadr(
     dilution_instrument_hint: Optional[str] = None,
     archetype: str = "GENERAL",
     years: float = 3.0,
+    split_adjustment_factor: float = 1.0,
 ) -> CADRResult:
     """Compute CADR and classify severity with dilution-type branching.
 
@@ -65,6 +67,8 @@ def compute_cadr(
             (e.g. "preferential warrants to promoters", "QIP for capex").
         archetype: Strategy archetype string (e.g. "EARLY_MICROCAP", "MULTIBAGGER").
         years: Lookback window used (default 3.0).
+        split_adjustment_factor: Cumulative corporate action split/bonus factor
+            (e.g. 2.0 for 1:1 bonus, 10.0 for 1:10 split). Defaults to 1.0.
 
     Returns:
         CADRResult with severity classification.
@@ -75,17 +79,23 @@ def compute_cadr(
             shares_t0=shares_3y_ago, shares_t1=shares_latest, years=years,
             severity="DATA_ABSENT",
             flag_message="CADR: Share count data absent; dilution velocity unverifiable.",
+            split_adjustment_factor=split_adjustment_factor,
         )
 
-    cadr = (shares_latest / shares_3y_ago) ** (1.0 / years) - 1.0
+    # Corporate action normalization: adjust historical base to current share units
+    adj_factor = float(split_adjustment_factor) if (split_adjustment_factor and split_adjustment_factor > 0) else 1.0
+    adj_shares_3y_ago = shares_3y_ago * adj_factor
+
+    cadr = (shares_latest / adj_shares_3y_ago) ** (1.0 / years) - 1.0
 
     if cadr <= 0.0:
-        # Net share reduction (buyback) — positive signal, no flag
+        # Net share reduction (buyback) or perfect split matching — clean signal
         return CADRResult(
             cadr=round(cadr, 4), dilution_type="UNKNOWN",
             shares_t0=shares_3y_ago, shares_t1=shares_latest, years=years,
             severity="CLEAN",
             flag_message=None,
+            split_adjustment_factor=adj_factor,
         )
 
     # --- Classify dilution instrument type ---
@@ -124,6 +134,7 @@ def compute_cadr(
             shares_t0=shares_3y_ago, shares_t1=shares_latest, years=years,
             severity="CLEAN",
             flag_message=None,
+            split_adjustment_factor=adj_factor,
         )
 
     # Threshold breached — compute flag message
@@ -150,6 +161,7 @@ def compute_cadr(
         shares_t0=shares_3y_ago, shares_t1=shares_latest, years=years,
         severity=block_severity,
         flag_message=msg,
+        split_adjustment_factor=adj_factor,
     )
 
 

@@ -244,3 +244,51 @@ class TestArbiterDSOSovereignContext:
         cautions = result["tier_3_contextual_cautions"]
         assert not any("dso" in str(w.get("metric", "")).lower() for w in warnings)
         assert not any("sovereign" in c.lower() for c in cautions)
+
+
+# ─────────────────────────────────────────────────────────────────────────────
+# 3. Phase 158: Corporate Action Bonus/Split Normalization Tests
+# ─────────────────────────────────────────────────────────────────────────────
+
+class TestCADRSplitNormalization:
+    """Verify that 1:1 bonus or stock splits do not trigger false dilution flags."""
+
+    def test_cadr_1_to_1_bonus_with_split_factor_is_clean(self):
+        """1:1 bonus issue (shares doubled 10M -> 20M) with split_factor=2.0 is CLEAN."""
+        result = compute_cadr(
+            shares_latest=20_000_000,
+            shares_3y_ago=10_000_000,
+            archetype="EARLY_MICROCAP",
+            years=3.0,
+            split_adjustment_factor=2.0,
+        )
+        assert result.severity == "CLEAN"
+        assert result.cadr == pytest.approx(0.0, abs=1e-4)
+        assert result.flag_message is None
+
+    def test_cadr_1_to_10_stock_split_with_split_factor_is_clean(self):
+        """1:10 split (shares 10x 5M -> 50M) with split_factor=10.0 is CLEAN."""
+        result = compute_cadr(
+            shares_latest=50_000_000,
+            shares_3y_ago=5_000_000,
+            archetype="EARLY_MICROCAP",
+            years=3.0,
+            split_adjustment_factor=10.0,
+        )
+        assert result.severity == "CLEAN"
+        assert result.cadr == pytest.approx(0.0, abs=1e-4)
+
+    def test_cadr_bonus_plus_genuine_preferential_dilution(self):
+        """1:1 bonus (10M -> 20M) PLUS 10% genuine preferential issue (22M total)."""
+        # adjusted base = 10M * 2 = 20M; latest = 22M -> ratio = 1.10 -> 3Y CAGR ≈ 3.23% (below 5% warrant threshold)
+        result = compute_cadr(
+            shares_latest=22_000_000,
+            shares_3y_ago=10_000_000,
+            dilution_instrument_hint="warrants",
+            archetype="EARLY_MICROCAP",
+            years=3.0,
+            split_adjustment_factor=2.0,
+        )
+        assert result.severity == "CLEAN"
+        assert result.cadr < 0.05
+

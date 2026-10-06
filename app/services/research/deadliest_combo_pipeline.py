@@ -87,6 +87,11 @@ def _check_hard_gates(fundamentals: Dict[str, Any]) -> Optional[str]:
     if mcap_cr > 15000.0:
         return f"MCap ₹{mcap_cr:.0f} Cr > ₹15,000 Cr maximum"
 
+    sector = str(fundamentals.get("sector") or fundamentals.get("industry") or "").upper().strip()
+    is_lending_bfsi = any(b in sector for b in ("BANK", "NBFC", "LENDING", "HOUSING FINANCE"))
+    if is_lending_bfsi:
+        return f"OUT_OF_SCOPE_V1: Sector '{sector}' is a financial lending institution (requires banking asset-quality gates, not industrial D/E)"
+
     d_e = fundamentals.get("debt_to_equity", 0.0) or 0.0
     if d_e > 0.35:
         return f"D/E {d_e:.2f} > 0.35 threshold"
@@ -115,15 +120,24 @@ def _calculate_continuous_q(fundamentals: Dict[str, Any]) -> float:
         + 0.30 * max(0.0, 1.0 - (D/E / 0.50))
     Ensures non-binary grading: heavily rewards pristine balance sheets & pure cash conversion.
     """
-    cfo_pat = fundamentals.get("cfo_pat", 0.0) or 0.0
+    cfo_pat = fundamentals.get("cfo_pat")
+    if cfo_pat is None:
+        cfo_pat = fundamentals.get("cfo_pat_ratio")
+    if cfo_pat is None and fundamentals.get("cfo_ttm_pat") is not None:
+        cfo_pat = fundamentals.get("cfo_ttm_pat")
+
     pledged = fundamentals.get("pledged_pct")
     pledge_val = float(pledged) if (pledged is not None and str(pledged).replace('.', '', 1).isdigit()) else 0.0
     d_e = fundamentals.get("debt_to_equity", 0.0) or 0.0
 
-    try:
-        cfo_val = float(cfo_pat)
-    except (ValueError, TypeError):
-        cfo_val = 0.0
+    if cfo_pat is None:
+        # Graceful neutral baseline when CFO is unobserved (SEBI LODR semi-annual filing lag)
+        cfo_val = 0.80
+    else:
+        try:
+            cfo_val = float(cfo_pat)
+        except (ValueError, TypeError):
+            cfo_val = 0.80
 
     try:
         de_val = float(d_e)
