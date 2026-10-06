@@ -36,6 +36,7 @@ class DeadliestComboResult:
         "hard_gate_pass", "disqualification_reason",
         "fundamentals", "breakdown",
         "continuous_q", "omega_convexity", "sector", "tier",
+        "cfo_state", "score_range", "missing_fields", "data_incomplete",
     )
 
     def __init__(self, **kwargs):
@@ -108,17 +109,20 @@ def _check_hard_gates(fundamentals: Dict[str, Any]) -> Optional[str]:
 
 
 # ─────────────────────────────────────────────────────────────────────────────
-# Phase 156 Institutional Quality Multiplier Q in [0.50, 1.00]
+# Phase 156 / Phase 159 Institutional Quality Multiplier Q with Interval Bounds
 # ─────────────────────────────────────────────────────────────────────────────
 
-def _calculate_continuous_q(fundamentals: Dict[str, Any]) -> float:
+def calculate_continuous_q_bounds(fundamentals: Dict[str, Any]) -> Tuple[float, float, float, str]:
     """Compute continuous balance-sheet & earnings quality multiplier Q in [0.50, 1.00].
 
-    Formula:
-      Q = 0.40 * min(1.0, max(0.0, CFO/PAT))
-        + 0.30 * max(0.0, 1.0 - Pledge / 10.0)
-        + 0.30 * max(0.0, 1.0 - (D/E / 0.50))
-    Ensures non-binary grading: heavily rewards pristine balance sheets & pure cash conversion.
+    Scale Parameters:
+      D0 = 0.50 (D/E continuous scale normalizer)
+      P0 = 10.0 (Promoter pledge continuous scale normalizer)
+      k_cfo = 0.80 (CFO/PAT full credit threshold)
+
+    Returns:
+      (continuous_q, q_min, q_max, cfo_state)
+      where cfo_state in ("OBSERVED", "UNKNOWN")
     """
     cfo_pat = fundamentals.get("cfo_pat")
     if cfo_pat is None:
@@ -130,26 +134,38 @@ def _calculate_continuous_q(fundamentals: Dict[str, Any]) -> float:
     pledge_val = float(pledged) if (pledged is not None and str(pledged).replace('.', '', 1).isdigit()) else 0.0
     d_e = fundamentals.get("debt_to_equity", 0.0) or 0.0
 
-    if cfo_pat is None:
-        # Graceful neutral baseline when CFO is unobserved (SEBI LODR semi-annual filing lag)
-        cfo_val = 0.80
-    else:
-        try:
-            cfo_val = float(cfo_pat)
-        except (ValueError, TypeError):
-            cfo_val = 0.80
-
     try:
         de_val = float(d_e)
     except (ValueError, TypeError):
         de_val = 0.0
 
-    q_cfo = 0.40 * max(0.0, min(1.0, cfo_val))
-    q_pledge = 0.30 * max(0.0, 1.0 - (pledge_val / 10.0))
-    q_de = 0.30 * max(0.0, 1.0 - (de_val / 0.50))
+    # Per-term clipping with scale parameters D0=0.50, P0=10.0
+    tp = max(0.0, min(1.0, 1.0 - (pledge_val / 10.0)))
+    td = max(0.0, min(1.0, 1.0 - (de_val / 0.50)))
 
-    q_raw = q_cfo + q_pledge + q_de
-    return round(max(0.50, min(1.00, q_raw)), 4)
+    def _q_from_cfo(tc_val: float) -> float:
+        raw = 0.40 * tc_val + 0.30 * tp + 0.30 * td
+        return round(max(0.50, min(1.00, raw)), 4)
+
+    if cfo_pat is not None:
+        try:
+            cfo_val = float(cfo_pat)
+            tc = max(0.0, min(1.0, cfo_val / 0.80))
+            q_point = _q_from_cfo(tc)
+            return q_point, q_point, q_point, "OBSERVED"
+        except (ValueError, TypeError):
+            pass
+
+    # Unobserved CFO: Return bounds [Q_min, Q_max]
+    q_min = _q_from_cfo(0.0)
+    q_max = _q_from_cfo(1.0)
+    return q_min, q_min, q_max, "UNKNOWN"
+
+
+def _calculate_continuous_q(fundamentals: Dict[str, Any]) -> float:
+    """Backwards-compatible float accessor for continuous Q."""
+    q_eff, _, _, _ = calculate_continuous_q_bounds(fundamentals)
+    return q_eff
 
 
 # ─────────────────────────────────────────────────────────────────────────────
@@ -297,14 +313,14 @@ def _normalize_return_ceiling(base_multiple: float) -> float:
 # Main Orchestrator
 # ─────────────────────────────────────────────────────────────────────────────
 
-def run_deadliest_combo_pipeline(
+def _run_deadliest_combo_pipeline_core(
     tickers: List[str],
     top_n: int = 10,
     fetch_live: bool = True,
     pledge_overrides: Optional[Dict[str, float]] = None,
     enforce_portfolio_constraints: bool = True,
     max_sector_exposure: float = 0.30,
-) -> List[DeadliestComboResult]:
+) -> Tuple[List[DeadliestComboResult], List[DeadliestComboResult]]:
     """Run the full Deadliest Combination pipeline on a list of tickers.
 
     Pipeline stages:
@@ -444,7 +460,7 @@ def run_deadliest_combo_pipeline(
         # ── Stage 6: Earnings Quality & Institutional Multipliers ────────
         eq_score = _earnings_quality_score(fundamentals)
         pat_qf = fundamentals.get("pat_quality_flag", "OPERATING")
-        continuous_q = _calculate_continuous_q(fundamentals)
+        continuous_q, q_min, q_max, cfo_state = calculate_continuous_q_bounds(fundamentals)
         omega = _calculate_operating_leverage_convexity(fundamentals)
         kappa = _calculate_order_book_burn_rate(fundamentals)
         segmented_info = _get_segmented_thresholds(mcap_cr)
@@ -456,6 +472,8 @@ def run_deadliest_combo_pipeline(
                 symbol=symbol,
                 shares_latest=fundamentals.get("shares_count"),
                 shares_3y_ago=fundamentals.get("shares_count_10yr_back"),
+                split_adjustment_factor=float(fundamentals.get("split_adjustment_factor") or fundamentals.get("split_factor") or 1.0),
+                series_basis=str(fundamentals.get("series_basis") or "UNKNOWN"),
             )
             if forensic_result.governance_veto:
                 forensic_verdict = "RED_FLAG_VETO"
@@ -496,9 +514,69 @@ def run_deadliest_combo_pipeline(
             (timing ** SCORING_POWERS["timing"]) *
             (ceiling_factor ** SCORING_POWERS["ceiling_factor"])
         )
-        deadliest_score = round(100.0 * cross_product * continuous_q, 2)
+        s_min = round(100.0 * cross_product * q_min, 2)
+        s_max = round(100.0 * cross_product * q_max, 2)
 
         sector = fundamentals.get("sector") or fundamentals.get("industry") or "GENERAL"
+
+        if cfo_state == "OBSERVED":
+            deadliest_score = round(100.0 * cross_product * continuous_q, 2)
+        else:
+            # CFO is UNKNOWN
+            if s_max < 70.0:
+                # Definitive failure: Even 100% cash flow cannot reach 70 hurdle
+                disqualified.append(DeadliestComboResult(
+                    symbol=symbol,
+                    company_name=company_name,
+                    composite_score=s_max,
+                    multibagger_score=round(mb_score, 2),
+                    tbqe_score=round(tbqe_raw, 4),
+                    return_ceiling=rc_result,
+                    pat_quality_flag=pat_qf,
+                    forensic_verdict=forensic_verdict,
+                    weinstein_stage=weinstein,
+                    launchpad_label=launchpad,
+                    lifecycle_stage=lifecycle,
+                    hard_gate_pass=False,
+                    disqualification_reason=f"Q_MAX_DEFICIT: Best-case score {s_max:.1f} < 70.0 hurdle",
+                    fundamentals=fundamentals,
+                    continuous_q=q_max,
+                    omega_convexity=omega,
+                    sector=sector,
+                    tier=segmented_info["tier"],
+                    cfo_state=cfo_state,
+                    score_range=[s_min, s_max],
+                    missing_fields=["cfo_pat"],
+                    data_incomplete=False,
+                ))
+                continue
+            else:
+                # Straddles 70 or s_min >= 70: Cannot certify without audited cash flow
+                disqualified.append(DeadliestComboResult(
+                    symbol=symbol,
+                    company_name=company_name,
+                    composite_score=s_max,
+                    multibagger_score=round(mb_score, 2),
+                    tbqe_score=round(tbqe_raw, 4),
+                    return_ceiling=rc_result,
+                    pat_quality_flag=pat_qf,
+                    forensic_verdict=forensic_verdict,
+                    weinstein_stage=weinstein,
+                    launchpad_label=launchpad,
+                    lifecycle_stage=lifecycle,
+                    hard_gate_pass=False,
+                    disqualification_reason=f"DATA_INCOMPLETE: Cash flow unobserved (bounds [{s_min:.1f}, {s_max:.1f}])",
+                    fundamentals=fundamentals,
+                    continuous_q=q_max,
+                    omega_convexity=omega,
+                    sector=sector,
+                    tier=segmented_info["tier"],
+                    cfo_state=cfo_state,
+                    score_range=[s_min, s_max],
+                    missing_fields=["cfo_pat"],
+                    data_incomplete=True,
+                ))
+                continue
 
         result = DeadliestComboResult(
             symbol=symbol,
@@ -519,6 +597,10 @@ def run_deadliest_combo_pipeline(
             omega_convexity=omega,
             sector=sector,
             tier=segmented_info["tier"],
+            cfo_state=cfo_state,
+            score_range=[s_min, s_max],
+            missing_fields=[],
+            data_incomplete=False,
             breakdown={
                 "mb_normalized": round(mb_normalized, 4),
                 "tbqe_raw": round(tbqe_raw, 4),
@@ -526,6 +608,11 @@ def run_deadliest_combo_pipeline(
                 "rc_normalized": round(rc_normalized, 4),
                 "eq_score": round(eq_score, 4),
                 "continuous_q": continuous_q,
+                "q_min": q_min,
+                "q_max": q_max,
+                "cfo_state": cfo_state,
+                "s_min": s_min,
+                "s_max": s_max,
                 "operating_leverage_convexity_omega": omega,
                 "order_book_burn_rate_kappa": kappa,
                 "segmented_tier": segmented_info["tier"],
@@ -541,7 +628,7 @@ def run_deadliest_combo_pipeline(
         results.append(result)
 
     # ── Stage 9: Rank & Institutional Portfolio Layer ────────────────────
-    results.sort(key=lambda r: r.composite_score, reverse=True)
+    results.sort(key=lambda r: (r.composite_score or 0.0), reverse=True)
 
     if enforce_portfolio_constraints and len(results) > 1:
         max_per_sector = max(1, int(round(top_n * max_sector_exposure)))
@@ -571,7 +658,31 @@ def run_deadliest_combo_pipeline(
         for dq in disqualified:
             logger.info(f"  {dq.symbol}: {dq.disqualification_reason}")
 
-    return final_list[:top_n]
+    return final_list[:top_n], disqualified
+
+
+def run_deadliest_combo_pipeline(
+    tickers: List[str],
+    top_n: int = 10,
+    fetch_live: bool = True,
+    pledge_overrides: Optional[Dict[str, float]] = None,
+    enforce_portfolio_constraints: bool = True,
+    max_sector_exposure: float = 0.30,
+) -> List[DeadliestComboResult]:
+    """Run the full Deadliest Combination pipeline on a list of tickers.
+
+    Returns:
+        List of DeadliestComboResult sorted by composite_score descending.
+    """
+    ranked, _ = _run_deadliest_combo_pipeline_core(
+        tickers=tickers,
+        top_n=top_n,
+        fetch_live=fetch_live,
+        pledge_overrides=pledge_overrides,
+        enforce_portfolio_constraints=enforce_portfolio_constraints,
+        max_sector_exposure=max_sector_exposure,
+    )
+    return ranked
 
 
 def run_deadliest_combo_pipeline_with_audit(
@@ -583,7 +694,7 @@ def run_deadliest_combo_pipeline_with_audit(
     max_sector_exposure: float = 0.30,
 ) -> Tuple[List[DeadliestComboResult], List[DeadliestComboResult]]:
     """Same as run_deadliest_combo_pipeline, but returns (ranked_results, disqualified_list)."""
-    ranked = run_deadliest_combo_pipeline(
+    return _run_deadliest_combo_pipeline_core(
         tickers=tickers,
         top_n=top_n,
         fetch_live=fetch_live,
@@ -591,40 +702,6 @@ def run_deadliest_combo_pipeline_with_audit(
         enforce_portfolio_constraints=enforce_portfolio_constraints,
         max_sector_exposure=max_sector_exposure,
     )
-    from app.services.data_ingestion.fundamental_fetcher import FundamentalFetcher
-    from app.services.data_ingestion.screener_connector import ScreenerCloudConnector
-    from app.services.research.forensic_auditor import ForensicAuditor
-    forensic = ForensicAuditor()
-    disqualified = []
-    ranked_symbols = {r.symbol for r in ranked}
-
-    for ticker in tickers:
-        sym = ticker.upper().strip()
-        if sym in ranked_symbols:
-            continue
-        try:
-            f = FundamentalFetcher.fetch_and_store(sym) if fetch_live else ScreenerCloudConnector.get_or_fetch_fundamentals(sym)
-            if f is None:
-                disqualified.append(DeadliestComboResult(symbol=sym, company_name=sym, disqualification_reason="DATA_FETCH_FAILED"))
-                continue
-            if pledge_overrides:
-                norm_key = sym.replace(".NS", "").replace(".BO", "")
-                for k, val in pledge_overrides.items():
-                    if k.upper().replace(".NS", "").replace(".BO", "") == norm_key:
-                        f["pledged_pct"] = float(val)
-                        break
-            reason = _check_hard_gates(f)
-            if reason:
-                disqualified.append(DeadliestComboResult(symbol=sym, company_name=f.get("company_name", sym), disqualification_reason=reason))
-                continue
-            fr = forensic.audit_equity(symbol=sym)
-            if fr.governance_veto:
-                msg = ", ".join(fr.red_flags) if fr.red_flags else "Governance Veto"
-                disqualified.append(DeadliestComboResult(symbol=sym, company_name=f.get("company_name", sym), disqualification_reason=f"FORENSIC_RED_FLAG: {msg}"))
-        except Exception as e:
-            disqualified.append(DeadliestComboResult(symbol=sym, company_name=sym, disqualification_reason=str(e)))
-
-    return ranked, disqualified
 
 
 def format_pipeline_report(

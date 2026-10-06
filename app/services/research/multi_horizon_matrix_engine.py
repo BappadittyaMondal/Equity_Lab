@@ -220,11 +220,15 @@ class MultiHorizonMatrixEngine:
                 s_past = float(shares_past)
                 if s_past > 0 and s_curr > s_past:
                     from app.services.research.forensic_auditor import compute_cadr
+                    split_factor = float(data.get("split_adjustment_factor") or data.get("split_factor") or 1.0)
+                    basis = str(data.get("series_basis") or "UNKNOWN")
                     cadr_res = compute_cadr(
                         shares_latest=s_curr,
                         shares_3y_ago=s_past,
                         dilution_instrument_hint=dilution_hint,
-                        archetype=archetype
+                        archetype=archetype,
+                        split_adjustment_factor=split_factor,
+                        series_basis=basis,
                     )
                     if cadr_res.cadr is not None and cadr_res.cadr > 0.02:
                         gross_growth_dec = fundamental_growth / 100.0

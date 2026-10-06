@@ -48,6 +48,9 @@ class CADRResult:
     severity: str                      # "TIER2_OBJECTIVE_BLOCK" | "TIER3_CONTEXTUAL_CAUTION" | "CLEAN" | "DATA_ABSENT"
     flag_message: Optional[str]        # human-readable flag or None
     split_adjustment_factor: float = 1.0
+    cadr_annualized: Optional[float] = None
+    cadr_cumulative: Optional[float] = None
+    series_basis: str = "AS_REPORTED"
 
 
 def compute_cadr(
@@ -57,21 +60,27 @@ def compute_cadr(
     archetype: str = "GENERAL",
     years: float = 3.0,
     split_adjustment_factor: float = 1.0,
+    series_basis: str = "UNKNOWN",
+    shares_before_action: Optional[float] = None,
+    shares_after_action: Optional[float] = None,
+    buyback_explains: Optional[bool] = None,
 ) -> CADRResult:
-    """Compute CADR and classify severity with dilution-type branching.
+    """Compute CADR and classify severity with dilution-type branching and corporate action step tests.
 
     Args:
         shares_latest: Current total shares outstanding (any unit).
         shares_3y_ago: Shares outstanding 3 years prior (same unit).
-        dilution_instrument_hint: Free-text hint from annual report / BSE filing
-            (e.g. "preferential warrants to promoters", "QIP for capex").
+        dilution_instrument_hint: Free-text hint from annual report / BSE filing.
         archetype: Strategy archetype string (e.g. "EARLY_MICROCAP", "MULTIBAGGER").
         years: Lookback window used (default 3.0).
-        split_adjustment_factor: Cumulative corporate action split/bonus factor
-            (e.g. 2.0 for 1:1 bonus, 10.0 for 1:10 split). Defaults to 1.0.
+        split_adjustment_factor: Cumulative corporate action split/bonus factor (e.g. 2.0 for 1:1 bonus).
+        series_basis: "AS_REPORTED" | "VENDOR_ADJUSTED" | "UNKNOWN".
+        shares_before_action: Pre-corporate action share count for step discrimination.
+        shares_after_action: Post-corporate action share count for step discrimination.
+        buyback_explains: True if share reduction is explained by formal buyback.
 
     Returns:
-        CADRResult with severity classification.
+        CADRResult with annualized, cumulative, and severity classification.
     """
     if shares_latest is None or shares_3y_ago is None or shares_3y_ago <= 0:
         return CADRResult(
@@ -80,22 +89,86 @@ def compute_cadr(
             severity="DATA_ABSENT",
             flag_message="CADR: Share count data absent; dilution velocity unverifiable.",
             split_adjustment_factor=split_adjustment_factor,
+            cadr_annualized=None, cadr_cumulative=None,
+            series_basis=series_basis,
         )
 
-    # Corporate action normalization: adjust historical base to current share units
     adj_factor = float(split_adjustment_factor) if (split_adjustment_factor and split_adjustment_factor > 0) else 1.0
-    adj_shares_3y_ago = shares_3y_ago * adj_factor
+    effective_factor = adj_factor
+    resolved_basis = series_basis
 
-    cadr = (shares_latest / adj_shares_3y_ago) ** (1.0 / years) - 1.0
+    # 1. Determine effective factor based on series basis or per-action step test
+    if series_basis == "VENDOR_ADJUSTED":
+        # Vendor series is already split-adjusted; do not multiply again (prevents double-adjustment masking)
+        effective_factor = 1.0
+        resolved_basis = "VENDOR_ADJUSTED"
+    elif series_basis == "AS_REPORTED":
+        effective_factor = adj_factor
+        resolved_basis = "AS_REPORTED"
+    else:
+        # UNKNOWN basis: discriminate via step test around ex-date or endpoint ratio
+        if adj_factor == 1.0:
+            effective_factor = 1.0
+            resolved_basis = "AS_REPORTED"
+        elif shares_before_action is not None and shares_after_action is not None and shares_before_action > 0:
+            step = shares_after_action / shares_before_action
+            if abs(step / adj_factor - 1.0) <= 0.005:
+                # Step matches factor -> series is unadjusted
+                effective_factor = adj_factor
+                resolved_basis = "AS_REPORTED"
+            elif abs(step - 1.0) <= 0.005:
+                # Step is ~1.0 -> series was already adjusted by vendor
+                effective_factor = 1.0
+                resolved_basis = "VENDOR_ADJUSTED"
+            else:
+                effective_factor = adj_factor
+                resolved_basis = "AMBIGUOUS"
+        else:
+            # Endpoint ratio comparison
+            raw_ratio = shares_latest / shares_3y_ago
+            if abs(raw_ratio / adj_factor - 1.0) <= 0.005:
+                effective_factor = adj_factor
+                resolved_basis = "AS_REPORTED"
+            elif abs(raw_ratio - 1.0) <= 0.005:
+                effective_factor = 1.0
+                resolved_basis = "VENDOR_ADJUSTED"
+            else:
+                effective_factor = adj_factor
+                resolved_basis = "UNKNOWN"
+
+    adj_shares_3y_ago = shares_3y_ago * effective_factor
+    dilution_cumulative = round((shares_latest / adj_shares_3y_ago) - 1.0, 4)
+    cadr = round((shares_latest / adj_shares_3y_ago) ** (1.0 / years) - 1.0, 4)
+
+    # 2. Guard against unexplained negative dilution (symptom of erroneous double-adjustment or unverified contraction)
+    is_unexplained_contraction = (
+        dilution_cumulative < -0.05 and (
+            buyback_explains is False or (buyback_explains is None and effective_factor > 1.0)
+        )
+    )
+    if is_unexplained_contraction:
+        # Flag unexplained share count contraction
+        msg = f"CADR CAUTION: Unexplained negative dilution ({dilution_cumulative * 100:.1f}%); verify buyback or series basis."
+        return CADRResult(
+            cadr=cadr, dilution_type="UNKNOWN",
+            shares_t0=shares_3y_ago, shares_t1=shares_latest, years=years,
+            severity="TIER3_CONTEXTUAL_CAUTION",
+            flag_message=msg,
+            split_adjustment_factor=effective_factor,
+            cadr_annualized=cadr, cadr_cumulative=dilution_cumulative,
+            series_basis=resolved_basis,
+        )
 
     if cadr <= 0.0:
         # Net share reduction (buyback) or perfect split matching — clean signal
         return CADRResult(
-            cadr=round(cadr, 4), dilution_type="UNKNOWN",
+            cadr=cadr, dilution_type="UNKNOWN",
             shares_t0=shares_3y_ago, shares_t1=shares_latest, years=years,
             severity="CLEAN",
             flag_message=None,
-            split_adjustment_factor=adj_factor,
+            split_adjustment_factor=effective_factor,
+            cadr_annualized=cadr, cadr_cumulative=dilution_cumulative,
+            series_basis=resolved_basis,
         )
 
     # --- Classify dilution instrument type ---
@@ -127,22 +200,27 @@ def compute_cadr(
             block_severity = "TIER3_CONTEXTUAL_CAUTION"
 
     cadr_pct = round(cadr * 100.0, 2)
+    cum_pct = round(dilution_cumulative * 100.0, 2)
 
     if cadr < effective_threshold:
         return CADRResult(
-            cadr=round(cadr, 4), dilution_type=dilution_type,
+            cadr=cadr, dilution_type=dilution_type,
             shares_t0=shares_3y_ago, shares_t1=shares_latest, years=years,
             severity="CLEAN",
             flag_message=None,
-            split_adjustment_factor=adj_factor,
+            split_adjustment_factor=effective_factor,
+            cadr_annualized=cadr, cadr_cumulative=dilution_cumulative,
+            series_basis=resolved_basis,
         )
 
-    # Threshold breached — compute flag message
+    # Threshold breached — compute flag message surfacing both annualized and cumulative figures
     threshold_pct = round(effective_threshold * 100.0, 1)
+    cum_equiv_pct = round(((1.0 + effective_threshold) ** years - 1.0) * 100.0, 1)
+
     if block_severity == "TIER2_OBJECTIVE_BLOCK":
         msg = (
             f"CADR DILUTION VELOCITY BLOCK ({dilution_type}): "
-            f"3Y CADR={cadr_pct:.2f}% >= {threshold_pct}% p.a. threshold. "
+            f"3Y CADR={cadr_pct:.2f}% p.a. (cumulative: {cum_pct:.1f}%) >= {threshold_pct}% p.a. threshold ({cum_equiv_pct}% 3Y cum). "
             f"Shares grew from {shares_3y_ago:,.0f} to {shares_latest:,.0f} "
             f"over {years:.0f}Y via {dilution_type.lower().replace('_', ' ')}. "
             f"EPS compounding structurally impaired; Tier 2 Objective Block for EARLY_MICROCAP archetype."
@@ -150,18 +228,20 @@ def compute_cadr(
     else:
         msg = (
             f"CADR DILUTION CAUTION ({dilution_type}): "
-            f"3Y CADR={cadr_pct:.2f}% >= {threshold_pct}% p.a. threshold. "
+            f"3Y CADR={cadr_pct:.2f}% p.a. (cumulative: {cum_pct:.1f}%) >= {threshold_pct}% p.a. threshold. "
             f"Shares grew from {shares_3y_ago:,.0f} to {shares_latest:,.0f} "
             f"over {years:.0f}Y. Verify that capex-linked equity expansion "
             f"translates to proportional ROIC and EPS accretion."
         )
 
     return CADRResult(
-        cadr=round(cadr, 4), dilution_type=dilution_type,
+        cadr=cadr, dilution_type=dilution_type,
         shares_t0=shares_3y_ago, shares_t1=shares_latest, years=years,
         severity=block_severity,
         flag_message=msg,
-        split_adjustment_factor=adj_factor,
+        split_adjustment_factor=effective_factor,
+        cadr_annualized=cadr, cadr_cumulative=dilution_cumulative,
+        series_basis=resolved_basis,
     )
 
 
@@ -198,14 +278,21 @@ class ForensicAuditor:
         shares_3y_ago: Optional[float] = None,
         dilution_instrument_hint: Optional[str] = None,
         archetype: str = "GENERAL",
+        split_adjustment_factor: float = 1.0,
+        series_basis: str = "UNKNOWN",
+        shares_before_action: Optional[float] = None,
+        shares_after_action: Optional[float] = None,
+        buyback_explains: Optional[bool] = None,
     ) -> ForensicAuditResult:
         """Perform comprehensive forensic audit on an equity without silent default assumptions.
 
-        Phase 135 Additions:
+        Phase 135 & 159 Additions:
             shares_latest: Current total shares outstanding (any unit).
             shares_3y_ago: Shares outstanding 3 years prior (same unit).
             dilution_instrument_hint: Free-text describing dilution instrument (warrants, QIP, rights).
             archetype: Investment archetype to calibrate CADR severity.
+            split_adjustment_factor: Cumulative corporate action factor (1:1 bonus = 2.0).
+            series_basis: AS_REPORTED | VENDOR_ADJUSTED | UNKNOWN.
         """
         # Attempt to populate missing parameters from canonical ResearchDataStore timeline
         if related_party_pct is None or auditor_resigned_recently is None or net_income_3y_cagr is None or ocf_3y_cagr is None:
@@ -307,6 +394,11 @@ class ForensicAuditor:
             dilution_instrument_hint=dilution_instrument_hint,
             archetype=archetype,
             years=3.0,
+            split_adjustment_factor=split_adjustment_factor,
+            series_basis=series_basis,
+            shares_before_action=shares_before_action,
+            shares_after_action=shares_after_action,
+            buyback_explains=buyback_explains,
         )
         if cadr_result.severity == "TIER2_OBJECTIVE_BLOCK" and cadr_result.flag_message:
             # Only penalise score for extraction-type dilution; expansion capital gets caution only
