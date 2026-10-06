@@ -217,6 +217,146 @@ class TechnicalBaseQualityEngine:
         return round(max(0.0, min(1.0, score)), 4)
 
     @classmethod
+    def _detect_smc_order_block_and_fvg(cls, data: Dict[str, Any]) -> Dict[str, Any]:
+        """Detects Smart Money Concepts (SMC) features: Fair Value Gaps (FVG),
+        Institutional Order Blocks (OB), and Liquidity Sweeps.
+        """
+        fvg_detected = bool(data.get("fvg_detected") or data.get("fvg_present"))
+        fvg_gap_size = float(data.get("fvg_gap_size") or 0.0)
+        ob_detected = bool(data.get("order_block_detected") or data.get("order_block_present") or data.get("order_block_retest"))
+        sweep_detected = bool(data.get("liquidity_sweep_detected") or data.get("liquidity_sweep_present") or data.get("liquidity_sweep"))
+
+        candles = data.get("candles") or data.get("bars") or data.get("recent_candles") or []
+        if isinstance(candles, list) and len(candles) >= 2:
+            # 1. 3-bar Fair Value Gap (Bullish)
+            if len(candles) >= 3:
+                for i in range(2, len(candles)):
+                    c0 = candles[i-2]
+                    c2 = candles[i]
+                    if isinstance(c0, dict) and isinstance(c2, dict):
+                        h0 = float(c0.get("high") or 0.0)
+                        l2 = float(c2.get("low") or 0.0)
+                        if l2 > h0 and h0 > 0:
+                            fvg_detected = True
+                            fvg_gap_size = max(fvg_gap_size, round(l2 - h0, 2))
+
+            # 2. Institutional Order Block (last down-candle before expansion)
+            for i in range(1, len(candles)):
+                prev = candles[i-1]
+                curr = candles[i]
+                if isinstance(prev, dict) and isinstance(curr, dict):
+                    prev_c = float(prev.get("close") or 0.0)
+                    prev_o = float(prev.get("open") or 0.0)
+                    curr_c = float(curr.get("close") or 0.0)
+                    curr_o = float(curr.get("open") or 0.0)
+                    curr_v = float(curr.get("volume") or 0.0)
+                    prev_v = float(prev.get("volume") or 1.0)
+                    if prev_c < prev_o and curr_c > curr_o and curr_c > prev_o and (curr_v > 1.5 * prev_v or curr_v > 0):
+                        ob_detected = True
+
+            # 3. Liquidity Sweep (sweep below prior low, close back above)
+            for i in range(1, len(candles)):
+                prev = candles[i-1]
+                curr = candles[i]
+                if isinstance(prev, dict) and isinstance(curr, dict):
+                    prev_l = float(prev.get("low") or 0.0)
+                    curr_l = float(curr.get("low") or 0.0)
+                    curr_c = float(curr.get("close") or 0.0)
+                    if curr_l < prev_l and curr_c > prev_l and prev_l > 0:
+                        sweep_detected = True
+
+        smc_score = 0.50
+        if fvg_detected:
+            smc_score += 0.20
+        if ob_detected:
+            smc_score += 0.20
+        if sweep_detected:
+            smc_score += 0.10
+        smc_score = min(1.0, smc_score)
+
+        return {
+            "fvg_detected": fvg_detected,
+            "fvg_gap_size": fvg_gap_size,
+            "order_block_detected": ob_detected,
+            "liquidity_sweep_detected": sweep_detected,
+            "smc_score": round(smc_score, 4),
+        }
+
+    @classmethod
+    def _detect_vsa_absorption(cls, data: Dict[str, Any]) -> Dict[str, Any]:
+        """Detects Volume Spread Analysis (VSA) states: Absorption Volume,
+        Volume Dry-Up (Supply Exhaustion), and Climax Distribution warnings.
+        """
+        vol_z = data.get("volume_z_score") or data.get("vol_z")
+        vol_z_f = float(vol_z) if vol_z is not None else 0.0
+
+        is_dry_up = bool(data.get("volume_dry_up") or (vol_z is not None and vol_z_f <= -0.5))
+        is_absorption = bool(data.get("absorption_volume") or (vol_z is not None and vol_z_f >= 1.5))
+        is_climax = bool(vol_z is not None and vol_z_f >= 3.5 and data.get("climax_warning"))
+
+        if is_climax:
+            vsa_state = "CLIMAX_DISTRIBUTION"
+            vsa_score = 0.20
+        elif is_absorption:
+            vsa_state = "ABSORPTION"
+            vsa_score = 0.90
+        elif is_dry_up:
+            vsa_state = "DRY_UP"
+            vsa_score = 0.85
+        else:
+            vsa_state = "NEUTRAL"
+            vsa_score = 0.50
+
+        return {
+            "volume_dry_up": is_dry_up,
+            "absorption_volume": is_absorption,
+            "climax_distribution_warning": is_climax,
+            "vsa_state": vsa_state,
+            "vsa_score": round(vsa_score, 4),
+        }
+
+    @classmethod
+    def _detect_vijay_thakkar_momentum(cls, data: Dict[str, Any]) -> Dict[str, Any]:
+        """Evaluates Vijay Thakkar Stage 2 Pure Price-Volume Momentum criteria:
+        1. Within 15% of 52W High (buying market leaders, zero bottom fishing).
+        2. Price > 50 DMA > 200 DMA (Stage 2 alignment).
+        3. Breakout volume expansion >= 2.0x 20-day average volume.
+        4. Relative Strength outperformance vs benchmark.
+        """
+        price = float(data.get("current_price") or 0.0)
+        high_52w = float(data.get("high_52w") or 0.0)
+        dma50 = float(data.get("dma_50") or 0.0)
+        dma200 = float(data.get("dma_200") or 0.0)
+        vol_mult = float(data.get("breakout_volume_mult") or data.get("volume_multiple") or 1.0)
+        vol_z = float(data.get("volume_z_score") or data.get("vol_z") or 0.0)
+
+        within_15pct = False
+        if price > 0 and high_52w > 0:
+            within_15pct = ((high_52w - price) / high_52w) <= 0.15
+
+        stage2_ma = (price > dma50 > dma200) if (price > 0 and dma50 > 0 and dma200 > 0) else False
+        vol_expanded = (vol_mult >= 2.0 or vol_z >= 1.5)
+        rs_outperforming = bool(data.get("rs_outperforming") or float(data.get("rs_rating") or 50.0) >= 70.0 or float(data.get("mansfield_rs") or 0.0) > 0.0)
+
+        vt_pass = within_15pct and stage2_ma and (vol_expanded or rs_outperforming)
+        vt_score = 0.50
+        if vt_pass:
+            vt_score = 1.00
+        elif within_15pct and stage2_ma:
+            vt_score = 0.80
+        elif within_15pct:
+            vt_score = 0.65
+
+        return {
+            "within_52w_high_15pct": within_15pct,
+            "stage2_ma_aligned": stage2_ma,
+            "volume_expansion_confirmed": vol_expanded,
+            "relative_strength_outperforming": rs_outperforming,
+            "vijay_thakkar_momentum_pass": vt_pass,
+            "vt_momentum_score": round(vt_score, 4),
+        }
+
+    @classmethod
     def score(cls, data: Dict[str, Any]) -> Tuple[float, Dict[str, Any]]:
         """
         Main entry point.
@@ -231,13 +371,6 @@ class TechnicalBaseQualityEngine:
             Tuple of:
               - composite (float): Base Quality Score in [0.0, 1.0]
               - breakdown (dict): per-component scores + readiness_label
-
-        Readiness labels:
-            >= 0.80 → STRONG_BASE_SETUP
-            >= 0.65 → FORMING_BASE
-            >= 0.50 → NEUTRAL
-            >= 0.35 → WEAK_STRUCTURE
-            <  0.35 → DISTRIBUTION_OR_DOWNTREND
         """
         stage_label = cls._classify_weinstein_stage(data)
         stage_score = cls.STAGE_SCORES.get(stage_label, 0.50)
@@ -253,6 +386,18 @@ class TechnicalBaseQualityEngine:
             4,
         )
 
+        # Enriched Multi-Optics sub-detectors
+        smc_res = cls._detect_smc_order_block_and_fvg(data)
+        vsa_res = cls._detect_vsa_absorption(data)
+        vt_res  = cls._detect_vijay_thakkar_momentum(data)
+
+        footprint_score = round(
+            0.40 * smc_res["smc_score"]
+            + 0.30 * vsa_res["vsa_score"]
+            + 0.30 * vt_res["vt_momentum_score"],
+            4,
+        )
+
         if composite >= 0.80:
             readiness = "STRONG_BASE_SETUP"
         elif composite >= 0.65:
@@ -265,12 +410,16 @@ class TechnicalBaseQualityEngine:
             readiness = "DISTRIBUTION_OR_DOWNTREND"
 
         breakdown: Dict[str, Any] = {
-            "weinstein_stage":        stage_label,
-            "stage_score":            stage_score,
-            "vcp_score":              vcp_score,
-            "base_length_score":      base_score,
-            "obv_divergence_score":   obv_score,
-            "composite_base_quality": composite,
-            "readiness_label":        readiness,
+            "weinstein_stage":              stage_label,
+            "stage_score":                  stage_score,
+            "vcp_score":                    vcp_score,
+            "base_length_score":            base_score,
+            "obv_divergence_score":         obv_score,
+            "composite_base_quality":       composite,
+            "readiness_label":              readiness,
+            "smc_signals":                  smc_res,
+            "vsa_signals":                  vsa_res,
+            "vijay_thakkar_momentum":       vt_res,
+            "institutional_footprint_score": footprint_score,
         }
         return composite, breakdown

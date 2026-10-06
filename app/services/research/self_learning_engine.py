@@ -90,6 +90,46 @@ class SelfLearningEngine:
             "relevance": {"swing_3d": 0.25, "swing_10d": 0.40, "positional_30d": 0.60, "sip_compounder": 0.15},
             "modifier": {"metric": "seasonal_q3_revenue_lift", "weight_delta": 0.12},
         },
+        "AI_DATACENTER_OPTICAL_FIBER": {
+            "patterns": [r"\b(optical\s*fiber|ofc|data\s*center\s*fiber|ai\s*cluster\s*bandwidth|optical\s*transceiver)\b"],
+            "name": "AI Data Center Optical Fiber & High-Bandwidth Interconnect Supercycle",
+            "category": "MARKET_MICROSTRUCTURE",
+            "desc": "Surge in global AI data center GPU cluster buildouts driving exponential demand for high-count Optical Fiber Cables (OFC) due to copper latency/attenuation limits.",
+            "relevance": {"swing_3d": 0.10, "swing_10d": 0.25, "positional_30d": 0.50, "multibagger": 0.70, "sip_compounder": 0.40},
+            "modifier": {"metric": "data_center_fiber_tailwind", "weight_delta": 0.15},
+        },
+        "EMS_DEFENSE_CAPEX_INFLECTION": {
+            "patterns": [r"\b(ems\s*capex|defense\s*indigenization|order\s*book-?to-?bill|cwip\s*expansion|electronics\s*manufacturing\s*services)\b"],
+            "name": "EMS & Defense Manufacturing Capex Inflection (2027 Supercycle)",
+            "category": "ACCOUNTING_INFLECTION",
+            "desc": "Massive Capital Work-in-Progress (CWIP) conversion and order book-to-bill > 2.5x driving operating leverage ahead of quarterly earnings.",
+            "relevance": {"swing_3d": 0.05, "swing_10d": 0.20, "positional_30d": 0.60, "multibagger": 0.75, "sip_compounder": 0.35},
+            "modifier": {"metric": "cwip_operating_leverage_lift", "weight_delta": 0.18},
+        },
+        "SOVEREIGN_DEBT_FISCAL_DOMINANCE": {
+            "patterns": [r"\b(sovereign\s*debt\s*to\s*gdp|debt\s*grows\s*faster\s*than\s*economy|fiscal\s*dominance|currency\s*debasement|peg\s*collapse)\b"],
+            "name": "Sovereign Debt-to-GDP Escalation & Fiat Debasement Risk",
+            "category": "GEOPOLITICAL_CORRIDOR",
+            "desc": "National debt exceeding 80-100% of GDP with interest payments crowding out capex, necessitating monetary debasement and rewarding pricing-power equities & gold.",
+            "relevance": {"swing_3d": 0.0, "swing_10d": 0.05, "positional_30d": 0.20, "sip_compounder": 0.60, "turnaround": 0.30},
+            "modifier": {"metric": "macro_fiat_debasement_hedge", "weight_delta": 0.20},
+        },
+        "VIJAY_THAKKAR_STAGE2_MOMENTUM": {
+            "patterns": [r"\b(vijay\s*thakkar|price\s*is\s*god\s*volume\s*is\s*priest|52\s*week\s*high\s*momentum|stage\s*2\s*breakout\s*investing|10\s*ema\s*trailing)\b"],
+            "name": "Vijay Thakkar Stage 2 Pure Price-Volume Momentum System",
+            "category": "MARKET_MICROSTRUCTURE",
+            "desc": "Zero lagging indicators; buying top relative-strength market leaders within 10-15% of 52W High on >= 2.5x volume expansion with 10/20 EMA trailing stops.",
+            "relevance": {"swing_3d": 0.40, "swing_10d": 0.60, "positional_30d": 0.70, "multibagger": 0.50, "sip_compounder": 0.0},
+            "modifier": {"metric": "price_volume_stage2_acceleration", "weight_delta": 0.20},
+        },
+        "SMC_ORDER_BLOCK_FVG_CONFLUENCE": {
+            "patterns": [r"\b(order\s*block|fair\s*value\s*gap|fvg|liquidity\s*sweep|mitigation\s*entry|smart\s*money\s*concepts)\b"],
+            "name": "Institutional Order Block & Fair Value Gap (FVG) Confluence",
+            "category": "MARKET_MICROSTRUCTURE",
+            "desc": "Algorithmic 3-step institutional liquidity sequence: Liquidity Sweep (stop hunt) followed by impulsive displacement leaving an FVG, entered upon mitigation retest.",
+            "relevance": {"swing_3d": 0.60, "swing_10d": 0.55, "positional_30d": 0.40, "multibagger": 0.30, "sip_compounder": 0.0},
+            "modifier": {"metric": "institutional_order_block_confluence", "weight_delta": 0.15},
+        },
     }
 
     def __init__(self, registry_file: Optional[str] = None):

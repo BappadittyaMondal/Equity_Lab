@@ -1,0 +1,3721 @@
+{
+  "video_id": "MypSrcfiqtM",
+  "status": "SUCCESS",
+  "source": "NETWORK_FETCH",
+  "language": "en",
+  "language_name": "English (auto-generated)",
+  "is_generated": true,
+  "segment_count": 618,
+  "total_duration_sec": 1369.6,
+  "segments": [
+    {
+      "start": 0.0,
+      "duration": 5.52,
+      "timestamp": "00:00",
+      "text": "Most traders stay confused not because"
+    },
+    {
+      "start": 2.96,
+      "duration": 5.68,
+      "timestamp": "00:02",
+      "text": "they don't know smart money concepts,"
+    },
+    {
+      "start": 5.52,
+      "duration": 5.52,
+      "timestamp": "00:05",
+      "text": "but because they don't know the sequence"
+    },
+    {
+      "start": 8.64,
+      "duration": 4.48,
+      "timestamp": "00:08",
+      "text": "for using them. They see a liquidity"
+    },
+    {
+      "start": 11.04,
+      "duration": 5.52,
+      "timestamp": "00:11",
+      "text": "sweep, they see an order block, they see"
+    },
+    {
+      "start": 13.12,
+      "duration": 6.08,
+      "timestamp": "00:13",
+      "text": "a fair value gap, but they don't know"
+    },
+    {
+      "start": 16.56,
+      "duration": 6.68,
+      "timestamp": "00:16",
+      "text": "how to put the story together to catch"
+    },
+    {
+      "start": 19.2,
+      "duration": 5.72,
+      "timestamp": "00:19",
+      "text": "sniper entries, to trade with precision."
+    },
+    {
+      "start": 23.24,
+      "duration": 4.56,
+      "timestamp": "00:23",
+      "text": "My name is Brett Goll. I've been trading"
+    },
+    {
+      "start": 24.92,
+      "duration": 5.87,
+      "timestamp": "00:24",
+      "text": "for 7 years, and last quarter alone, I"
+    },
+    {
+      "start": 27.8,
+      "duration": 5.32,
+      "timestamp": "00:27",
+      "text": "made 1.5 million dollars in trading"
+    },
+    {
+      "start": 30.79,
+      "duration": 4.7,
+      "timestamp": "00:30",
+      "text": "[music] profits with every single trade"
+    },
+    {
+      "start": 33.12,
+      "duration": 5.04,
+      "timestamp": "00:33",
+      "text": "documented live on my second channel,"
+    },
+    {
+      "start": 35.48,
+      "duration": 4.28,
+      "timestamp": "00:35",
+      "text": "Brett Trades. I'm also the founder of 1%"
+    },
+    {
+      "start": 38.16,
+      "duration": 3.48,
+      "timestamp": "00:38",
+      "text": "Club, which is a mentorship program"
+    },
+    {
+      "start": 39.76,
+      "duration": 4.88,
+      "timestamp": "00:39",
+      "text": "that's helped hundreds of students"
+    },
+    {
+      "start": 41.64,
+      "duration": 4.64,
+      "timestamp": "00:41",
+      "text": "become profitable funded traders. And"
+    },
+    {
+      "start": 44.64,
+      "duration": 4.24,
+      "timestamp": "00:44",
+      "text": "I'm also the founder of Edge Flow, the"
+    },
+    {
+      "start": 46.28,
+      "duration": 6.0,
+      "timestamp": "00:46",
+      "text": "trading super app that I personally use"
+    },
+    {
+      "start": 48.88,
+      "duration": 5.52,
+      "timestamp": "00:48",
+      "text": "to plan, execute, journal, and review my"
+    },
+    {
+      "start": 52.28,
+      "duration": 5.56,
+      "timestamp": "00:52",
+      "text": "trades with more discipline and"
+    },
+    {
+      "start": 54.4,
+      "duration": 6.4,
+      "timestamp": "00:54",
+      "text": "structure. So, quite simply put, I don't"
+    },
+    {
+      "start": 57.84,
+      "duration": 4.56,
+      "timestamp": "00:57",
+      "text": "want your money. I want you to become a"
+    },
+    {
+      "start": 60.8,
+      "duration": 3.28,
+      "timestamp": "01:00",
+      "text": "better trader."
+    },
+    {
+      "start": 62.4,
+      "duration": 3.2,
+      "timestamp": "01:02",
+      "text": "Now that you know who I am, let's get"
+    },
+    {
+      "start": 64.08,
+      "duration": 3.4,
+      "timestamp": "01:04",
+      "text": "right into it."
+    },
+    {
+      "start": 65.6,
+      "duration": 4.68,
+      "timestamp": "01:05",
+      "text": "Now, I want to preface this by saying"
+    },
+    {
+      "start": 67.48,
+      "duration": 6.08,
+      "timestamp": "01:07",
+      "text": "that this strategy, this trade plan,"
+    },
+    {
+      "start": 70.28,
+      "duration": 5.6,
+      "timestamp": "01:10",
+      "text": "this model is not just for Forex."
+    },
+    {
+      "start": 73.56,
+      "duration": 5.72,
+      "timestamp": "01:13",
+      "text": "Whether you trade futures, stocks,"
+    },
+    {
+      "start": 75.88,
+      "duration": 6.2,
+      "timestamp": "01:15",
+      "text": "indices, or crypto, the logic is exactly"
+    },
+    {
+      "start": 79.28,
+      "duration": 6.32,
+      "timestamp": "01:19",
+      "text": "the same. Price seeks liquidity,"
+    },
+    {
+      "start": 82.08,
+      "duration": 6.84,
+      "timestamp": "01:22",
+      "text": "displaces from key areas, and then often"
+    },
+    {
+      "start": 85.6,
+      "duration": 5.08,
+      "timestamp": "01:25",
+      "text": "retraces before continuing. Once you"
+    },
+    {
+      "start": 88.92,
+      "duration": 4.0,
+      "timestamp": "01:28",
+      "text": "understand the sequence, you can apply"
+    },
+    {
+      "start": 90.68,
+      "duration": 5.24,
+      "timestamp": "01:30",
+      "text": "the same framework across different"
+    },
+    {
+      "start": 92.92,
+      "duration": 4.8,
+      "timestamp": "01:32",
+      "text": "markets instead of thinking that you"
+    },
+    {
+      "start": 95.92,
+      "duration": 3.4,
+      "timestamp": "01:35",
+      "text": "need a different strategy for every"
+    },
+    {
+      "start": 97.72,
+      "duration": 3.44,
+      "timestamp": "01:37",
+      "text": "chart you look at. Now, before I show"
+    },
+    {
+      "start": 99.32,
+      "duration": 4.64,
+      "timestamp": "01:39",
+      "text": "you the entire trading framework, the"
+    },
+    {
+      "start": 101.16,
+      "duration": 4.76,
+      "timestamp": "01:41",
+      "text": "entire entry model, let me break down"
+    },
+    {
+      "start": 103.96,
+      "duration": 5.56,
+      "timestamp": "01:43",
+      "text": "the role of each one of these three"
+    },
+    {
+      "start": 105.92,
+      "duration": 6.52,
+      "timestamp": "01:45",
+      "text": "concepts. First of all, liquidity sweep."
+    },
+    {
+      "start": 109.52,
+      "duration": 6.04,
+      "timestamp": "01:49",
+      "text": "Liquidity sweep shows you where the trap"
+    },
+    {
+      "start": 112.44,
+      "duration": 6.28,
+      "timestamp": "01:52",
+      "text": "happens. This is where price runs above"
+    },
+    {
+      "start": 115.56,
+      "duration": 5.08,
+      "timestamp": "01:55",
+      "text": "a high or below a low and take out all"
+    },
+    {
+      "start": 118.72,
+      "duration": 4.04,
+      "timestamp": "01:58",
+      "text": "the stop orders, all the stop losses"
+    },
+    {
+      "start": 120.64,
+      "duration": 4.16,
+      "timestamp": "02:00",
+      "text": "that were sitting there, giving the"
+    },
+    {
+      "start": 122.76,
+      "duration": 4.8,
+      "timestamp": "02:02",
+      "text": "illusion that it wants to continue in"
+    },
+    {
+      "start": 124.8,
+      "duration": 4.68,
+      "timestamp": "02:04",
+      "text": "that direction. When in reality, it's"
+    },
+    {
+      "start": 127.56,
+      "duration": 4.72,
+      "timestamp": "02:07",
+      "text": "just a trap for smart money to grab some"
+    },
+    {
+      "start": 129.48,
+      "duration": 5.08,
+      "timestamp": "02:09",
+      "text": "liquidity to fuel the reversal in the"
+    },
+    {
+      "start": 132.28,
+      "duration": 4.6,
+      "timestamp": "02:12",
+      "text": "opposite direction. So, a lot of retail"
+    },
+    {
+      "start": 134.56,
+      "duration": 3.72,
+      "timestamp": "02:14",
+      "text": "traders get caught entering the breakout"
+    },
+    {
+      "start": 136.88,
+      "duration": 4.24,
+      "timestamp": "02:16",
+      "text": "right here."
+    },
+    {
+      "start": 138.28,
+      "duration": 5.52,
+      "timestamp": "02:18",
+      "text": "When in reality, that is simply just a"
+    },
+    {
+      "start": 141.12,
+      "duration": 5.36,
+      "timestamp": "02:21",
+      "text": "liquidity sweep for the market to grab"
+    },
+    {
+      "start": 143.8,
+      "duration": 5.12,
+      "timestamp": "02:23",
+      "text": "liquidity before the real move actually"
+    },
+    {
+      "start": 146.48,
+      "duration": 4.32,
+      "timestamp": "02:26",
+      "text": "happens. Next, you got the order block."
+    },
+    {
+      "start": 148.92,
+      "duration": 4.44,
+      "timestamp": "02:28",
+      "text": "The order block gives you the point of"
+    },
+    {
+      "start": 150.8,
+      "duration": 5.6,
+      "timestamp": "02:30",
+      "text": "interest. It's the location in which you"
+    },
+    {
+      "start": 153.36,
+      "duration": 5.68,
+      "timestamp": "02:33",
+      "text": "can look for entries. It shows me the"
+    },
+    {
+      "start": 156.4,
+      "duration": 5.48,
+      "timestamp": "02:36",
+      "text": "area where the real displacements came"
+    },
+    {
+      "start": 159.04,
+      "duration": 5.12,
+      "timestamp": "02:39",
+      "text": "from. This is the exact place where"
+    },
+    {
+      "start": 161.88,
+      "duration": 5.2,
+      "timestamp": "02:41",
+      "text": "institutions most likely step into the"
+    },
+    {
+      "start": 164.16,
+      "duration": 5.2,
+      "timestamp": "02:44",
+      "text": "market and just place a large amount of"
+    },
+    {
+      "start": 167.08,
+      "duration": 4.84,
+      "timestamp": "02:47",
+      "text": "buy orders. And it's also the point of"
+    },
+    {
+      "start": 169.36,
+      "duration": 5.32,
+      "timestamp": "02:49",
+      "text": "interest where price may want to return"
+    },
+    {
+      "start": 171.92,
+      "duration": 4.32,
+      "timestamp": "02:51",
+      "text": "before continuing to the upside. So,"
+    },
+    {
+      "start": 174.68,
+      "duration": 3.12,
+      "timestamp": "02:54",
+      "text": "when price gets all the way up here,"
+    },
+    {
+      "start": 176.24,
+      "duration": 3.08,
+      "timestamp": "02:56",
+      "text": "instead of chasing the move that's"
+    },
+    {
+      "start": 177.8,
+      "duration": 3.84,
+      "timestamp": "02:57",
+      "text": "already happened, you know, entering for"
+    },
+    {
+      "start": 179.32,
+      "duration": 4.56,
+      "timestamp": "02:59",
+      "text": "a buy right here, what I want to do is"
+    },
+    {
+      "start": 181.64,
+      "duration": 4.52,
+      "timestamp": "03:01",
+      "text": "to wait for price to pull back to a"
+    },
+    {
+      "start": 183.88,
+      "duration": 4.44,
+      "timestamp": "03:03",
+      "text": "meaningful area on the chart that I can"
+    },
+    {
+      "start": 186.16,
+      "duration": 4.0,
+      "timestamp": "03:06",
+      "text": "pay attention to, which in this case is"
+    },
+    {
+      "start": 188.32,
+      "duration": 3.96,
+      "timestamp": "03:08",
+      "text": "the order block. Next, you got the fair"
+    },
+    {
+      "start": 190.16,
+      "duration": 3.68,
+      "timestamp": "03:10",
+      "text": "value gap, which is also known as"
+    },
+    {
+      "start": 192.28,
+      "duration": 4.28,
+      "timestamp": "03:12",
+      "text": "imbalance."
+    },
+    {
+      "start": 193.84,
+      "duration": 4.92,
+      "timestamp": "03:13",
+      "text": "These give me the refinement. It helps"
+    },
+    {
+      "start": 196.56,
+      "duration": 5.32,
+      "timestamp": "03:16",
+      "text": "me narrow down the entry within that"
+    },
+    {
+      "start": 198.76,
+      "duration": 5.76,
+      "timestamp": "03:18",
+      "text": "overall area. So, rather than blindly"
+    },
+    {
+      "start": 201.88,
+      "duration": 5.72,
+      "timestamp": "03:21",
+      "text": "entering on the order block, what I can"
+    },
+    {
+      "start": 204.52,
+      "duration": 6.52,
+      "timestamp": "03:24",
+      "text": "do is to use the imbalance left behind"
+    },
+    {
+      "start": 207.6,
+      "duration": 6.08,
+      "timestamp": "03:27",
+      "text": "by the impulsive move to find a cleaner"
+    },
+    {
+      "start": 211.04,
+      "duration": 5.04,
+      "timestamp": "03:31",
+      "text": "retracement and a more precise"
+    },
+    {
+      "start": 213.68,
+      "duration": 4.52,
+      "timestamp": "03:33",
+      "text": "execution. So, the way I personally"
+    },
+    {
+      "start": 216.08,
+      "duration": 4.96,
+      "timestamp": "03:36",
+      "text": "think about it is very simple. The"
+    },
+    {
+      "start": 218.2,
+      "duration": 6.4,
+      "timestamp": "03:38",
+      "text": "liquidity sweep is the trap. The order"
+    },
+    {
+      "start": 221.04,
+      "duration": 6.28,
+      "timestamp": "03:41",
+      "text": "block is the zone. The fair value gap or"
+    },
+    {
+      "start": 224.6,
+      "duration": 3.92,
+      "timestamp": "03:44",
+      "text": "imbalance is the entry. And that's"
+    },
+    {
+      "start": 227.32,
+      "duration": 3.72,
+      "timestamp": "03:47",
+      "text": "pretty much how I stopped looking at"
+    },
+    {
+      "start": 228.52,
+      "duration": 5.08,
+      "timestamp": "03:48",
+      "text": "them as three separate concepts and"
+    },
+    {
+      "start": 231.04,
+      "duration": 5.16,
+      "timestamp": "03:51",
+      "text": "start using them as one complete entry"
+    },
+    {
+      "start": 233.6,
+      "duration": 2.6,
+      "timestamp": "03:53",
+      "text": "model."
+    },
+    {
+      "start": 236.68,
+      "duration": 4.92,
+      "timestamp": "03:56",
+      "text": "Ah, that's hot. As usual, we got the"
+    },
+    {
+      "start": 239.44,
+      "duration": 3.44,
+      "timestamp": "03:59",
+      "text": "green tea. Can't have a chart breakdown"
+    },
+    {
+      "start": 241.6,
+      "duration": 3.52,
+      "timestamp": "04:01",
+      "text": "without green tea, you know what I'm"
+    },
+    {
+      "start": 242.88,
+      "duration": 5.12,
+      "timestamp": "04:02",
+      "text": "saying? So, now that you've understood"
+    },
+    {
+      "start": 245.12,
+      "duration": 4.92,
+      "timestamp": "04:05",
+      "text": "the basic concepts, right? How you can"
+    },
+    {
+      "start": 248.0,
+      "duration": 4.08,
+      "timestamp": "04:08",
+      "text": "combine these three different concepts"
+    },
+    {
+      "start": 250.04,
+      "duration": 4.72,
+      "timestamp": "04:10",
+      "text": "together to form one mechanical"
+    },
+    {
+      "start": 252.08,
+      "duration": 5.2,
+      "timestamp": "04:12",
+      "text": "strategy, let me walk you through the"
+    },
+    {
+      "start": 254.76,
+      "duration": 3.76,
+      "timestamp": "04:14",
+      "text": "entire framework step-by-step on the"
+    },
+    {
+      "start": 257.28,
+      "duration": 3.08,
+      "timestamp": "04:17",
+      "text": "charts."
+    },
+    {
+      "start": 258.52,
+      "duration": 3.8,
+      "timestamp": "04:18",
+      "text": "So, right now we got EURUSD and"
+    },
+    {
+      "start": 260.36,
+      "duration": 3.8,
+      "timestamp": "04:20",
+      "text": "obviously price has just broke structure"
+    },
+    {
+      "start": 262.32,
+      "duration": 3.36,
+      "timestamp": "04:22",
+      "text": "to the upside, right? So, clear as day,"
+    },
+    {
+      "start": 264.16,
+      "duration": 3.84,
+      "timestamp": "04:24",
+      "text": "this is where price take out the last"
+    },
+    {
+      "start": 265.68,
+      "duration": 4.12,
+      "timestamp": "04:25",
+      "text": "structural high giving us a bullish"
+    },
+    {
+      "start": 268.0,
+      "duration": 4.88,
+      "timestamp": "04:28",
+      "text": "break of structure telling us that we"
+    },
+    {
+      "start": 269.8,
+      "duration": 5.72,
+      "timestamp": "04:29",
+      "text": "are actually in this bullish trend"
+    },
+    {
+      "start": 272.88,
+      "duration": 5.2,
+      "timestamp": "04:32",
+      "text": "direction. And just by doing that alone,"
+    },
+    {
+      "start": 275.52,
+      "duration": 5.0,
+      "timestamp": "04:35",
+      "text": "you can identify this as your swing low"
+    },
+    {
+      "start": 278.08,
+      "duration": 4.64,
+      "timestamp": "04:38",
+      "text": "and then this as your swing high. And"
+    },
+    {
+      "start": 280.52,
+      "duration": 4.24,
+      "timestamp": "04:40",
+      "text": "this becomes the swing range in which we"
+    },
+    {
+      "start": 282.72,
+      "duration": 4.64,
+      "timestamp": "04:42",
+      "text": "are trading within."
+    },
+    {
+      "start": 284.76,
+      "duration": 5.16,
+      "timestamp": "04:44",
+      "text": "Now, next thing is I want to look for"
+    },
+    {
+      "start": 287.36,
+      "duration": 4.0,
+      "timestamp": "04:47",
+      "text": "some form of liquidity sweep. So, at"
+    },
+    {
+      "start": 289.92,
+      "duration": 2.72,
+      "timestamp": "04:49",
+      "text": "this point of time, I'm looking at the"
+    },
+    {
+      "start": 291.36,
+      "duration": 4.56,
+      "timestamp": "04:51",
+      "text": "chart, I'm looking at the past price"
+    },
+    {
+      "start": 292.64,
+      "duration": 6.84,
+      "timestamp": "04:52",
+      "text": "action, I'm trying to identify equal"
+    },
+    {
+      "start": 295.92,
+      "duration": 7.28,
+      "timestamp": "04:55",
+      "text": "highs, equal lows, swing highs, swing"
+    },
+    {
+      "start": 299.48,
+      "duration": 5.28,
+      "timestamp": "04:59",
+      "text": "lows, any obvious resting liquidity,"
+    },
+    {
+      "start": 303.2,
+      "duration": 4.04,
+      "timestamp": "05:03",
+      "text": "right? Because all of these are"
+    },
+    {
+      "start": 304.76,
+      "duration": 5.48,
+      "timestamp": "05:04",
+      "text": "essentially the liquidity points in"
+    },
+    {
+      "start": 307.24,
+      "duration": 5.36,
+      "timestamp": "05:07",
+      "text": "which we can use to get price to"
+    },
+    {
+      "start": 310.24,
+      "duration": 4.52,
+      "timestamp": "05:10",
+      "text": "continue to the upside, right? So, over"
+    },
+    {
+      "start": 312.6,
+      "duration": 3.8,
+      "timestamp": "05:12",
+      "text": "here, this is where I'm looking at a"
+    },
+    {
+      "start": 314.76,
+      "duration": 2.8,
+      "timestamp": "05:14",
+      "text": "blank chart just like this. I'm looking"
+    },
+    {
+      "start": 316.4,
+      "duration": 4.12,
+      "timestamp": "05:16",
+      "text": "at the past to see whether there have"
+    },
+    {
+      "start": 317.56,
+      "duration": 4.48,
+      "timestamp": "05:17",
+      "text": "been any liquidity sweep recently."
+    },
+    {
+      "start": 320.52,
+      "duration": 3.96,
+      "timestamp": "05:20",
+      "text": "So, in this case, what happens that"
+    },
+    {
+      "start": 322.04,
+      "duration": 5.32,
+      "timestamp": "05:22",
+      "text": "price came down and went up. And then"
+    },
+    {
+      "start": 324.48,
+      "duration": 4.84,
+      "timestamp": "05:24",
+      "text": "came down and goes up and sweep the"
+    },
+    {
+      "start": 327.36,
+      "duration": 3.56,
+      "timestamp": "05:27",
+      "text": "liquidity below this low right here."
+    },
+    {
+      "start": 329.32,
+      "duration": 3.92,
+      "timestamp": "05:29",
+      "text": "Once again, all the stop losses, all the"
+    },
+    {
+      "start": 330.92,
+      "duration": 4.72,
+      "timestamp": "05:30",
+      "text": "stop orders. So, the clear as day, this"
+    },
+    {
+      "start": 333.24,
+      "duration": 3.48,
+      "timestamp": "05:33",
+      "text": "can be our good old liquidity sweep"
+    },
+    {
+      "start": 335.64,
+      "duration": 2.48,
+      "timestamp": "05:35",
+      "text": "right there."
+    },
+    {
+      "start": 336.72,
+      "duration": 3.56,
+      "timestamp": "05:36",
+      "text": "So, that's the first step, just to"
+    },
+    {
+      "start": 338.12,
+      "duration": 4.8,
+      "timestamp": "05:38",
+      "text": "identify the liquidity sweep to know"
+    },
+    {
+      "start": 340.28,
+      "duration": 4.36,
+      "timestamp": "05:40",
+      "text": "where institutions or smart money or big"
+    },
+    {
+      "start": 342.92,
+      "duration": 6.08,
+      "timestamp": "05:42",
+      "text": "banks or whatever you like to call them"
+    },
+    {
+      "start": 344.64,
+      "duration": 6.24,
+      "timestamp": "05:44",
+      "text": "has entered into EURUSD in the past. So,"
+    },
+    {
+      "start": 349.0,
+      "duration": 4.04,
+      "timestamp": "05:49",
+      "text": "we know this is where price is going to"
+    },
+    {
+      "start": 350.88,
+      "duration": 4.76,
+      "timestamp": "05:50",
+      "text": "gravitate towards next when it's pulling"
+    },
+    {
+      "start": 353.04,
+      "duration": 4.6,
+      "timestamp": "05:53",
+      "text": "back. Now, the second step is obviously"
+    },
+    {
+      "start": 355.64,
+      "duration": 4.2,
+      "timestamp": "05:55",
+      "text": "to wait for the liquidity sweep if it"
+    },
+    {
+      "start": 357.64,
+      "duration": 4.12,
+      "timestamp": "05:57",
+      "text": "has not happened yet. So, in this case"
+    },
+    {
+      "start": 359.84,
+      "duration": 3.96,
+      "timestamp": "05:59",
+      "text": "it's already happened, so I can just"
+    },
+    {
+      "start": 361.76,
+      "duration": 3.52,
+      "timestamp": "06:01",
+      "text": "identify this as the liquidity sweep."
+    },
+    {
+      "start": 363.8,
+      "duration": 3.96,
+      "timestamp": "06:03",
+      "text": "But, if you are like somewhere like"
+    },
+    {
+      "start": 365.28,
+      "duration": 4.6,
+      "timestamp": "06:05",
+      "text": "around here, right, where there is no"
+    },
+    {
+      "start": 367.76,
+      "duration": 4.8,
+      "timestamp": "06:07",
+      "text": "liquidity sweep whatsoever, you don't"
+    },
+    {
+      "start": 369.88,
+      "duration": 5.16,
+      "timestamp": "06:09",
+      "text": "want to be doing anything until you get"
+    },
+    {
+      "start": 372.56,
+      "duration": 4.72,
+      "timestamp": "06:12",
+      "text": "a liquidity sweep. Until you see price"
+    },
+    {
+      "start": 375.04,
+      "duration": 5.04,
+      "timestamp": "06:15",
+      "text": "clearly run through a certain level and"
+    },
+    {
+      "start": 377.28,
+      "duration": 4.72,
+      "timestamp": "06:17",
+      "text": "then rejects it or displaces from it."
+    },
+    {
+      "start": 380.08,
+      "duration": 2.96,
+      "timestamp": "06:20",
+      "text": "The third step is to mark the order"
+    },
+    {
+      "start": 382.0,
+      "duration": 3.08,
+      "timestamp": "06:22",
+      "text": "block."
+    },
+    {
+      "start": 383.04,
+      "duration": 4.04,
+      "timestamp": "06:23",
+      "text": "Once again, the order block is the"
+    },
+    {
+      "start": 385.08,
+      "duration": 3.56,
+      "timestamp": "06:25",
+      "text": "origin point"
+    },
+    {
+      "start": 387.08,
+      "duration": 3.76,
+      "timestamp": "06:27",
+      "text": "which caused this huge move to the"
+    },
+    {
+      "start": 388.64,
+      "duration": 3.92,
+      "timestamp": "06:28",
+      "text": "upside. Right? So, you want to trace it"
+    },
+    {
+      "start": 390.84,
+      "duration": 4.08,
+      "timestamp": "06:30",
+      "text": "all the way back to the origin, the"
+    },
+    {
+      "start": 392.56,
+      "duration": 4.6,
+      "timestamp": "06:32",
+      "text": "starting point of this entire leg to the"
+    },
+    {
+      "start": 394.92,
+      "duration": 4.12,
+      "timestamp": "06:34",
+      "text": "upside. Right? Like, where is the price"
+    },
+    {
+      "start": 397.16,
+      "duration": 3.92,
+      "timestamp": "06:37",
+      "text": "point that smart money swept liquidity"
+    },
+    {
+      "start": 399.04,
+      "duration": 4.04,
+      "timestamp": "06:39",
+      "text": "and caused this massive reversal?"
+    },
+    {
+      "start": 401.08,
+      "duration": 4.56,
+      "timestamp": "06:41",
+      "text": "Where's the price point that caused this"
+    },
+    {
+      "start": 403.08,
+      "duration": 6.04,
+      "timestamp": "06:43",
+      "text": "huge amount of imbalance to the upside?"
+    },
+    {
+      "start": 405.64,
+      "duration": 6.68,
+      "timestamp": "06:45",
+      "text": "This is where you can identify the range"
+    },
+    {
+      "start": 409.12,
+      "duration": 5.0,
+      "timestamp": "06:49",
+      "text": "that started this entire impulsive move."
+    },
+    {
+      "start": 412.32,
+      "duration": 3.84,
+      "timestamp": "06:52",
+      "text": "So, in this case, since this is where"
+    },
+    {
+      "start": 414.12,
+      "duration": 4.24,
+      "timestamp": "06:54",
+      "text": "the liquidity sweep started, I can mark"
+    },
+    {
+      "start": 416.16,
+      "duration": 4.08,
+      "timestamp": "06:56",
+      "text": "this candlestick right here, all the way"
+    },
+    {
+      "start": 418.36,
+      "duration": 3.4,
+      "timestamp": "06:58",
+      "text": "down from the high to of this"
+    },
+    {
+      "start": 420.24,
+      "duration": 3.48,
+      "timestamp": "07:00",
+      "text": "candlestick, all the way down to the low"
+    },
+    {
+      "start": 421.76,
+      "duration": 5.44,
+      "timestamp": "07:01",
+      "text": "of this candlestick, and this entire"
+    },
+    {
+      "start": 423.72,
+      "duration": 5.2,
+      "timestamp": "07:03",
+      "text": "thing becomes my order block. Right? So,"
+    },
+    {
+      "start": 427.2,
+      "duration": 3.32,
+      "timestamp": "07:07",
+      "text": "I can literally just mark that out as my"
+    },
+    {
+      "start": 428.92,
+      "duration": 4.08,
+      "timestamp": "07:08",
+      "text": "order block right there."
+    },
+    {
+      "start": 430.52,
+      "duration": 5.12,
+      "timestamp": "07:10",
+      "text": "So, this is one way of identifying order"
+    },
+    {
+      "start": 433.0,
+      "duration": 5.08,
+      "timestamp": "07:13",
+      "text": "block is to find the entire range before"
+    },
+    {
+      "start": 435.64,
+      "duration": 4.48,
+      "timestamp": "07:15",
+      "text": "the impulsive move. What you can do to"
+    },
+    {
+      "start": 438.08,
+      "duration": 3.88,
+      "timestamp": "07:18",
+      "text": "take things one step further is to"
+    },
+    {
+      "start": 440.12,
+      "duration": 3.8,
+      "timestamp": "07:20",
+      "text": "refine the order block. Right? So,"
+    },
+    {
+      "start": 441.96,
+      "duration": 4.8,
+      "timestamp": "07:21",
+      "text": "instead of drawing the entire range just"
+    },
+    {
+      "start": 443.92,
+      "duration": 6.6,
+      "timestamp": "07:23",
+      "text": "like this, perhaps you want to refine it"
+    },
+    {
+      "start": 446.76,
+      "duration": 5.8,
+      "timestamp": "07:26",
+      "text": "by looking at the origin candle before"
+    },
+    {
+      "start": 450.52,
+      "duration": 4.16,
+      "timestamp": "07:30",
+      "text": "the impulsive move. Right? So, before"
+    },
+    {
+      "start": 452.56,
+      "duration": 4.24,
+      "timestamp": "07:32",
+      "text": "this huge move to the upside, which is"
+    },
+    {
+      "start": 454.68,
+      "duration": 4.32,
+      "timestamp": "07:34",
+      "text": "the candle that resulted in this"
+    },
+    {
+      "start": 456.8,
+      "duration": 4.68,
+      "timestamp": "07:36",
+      "text": "reversal? Like, which is the reversal"
+    },
+    {
+      "start": 459.0,
+      "duration": 5.0,
+      "timestamp": "07:39",
+      "text": "candle? And in this case, price went"
+    },
+    {
+      "start": 461.48,
+      "duration": 4.2,
+      "timestamp": "07:41",
+      "text": "down, started consolidating around here,"
+    },
+    {
+      "start": 464.0,
+      "duration": 3.72,
+      "timestamp": "07:44",
+      "text": "giving us a doji candlestick just like"
+    },
+    {
+      "start": 465.68,
+      "duration": 4.52,
+      "timestamp": "07:45",
+      "text": "this, and then resulting in a move to"
+    },
+    {
+      "start": 467.72,
+      "duration": 5.24,
+      "timestamp": "07:47",
+      "text": "the upside. So, this right here becomes"
+    },
+    {
+      "start": 470.2,
+      "duration": 4.32,
+      "timestamp": "07:50",
+      "text": "the origin candle. So, if you want to"
+    },
+    {
+      "start": 472.96,
+      "duration": 3.72,
+      "timestamp": "07:52",
+      "text": "refine your order block, right, have"
+    },
+    {
+      "start": 474.52,
+      "duration": 4.56,
+      "timestamp": "07:54",
+      "text": "like a much more precise and a much more"
+    },
+    {
+      "start": 476.68,
+      "duration": 5.2,
+      "timestamp": "07:56",
+      "text": "smaller point of interest,"
+    },
+    {
+      "start": 479.08,
+      "duration": 5.68,
+      "timestamp": "07:59",
+      "text": "you can just map that up just like this."
+    },
+    {
+      "start": 481.88,
+      "duration": 5.44,
+      "timestamp": "08:01",
+      "text": "So, this becomes the true origin of the"
+    },
+    {
+      "start": 484.76,
+      "duration": 5.36,
+      "timestamp": "08:04",
+      "text": "displacement. That is step three, which"
+    },
+    {
+      "start": 487.32,
+      "duration": 4.24,
+      "timestamp": "08:07",
+      "text": "is to identify the order blocks. Now, I"
+    },
+    {
+      "start": 490.12,
+      "duration": 3.44,
+      "timestamp": "08:10",
+      "text": "will highly advise you to just stick to"
+    },
+    {
+      "start": 491.56,
+      "duration": 4.4,
+      "timestamp": "08:11",
+      "text": "one method. If you prefer the range"
+    },
+    {
+      "start": 493.56,
+      "duration": 4.4,
+      "timestamp": "08:13",
+      "text": "method just like this, stick to it."
+    },
+    {
+      "start": 495.96,
+      "duration": 4.12,
+      "timestamp": "08:15",
+      "text": "Don't use the candlestick method"
+    },
+    {
+      "start": 497.96,
+      "duration": 3.76,
+      "timestamp": "08:17",
+      "text": "sometimes and then the range method"
+    },
+    {
+      "start": 500.08,
+      "duration": 3.76,
+      "timestamp": "08:20",
+      "text": "other times. You want to stick to one"
+    },
+    {
+      "start": 501.72,
+      "duration": 4.04,
+      "timestamp": "08:21",
+      "text": "mechanical approach, right? So, for the"
+    },
+    {
+      "start": 503.84,
+      "duration": 3.8,
+      "timestamp": "08:23",
+      "text": "simplicity's sake, I'm just going to"
+    },
+    {
+      "start": 505.76,
+      "duration": 3.8,
+      "timestamp": "08:25",
+      "text": "stick to the range approach for this"
+    },
+    {
+      "start": 507.64,
+      "duration": 3.76,
+      "timestamp": "08:27",
+      "text": "video itself, right? So, this entire"
+    },
+    {
+      "start": 509.56,
+      "duration": 3.2,
+      "timestamp": "08:29",
+      "text": "range right here becomes my order block."
+    },
+    {
+      "start": 511.4,
+      "duration": 3.32,
+      "timestamp": "08:31",
+      "text": "So, this tells me that the next time"
+    },
+    {
+      "start": 512.76,
+      "duration": 4.12,
+      "timestamp": "08:32",
+      "text": "price actually pull back to this area, I"
+    },
+    {
+      "start": 514.72,
+      "duration": 4.68,
+      "timestamp": "08:34",
+      "text": "can expect the smart money, the big"
+    },
+    {
+      "start": 516.88,
+      "duration": 4.84,
+      "timestamp": "08:36",
+      "text": "banks to actually pile on more buy"
+    },
+    {
+      "start": 519.4,
+      "duration": 4.6,
+      "timestamp": "08:39",
+      "text": "orders for price to continue to the"
+    },
+    {
+      "start": 521.72,
+      "duration": 4.48,
+      "timestamp": "08:41",
+      "text": "upside. So, ideally somewhere within"
+    },
+    {
+      "start": 524.0,
+      "duration": 4.52,
+      "timestamp": "08:44",
+      "text": "this area right here is where I want to"
+    },
+    {
+      "start": 526.2,
+      "duration": 4.48,
+      "timestamp": "08:46",
+      "text": "look for longs to trade the continuation"
+    },
+    {
+      "start": 528.52,
+      "duration": 4.64,
+      "timestamp": "08:48",
+      "text": "of this move. Step [snorts] four is to"
+    },
+    {
+      "start": 530.68,
+      "duration": 4.96,
+      "timestamp": "08:50",
+      "text": "mark the fair value gap."
+    },
+    {
+      "start": 533.16,
+      "duration": 5.04,
+      "timestamp": "08:53",
+      "text": "Now, this is pretty much the imbalance"
+    },
+    {
+      "start": 535.64,
+      "duration": 4.16,
+      "timestamp": "08:55",
+      "text": "that's left by the strong move. Okay, so"
+    },
+    {
+      "start": 538.2,
+      "duration": 2.76,
+      "timestamp": "08:58",
+      "text": "you can see this huge move to the upside"
+    },
+    {
+      "start": 539.8,
+      "duration": 2.4,
+      "timestamp": "08:59",
+      "text": "right here."
+    },
+    {
+      "start": 540.96,
+      "duration": 4.24,
+      "timestamp": "09:00",
+      "text": "And when price actually moved to the"
+    },
+    {
+      "start": 542.2,
+      "duration": 5.6,
+      "timestamp": "09:02",
+      "text": "upside, it moved up very aggressively,"
+    },
+    {
+      "start": 545.2,
+      "duration": 5.08,
+      "timestamp": "09:05",
+      "text": "leaving us a lot of imbalance. What I"
+    },
+    {
+      "start": 547.8,
+      "duration": 4.24,
+      "timestamp": "09:07",
+      "text": "basically mean by imbalance is a gap."
+    },
+    {
+      "start": 550.28,
+      "duration": 3.6,
+      "timestamp": "09:10",
+      "text": "All right? So, if you zoom in at the"
+    },
+    {
+      "start": 552.04,
+      "duration": 3.68,
+      "timestamp": "09:12",
+      "text": "price action right here, and you look at"
+    },
+    {
+      "start": 553.88,
+      "duration": 4.0,
+      "timestamp": "09:13",
+      "text": "the candlesticks right here, more often"
+    },
+    {
+      "start": 555.72,
+      "duration": 4.36,
+      "timestamp": "09:15",
+      "text": "than not when candlestick move in a very"
+    },
+    {
+      "start": 557.88,
+      "duration": 4.64,
+      "timestamp": "09:17",
+      "text": "efficient manner, what tends to happen"
+    },
+    {
+      "start": 560.08,
+      "duration": 4.32,
+      "timestamp": "09:20",
+      "text": "is something just like this, where price"
+    },
+    {
+      "start": 562.52,
+      "duration": 5.48,
+      "timestamp": "09:22",
+      "text": "just goes down like very like"
+    },
+    {
+      "start": 564.4,
+      "duration": 5.8,
+      "timestamp": "09:24",
+      "text": "consolidaty way, like very slowly."
+    },
+    {
+      "start": 568.0,
+      "duration": 4.36,
+      "timestamp": "09:28",
+      "text": "But, when there's inefficient price"
+    },
+    {
+      "start": 570.2,
+      "duration": 5.4,
+      "timestamp": "09:30",
+      "text": "action, which means that there's a lot"
+    },
+    {
+      "start": 572.36,
+      "duration": 5.2,
+      "timestamp": "09:32",
+      "text": "of sudden large amount of buy orders"
+    },
+    {
+      "start": 575.6,
+      "duration": 3.64,
+      "timestamp": "09:35",
+      "text": "stepping to the market, what tends to"
+    },
+    {
+      "start": 577.56,
+      "duration": 3.84,
+      "timestamp": "09:37",
+      "text": "happen is that they leave behind a gap."
+    },
+    {
+      "start": 579.24,
+      "duration": 3.92,
+      "timestamp": "09:39",
+      "text": "And that gap is what we call imbalance."
+    },
+    {
+      "start": 581.4,
+      "duration": 4.48,
+      "timestamp": "09:41",
+      "text": "And that is where we can locate the fair"
+    },
+    {
+      "start": 583.16,
+      "duration": 4.64,
+      "timestamp": "09:43",
+      "text": "value gap. So, in this case itself, what"
+    },
+    {
+      "start": 585.88,
+      "duration": 3.56,
+      "timestamp": "09:45",
+      "text": "happened was that price went up,"
+    },
+    {
+      "start": 587.8,
+      "duration": 3.2,
+      "timestamp": "09:47",
+      "text": "creating this candlestick right here."
+    },
+    {
+      "start": 589.44,
+      "duration": 4.48,
+      "timestamp": "09:49",
+      "text": "And you can see when this candlestick"
+    },
+    {
+      "start": 591.0,
+      "duration": 5.28,
+      "timestamp": "09:51",
+      "text": "was created, you can identify a gap by"
+    },
+    {
+      "start": 593.92,
+      "duration": 5.88,
+      "timestamp": "09:53",
+      "text": "finding the high of the previous"
+    },
+    {
+      "start": 596.28,
+      "duration": 5.52,
+      "timestamp": "09:56",
+      "text": "candlestick and finding the low of the"
+    },
+    {
+      "start": 599.8,
+      "duration": 3.76,
+      "timestamp": "09:59",
+      "text": "next candlestick right here. You can see"
+    },
+    {
+      "start": 601.8,
+      "duration": 3.72,
+      "timestamp": "10:01",
+      "text": "this is the low and then this is the"
+    },
+    {
+      "start": 603.56,
+      "duration": 5.52,
+      "timestamp": "10:03",
+      "text": "high. And this"
+    },
+    {
+      "start": 605.52,
+      "duration": 4.68,
+      "timestamp": "10:05",
+      "text": "entire right here becomes our fair value"
+    },
+    {
+      "start": 609.08,
+      "duration": 3.6,
+      "timestamp": "10:09",
+      "text": "gap."
+    },
+    {
+      "start": 610.2,
+      "duration": 4.36,
+      "timestamp": "10:10",
+      "text": "The larger the gap, the more imbalance"
+    },
+    {
+      "start": 612.68,
+      "duration": 3.84,
+      "timestamp": "10:12",
+      "text": "that is, which means that there's a"
+    },
+    {
+      "start": 614.56,
+      "duration": 4.08,
+      "timestamp": "10:14",
+      "text": "higher chance for price to pull back and"
+    },
+    {
+      "start": 616.52,
+      "duration": 3.64,
+      "timestamp": "10:16",
+      "text": "fill up the imbalance. Because that's"
+    },
+    {
+      "start": 618.64,
+      "duration": 3.76,
+      "timestamp": "10:18",
+      "text": "just how the market move. The market"
+    },
+    {
+      "start": 620.16,
+      "duration": 4.68,
+      "timestamp": "10:20",
+      "text": "move from imbalance to balance to"
+    },
+    {
+      "start": 622.4,
+      "duration": 4.44,
+      "timestamp": "10:22",
+      "text": "imbalance to balance again. So, in this"
+    },
+    {
+      "start": 624.84,
+      "duration": 4.24,
+      "timestamp": "10:24",
+      "text": "case, that is the first fair value gap"
+    },
+    {
+      "start": 626.84,
+      "duration": 4.0,
+      "timestamp": "10:26",
+      "text": "that I can identify. Another fair value"
+    },
+    {
+      "start": 629.08,
+      "duration": 3.6,
+      "timestamp": "10:29",
+      "text": "gap, which is really, really obvious, is"
+    },
+    {
+      "start": 630.84,
+      "duration": 4.2,
+      "timestamp": "10:30",
+      "text": "this one right here. You can see this"
+    },
+    {
+      "start": 632.68,
+      "duration": 4.16,
+      "timestamp": "10:32",
+      "text": "candlestick, huge move to the upside,"
+    },
+    {
+      "start": 635.04,
+      "duration": 3.12,
+      "timestamp": "10:35",
+      "text": "big bullish candlestick, and you can"
+    },
+    {
+      "start": 636.84,
+      "duration": 3.36,
+      "timestamp": "10:36",
+      "text": "mark the high of the previous"
+    },
+    {
+      "start": 638.16,
+      "duration": 3.48,
+      "timestamp": "10:38",
+      "text": "candlestick and the low of the next"
+    },
+    {
+      "start": 640.2,
+      "duration": 4.12,
+      "timestamp": "10:40",
+      "text": "candlestick just like this. You can see"
+    },
+    {
+      "start": 641.64,
+      "duration": 5.48,
+      "timestamp": "10:41",
+      "text": "this is a very, very obvious and"
+    },
+    {
+      "start": 644.32,
+      "duration": 4.4,
+      "timestamp": "10:44",
+      "text": "significant fair value gap."
+    },
+    {
+      "start": 647.12,
+      "duration": 4.04,
+      "timestamp": "10:47",
+      "text": "Now that you've identified a fair value"
+    },
+    {
+      "start": 648.72,
+      "duration": 4.32,
+      "timestamp": "10:48",
+      "text": "gap, this is where you get an idea on"
+    },
+    {
+      "start": 651.16,
+      "duration": 4.04,
+      "timestamp": "10:51",
+      "text": "where price is most likely going to pull"
+    },
+    {
+      "start": 653.04,
+      "duration": 3.96,
+      "timestamp": "10:53",
+      "text": "back to. So, just to make things even"
+    },
+    {
+      "start": 655.2,
+      "duration": 4.88,
+      "timestamp": "10:55",
+      "text": "clearer for you guys, I'm going to make"
+    },
+    {
+      "start": 657.0,
+      "duration": 5.2,
+      "timestamp": "10:57",
+      "text": "this fair value gap blue color."
+    },
+    {
+      "start": 660.08,
+      "duration": 4.28,
+      "timestamp": "11:00",
+      "text": "And we can keep the order block as gray"
+    },
+    {
+      "start": 662.2,
+      "duration": 3.6,
+      "timestamp": "11:02",
+      "text": "color. So, you know exactly like which"
+    },
+    {
+      "start": 664.36,
+      "duration": 3.44,
+      "timestamp": "11:04",
+      "text": "one is the fair value gap and which one"
+    },
+    {
+      "start": 665.8,
+      "duration": 2.88,
+      "timestamp": "11:05",
+      "text": "is the order block. So, that is step"
+    },
+    {
+      "start": 667.8,
+      "duration": 4.24,
+      "timestamp": "11:07",
+      "text": "four."
+    },
+    {
+      "start": 668.68,
+      "duration": 6.28,
+      "timestamp": "11:08",
+      "text": "Step five is to wait for the re-entry."
+    },
+    {
+      "start": 672.04,
+      "duration": 5.04,
+      "timestamp": "11:12",
+      "text": "It's to wait for price to come back into"
+    },
+    {
+      "start": 674.96,
+      "duration": 5.12,
+      "timestamp": "11:14",
+      "text": "either the order block or the fair value"
+    },
+    {
+      "start": 677.08,
+      "duration": 5.6,
+      "timestamp": "11:17",
+      "text": "gap area and then look for your entry"
+    },
+    {
+      "start": 680.08,
+      "duration": 4.44,
+      "timestamp": "11:20",
+      "text": "from there. So, in this case, we just"
+    },
+    {
+      "start": 682.68,
+      "duration": 3.4,
+      "timestamp": "11:22",
+      "text": "got a break of structure, which means"
+    },
+    {
+      "start": 684.52,
+      "duration": 3.96,
+      "timestamp": "11:24",
+      "text": "that price is going to start pulling"
+    },
+    {
+      "start": 686.08,
+      "duration": 4.4,
+      "timestamp": "11:26",
+      "text": "back soon. And the moment price starts"
+    },
+    {
+      "start": 688.48,
+      "duration": 3.4,
+      "timestamp": "11:28",
+      "text": "pulling back, you might be wondering"
+    },
+    {
+      "start": 690.48,
+      "duration": 4.12,
+      "timestamp": "11:30",
+      "text": "where is price going to pull back to"
+    },
+    {
+      "start": 691.88,
+      "duration": 4.12,
+      "timestamp": "11:31",
+      "text": "what? And this is where you can identify"
+    },
+    {
+      "start": 694.6,
+      "duration": 3.24,
+      "timestamp": "11:34",
+      "text": "your order block after you know you got"
+    },
+    {
+      "start": 696.0,
+      "duration": 4.48,
+      "timestamp": "11:36",
+      "text": "your liquidity sweep, identify your fair"
+    },
+    {
+      "start": 697.84,
+      "duration": 5.72,
+      "timestamp": "11:37",
+      "text": "value gaps or imbalances, and this is"
+    },
+    {
+      "start": 700.48,
+      "duration": 4.8,
+      "timestamp": "11:40",
+      "text": "where you get an ideal on the zones"
+    },
+    {
+      "start": 703.56,
+      "duration": 4.68,
+      "timestamp": "11:43",
+      "text": "where price is going to gravitate"
+    },
+    {
+      "start": 705.28,
+      "duration": 4.48,
+      "timestamp": "11:45",
+      "text": "towards next, which is also the zones in"
+    },
+    {
+      "start": 708.24,
+      "duration": 4.16,
+      "timestamp": "11:48",
+      "text": "which you can look for your long"
+    },
+    {
+      "start": 709.76,
+      "duration": 4.68,
+      "timestamp": "11:49",
+      "text": "position. So, in this case, if price is"
+    },
+    {
+      "start": 712.4,
+      "duration": 4.0,
+      "timestamp": "11:52",
+      "text": "somewhere around here, in the middle of"
+    },
+    {
+      "start": 714.44,
+      "duration": 4.48,
+      "timestamp": "11:54",
+      "text": "nowhere, I'm not going to be entering"
+    },
+    {
+      "start": 716.4,
+      "duration": 4.88,
+      "timestamp": "11:56",
+      "text": "for longs because this is extremely low"
+    },
+    {
+      "start": 718.92,
+      "duration": 4.88,
+      "timestamp": "11:58",
+      "text": "probability. Right? Because there's room"
+    },
+    {
+      "start": 721.28,
+      "duration": 5.08,
+      "timestamp": "12:01",
+      "text": "for price to drop down even further"
+    },
+    {
+      "start": 723.8,
+      "duration": 5.52,
+      "timestamp": "12:03",
+      "text": "before the real move actually happens. I"
+    },
+    {
+      "start": 726.36,
+      "duration": 5.12,
+      "timestamp": "12:06",
+      "text": "want to try to capture the low of the"
+    },
+    {
+      "start": 729.32,
+      "duration": 4.6,
+      "timestamp": "12:09",
+      "text": "reversal. I want to try to capture the"
+    },
+    {
+      "start": 731.48,
+      "duration": 4.44,
+      "timestamp": "12:11",
+      "text": "start of the continuation move. And it's"
+    },
+    {
+      "start": 733.92,
+      "duration": 3.92,
+      "timestamp": "12:13",
+      "text": "most likely going to happen within one"
+    },
+    {
+      "start": 735.92,
+      "duration": 3.6,
+      "timestamp": "12:15",
+      "text": "of these areas down here. So, I'm going"
+    },
+    {
+      "start": 737.84,
+      "duration": 4.56,
+      "timestamp": "12:17",
+      "text": "to be very patient. I'm going to sit on"
+    },
+    {
+      "start": 739.52,
+      "duration": 5.32,
+      "timestamp": "12:19",
+      "text": "my hands and do nothing until price"
+    },
+    {
+      "start": 742.4,
+      "duration": 4.6,
+      "timestamp": "12:22",
+      "text": "mitigate the zone. The minute price"
+    },
+    {
+      "start": 744.84,
+      "duration": 4.36,
+      "timestamp": "12:24",
+      "text": "enters into a fair value gap just like"
+    },
+    {
+      "start": 747.0,
+      "duration": 4.24,
+      "timestamp": "12:27",
+      "text": "this, this is where you can look for"
+    },
+    {
+      "start": 749.2,
+      "duration": 4.68,
+      "timestamp": "12:29",
+      "text": "your long positions."
+    },
+    {
+      "start": 751.24,
+      "duration": 4.64,
+      "timestamp": "12:31",
+      "text": "You can either look for confirmation"
+    },
+    {
+      "start": 753.88,
+      "duration": 4.28,
+      "timestamp": "12:33",
+      "text": "or you can just enter"
+    },
+    {
+      "start": 755.88,
+      "duration": 4.16,
+      "timestamp": "12:35",
+      "text": "right away once price mitigated a fair"
+    },
+    {
+      "start": 758.16,
+      "duration": 3.36,
+      "timestamp": "12:38",
+      "text": "value gap, which is a little bit more"
+    },
+    {
+      "start": 760.04,
+      "duration": 2.72,
+      "timestamp": "12:40",
+      "text": "aggressive."
+    },
+    {
+      "start": 761.52,
+      "duration": 2.84,
+      "timestamp": "12:41",
+      "text": "All right. So, once again, you'd want to"
+    },
+    {
+      "start": 762.76,
+      "duration": 4.24,
+      "timestamp": "12:42",
+      "text": "have a very systematic approach for"
+    },
+    {
+      "start": 764.36,
+      "duration": 5.32,
+      "timestamp": "12:44",
+      "text": "this. Either go for the confirmation"
+    },
+    {
+      "start": 767.0,
+      "duration": 5.0,
+      "timestamp": "12:47",
+      "text": "version of this entry or go for the"
+    },
+    {
+      "start": 769.68,
+      "duration": 4.92,
+      "timestamp": "12:49",
+      "text": "aggressive version of the entry. The"
+    },
+    {
+      "start": 772.0,
+      "duration": 4.64,
+      "timestamp": "12:52",
+      "text": "conservative version requires you to"
+    },
+    {
+      "start": 774.6,
+      "duration": 3.84,
+      "timestamp": "12:54",
+      "text": "wait for some form of structural shift"
+    },
+    {
+      "start": 776.64,
+      "duration": 3.96,
+      "timestamp": "12:56",
+      "text": "like a market shift, and then you"
+    },
+    {
+      "start": 778.44,
+      "duration": 3.16,
+      "timestamp": "12:58",
+      "text": "actually enter for the trade itself."
+    },
+    {
+      "start": 780.6,
+      "duration": 2.36,
+      "timestamp": "13:00",
+      "text": "Once again, I've went through this"
+    },
+    {
+      "start": 781.6,
+      "duration": 3.0,
+      "timestamp": "13:01",
+      "text": "countless of times in my other YouTube"
+    },
+    {
+      "start": 782.96,
+      "duration": 3.16,
+      "timestamp": "13:02",
+      "text": "videos. So, if you're unsure on what"
+    },
+    {
+      "start": 784.6,
+      "duration": 3.52,
+      "timestamp": "13:04",
+      "text": "this means, check out the other YouTube"
+    },
+    {
+      "start": 786.12,
+      "duration": 4.08,
+      "timestamp": "13:06",
+      "text": "videos. Ideally, you want to look for"
+    },
+    {
+      "start": 788.12,
+      "duration": 3.6,
+      "timestamp": "13:08",
+      "text": "some form of market shift to the upside,"
+    },
+    {
+      "start": 790.2,
+      "duration": 3.16,
+      "timestamp": "13:10",
+      "text": "which signal to you that internal"
+    },
+    {
+      "start": 791.72,
+      "duration": 3.68,
+      "timestamp": "13:11",
+      "text": "structure has shifted from bearish to"
+    },
+    {
+      "start": 793.36,
+      "duration": 3.12,
+      "timestamp": "13:13",
+      "text": "bullish. Then you make your entry from"
+    },
+    {
+      "start": 795.4,
+      "duration": 2.64,
+      "timestamp": "13:15",
+      "text": "that."
+    },
+    {
+      "start": 796.48,
+      "duration": 4.72,
+      "timestamp": "13:16",
+      "text": "For the aggressive version of the entry"
+    },
+    {
+      "start": 798.04,
+      "duration": 5.4,
+      "timestamp": "13:18",
+      "text": "model, you can just enter the minute"
+    },
+    {
+      "start": 801.2,
+      "duration": 5.64,
+      "timestamp": "13:21",
+      "text": "price actually mitigated a order block"
+    },
+    {
+      "start": 803.44,
+      "duration": 5.44,
+      "timestamp": "13:23",
+      "text": "or a fair value gap. And ideally, I want"
+    },
+    {
+      "start": 806.84,
+      "duration": 3.88,
+      "timestamp": "13:26",
+      "text": "the fair value gap to be within the"
+    },
+    {
+      "start": 808.88,
+      "duration": 4.96,
+      "timestamp": "13:28",
+      "text": "order block itself. So, [snorts] in this"
+    },
+    {
+      "start": 810.72,
+      "duration": 5.6,
+      "timestamp": "13:30",
+      "text": "case, I can enter upon the mitigation of"
+    },
+    {
+      "start": 813.84,
+      "duration": 3.8,
+      "timestamp": "13:33",
+      "text": "this area right here. And this is where"
+    },
+    {
+      "start": 816.32,
+      "duration": 3.08,
+      "timestamp": "13:36",
+      "text": "I'm going to be placing my stop loss"
+    },
+    {
+      "start": 817.64,
+      "duration": 3.28,
+      "timestamp": "13:37",
+      "text": "below the fair value gap, below the"
+    },
+    {
+      "start": 819.4,
+      "duration": 3.8,
+      "timestamp": "13:39",
+      "text": "point of interest in which I'm entering"
+    },
+    {
+      "start": 820.92,
+      "duration": 4.96,
+      "timestamp": "13:40",
+      "text": "the trade from, and placing my take"
+    },
+    {
+      "start": 823.2,
+      "duration": 4.04,
+      "timestamp": "13:43",
+      "text": "profit at 2R. To keep things simple in"
+    },
+    {
+      "start": 825.88,
+      "duration": 3.68,
+      "timestamp": "13:45",
+      "text": "this video, I'm just going to stick to"
+    },
+    {
+      "start": 827.24,
+      "duration": 3.56,
+      "timestamp": "13:47",
+      "text": "2R. So, this is where you can just let"
+    },
+    {
+      "start": 829.56,
+      "duration": 2.6,
+      "timestamp": "13:49",
+      "text": "the trade play out, and you can see this"
+    },
+    {
+      "start": 830.8,
+      "duration": 4.8,
+      "timestamp": "13:50",
+      "text": "is where I tap into the trade, and you"
+    },
+    {
+      "start": 832.16,
+      "duration": 6.0,
+      "timestamp": "13:52",
+      "text": "hit TP within 10 minutes. Right?"
+    },
+    {
+      "start": 835.6,
+      "duration": 4.92,
+      "timestamp": "13:55",
+      "text": "Literally, as simple as that. That is"
+    },
+    {
+      "start": 838.16,
+      "duration": 4.28,
+      "timestamp": "13:58",
+      "text": "the aggressive entry where you enter"
+    },
+    {
+      "start": 840.52,
+      "duration": 3.44,
+      "timestamp": "14:00",
+      "text": "right upon the mitigation of the fair"
+    },
+    {
+      "start": 842.44,
+      "duration": 3.04,
+      "timestamp": "14:02",
+      "text": "value gap itself. Now, let's just"
+    },
+    {
+      "start": 843.96,
+      "duration": 3.44,
+      "timestamp": "14:03",
+      "text": "continue to play price forward and see"
+    },
+    {
+      "start": 845.48,
+      "duration": 3.44,
+      "timestamp": "14:05",
+      "text": "what price does. Right? So, eventually,"
+    },
+    {
+      "start": 847.4,
+      "duration": 4.36,
+      "timestamp": "14:07",
+      "text": "price did pull back to this fair value"
+    },
+    {
+      "start": 848.92,
+      "duration": 4.76,
+      "timestamp": "14:08",
+      "text": "gap again and mitigated it and swept"
+    },
+    {
+      "start": 851.76,
+      "duration": 4.12,
+      "timestamp": "14:11",
+      "text": "some liquidity and then pushed to the"
+    },
+    {
+      "start": 853.68,
+      "duration": 5.0,
+      "timestamp": "14:13",
+      "text": "upside just like this."
+    },
+    {
+      "start": 855.88,
+      "duration": 6.04,
+      "timestamp": "14:15",
+      "text": "And then, later on, price came back and"
+    },
+    {
+      "start": 858.68,
+      "duration": 5.84,
+      "timestamp": "14:18",
+      "text": "mitigate this other fair value gap that"
+    },
+    {
+      "start": 861.92,
+      "duration": 4.48,
+      "timestamp": "14:21",
+      "text": "was unmitigated the first time round."
+    },
+    {
+      "start": 864.52,
+      "duration": 4.88,
+      "timestamp": "14:24",
+      "text": "So, this is why I say you can never ever"
+    },
+    {
+      "start": 866.4,
+      "duration": 5.08,
+      "timestamp": "14:26",
+      "text": "really go wrong if you actually enter at"
+    },
+    {
+      "start": 869.4,
+      "duration": 3.48,
+      "timestamp": "14:29",
+      "text": "the fair value gap that is within the"
+    },
+    {
+      "start": 871.48,
+      "duration": 4.48,
+      "timestamp": "14:31",
+      "text": "order block."
+    },
+    {
+      "start": 872.88,
+      "duration": 4.52,
+      "timestamp": "14:32",
+      "text": "But, try not to enter at like a random"
+    },
+    {
+      "start": 875.96,
+      "duration": 2.96,
+      "timestamp": "14:35",
+      "text": "fair value gap that is in the middle of"
+    },
+    {
+      "start": 877.4,
+      "duration": 3.56,
+      "timestamp": "14:37",
+      "text": "nowhere. It could work out if you're"
+    },
+    {
+      "start": 878.92,
+      "duration": 4.4,
+      "timestamp": "14:38",
+      "text": "scalping just like this, but as much as"
+    },
+    {
+      "start": 880.96,
+      "duration": 4.52,
+      "timestamp": "14:40",
+      "text": "possible to catch high probability"
+    },
+    {
+      "start": 883.32,
+      "duration": 4.88,
+      "timestamp": "14:43",
+      "text": "setups, you want to wait for price to"
+    },
+    {
+      "start": 885.48,
+      "duration": 4.32,
+      "timestamp": "14:45",
+      "text": "pull back to a fair value gap that is"
+    },
+    {
+      "start": 888.2,
+      "duration": 3.12,
+      "timestamp": "14:48",
+      "text": "within the order block and then make"
+    },
+    {
+      "start": 889.8,
+      "duration": 4.12,
+      "timestamp": "14:49",
+      "text": "your entry from there. Right? So, in"
+    },
+    {
+      "start": 891.32,
+      "duration": 4.2,
+      "timestamp": "14:51",
+      "text": "this case, another point of entry which"
+    },
+    {
+      "start": 893.92,
+      "duration": 2.96,
+      "timestamp": "14:53",
+      "text": "could potentially be at this fair value"
+    },
+    {
+      "start": 895.52,
+      "duration": 3.16,
+      "timestamp": "14:55",
+      "text": "gap. Right? So, in this case, price has"
+    },
+    {
+      "start": 896.88,
+      "duration": 4.12,
+      "timestamp": "14:56",
+      "text": "already made its move right here. You do"
+    },
+    {
+      "start": 898.68,
+      "duration": 3.88,
+      "timestamp": "14:58",
+      "text": "nothing. You wait for price to come to"
+    },
+    {
+      "start": 901.0,
+      "duration": 4.56,
+      "timestamp": "15:01",
+      "text": "you very patiently. You don't chase"
+    },
+    {
+      "start": 902.56,
+      "duration": 4.6,
+      "timestamp": "15:02",
+      "text": "price. And the minute price step you in,"
+    },
+    {
+      "start": 905.56,
+      "duration": 3.76,
+      "timestamp": "15:05",
+      "text": "when price mitigate this fair value gap"
+    },
+    {
+      "start": 907.16,
+      "duration": 4.88,
+      "timestamp": "15:07",
+      "text": "right here, your stop loss is below this"
+    },
+    {
+      "start": 909.32,
+      "duration": 5.8,
+      "timestamp": "15:09",
+      "text": "low right here. You target 2R just like"
+    },
+    {
+      "start": 912.04,
+      "duration": 5.64,
+      "timestamp": "15:12",
+      "text": "this, and you get out within 10 minutes."
+    },
+    {
+      "start": 915.12,
+      "duration": 5.0,
+      "timestamp": "15:15",
+      "text": "Literally, as simple as that. Now, let's"
+    },
+    {
+      "start": 917.68,
+      "duration": 6.2,
+      "timestamp": "15:17",
+      "text": "look at another example. This is a"
+    },
+    {
+      "start": 920.12,
+      "duration": 5.0,
+      "timestamp": "15:20",
+      "text": "bearish scenario on Nasdaq futures. I"
+    },
+    {
+      "start": 923.88,
+      "duration": 3.64,
+      "timestamp": "15:23",
+      "text": "wanted to show you that it works for"
+    },
+    {
+      "start": 925.12,
+      "duration": 4.76,
+      "timestamp": "15:25",
+      "text": "other asset classes as well. So, this is"
+    },
+    {
+      "start": 927.52,
+      "duration": 4.24,
+      "timestamp": "15:27",
+      "text": "futures, Nasdaq, all right? And what you"
+    },
+    {
+      "start": 929.88,
+      "duration": 4.04,
+      "timestamp": "15:29",
+      "text": "want to do is to once again just apply"
+    },
+    {
+      "start": 931.76,
+      "duration": 4.04,
+      "timestamp": "15:31",
+      "text": "the entire five step. So, now let's try"
+    },
+    {
+      "start": 933.92,
+      "duration": 3.96,
+      "timestamp": "15:33",
+      "text": "to apply the entire five step on this"
+    },
+    {
+      "start": 935.8,
+      "duration": 4.36,
+      "timestamp": "15:35",
+      "text": "chart right here. So, the first step is"
+    },
+    {
+      "start": 937.88,
+      "duration": 4.48,
+      "timestamp": "15:37",
+      "text": "to identify liquidity. What happens the"
+    },
+    {
+      "start": 940.16,
+      "duration": 3.64,
+      "timestamp": "15:40",
+      "text": "price went up there, pull back, goes up"
+    },
+    {
+      "start": 942.36,
+      "duration": 3.2,
+      "timestamp": "15:42",
+      "text": "there, and then starts coming down. So,"
+    },
+    {
+      "start": 943.8,
+      "duration": 3.6,
+      "timestamp": "15:43",
+      "text": "we know that there's available liquidity"
+    },
+    {
+      "start": 945.56,
+      "duration": 3.6,
+      "timestamp": "15:45",
+      "text": "right here, and the second step is to"
+    },
+    {
+      "start": 947.4,
+      "duration": 3.28,
+      "timestamp": "15:47",
+      "text": "wait for the liquidity sweep. So, in"
+    },
+    {
+      "start": 949.16,
+      "duration": 3.84,
+      "timestamp": "15:49",
+      "text": "this case, price is already swept"
+    },
+    {
+      "start": 950.68,
+      "duration": 3.96,
+      "timestamp": "15:50",
+      "text": "liquidity above this high right here."
+    },
+    {
+      "start": 953.0,
+      "duration": 3.88,
+      "timestamp": "15:53",
+      "text": "And then the third step is to mark the"
+    },
+    {
+      "start": 954.64,
+      "duration": 3.96,
+      "timestamp": "15:54",
+      "text": "order block, right? So, once again, find"
+    },
+    {
+      "start": 956.88,
+      "duration": 3.92,
+      "timestamp": "15:56",
+      "text": "the origin point that led to this"
+    },
+    {
+      "start": 958.6,
+      "duration": 3.92,
+      "timestamp": "15:58",
+      "text": "significant move to the downside after"
+    },
+    {
+      "start": 960.8,
+      "duration": 4.04,
+      "timestamp": "16:00",
+      "text": "the liquidity sweep, and it's going to"
+    },
+    {
+      "start": 962.52,
+      "duration": 4.32,
+      "timestamp": "16:02",
+      "text": "be somewhere around here, right? So,"
+    },
+    {
+      "start": 964.84,
+      "duration": 3.8,
+      "timestamp": "16:04",
+      "text": "that becomes the order block. And then"
+    },
+    {
+      "start": 966.84,
+      "duration": 3.92,
+      "timestamp": "16:06",
+      "text": "the fourth step is to mark the fair"
+    },
+    {
+      "start": 968.64,
+      "duration": 3.2,
+      "timestamp": "16:08",
+      "text": "value gap. So, in this case, after the"
+    },
+    {
+      "start": 970.76,
+      "duration": 3.52,
+      "timestamp": "16:10",
+      "text": "order block has actually been"
+    },
+    {
+      "start": 971.84,
+      "duration": 4.28,
+      "timestamp": "16:11",
+      "text": "identified, price moved to the downside,"
+    },
+    {
+      "start": 974.28,
+      "duration": 3.96,
+      "timestamp": "16:14",
+      "text": "and this is where I'm looking for fair"
+    },
+    {
+      "start": 976.12,
+      "duration": 4.28,
+      "timestamp": "16:16",
+      "text": "value gap and imbalance in this entire"
+    },
+    {
+      "start": 978.24,
+      "duration": 3.64,
+      "timestamp": "16:18",
+      "text": "move right here. So, let's observe the"
+    },
+    {
+      "start": 980.4,
+      "duration": 4.4,
+      "timestamp": "16:20",
+      "text": "candlesticks to see whether we can find"
+    },
+    {
+      "start": 981.88,
+      "duration": 5.08,
+      "timestamp": "16:21",
+      "text": "any imbalance or gap. So, big bearish"
+    },
+    {
+      "start": 984.8,
+      "duration": 4.4,
+      "timestamp": "16:24",
+      "text": "candlestick right here, cool. Is there a"
+    },
+    {
+      "start": 986.96,
+      "duration": 4.32,
+      "timestamp": "16:26",
+      "text": "gap? Well, if you look at the previous"
+    },
+    {
+      "start": 989.2,
+      "duration": 3.12,
+      "timestamp": "16:29",
+      "text": "candle, which is this low right here,"
+    },
+    {
+      "start": 991.28,
+      "duration": 2.24,
+      "timestamp": "16:31",
+      "text": "and you look at the next candle, which"
+    },
+    {
+      "start": 992.32,
+      "duration": 3.56,
+      "timestamp": "16:32",
+      "text": "is this high right here, there's"
+    },
+    {
+      "start": 993.52,
+      "duration": 4.0,
+      "timestamp": "16:33",
+      "text": "actually no gap whatsoever. So, there's"
+    },
+    {
+      "start": 995.88,
+      "duration": 2.96,
+      "timestamp": "16:35",
+      "text": "no fair value gap right here. And if you"
+    },
+    {
+      "start": 997.52,
+      "duration": 3.8,
+      "timestamp": "16:37",
+      "text": "look at the next candle, is there a fair"
+    },
+    {
+      "start": 998.84,
+      "duration": 4.56,
+      "timestamp": "16:38",
+      "text": "value gap? No. Is there one here? No."
+    },
+    {
+      "start": 1001.32,
+      "duration": 4.4,
+      "timestamp": "16:41",
+      "text": "No. No, right? So, there's pretty much"
+    },
+    {
+      "start": 1003.4,
+      "duration": 4.68,
+      "timestamp": "16:43",
+      "text": "no fair value gap right here. So, in"
+    },
+    {
+      "start": 1005.72,
+      "duration": 5.28,
+      "timestamp": "16:45",
+      "text": "this case, what you want to do instead"
+    },
+    {
+      "start": 1008.08,
+      "duration": 4.28,
+      "timestamp": "16:48",
+      "text": "is to enter upon the mitigation of the"
+    },
+    {
+      "start": 1011.0,
+      "duration": 3.72,
+      "timestamp": "16:51",
+      "text": "order block."
+    },
+    {
+      "start": 1012.36,
+      "duration": 4.44,
+      "timestamp": "16:52",
+      "text": "Once again, write this down somewhere."
+    },
+    {
+      "start": 1014.72,
+      "duration": 4.36,
+      "timestamp": "16:54",
+      "text": "Ideally, we want to enter upon the"
+    },
+    {
+      "start": 1016.8,
+      "duration": 4.4,
+      "timestamp": "16:56",
+      "text": "mitigation of a fair value gap that is"
+    },
+    {
+      "start": 1019.08,
+      "duration": 3.88,
+      "timestamp": "16:59",
+      "text": "within or near the order block."
+    },
+    {
+      "start": 1021.2,
+      "duration": 5.12,
+      "timestamp": "17:01",
+      "text": "But if there's no fair value gap that's"
+    },
+    {
+      "start": 1022.96,
+      "duration": 5.08,
+      "timestamp": "17:02",
+      "text": "present, then you can just enter upon"
+    },
+    {
+      "start": 1026.32,
+      "duration": 3.92,
+      "timestamp": "17:06",
+      "text": "the mitigation of the order block"
+    },
+    {
+      "start": 1028.04,
+      "duration": 4.2,
+      "timestamp": "17:08",
+      "text": "itself. So, in this case, since we"
+    },
+    {
+      "start": 1030.24,
+      "duration": 4.64,
+      "timestamp": "17:10",
+      "text": "cannot do step four, which is to mark"
+    },
+    {
+      "start": 1032.24,
+      "duration": 4.6,
+      "timestamp": "17:12",
+      "text": "the fair value gap, we've decided that"
+    },
+    {
+      "start": 1034.88,
+      "duration": 3.96,
+      "timestamp": "17:14",
+      "text": "we We to enter upon the mitigation of"
+    },
+    {
+      "start": 1036.84,
+      "duration": 3.36,
+      "timestamp": "17:16",
+      "text": "the order block. So, this is where when"
+    },
+    {
+      "start": 1038.84,
+      "duration": 2.96,
+      "timestamp": "17:18",
+      "text": "price is pulling back to this order"
+    },
+    {
+      "start": 1040.2,
+      "duration": 3.36,
+      "timestamp": "17:20",
+      "text": "block right here, I'm doing nothing. I'm"
+    },
+    {
+      "start": 1041.8,
+      "duration": 3.36,
+      "timestamp": "17:21",
+      "text": "doing nothing. I'm doing nothing. I'm"
+    },
+    {
+      "start": 1043.56,
+      "duration": 3.88,
+      "timestamp": "17:23",
+      "text": "waiting very patiently for price to"
+    },
+    {
+      "start": 1045.16,
+      "duration": 4.24,
+      "timestamp": "17:25",
+      "text": "mitigate the order block. Right? So,"
+    },
+    {
+      "start": 1047.44,
+      "duration": 4.0,
+      "timestamp": "17:27",
+      "text": "chew, chew, chew, boom. The minute price"
+    },
+    {
+      "start": 1049.4,
+      "duration": 4.36,
+      "timestamp": "17:29",
+      "text": "mitigate the order block, once again,"
+    },
+    {
+      "start": 1051.44,
+      "duration": 3.4,
+      "timestamp": "17:31",
+      "text": "you can look for your entry from here,"
+    },
+    {
+      "start": 1053.76,
+      "duration": 3.76,
+      "timestamp": "17:33",
+      "text": "and up on the mitigation of the order"
+    },
+    {
+      "start": 1054.84,
+      "duration": 4.44,
+      "timestamp": "17:34",
+      "text": "block, place a stop loss above this"
+    },
+    {
+      "start": 1057.52,
+      "duration": 5.24,
+      "timestamp": "17:37",
+      "text": "order block itself, and then you can"
+    },
+    {
+      "start": 1059.28,
+      "duration": 5.04,
+      "timestamp": "17:39",
+      "text": "place your take profit at 2R just like"
+    },
+    {
+      "start": 1062.76,
+      "duration": 3.12,
+      "timestamp": "17:42",
+      "text": "this."
+    },
+    {
+      "start": 1064.32,
+      "duration": 3.2,
+      "timestamp": "17:44",
+      "text": "So, in this case, because we are"
+    },
+    {
+      "start": 1065.88,
+      "duration": 4.08,
+      "timestamp": "17:45",
+      "text": "entering upon the mitigation of the"
+    },
+    {
+      "start": 1067.52,
+      "duration": 3.84,
+      "timestamp": "17:47",
+      "text": "order block instead of a fair value gap,"
+    },
+    {
+      "start": 1069.96,
+      "duration": 3.52,
+      "timestamp": "17:49",
+      "text": "this is where your stop loss will be a"
+    },
+    {
+      "start": 1071.36,
+      "duration": 3.4,
+      "timestamp": "17:51",
+      "text": "little bit wider. Right? But, let's see"
+    },
+    {
+      "start": 1073.48,
+      "duration": 4.36,
+      "timestamp": "17:53",
+      "text": "where the price actually goes in our"
+    },
+    {
+      "start": 1074.76,
+      "duration": 4.68,
+      "timestamp": "17:54",
+      "text": "way. No, it doesn't. So, in this case,"
+    },
+    {
+      "start": 1077.84,
+      "duration": 3.56,
+      "timestamp": "17:57",
+      "text": "if you were to actually place your stop"
+    },
+    {
+      "start": 1079.44,
+      "duration": 3.52,
+      "timestamp": "17:59",
+      "text": "loss above the point of interest, which"
+    },
+    {
+      "start": 1081.4,
+      "duration": 3.72,
+      "timestamp": "18:01",
+      "text": "is a little bit wide, and you place your"
+    },
+    {
+      "start": 1082.96,
+      "duration": 3.76,
+      "timestamp": "18:02",
+      "text": "take profit right here, you would not"
+    },
+    {
+      "start": 1085.12,
+      "duration": 3.36,
+      "timestamp": "18:05",
+      "text": "have smashed your TP."
+    },
+    {
+      "start": 1086.72,
+      "duration": 3.84,
+      "timestamp": "18:06",
+      "text": "Let me teach you how to rectify this."
+    },
+    {
+      "start": 1088.48,
+      "duration": 3.84,
+      "timestamp": "18:08",
+      "text": "So, now, this is a tip for more of the"
+    },
+    {
+      "start": 1090.56,
+      "duration": 3.76,
+      "timestamp": "18:10",
+      "text": "intermediate and advanced traders out"
+    },
+    {
+      "start": 1092.32,
+      "duration": 3.6,
+      "timestamp": "18:12",
+      "text": "there who want to refine their entries"
+    },
+    {
+      "start": 1094.32,
+      "duration": 3.48,
+      "timestamp": "18:14",
+      "text": "when they are trying to enter on a zone"
+    },
+    {
+      "start": 1095.92,
+      "duration": 3.72,
+      "timestamp": "18:15",
+      "text": "that is this wide. So, for this"
+    },
+    {
+      "start": 1097.8,
+      "duration": 4.12,
+      "timestamp": "18:17",
+      "text": "scenario, instead of placing a stop loss"
+    },
+    {
+      "start": 1099.64,
+      "duration": 5.08,
+      "timestamp": "18:19",
+      "text": "above the order block itself, what you"
+    },
+    {
+      "start": 1101.92,
+      "duration": 4.52,
+      "timestamp": "18:21",
+      "text": "can do is to place your stop loss above"
+    },
+    {
+      "start": 1104.72,
+      "duration": 3.88,
+      "timestamp": "18:24",
+      "text": "the candlestick in which you enter the"
+    },
+    {
+      "start": 1106.44,
+      "duration": 4.04,
+      "timestamp": "18:26",
+      "text": "trade on. Right? So, in this case, I can"
+    },
+    {
+      "start": 1108.6,
+      "duration": 4.28,
+      "timestamp": "18:28",
+      "text": "potentially place my stop loss a few"
+    },
+    {
+      "start": 1110.48,
+      "duration": 5.0,
+      "timestamp": "18:30",
+      "text": "pips above this candlestick right here,"
+    },
+    {
+      "start": 1112.88,
+      "duration": 4.36,
+      "timestamp": "18:32",
+      "text": "and target 2R. If I did that, my TP"
+    },
+    {
+      "start": 1115.48,
+      "duration": 2.92,
+      "timestamp": "18:35",
+      "text": "would have been smashed beautifully. So,"
+    },
+    {
+      "start": 1117.24,
+      "duration": 3.12,
+      "timestamp": "18:37",
+      "text": "once again, why would I place my stop"
+    },
+    {
+      "start": 1118.4,
+      "duration": 4.88,
+      "timestamp": "18:38",
+      "text": "loss above this candlestick right here?"
+    },
+    {
+      "start": 1120.36,
+      "duration": 5.4,
+      "timestamp": "18:40",
+      "text": "It's because price has essentially swept"
+    },
+    {
+      "start": 1123.28,
+      "duration": 5.44,
+      "timestamp": "18:43",
+      "text": "liquidity above these equal highs on the"
+    },
+    {
+      "start": 1125.76,
+      "duration": 6.16,
+      "timestamp": "18:45",
+      "text": "left-hand side right here,"
+    },
+    {
+      "start": 1128.72,
+      "duration": 5.76,
+      "timestamp": "18:48",
+      "text": "giving us a protected high, and this is"
+    },
+    {
+      "start": 1131.92,
+      "duration": 3.96,
+      "timestamp": "18:51",
+      "text": "where we know for a fact that this is"
+    },
+    {
+      "start": 1134.48,
+      "duration": 3.24,
+      "timestamp": "18:54",
+      "text": "the price point which invalidated the"
+    },
+    {
+      "start": 1135.88,
+      "duration": 3.44,
+      "timestamp": "18:55",
+      "text": "trade idea, which means that if later on"
+    },
+    {
+      "start": 1137.72,
+      "duration": 3.08,
+      "timestamp": "18:57",
+      "text": "price went up there and take out this"
+    },
+    {
+      "start": 1139.32,
+      "duration": 3.56,
+      "timestamp": "18:59",
+      "text": "high, this means that the structure is"
+    },
+    {
+      "start": 1140.8,
+      "duration": 4.08,
+      "timestamp": "19:00",
+      "text": "shifting bullish, and we can get out"
+    },
+    {
+      "start": 1142.88,
+      "duration": 4.24,
+      "timestamp": "19:02",
+      "text": "with like a small loss. Right? So, in"
+    },
+    {
+      "start": 1144.88,
+      "duration": 4.4,
+      "timestamp": "19:04",
+      "text": "this case, once again, this is more"
+    },
+    {
+      "start": 1147.12,
+      "duration": 4.2,
+      "timestamp": "19:07",
+      "text": "advanced. If you found yourself in a"
+    },
+    {
+      "start": 1149.28,
+      "duration": 4.28,
+      "timestamp": "19:09",
+      "text": "situation where there's a wide point of"
+    },
+    {
+      "start": 1151.32,
+      "duration": 5.12,
+      "timestamp": "19:11",
+      "text": "interest just like this"
+    },
+    {
+      "start": 1153.56,
+      "duration": 4.6,
+      "timestamp": "19:13",
+      "text": "and you want to refine your entry, make"
+    },
+    {
+      "start": 1156.44,
+      "duration": 4.44,
+      "timestamp": "19:16",
+      "text": "a stop loss a little bit tighter, you"
+    },
+    {
+      "start": 1158.16,
+      "duration": 4.04,
+      "timestamp": "19:18",
+      "text": "want to place it a few pips above the"
+    },
+    {
+      "start": 1160.88,
+      "duration": 4.24,
+      "timestamp": "19:20",
+      "text": "candlestick in which you are entering"
+    },
+    {
+      "start": 1162.2,
+      "duration": 4.24,
+      "timestamp": "19:22",
+      "text": "the trade on and ensure that when you're"
+    },
+    {
+      "start": 1165.12,
+      "duration": 3.32,
+      "timestamp": "19:25",
+      "text": "doing that"
+    },
+    {
+      "start": 1166.44,
+      "duration": 4.2,
+      "timestamp": "19:26",
+      "text": "it must be some form of high that have"
+    },
+    {
+      "start": 1168.44,
+      "duration": 4.48,
+      "timestamp": "19:28",
+      "text": "swept liquidity because that is a"
+    },
+    {
+      "start": 1170.64,
+      "duration": 4.12,
+      "timestamp": "19:30",
+      "text": "protected high. And then just target 2R"
+    },
+    {
+      "start": 1172.92,
+      "duration": 4.24,
+      "timestamp": "19:32",
+      "text": "as usual. Now, before you go and start"
+    },
+    {
+      "start": 1174.76,
+      "duration": 4.48,
+      "timestamp": "19:34",
+      "text": "marking every liquidity sweep, every"
+    },
+    {
+      "start": 1177.16,
+      "duration": 4.76,
+      "timestamp": "19:37",
+      "text": "order block, and every fair value gap on"
+    },
+    {
+      "start": 1179.24,
+      "duration": 5.4,
+      "timestamp": "19:39",
+      "text": "the chart there's something very"
+    },
+    {
+      "start": 1181.92,
+      "duration": 5.56,
+      "timestamp": "19:41",
+      "text": "important that you must understand. Not"
+    },
+    {
+      "start": 1184.64,
+      "duration": 6.48,
+      "timestamp": "19:44",
+      "text": "every liquidity sweep is worth trading."
+    },
+    {
+      "start": 1187.48,
+      "duration": 6.64,
+      "timestamp": "19:47",
+      "text": "Not every order block is valid. And not"
+    },
+    {
+      "start": 1191.12,
+      "duration": 5.4,
+      "timestamp": "19:51",
+      "text": "every fair value gap should be used as"
+    },
+    {
+      "start": 1194.12,
+      "duration": 4.6,
+      "timestamp": "19:54",
+      "text": "an entry. Once again, this is where so"
+    },
+    {
+      "start": 1196.52,
+      "duration": 5.0,
+      "timestamp": "19:56",
+      "text": "many traders go wrong. They learn these"
+    },
+    {
+      "start": 1198.72,
+      "duration": 5.08,
+      "timestamp": "19:58",
+      "text": "concepts and then suddenly every chart"
+    },
+    {
+      "start": 1201.52,
+      "duration": 3.72,
+      "timestamp": "20:01",
+      "text": "starts looking like a setup. They see"
+    },
+    {
+      "start": 1203.8,
+      "duration": 3.6,
+      "timestamp": "20:03",
+      "text": "one little liquidity sweep and they"
+    },
+    {
+      "start": 1205.24,
+      "duration": 5.44,
+      "timestamp": "20:05",
+      "text": "think it means something. They mark"
+    },
+    {
+      "start": 1207.4,
+      "duration": 5.6,
+      "timestamp": "20:07",
+      "text": "random candles as order blocks. They try"
+    },
+    {
+      "start": 1210.68,
+      "duration": 4.28,
+      "timestamp": "20:10",
+      "text": "to enter on every fair value gap that"
+    },
+    {
+      "start": 1213.0,
+      "duration": 3.96,
+      "timestamp": "20:13",
+      "text": "they can find on the charts."
+    },
+    {
+      "start": 1214.96,
+      "duration": 4.88,
+      "timestamp": "20:14",
+      "text": "And that's exactly how you go from"
+    },
+    {
+      "start": 1216.96,
+      "duration": 4.68,
+      "timestamp": "20:16",
+      "text": "having a structured framework to just"
+    },
+    {
+      "start": 1219.84,
+      "duration": 3.8,
+      "timestamp": "20:19",
+      "text": "forcing trades"
+    },
+    {
+      "start": 1221.64,
+      "duration": 4.64,
+      "timestamp": "20:21",
+      "text": "as and when you feel like it."
+    },
+    {
+      "start": 1223.64,
+      "duration": 5.8,
+      "timestamp": "20:23",
+      "text": "What actually matters is the story, is"
+    },
+    {
+      "start": 1226.28,
+      "duration": 5.04,
+      "timestamp": "20:26",
+      "text": "the narrative, is the context."
+    },
+    {
+      "start": 1229.44,
+      "duration": 4.04,
+      "timestamp": "20:29",
+      "text": "I want to see the liquidity sweep happen"
+    },
+    {
+      "start": 1231.32,
+      "duration": 4.52,
+      "timestamp": "20:31",
+      "text": "at a meaningful level."
+    },
+    {
+      "start": 1233.48,
+      "duration": 5.48,
+      "timestamp": "20:33",
+      "text": "I want to see the displacement after the"
+    },
+    {
+      "start": 1235.84,
+      "duration": 5.4,
+      "timestamp": "20:35",
+      "text": "sweep to be strong and obvious. I want"
+    },
+    {
+      "start": 1238.96,
+      "duration": 4.76,
+      "timestamp": "20:38",
+      "text": "the order block to be the true origin of"
+    },
+    {
+      "start": 1241.24,
+      "duration": 4.4,
+      "timestamp": "20:41",
+      "text": "the move, not just some random"
+    },
+    {
+      "start": 1243.72,
+      "duration": 3.84,
+      "timestamp": "20:43",
+      "text": "candlestick in the middle of a messy"
+    },
+    {
+      "start": 1245.64,
+      "duration": 4.2,
+      "timestamp": "20:45",
+      "text": "consolidation."
+    },
+    {
+      "start": 1247.56,
+      "duration": 5.32,
+      "timestamp": "20:47",
+      "text": "And most importantly, I want the fair"
+    },
+    {
+      "start": 1249.84,
+      "duration": 5.08,
+      "timestamp": "20:49",
+      "text": "value gap to refine the setup, not"
+    },
+    {
+      "start": 1252.88,
+      "duration": 3.56,
+      "timestamp": "20:52",
+      "text": "become an excuse to jump into a bad"
+    },
+    {
+      "start": 1254.92,
+      "duration": 4.52,
+      "timestamp": "20:54",
+      "text": "trade."
+    },
+    {
+      "start": 1256.44,
+      "duration": 4.52,
+      "timestamp": "20:56",
+      "text": "The entry matters as much as the"
+    },
+    {
+      "start": 1259.44,
+      "duration": 3.4,
+      "timestamp": "20:59",
+      "text": "context."
+    },
+    {
+      "start": 1260.96,
+      "duration": 4.0,
+      "timestamp": "21:00",
+      "text": "If the market is choppy, if the"
+    },
+    {
+      "start": 1262.84,
+      "duration": 5.0,
+      "timestamp": "21:02",
+      "text": "liquidity sweep is weak, if there is no"
+    },
+    {
+      "start": 1264.96,
+      "duration": 4.8,
+      "timestamp": "21:04",
+      "text": "clear displacement, or if price is"
+    },
+    {
+      "start": 1267.84,
+      "duration": 3.4,
+      "timestamp": "21:07",
+      "text": "reversing from a level that doesn't"
+    },
+    {
+      "start": 1269.76,
+      "duration": 4.12,
+      "timestamp": "21:09",
+      "text": "really matter,"
+    },
+    {
+      "start": 1271.24,
+      "duration": 4.92,
+      "timestamp": "21:11",
+      "text": "I'm not interested. Once again, trading"
+    },
+    {
+      "start": 1273.88,
+      "duration": 5.48,
+      "timestamp": "21:13",
+      "text": "is not about spotting more patterns."
+    },
+    {
+      "start": 1276.16,
+      "duration": 5.96,
+      "timestamp": "21:16",
+      "text": "It's about filtering. The goal is to not"
+    },
+    {
+      "start": 1279.36,
+      "duration": 6.0,
+      "timestamp": "21:19",
+      "text": "to find the most setups. The goal is to"
+    },
+    {
+      "start": 1282.12,
+      "duration": 5.36,
+      "timestamp": "21:22",
+      "text": "find the cleanest ones. Quality over"
+    },
+    {
+      "start": 1285.36,
+      "duration": 4.32,
+      "timestamp": "21:25",
+      "text": "quantity. So, when you're using this"
+    },
+    {
+      "start": 1287.48,
+      "duration": 3.44,
+      "timestamp": "21:27",
+      "text": "entry model, using this framework, I"
+    },
+    {
+      "start": 1289.68,
+      "duration": 2.84,
+      "timestamp": "21:29",
+      "text": "don't want you to think of it like a"
+    },
+    {
+      "start": 1290.92,
+      "duration": 2.84,
+      "timestamp": "21:30",
+      "text": "checklist that you have to force into"
+    },
+    {
+      "start": 1292.52,
+      "duration": 3.8,
+      "timestamp": "21:32",
+      "text": "every chart."
+    },
+    {
+      "start": 1293.76,
+      "duration": 4.44,
+      "timestamp": "21:33",
+      "text": "I want you to think of it like a story"
+    },
+    {
+      "start": 1296.32,
+      "duration": 5.12,
+      "timestamp": "21:36",
+      "text": "that has to make sense from start to"
+    },
+    {
+      "start": 1298.2,
+      "duration": 6.32,
+      "timestamp": "21:38",
+      "text": "finish, from higher time frame bias to"
+    },
+    {
+      "start": 1301.44,
+      "duration": 5.88,
+      "timestamp": "21:41",
+      "text": "lower time frame structure, from the"
+    },
+    {
+      "start": 1304.52,
+      "duration": 5.24,
+      "timestamp": "21:44",
+      "text": "overall trend direction to understanding"
+    },
+    {
+      "start": 1307.32,
+      "duration": 4.52,
+      "timestamp": "21:47",
+      "text": "who's in control of price. Everything"
+    },
+    {
+      "start": 1309.76,
+      "duration": 4.32,
+      "timestamp": "21:49",
+      "text": "needs to add up, and everything needs to"
+    },
+    {
+      "start": 1311.84,
+      "duration": 4.2,
+      "timestamp": "21:51",
+      "text": "align for you to use this entry model"
+    },
+    {
+      "start": 1314.08,
+      "duration": 3.76,
+      "timestamp": "21:54",
+      "text": "properly. That's when the liquidity"
+    },
+    {
+      "start": 1316.04,
+      "duration": 4.8,
+      "timestamp": "21:56",
+      "text": "sweep, the order block, the fair value"
+    },
+    {
+      "start": 1317.84,
+      "duration": 6.68,
+      "timestamp": "21:57",
+      "text": "gap stop being random concepts, and"
+    },
+    {
+      "start": 1320.84,
+      "duration": 6.84,
+      "timestamp": "22:00",
+      "text": "start becoming a real trading model that"
+    },
+    {
+      "start": 1324.52,
+      "duration": 4.52,
+      "timestamp": "22:04",
+      "text": "you can deploy in any and every market"
+    },
+    {
+      "start": 1327.68,
+      "duration": 2.72,
+      "timestamp": "22:07",
+      "text": "condition."
+    },
+    {
+      "start": 1329.04,
+      "duration": 2.72,
+      "timestamp": "22:09",
+      "text": "With that being said, if you want to"
+    },
+    {
+      "start": 1330.4,
+      "duration": 4.4,
+      "timestamp": "22:10",
+      "text": "learn more about each one of these"
+    },
+    {
+      "start": 1331.76,
+      "duration": 5.72,
+      "timestamp": "22:11",
+      "text": "concepts in more depth, in more detail,"
+    },
+    {
+      "start": 1334.8,
+      "duration": 4.32,
+      "timestamp": "22:14",
+      "text": "in excruciating detail, and you want to"
+    },
+    {
+      "start": 1337.48,
+      "duration": 4.96,
+      "timestamp": "22:17",
+      "text": "learn how to build your own mechanical"
+    },
+    {
+      "start": 1339.12,
+      "duration": 5.2,
+      "timestamp": "22:19",
+      "text": "trade plan step-by-step using my market"
+    },
+    {
+      "start": 1342.44,
+      "duration": 3.96,
+      "timestamp": "22:22",
+      "text": "mechanics concepts, check out this"
+    },
+    {
+      "start": 1344.32,
+      "duration": 4.32,
+      "timestamp": "22:24",
+      "text": "playlist right here, where you get"
+    },
+    {
+      "start": 1346.4,
+      "duration": 5.08,
+      "timestamp": "22:26",
+      "text": "access to all my free courses and"
+    },
+    {
+      "start": 1348.64,
+      "duration": 4.44,
+      "timestamp": "22:28",
+      "text": "lessons. Yep, absolutely free. Because,"
+    },
+    {
+      "start": 1351.48,
+      "duration": 3.12,
+      "timestamp": "22:31",
+      "text": "like I said, I don't want your money. I"
+    },
+    {
+      "start": 1353.08,
+      "duration": 3.4,
+      "timestamp": "22:33",
+      "text": "don't need your money. I want you to"
+    },
+    {
+      "start": 1354.6,
+      "duration": 3.52,
+      "timestamp": "22:34",
+      "text": "become a better trader. This is why I"
+    },
+    {
+      "start": 1356.48,
+      "duration": 3.72,
+      "timestamp": "22:36",
+      "text": "break down everything in a much more"
+    },
+    {
+      "start": 1358.12,
+      "duration": 4.2,
+      "timestamp": "22:38",
+      "text": "structured way, so you can actually"
+    },
+    {
+      "start": 1360.2,
+      "duration": 4.84,
+      "timestamp": "22:40",
+      "text": "understand how to apply it to your own"
+    },
+    {
+      "start": 1362.32,
+      "duration": 7.28,
+      "timestamp": "22:42",
+      "text": "trading. And as always, remember you're"
+    },
+    {
+      "start": 1365.04,
+      "duration": 4.56,
+      "timestamp": "22:45",
+      "text": "just one trade away. Mwah."
+    }
+  ],
+  "full_text": "Most traders stay confused not because they don't know smart money concepts, but because they don't know the sequence for using them. They see a liquidity sweep, they see an order block, they see a fair value gap, but they don't know how to put the story together to catch sniper entries, to trade with precision. My name is Brett Goll. I've been trading for 7 years, and last quarter alone, I made 1.5 million dollars in trading [music] profits with every single trade documented live on my second channel, Brett Trades. I'm also the founder of 1% Club, which is a mentorship program that's helped hundreds of students become profitable funded traders. And I'm also the founder of Edge Flow, the trading super app that I personally use to plan, execute, journal, and review my trades with more discipline and structure. So, quite simply put, I don't want your money. I want you to become a better trader. Now that you know who I am, let's get right into it. Now, I want to preface this by saying that this strategy, this trade plan, this model is not just for Forex. Whether you trade futures, stocks, indices, or crypto, the logic is exactly the same. Price seeks liquidity, displaces from key areas, and then often retraces before continuing. Once you understand the sequence, you can apply the same framework across different markets instead of thinking that you need a different strategy for every chart you look at. Now, before I show you the entire trading framework, the entire entry model, let me break down the role of each one of these three concepts. First of all, liquidity sweep. Liquidity sweep shows you where the trap happens. This is where price runs above a high or below a low and take out all the stop orders, all the stop losses that were sitting there, giving the illusion that it wants to continue in that direction. When in reality, it's just a trap for smart money to grab some liquidity to fuel the reversal in the opposite direction. So, a lot of retail traders get caught entering the breakout right here. When in reality, that is simply just a liquidity sweep for the market to grab liquidity before the real move actually happens. Next, you got the order block. The order block gives you the point of interest. It's the location in which you can look for entries. It shows me the area where the real displacements came from. This is the exact place where institutions most likely step into the market and just place a large amount of buy orders. And it's also the point of interest where price may want to return before continuing to the upside. So, when price gets all the way up here, instead of chasing the move that's already happened, you know, entering for a buy right here, what I want to do is to wait for price to pull back to a meaningful area on the chart that I can pay attention to, which in this case is the order block. Next, you got the fair value gap, which is also known as imbalance. These give me the refinement. It helps me narrow down the entry within that overall area. So, rather than blindly entering on the order block, what I can do is to use the imbalance left behind by the impulsive move to find a cleaner retracement and a more precise execution. So, the way I personally think about it is very simple. The liquidity sweep is the trap. The order block is the zone. The fair value gap or imbalance is the entry. And that's pretty much how I stopped looking at them as three separate concepts and start using them as one complete entry model. Ah, that's hot. As usual, we got the green tea. Can't have a chart breakdown without green tea, you know what I'm saying? So, now that you've understood the basic concepts, right? How you can combine these three different concepts together to form one mechanical strategy, let me walk you through the entire framework step-by-step on the charts. So, right now we got EURUSD and obviously price has just broke structure to the upside, right? So, clear as day, this is where price take out the last structural high giving us a bullish break of structure telling us that we are actually in this bullish trend direction. And just by doing that alone, you can identify this as your swing low and then this as your swing high. And this becomes the swing range in which we are trading within. Now, next thing is I want to look for some form of liquidity sweep. So, at this point of time, I'm looking at the chart, I'm looking at the past price action, I'm trying to identify equal highs, equal lows, swing highs, swing lows, any obvious resting liquidity, right? Because all of these are essentially the liquidity points in which we can use to get price to continue to the upside, right? So, over here, this is where I'm looking at a blank chart just like this. I'm looking at the past to see whether there have been any liquidity sweep recently. So, in this case, what happens that price came down and went up. And then came down and goes up and sweep the liquidity below this low right here. Once again, all the stop losses, all the stop orders. So, the clear as day, this can be our good old liquidity sweep right there. So, that's the first step, just to identify the liquidity sweep to know where institutions or smart money or big banks or whatever you like to call them has entered into EURUSD in the past. So, we know this is where price is going to gravitate towards next when it's pulling back. Now, the second step is obviously to wait for the liquidity sweep if it has not happened yet. So, in this case it's already happened, so I can just identify this as the liquidity sweep. But, if you are like somewhere like around here, right, where there is no liquidity sweep whatsoever, you don't want to be doing anything until you get a liquidity sweep. Until you see price clearly run through a certain level and then rejects it or displaces from it. The third step is to mark the order block. Once again, the order block is the origin point which caused this huge move to the upside. Right? So, you want to trace it all the way back to the origin, the starting point of this entire leg to the upside. Right? Like, where is the price point that smart money swept liquidity and caused this massive reversal? Where's the price point that caused this huge amount of imbalance to the upside? This is where you can identify the range that started this entire impulsive move. So, in this case, since this is where the liquidity sweep started, I can mark this candlestick right here, all the way down from the high to of this candlestick, all the way down to the low of this candlestick, and this entire thing becomes my order block. Right? So, I can literally just mark that out as my order block right there. So, this is one way of identifying order block is to find the entire range before the impulsive move. What you can do to take things one step further is to refine the order block. Right? So, instead of drawing the entire range just like this, perhaps you want to refine it by looking at the origin candle before the impulsive move. Right? So, before this huge move to the upside, which is the candle that resulted in this reversal? Like, which is the reversal candle? And in this case, price went down, started consolidating around here, giving us a doji candlestick just like this, and then resulting in a move to the upside. So, this right here becomes the origin candle. So, if you want to refine your order block, right, have like a much more precise and a much more smaller point of interest, you can just map that up just like this. So, this becomes the true origin of the displacement. That is step three, which is to identify the order blocks. Now, I will highly advise you to just stick to one method. If you prefer the range method just like this, stick to it. Don't use the candlestick method sometimes and then the range method other times. You want to stick to one mechanical approach, right? So, for the simplicity's sake, I'm just going to stick to the range approach for this video itself, right? So, this entire range right here becomes my order block. So, this tells me that the next time price actually pull back to this area, I can expect the smart money, the big banks to actually pile on more buy orders for price to continue to the upside. So, ideally somewhere within this area right here is where I want to look for longs to trade the continuation of this move. Step [snorts] four is to mark the fair value gap. Now, this is pretty much the imbalance that's left by the strong move. Okay, so you can see this huge move to the upside right here. And when price actually moved to the upside, it moved up very aggressively, leaving us a lot of imbalance. What I basically mean by imbalance is a gap. All right? So, if you zoom in at the price action right here, and you look at the candlesticks right here, more often than not when candlestick move in a very efficient manner, what tends to happen is something just like this, where price just goes down like very like consolidaty way, like very slowly. But, when there's inefficient price action, which means that there's a lot of sudden large amount of buy orders stepping to the market, what tends to happen is that they leave behind a gap. And that gap is what we call imbalance. And that is where we can locate the fair value gap. So, in this case itself, what happened was that price went up, creating this candlestick right here. And you can see when this candlestick was created, you can identify a gap by finding the high of the previous candlestick and finding the low of the next candlestick right here. You can see this is the low and then this is the high. And this entire right here becomes our fair value gap. The larger the gap, the more imbalance that is, which means that there's a higher chance for price to pull back and fill up the imbalance. Because that's just how the market move. The market move from imbalance to balance to imbalance to balance again. So, in this case, that is the first fair value gap that I can identify. Another fair value gap, which is really, really obvious, is this one right here. You can see this candlestick, huge move to the upside, big bullish candlestick, and you can mark the high of the previous candlestick and the low of the next candlestick just like this. You can see this is a very, very obvious and significant fair value gap. Now that you've identified a fair value gap, this is where you get an idea on where price is most likely going to pull back to. So, just to make things even clearer for you guys, I'm going to make this fair value gap blue color. And we can keep the order block as gray color. So, you know exactly like which one is the fair value gap and which one is the order block. So, that is step four. Step five is to wait for the re-entry. It's to wait for price to come back into either the order block or the fair value gap area and then look for your entry from there. So, in this case, we just got a break of structure, which means that price is going to start pulling back soon. And the moment price starts pulling back, you might be wondering where is price going to pull back to what? And this is where you can identify your order block after you know you got your liquidity sweep, identify your fair value gaps or imbalances, and this is where you get an ideal on the zones where price is going to gravitate towards next, which is also the zones in which you can look for your long position. So, in this case, if price is somewhere around here, in the middle of nowhere, I'm not going to be entering for longs because this is extremely low probability. Right? Because there's room for price to drop down even further before the real move actually happens. I want to try to capture the low of the reversal. I want to try to capture the start of the continuation move. And it's most likely going to happen within one of these areas down here. So, I'm going to be very patient. I'm going to sit on my hands and do nothing until price mitigate the zone. The minute price enters into a fair value gap just like this, this is where you can look for your long positions. You can either look for confirmation or you can just enter right away once price mitigated a fair value gap, which is a little bit more aggressive. All right. So, once again, you'd want to have a very systematic approach for this. Either go for the confirmation version of this entry or go for the aggressive version of the entry. The conservative version requires you to wait for some form of structural shift like a market shift, and then you actually enter for the trade itself. Once again, I've went through this countless of times in my other YouTube videos. So, if you're unsure on what this means, check out the other YouTube videos. Ideally, you want to look for some form of market shift to the upside, which signal to you that internal structure has shifted from bearish to bullish. Then you make your entry from that. For the aggressive version of the entry model, you can just enter the minute price actually mitigated a order block or a fair value gap. And ideally, I want the fair value gap to be within the order block itself. So, [snorts] in this case, I can enter upon the mitigation of this area right here. And this is where I'm going to be placing my stop loss below the fair value gap, below the point of interest in which I'm entering the trade from, and placing my take profit at 2R. To keep things simple in this video, I'm just going to stick to 2R. So, this is where you can just let the trade play out, and you can see this is where I tap into the trade, and you hit TP within 10 minutes. Right? Literally, as simple as that. That is the aggressive entry where you enter right upon the mitigation of the fair value gap itself. Now, let's just continue to play price forward and see what price does. Right? So, eventually, price did pull back to this fair value gap again and mitigated it and swept some liquidity and then pushed to the upside just like this. And then, later on, price came back and mitigate this other fair value gap that was unmitigated the first time round. So, this is why I say you can never ever really go wrong if you actually enter at the fair value gap that is within the order block. But, try not to enter at like a random fair value gap that is in the middle of nowhere. It could work out if you're scalping just like this, but as much as possible to catch high probability setups, you want to wait for price to pull back to a fair value gap that is within the order block and then make your entry from there. Right? So, in this case, another point of entry which could potentially be at this fair value gap. Right? So, in this case, price has already made its move right here. You do nothing. You wait for price to come to you very patiently. You don't chase price. And the minute price step you in, when price mitigate this fair value gap right here, your stop loss is below this low right here. You target 2R just like this, and you get out within 10 minutes. Literally, as simple as that. Now, let's look at another example. This is a bearish scenario on Nasdaq futures. I wanted to show you that it works for other asset classes as well. So, this is futures, Nasdaq, all right? And what you want to do is to once again just apply the entire five step. So, now let's try to apply the entire five step on this chart right here. So, the first step is to identify liquidity. What happens the price went up there, pull back, goes up there, and then starts coming down. So, we know that there's available liquidity right here, and the second step is to wait for the liquidity sweep. So, in this case, price is already swept liquidity above this high right here. And then the third step is to mark the order block, right? So, once again, find the origin point that led to this significant move to the downside after the liquidity sweep, and it's going to be somewhere around here, right? So, that becomes the order block. And then the fourth step is to mark the fair value gap. So, in this case, after the order block has actually been identified, price moved to the downside, and this is where I'm looking for fair value gap and imbalance in this entire move right here. So, let's observe the candlesticks to see whether we can find any imbalance or gap. So, big bearish candlestick right here, cool. Is there a gap? Well, if you look at the previous candle, which is this low right here, and you look at the next candle, which is this high right here, there's actually no gap whatsoever. So, there's no fair value gap right here. And if you look at the next candle, is there a fair value gap? No. Is there one here? No. No. No, right? So, there's pretty much no fair value gap right here. So, in this case, what you want to do instead is to enter upon the mitigation of the order block. Once again, write this down somewhere. Ideally, we want to enter upon the mitigation of a fair value gap that is within or near the order block. But if there's no fair value gap that's present, then you can just enter upon the mitigation of the order block itself. So, in this case, since we cannot do step four, which is to mark the fair value gap, we've decided that we We to enter upon the mitigation of the order block. So, this is where when price is pulling back to this order block right here, I'm doing nothing. I'm doing nothing. I'm doing nothing. I'm waiting very patiently for price to mitigate the order block. Right? So, chew, chew, chew, boom. The minute price mitigate the order block, once again, you can look for your entry from here, and up on the mitigation of the order block, place a stop loss above this order block itself, and then you can place your take profit at 2R just like this. So, in this case, because we are entering upon the mitigation of the order block instead of a fair value gap, this is where your stop loss will be a little bit wider. Right? But, let's see where the price actually goes in our way. No, it doesn't. So, in this case, if you were to actually place your stop loss above the point of interest, which is a little bit wide, and you place your take profit right here, you would not have smashed your TP. Let me teach you how to rectify this. So, now, this is a tip for more of the intermediate and advanced traders out there who want to refine their entries when they are trying to enter on a zone that is this wide. So, for this scenario, instead of placing a stop loss above the order block itself, what you can do is to place your stop loss above the candlestick in which you enter the trade on. Right? So, in this case, I can potentially place my stop loss a few pips above this candlestick right here, and target 2R. If I did that, my TP would have been smashed beautifully. So, once again, why would I place my stop loss above this candlestick right here? It's because price has essentially swept liquidity above these equal highs on the left-hand side right here, giving us a protected high, and this is where we know for a fact that this is the price point which invalidated the trade idea, which means that if later on price went up there and take out this high, this means that the structure is shifting bullish, and we can get out with like a small loss. Right? So, in this case, once again, this is more advanced. If you found yourself in a situation where there's a wide point of interest just like this and you want to refine your entry, make a stop loss a little bit tighter, you want to place it a few pips above the candlestick in which you are entering the trade on and ensure that when you're doing that it must be some form of high that have swept liquidity because that is a protected high. And then just target 2R as usual. Now, before you go and start marking every liquidity sweep, every order block, and every fair value gap on the chart there's something very important that you must understand. Not every liquidity sweep is worth trading. Not every order block is valid. And not every fair value gap should be used as an entry. Once again, this is where so many traders go wrong. They learn these concepts and then suddenly every chart starts looking like a setup. They see one little liquidity sweep and they think it means something. They mark random candles as order blocks. They try to enter on every fair value gap that they can find on the charts. And that's exactly how you go from having a structured framework to just forcing trades as and when you feel like it. What actually matters is the story, is the narrative, is the context. I want to see the liquidity sweep happen at a meaningful level. I want to see the displacement after the sweep to be strong and obvious. I want the order block to be the true origin of the move, not just some random candlestick in the middle of a messy consolidation. And most importantly, I want the fair value gap to refine the setup, not become an excuse to jump into a bad trade. The entry matters as much as the context. If the market is choppy, if the liquidity sweep is weak, if there is no clear displacement, or if price is reversing from a level that doesn't really matter, I'm not interested. Once again, trading is not about spotting more patterns. It's about filtering. The goal is to not to find the most setups. The goal is to find the cleanest ones. Quality over quantity. So, when you're using this entry model, using this framework, I don't want you to think of it like a checklist that you have to force into every chart. I want you to think of it like a story that has to make sense from start to finish, from higher time frame bias to lower time frame structure, from the overall trend direction to understanding who's in control of price. Everything needs to add up, and everything needs to align for you to use this entry model properly. That's when the liquidity sweep, the order block, the fair value gap stop being random concepts, and start becoming a real trading model that you can deploy in any and every market condition. With that being said, if you want to learn more about each one of these concepts in more depth, in more detail, in excruciating detail, and you want to learn how to build your own mechanical trade plan step-by-step using my market mechanics concepts, check out this playlist right here, where you get access to all my free courses and lessons. Yep, absolutely free. Because, like I said, I don't want your money. I don't need your money. I want you to become a better trader. This is why I break down everything in a much more structured way, so you can actually understand how to apply it to your own trading. And as always, remember you're just one trade away. Mwah."
+}
