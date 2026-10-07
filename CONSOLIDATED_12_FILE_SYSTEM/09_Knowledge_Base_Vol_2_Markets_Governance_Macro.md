@@ -1,7 +1,7 @@
 # 09_Knowledge_Base_Vol_2_Markets_Governance_Macro
 
 > **IERL AI Equity OS — curated upload artifact**  
-> Project Version: `0.0.0` · Bundle Version: `2.0` · Source Commit: `d9ffa06`  
+> Project Version: `0.0.0` · Bundle Version: `2.0` · Source Commit: `deb7cfc`  
 > Generated At: `2026-10-07T16:02:46.738742+00:00` · Source Hash: `3f1ad1622b841bfe` · Compiler: `consolidate_project.py` v2.0
 
 ## Operating contract
