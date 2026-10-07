@@ -357,6 +357,119 @@ class TechnicalBaseQualityEngine:
         }
 
     @classmethod
+    def _detect_elliott_wave_and_cycles(cls, data: Dict[str, Any]) -> Dict[str, Any]:
+        """Evaluates Elliott Wave fractal maturity and structural invalidation levels.
+        Distinguishes explosive Wave 3 impulse from late terminating Wave 5 exhaustion.
+
+        Returns:
+            Dict containing:
+              - wave_label: WAVE_3_IMPULSE, WAVE_5_TERMINATING, WAVE_1_EMERGENCE,
+                            WAVE_4_CONSOLIDATION, ABC_CORRECTIVE_CYCLE, NEUTRAL
+              - wave_maturity_alert: EARLIEST_IMPULSE, LATE_CYCLE_EXHAUSTION_WARNING,
+                                     PULLBACK_HOLDING_SUPPORT, CORRECTION_RISK, NORMAL
+              - wave_invalidation_level: exact price level below which the wave count is invalidated
+              - wave_stage_score: 0.0 - 1.0
+        """
+        price = float(data.get("current_price") or 0.0)
+        high_52w = float(data.get("high_52w") or 0.0)
+        low_52w = float(data.get("low_52w") or 0.0)
+        dma50 = float(data.get("dma_50") or 0.0)
+        dma200 = float(data.get("dma_200") or 0.0)
+        vol_z = float(data.get("volume_z_score") or data.get("vol_z") or 0.0)
+        explicit_wave = data.get("elliott_wave_label") or data.get("wave_label")
+        invalidation_explicit = data.get("wave_invalidation_level") or data.get("invalidation_level")
+
+        # Explicit overrides if passed
+        if explicit_wave:
+            w_str = str(explicit_wave).upper()
+            inval_level = float(invalidation_explicit) if invalidation_explicit else round(price * 0.92, 2)
+            if "WAVE_3" in w_str:
+                return {
+                    "wave_label": "WAVE_3_IMPULSE",
+                    "wave_maturity_alert": "EARLIEST_IMPULSE",
+                    "wave_invalidation_level": inval_level,
+                    "wave_stage_score": 1.0,
+                }
+            elif "WAVE_5" in w_str:
+                return {
+                    "wave_label": "WAVE_5_TERMINATING",
+                    "wave_maturity_alert": "LATE_CYCLE_EXHAUSTION_WARNING",
+                    "wave_invalidation_level": inval_level,
+                    "wave_stage_score": 0.40,
+                }
+
+        candles = data.get("candles") or data.get("bars") or data.get("recent_candles") or []
+        if isinstance(candles, list) and len(candles) >= 5:
+            highs = [float(c.get("high") or 0.0) for c in candles if isinstance(c, dict)]
+            lows = [float(c.get("low") or 0.0) for c in candles if isinstance(c, dict)]
+            closes = [float(c.get("close") or 0.0) for c in candles if isinstance(c, dict)]
+            vols = [float(c.get("volume") or 0.0) for c in candles if isinstance(c, dict)]
+
+            p_now = closes[-1] if closes else price
+            p_max = max(highs) if highs else high_52w
+            recent_high = max(highs[-3:]) if len(highs) >= 3 else p_now
+            prior_high = max(highs[:-3]) if len(highs) >= 4 else recent_high
+            recent_vol = (sum(vols[-3:]) / 3.0) if len(vols) >= 3 else 1.0
+            prior_vol = (sum(vols[:-3]) / float(len(vols) - 3)) if len(vols) >= 4 else recent_vol
+
+            if recent_high > prior_high and recent_vol > prior_vol and (p_now > dma50 or dma50 == 0):
+                wave_label = "WAVE_3_IMPULSE"
+                wave_alert = "EARLIEST_IMPULSE"
+                wave_score = 1.00
+                inval_level = round(min(lows[-5:]), 2) if len(lows) >= 5 else round(p_now * 0.93, 2)
+            elif recent_high >= prior_high and recent_vol < 0.70 * prior_vol and (p_now > dma50 or dma50 == 0):
+                wave_label = "WAVE_5_TERMINATING"
+                wave_alert = "LATE_CYCLE_EXHAUSTION_WARNING"
+                wave_score = 0.40
+                inval_level = round(min(lows[-3:]), 2) if len(lows) >= 3 else round(p_now * 0.95, 2)
+            elif p_now < p_max and p_now > dma50 and dma50 > dma200:
+                wave_label = "WAVE_4_CONSOLIDATION"
+                wave_alert = "PULLBACK_HOLDING_SUPPORT"
+                wave_score = 0.80
+                inval_level = round(dma50, 2) if dma50 > 0 else round(p_now * 0.92, 2)
+            else:
+                wave_label = "NEUTRAL"
+                wave_alert = "NORMAL"
+                wave_score = 0.50
+                inval_level = round(low_52w, 2) if low_52w > 0 else round(p_now * 0.90, 2)
+        else:
+            is_stage2 = (price > dma50 > dma200) if (price > 0 and dma50 > 0 and dma200 > 0) else False
+            dist_52w = ((high_52w - price) / high_52w) if (high_52w > 0 and price > 0) else 0.5
+
+            if is_stage2 and dist_52w <= 0.05 and vol_z >= 1.5:
+                wave_label = "WAVE_3_IMPULSE"
+                wave_alert = "EARLIEST_IMPULSE"
+                wave_score = 1.00
+                inval_level = round(dma50, 2) if dma50 > 0 else round(price * 0.92, 2)
+            elif is_stage2 and dist_52w <= 0.05 and vol_z < 0.0:
+                wave_label = "WAVE_5_TERMINATING"
+                wave_alert = "LATE_CYCLE_EXHAUSTION_WARNING"
+                wave_score = 0.40
+                inval_level = round(dma50, 2) if dma50 > 0 else round(price * 0.95, 2)
+            elif is_stage2 and dist_52w <= 0.15:
+                wave_label = "WAVE_4_CONSOLIDATION"
+                wave_alert = "PULLBACK_HOLDING_SUPPORT"
+                wave_score = 0.80
+                inval_level = round(dma50, 2) if dma50 > 0 else round(price * 0.90, 2)
+            elif price < dma50 and dma50 < dma200 and dma200 > 0:
+                wave_label = "ABC_CORRECTIVE_CYCLE"
+                wave_alert = "CORRECTION_RISK"
+                wave_score = 0.20
+                inval_level = round(dma200, 2)
+            else:
+                wave_label = "NEUTRAL"
+                wave_alert = "NORMAL"
+                wave_score = 0.50
+                inval_level = round(price * 0.90, 2)
+
+        return {
+            "wave_label": wave_label,
+            "wave_maturity_alert": wave_alert,
+            "wave_invalidation_level": inval_level,
+            "wave_stage_score": round(wave_score, 4),
+        }
+
+    @classmethod
     def score(cls, data: Dict[str, Any]) -> Tuple[float, Dict[str, Any]]:
         """
         Main entry point.
@@ -390,11 +503,13 @@ class TechnicalBaseQualityEngine:
         smc_res = cls._detect_smc_order_block_and_fvg(data)
         vsa_res = cls._detect_vsa_absorption(data)
         vt_res  = cls._detect_vijay_thakkar_momentum(data)
+        ew_res  = cls._detect_elliott_wave_and_cycles(data)
 
         footprint_score = round(
-            0.40 * smc_res["smc_score"]
-            + 0.30 * vsa_res["vsa_score"]
-            + 0.30 * vt_res["vt_momentum_score"],
+            0.30 * smc_res["smc_score"]
+            + 0.25 * vsa_res["vsa_score"]
+            + 0.25 * vt_res["vt_momentum_score"]
+            + 0.20 * ew_res["wave_stage_score"],
             4,
         )
 
@@ -420,6 +535,7 @@ class TechnicalBaseQualityEngine:
             "smc_signals":                  smc_res,
             "vsa_signals":                  vsa_res,
             "vijay_thakkar_momentum":       vt_res,
+            "elliott_wave_cycle":           ew_res,
             "institutional_footprint_score": footprint_score,
         }
         return composite, breakdown

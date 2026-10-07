@@ -17,20 +17,24 @@ def compute_return_ceiling(
     ttm_pat_cr: float,
     growth_scenarios: Optional[Dict[str, Dict[str, float]]] = None,
     horizon_years: int = 3,
+    sovereign_yield_pct: Optional[float] = None,
+    dividend_yield_pct: Optional[float] = None,
+    cfo_pat_ratio: Optional[float] = None,
 ) -> Dict[str, Any]:
     """Compute Bear / Base / Bull return multiples via reverse-DCF.
 
     Args:
         current_mcap_cr: Current market cap in ₹ Crore.
         ttm_pat_cr: Trailing twelve-month PAT in ₹ Crore.
-        growth_scenarios: Optional custom scenarios. If None, uses defaults:
-            Bear:  8% PAT CAGR, 12x terminal P/E
-            Base: 18% PAT CAGR, 18x terminal P/E
-            Bull: 30% PAT CAGR, 25x terminal P/E
+        growth_scenarios: Optional custom scenarios. If None, uses defaults.
         horizon_years: Investment horizon in years (default 3).
+        sovereign_yield_pct: Optional 10Y sovereign benchmark yield % (e.g. 7.1%).
+        dividend_yield_pct: Optional dividend yield % for yield trap guard.
+        cfo_pat_ratio: Optional CFO/PAT ratio for cash realization verification.
 
     Returns:
-        Dict with bear/base/bull multiples and multibagger_eligible flag.
+        Dict with bear/base/bull multiples, multibagger_eligible flag,
+        and sovereign yield & dividend trap indicators.
     """
     if current_mcap_cr <= 0 or ttm_pat_cr <= 0:
         return {
@@ -40,13 +44,28 @@ def compute_return_ceiling(
             "multibagger_eligible": False,
             "label": "INSUFFICIENT_DATA",
             "horizon_years": horizon_years,
+            "dividend_trap_warning": False,
+            "sovereign_yield_pct": sovereign_yield_pct,
         }
+
+    # Macro yield gravity multiple compression
+    base_terminal_pe = 18.0
+    bull_terminal_pe = 25.0
+    bear_terminal_pe = 12.0
+    yield_compressed = False
+
+    if sovereign_yield_pct is not None and float(sovereign_yield_pct) > 8.0:
+        # High sovereign yield compresses equity discount multiple ceiling
+        pe_ceiling = round(100.0 / (float(sovereign_yield_pct) + 3.0), 1)
+        base_terminal_pe = min(base_terminal_pe, pe_ceiling)
+        bull_terminal_pe = min(bull_terminal_pe, round(pe_ceiling * 1.25, 1))
+        yield_compressed = True
 
     if growth_scenarios is None:
         growth_scenarios = {
-            "bear": {"pat_cagr_pct": 8.0, "terminal_pe": 12.0},
-            "base": {"pat_cagr_pct": 18.0, "terminal_pe": 18.0},
-            "bull": {"pat_cagr_pct": 30.0, "terminal_pe": 25.0},
+            "bear": {"pat_cagr_pct": 8.0, "terminal_pe": bear_terminal_pe},
+            "base": {"pat_cagr_pct": 18.0, "terminal_pe": base_terminal_pe},
+            "bull": {"pat_cagr_pct": 30.0, "terminal_pe": bull_terminal_pe},
         }
 
     results = {}
@@ -71,6 +90,14 @@ def compute_return_ceiling(
         label = "COMPOUNDER_ONLY"
         eligible = False
 
+    # Dividend Yield Capital Destruction Trap Guard
+    is_dividend_trap = False
+    if dividend_yield_pct is not None and float(dividend_yield_pct) >= 10.0:
+        if cfo_pat_ratio is not None and float(cfo_pat_ratio) < 0.50:
+            is_dividend_trap = True
+            label = "DIVIDEND_YIELD_CAPITAL_TRAP"
+            eligible = False
+
     return {
         **results,
         "multibagger_eligible": eligible,
@@ -78,4 +105,7 @@ def compute_return_ceiling(
         "horizon_years": horizon_years,
         "current_mcap_cr": current_mcap_cr,
         "ttm_pat_cr": ttm_pat_cr,
+        "dividend_trap_warning": is_dividend_trap,
+        "sovereign_yield_pct": sovereign_yield_pct,
+        "yield_compression_applied": yield_compressed,
     }

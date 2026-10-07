@@ -161,3 +161,80 @@ Combining these 9 optics yields a robust, multi-stage detection engine for **Pre
 > 3. **Buy Winners, Not Losers:** Retail investors try to catch falling knives. Real wealth is created by buying stocks that are hitting 52-week highs during strong market phases and trailing them with moving averages.
 > 4. **Spot the Factory Before the Profits Arrive:** Watch where massive capital is flowing (such as AI data center cables, defense equipment, and power grids). When a company builds new manufacturing plants before the orders arrive, profits will explode 2 to 3 quarters later.
 > 5. **Cash Gives You Supreme Power:** Never stay 100% invested at all times. Keeping 15%–20% cash ready during market euphoria gives you the power to buy champion companies at massive discounts when fear and panic grip the market.
+
+
+---
+
+## 6. Sushil Kedia (Kedianomics) Masterclass Analysis & Video Inventory
+
+Following a dedicated transcript audit of 6 masterclass videos featuring Sushil Kedia and institutional market veterans, the knowledge repository is expanded with the following verifiable teachings:
+
+### Video Inventory & Core Insights
+
+| # | Video ID | Speaker & Source | Core Domain | Exact Verifiable Mechanics & Principles |
+|:---:|:---|:---|:---:|:---|
+| **27** | `wSKud7isefM` | Sushil Kedia (*Kedianomics / CNBC*) | Sovereign Yields & Macro | Global bond yield escalation (10Y US/India yields); rising risk-free rates compress equity valuation multiples ($WACC$ expansion); central bank rate cycles; equity market bottoms occur on policy equilibrium, not early pauses. |
+| **28** | `E5tINrq4Gms` | Sushil Kedia (*Podcast*) | Market Equilibrium ("Santulan") | Lessons of 1992 Harshad Mehta bubble (25% household savings chasing stocks); high dividend yields (15%–27%) as capital destruction traps; *"यहां पैसा नहीं चलता, यहां संतुलन चलता है; यहां ज्ञान नहीं चलता, यहां बुद्धि चलती है"*; The Tea-Master Analogy: 99% fail due to emotional inconsistency, master succeeds via standardized, repeatable execution. |
+| **29** | `NOiGBPB74dc` | Sushil Kedia / Shubham (*Podcast*) | Drawdown Protection & US/India Asymmetry | Drawdown neutralization during sideways markets (0% drawdown via positioning); structural difference between India (circuit limits as safety vs liquidity freeze trap) and US (zero circuit bands, single-day 80% shocks); positioning in hyperscalers and future tech infrastructure. |
+| **30** | `-r07UMIrVPQ` | Macro Veteran (*Podcast*) | AI Asymmetric Disruption | Non-linear AI disruption across knowledge professions; AI as a multi-domain root-cause diagnostician (correlating disparate clinical/financial symptoms to find edge-case failure modes); algorithmic synthesis of complex multi-variable systems. |
+| **31** | `JXHrTloZ-nE` | Rob (*Professional Trading Floor*) | Win-Rate Vanity vs PnL Asymmetry | The Trading Floor Paradox: Trader with 80% win rate blows up due to outsized losses; Trader with 62–68% win rate compounds fortunes via small, truncated losses and asymmetric runners; *"Win rate is vanity; Average Win / Average Loss ratio is reality."* |
+| **32** | `TRJgr8s4Gac` | Institutional Specialist | 4-Tier Institutional TA Hierarchy | Why 90% of retail traders fail: retail-grade TA (lagging indicators, subjective patterns); The 4-Tier Institutional Hierarchy: 1) Structure First (higher timeframe regime), 2) Key Zones Second (order flow imbalances), 3) Context/Confirmation Third (indicators filter, never lead), 4) Entry Triggers Fourth (Price + Volume + Volatility + Time confluence; *"Patterns are evidence, not triggers"*). |
+
+---
+
+## 7. OPTIC 10: The Sushil Kedia (Kedianomics) Macro-Fractal & Institutional Equilibrium Framework
+
+### Core Philosophy
+Markets are non-linear, multi-fractal systems governed by **Equilibrium ("Santulan")**, **Macro Intermarket Capital Flows**, and **Emotional Asymmetry**. Long-term survival requires standardized execution (the Tea-Master principle), zero ego, and recognizing that price moves in geometric waves driven by sovereign liquidity tides.
+
+### The 5 Core Pillars of Optic 10
+
+1. **The Intermarket Macro Transmission Mechanism:**
+   - Sovereign 10-Year Bond Yields are the master gravity of asset prices:
+     $$\text{Equity P/E Ceiling} \propto \frac{1}{\text{10Y Sovereign Yield} + \text{Equity Risk Premium}}$$
+   - When bond yields surge, growth equities trading at astronomical multiples must de-rate even if their quarterly EPS growth remains positive.
+   - High dividend yields ($> 15\%$) are treated as **Yield Traps** unless accompanied by operating cash flow growth and non-declining net block.
+
+2. **The 4-Tier Institutional Technical Hierarchy:**
+   - **Tier 1: Market Structure (Dominant):** Higher timeframe swing highs/lows, Stan Weinstein stage, and multi-degree wave positioning.
+   - **Tier 2: Institutional Zones:** Order flow imbalances, Fair Value Gaps, and structural demand/supply origin points.
+   - **Tier 3: Context & Filters (Subordinate):** Technical indicators (RSI, Moving Averages, Bollinger Bands) are **filters only**—they never generate primary entry signals.
+   - **Tier 4: Confluence Trigger:** Precise timing requiring price confirmation, volume surge, volatility contraction/expansion, and time cycle alignment.
+
+3. **The "Santulan" (Equilibrium) & Rule-Based Consistency Law:**
+   - *The Tea-Master Analogy:* Amateurs produce different results each day due to emotional variance and ad-hoc tinkering. The institutional master follows immutable, machine-verifiable rules that produce identical, disciplined results across all market cycles.
+   - Discretionary guessing is replaced by mathematical checklist verification.
+
+4. **The PnL Asymmetry & Loss Truncation Mandate:**
+   - Win rate is vanity. Mathematical expectancy is driven by the asymmetry of returns:
+     $$\text{Expectancy} = (P_{\text{win}} \times R_{\text{win}}) - (P_{\text{loss}} \times R_{\text{loss}})$$
+   - Strict loss truncation ($R_{\text{loss}} \le 1.0\text{R}$) ensures that even a 50%–60% win rate creates aggressive compounding, while preventing catastrophic drawdowns.
+
+5. **Structural Market Asymmetry & Circuit Liquidity Guards:**
+   - In India, circuit bands (5%, 10%, 20%) offer retail protection but introduce **Liquidity Freeze Risk** (inability to exit if locked in lower circuits).
+   - In international markets, absence of circuit limits requires wider volatility buffers and options-based hedging against overnight headline gaps.
+
+---
+
+## 8. Integrated 10-Optics Macro-Micro Architectural Blueprint
+
+With the addition of Optic 10, Equity Lab's comprehensive research pipeline now covers the complete continuum from global macro sovereign tides down to tick-level institutional order flow:
+
+```
+[OPTIC 6: Sovereign Debt & Macro] ───► Global Bond Yields & Currency Debasement
+[OPTIC 10: Kedianomics & Intermarket] ──► Yield Gravity, Santulan & Wave Equilibrium
+                                                      │
+[OPTIC 7: 2027 Capex Supercycles] ────► AI Data Centers, EMS, Defense CWIP
+[OPTIC 5: Forensic & Accounting] ─────► ROCE > Cost of Capital, Zero Debt, CFO/PAT
+                                                      │
+[OPTIC 1: Classical Market Structure] ──► Higher Highs, Stage 2 Advancement
+[OPTIC 10: 4-Tier TA Hierarchy] ──────► Structure -> Zone -> Context -> Trigger
+                                                      │
+[OPTIC 2: Volume Spread Analysis] ────► Absorption vs Dry-Up vs Climax Dump
+[OPTIC 3: Smart Money Concepts] ──────► Order Blocks, FVGs & Liquidity Sweeps
+[OPTIC 4: Vijay Thakkar Momentum] ────► Within 15% 52W High, Relative Strength
+                                                      │
+[OPTIC 9: Expectancy & Risk] ─────────► Asymmetric PnL, Truncated Loss, Cash Buffer
+                                                      ▼
+                      [ULTIMATE INSTITUTIONAL CONFLUENCE ENGINE]
+```

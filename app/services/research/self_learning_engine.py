@@ -130,6 +130,22 @@ class SelfLearningEngine:
             "relevance": {"swing_3d": 0.60, "swing_10d": 0.55, "positional_30d": 0.40, "multibagger": 0.30, "sip_compounder": 0.0},
             "modifier": {"metric": "institutional_order_block_confluence", "weight_delta": 0.15},
         },
+        "KEDIANOMICS_WAVE_EQUILIBRIUM": {
+            "patterns": [r"\b(sushil\s*kedia|kedianomics|elliott\s*wave\s*fractal|wave\s*3\s*impulse|wave\s*5\s*exhaustion|invalidation\s*level|tea\s*master)\b"],
+            "name": "Sushil Kedia Kedianomics Multi-Fractal Wave Equilibrium",
+            "category": "MARKET_MICROSTRUCTURE",
+            "desc": "Wave degree hierarchy distinguishing fresh early Wave 3 impulse breakouts from late Wave 5 exhaustion tops with exact single-tick structural invalidation price levels and 4-tier TA discipline.",
+            "relevance": {"swing_3d": 0.45, "swing_10d": 0.65, "positional_30d": 0.70, "multibagger": 0.55, "sip_compounder": 0.10},
+            "modifier": {"metric": "elliott_wave_structural_integrity", "weight_delta": 0.20},
+        },
+        "DIVIDEND_YIELD_CAPITAL_TRAP": {
+            "patterns": [r"\b(dividend\s*yield\s*trap|capital\s*erosion\s*trap|high\s*dividend\s*value\s*trap|unbacked\s*dividend|psu\s*dividend\s*trap)\b"],
+            "name": "High Dividend Yield Capital Erosion Trap Guard",
+            "category": "ACCOUNTING_INFLECTION",
+            "desc": "High optical dividend yields (>= 8-10%) unbacked by operating cash flows (CFO/PAT < 0.50) representing return of capital and terminal capital erosion rather than true yield.",
+            "relevance": {"swing_3d": 0.0, "swing_10d": 0.05, "positional_30d": 0.30, "sip_compounder": 0.70, "turnaround": 0.40, "multibagger": 0.50},
+            "modifier": {"metric": "dividend_quality_cfo_backing", "weight_delta": -0.25},
+        },
     }
 
     def __init__(self, registry_file: Optional[str] = None):
