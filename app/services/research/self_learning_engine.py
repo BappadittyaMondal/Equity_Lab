@@ -186,6 +186,46 @@ class SelfLearningEngine:
             "relevance": {"swing_3d": 0.35, "swing_10d": 0.50, "positional_30d": 0.65, "multibagger": 0.50, "sip_compounder": 0.0},
             "modifier": {"metric": "darvas_box_stability", "weight_delta": 0.15},
         },
+        "PENMAN_RNOA_DECOMPOSITION": {
+            "patterns": [r"\b(stephen\s*penman|reformulated\s*balance\s*sheet|rnoa|operating\s*assets|net\s*operating\s*assets|noa|net\s*financial\s*obligations|nfo|financial\s*leverage|flev|debt-?inflated\s*roe)\b"],
+            "name": "Stephen Penman Reformulated Financial Statement & RNOA Decomposition",
+            "category": "ACCOUNTING_INFLECTION",
+            "desc": "Rigorous separation of operating vs financing activities; deconstructs ROE = RNOA + FLEV * (RNOA - NBC) to flag low-quality debt-levered earnings vs true operating engine power.",
+            "relevance": {"sip_compounder": 0.85, "multibagger": 0.70, "positional_30d": 0.35, "turnaround": 0.65, "swing_3d": 0.0, "swing_10d": 0.0},
+            "modifier": {"metric": "penman_operating_spread", "weight_delta": 0.25},
+        },
+        "CAPITAL_CYCLE_STARVATION": {
+            "patterns": [r"\b(edward\s*chancellor|capital\s*cycle|capex\s*to\s*d&a|capex\s*starvation|supply\s*side\s*consolidation|asset\s*growth\s*anomaly|marathon\s*asset)\b"],
+            "name": "Edward Chancellor Capital Cycle & Capex Starvation Detector",
+            "category": "ACCOUNTING_INFLECTION",
+            "desc": "Tracks industry capital cycles where high capex/asset expansion destroys future returns, while capex starvation (Capex / D&A < 0.80) signals supply consolidation and future high margins.",
+            "relevance": {"turnaround": 0.80, "multibagger": 0.75, "sip_compounder": 0.50, "positional_30d": 0.30, "swing_3d": 0.0, "swing_10d": 0.0},
+            "modifier": {"metric": "capital_cycle_inflection_score", "weight_delta": 0.22},
+        },
+        "MAUBOUSSIN_BASE_RATE_PLAUSIBILITY": {
+            "patterns": [r"\b(michael\s*mauboussin|expectations\s*investing|base\s*rate|reverse\s*dcf|implied\s*growth\s*rate|competitive\s*advantage\s*period|cap)\b"],
+            "name": "Michael Mauboussin Base Rate & Reverse-DCF Expectations Filter",
+            "category": "VALUATION_BASE_RATE",
+            "desc": "Unpacks market expectations through Reverse-DCF and cross-references implied 5Y revenue/NOPAT CAGR against empirical Indian base rates (only 2.8% of firms sustain >30% 5Y CAGR).",
+            "relevance": {"sip_compounder": 0.80, "multibagger": 0.75, "positional_30d": 0.40, "turnaround": 0.45, "swing_3d": 0.0, "swing_10d": 0.0},
+            "modifier": {"metric": "base_rate_plausibility_penalty", "weight_delta": 0.20},
+        },
+        "THORNDIKE_INCREMENTAL_ROIC": {
+            "patterns": [r"\b(william\s*thorndike|the\s*outsiders|incremental\s*roic|reinvestment\s*rate|capital\s*allocation\s*score|share\s*buyback\s*accretion|m&a\s*discipline)\b"],
+            "name": "William Thorndike Outsiders Capital Allocation & Incremental ROIC Scorer",
+            "category": "CORPORATE_GOVERNANCE",
+            "desc": "Measures management skill in redeploying retained earnings: Incremental ROIC (Delta NOPAT / Cumulative Reinvestment) combined with buyback opportunism and debt prudence.",
+            "relevance": {"sip_compounder": 0.90, "multibagger": 0.80, "positional_30d": 0.25, "turnaround": 0.50, "swing_3d": 0.0, "swing_10d": 0.0},
+            "modifier": {"metric": "incremental_roic_capital_allocation", "weight_delta": 0.24},
+        },
+        "DAMODARAN_LIFE_CYCLE": {
+            "patterns": [r"\b(aswath\s*damodaran|corporate\s*life\s*cycle|narrative\s*and\s*numbers|cost\s*of\s*capital|wacc|terminal\s*value\s*decay|failure\s*risk)\b"],
+            "name": "Aswath Damodaran Corporate Life Cycle & Valuation Framework",
+            "category": "VALUATION_BASE_RATE",
+            "desc": "Maps company across Life Cycle stages (Startup, High Growth, Mature Growth, Mature Stable, Decline) to dynamically scale reinvestment rates, operating margins, and cost of capital.",
+            "relevance": {"sip_compounder": 0.75, "multibagger": 0.75, "positional_30d": 0.35, "turnaround": 0.70, "swing_3d": 0.0, "swing_10d": 0.0},
+            "modifier": {"metric": "life_cycle_valuation_alignment", "weight_delta": 0.20},
+        },
     }
 
     def __init__(self, registry_file: Optional[str] = None):

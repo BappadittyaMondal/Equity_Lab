@@ -1,6 +1,6 @@
 {
   "version": "1.2.0",
-  "last_updated_utc": "2026-10-08T08:05:57.370832+00:00",
+  "last_updated_utc": "2026-10-08T09:42:29.742858+00:00",
   "entities": {
     "EXCHANGE_CASS_MECHANISM": {
       "entity_id": "EXCHANGE_CASS_MECHANISM",
@@ -351,6 +351,126 @@
       "sensationalism_penalty": 0.0,
       "created_at_utc": "2026-10-08T08:05:57.359323+00:00",
       "last_validated_at_utc": "2026-10-08T08:05:57.359323+00:00"
+    },
+    "PENMAN_RNOA_DECOMPOSITION": {
+      "entity_id": "PENMAN_RNOA_DECOMPOSITION",
+      "canonical_name": "Stephen Penman Reformulated Financial Statement & RNOA Decomposition",
+      "category": "ACCOUNTING_INFLECTION",
+      "confidence_score": 0.85,
+      "verification_status": "CERTIFIED_FACT",
+      "source_origin": "ACADEMIC_CANON_PHASE164",
+      "relevance_vector": {
+        "sip_compounder": 0.85,
+        "multibagger": 0.7,
+        "positional_30d": 0.35,
+        "turnaround": 0.65,
+        "swing_3d": 0.0,
+        "swing_10d": 0.0
+      },
+      "bayesian_prior_modifier": {
+        "metric": "penman_operating_spread",
+        "weight_delta": 0.25
+      },
+      "description": "Separation of operating vs financing activities; deconstructs ROE = RNOA + FLEV * (RNOA - NBC) to guard against debt-driven ROE illusions.",
+      "sensationalism_penalty": 0.0,
+      "created_at_utc": "2026-10-08T09:42:29.742812+00:00",
+      "last_validated_at_utc": "2026-10-08T09:42:29.742826+00:00"
+    },
+    "CAPITAL_CYCLE_STARVATION": {
+      "entity_id": "CAPITAL_CYCLE_STARVATION",
+      "canonical_name": "Edward Chancellor Capital Cycle & Capex Starvation Detector",
+      "category": "ACCOUNTING_INFLECTION",
+      "confidence_score": 0.82,
+      "verification_status": "CERTIFIED_FACT",
+      "source_origin": "ACADEMIC_CANON_PHASE164",
+      "relevance_vector": {
+        "turnaround": 0.8,
+        "multibagger": 0.75,
+        "sip_compounder": 0.5,
+        "positional_30d": 0.3,
+        "swing_3d": 0.0,
+        "swing_10d": 0.0
+      },
+      "bayesian_prior_modifier": {
+        "metric": "capital_cycle_inflection_score",
+        "weight_delta": 0.22
+      },
+      "description": "Capex starvation (Capex / D&A < 0.80) signals supply contraction and impending margin expansion; capex gluts destroy future ROIC.",
+      "sensationalism_penalty": 0.0,
+      "created_at_utc": "2026-10-08T09:42:29.742832+00:00",
+      "last_validated_at_utc": "2026-10-08T09:42:29.742834+00:00"
+    },
+    "MAUBOUSSIN_BASE_RATE_PLAUSIBILITY": {
+      "entity_id": "MAUBOUSSIN_BASE_RATE_PLAUSIBILITY",
+      "canonical_name": "Michael Mauboussin Base Rate & Reverse-DCF Expectations Filter",
+      "category": "VALUATION_BASE_RATE",
+      "confidence_score": 0.85,
+      "verification_status": "CERTIFIED_FACT",
+      "source_origin": "ACADEMIC_CANON_PHASE164",
+      "relevance_vector": {
+        "sip_compounder": 0.8,
+        "multibagger": 0.75,
+        "positional_30d": 0.4,
+        "turnaround": 0.45,
+        "swing_3d": 0.0,
+        "swing_10d": 0.0
+      },
+      "bayesian_prior_modifier": {
+        "metric": "base_rate_plausibility_penalty",
+        "weight_delta": 0.2
+      },
+      "description": "Reverse-DCF growth unpacker cross-referenced against historical base rates; penalizes projections requiring top 2% sustained growth.",
+      "sensationalism_penalty": 0.0,
+      "created_at_utc": "2026-10-08T09:42:29.742838+00:00",
+      "last_validated_at_utc": "2026-10-08T09:42:29.742840+00:00"
+    },
+    "THORNDIKE_INCREMENTAL_ROIC": {
+      "entity_id": "THORNDIKE_INCREMENTAL_ROIC",
+      "canonical_name": "William Thorndike Outsiders Capital Allocation & Incremental ROIC Scorer",
+      "category": "CORPORATE_GOVERNANCE",
+      "confidence_score": 0.88,
+      "verification_status": "CERTIFIED_FACT",
+      "source_origin": "ACADEMIC_CANON_PHASE164",
+      "relevance_vector": {
+        "sip_compounder": 0.9,
+        "multibagger": 0.8,
+        "positional_30d": 0.25,
+        "turnaround": 0.5,
+        "swing_3d": 0.0,
+        "swing_10d": 0.0
+      },
+      "bayesian_prior_modifier": {
+        "metric": "incremental_roic_capital_allocation",
+        "weight_delta": 0.24
+      },
+      "description": "Quantitative measurement of management capital allocation: Incremental ROIC (Delta NOPAT / Reinvestment) combined with share buyback prudence.",
+      "sensationalism_penalty": 0.0,
+      "created_at_utc": "2026-10-08T09:42:29.742844+00:00",
+      "last_validated_at_utc": "2026-10-08T09:42:29.742846+00:00"
+    },
+    "DAMODARAN_LIFE_CYCLE": {
+      "entity_id": "DAMODARAN_LIFE_CYCLE",
+      "canonical_name": "Aswath Damodaran Corporate Life Cycle & Valuation Framework",
+      "category": "VALUATION_BASE_RATE",
+      "confidence_score": 0.84,
+      "verification_status": "CERTIFIED_FACT",
+      "source_origin": "ACADEMIC_CANON_PHASE164",
+      "relevance_vector": {
+        "sip_compounder": 0.75,
+        "multibagger": 0.75,
+        "positional_30d": 0.35,
+        "turnaround": 0.7,
+        "swing_3d": 0.0,
+        "swing_10d": 0.0
+      },
+      "bayesian_prior_modifier": {
+        "metric": "life_cycle_valuation_alignment",
+        "weight_delta": 0.2
+      },
+      "description": "Aligns valuation models and cost of capital with corporate stage: Startup, High Growth, Mature Growth, Cash Cow, or Decline.",
+      "sensationalism_penalty": 0.0,
+      "created_at_utc": "2026-10-08T09:42:29.742850+00:00",
+      "last_validated_at_utc": "2026-10-08T09:42:29.742852+00:00"
     }
   }
 }

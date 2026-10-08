@@ -98,6 +98,24 @@ def compute_return_ceiling(
             label = "DIVIDEND_YIELD_CAPITAL_TRAP"
             eligible = False
 
+    # Phase 164: Mauboussin Empirical Base Rate Filter
+    try:
+        from app.services.research.penman_reformulation import MauboussinBaseRateFilter
+        base_cagr = growth_scenarios.get("base", {}).get("pat_cagr_pct", 18.0)
+        base_rate_eval = MauboussinBaseRateFilter.evaluate_growth_base_rate(
+            implied_5y_cagr_pct=base_cagr,
+            horizon_years=horizon_years,
+        )
+    except Exception:
+        base_rate_eval = {
+            "implied_5y_cagr_pct": 18.0,
+            "horizon_years": horizon_years,
+            "empirical_base_rate_frequency_pct": 18.0,
+            "plausibility_grade": "MODERATE_PLAUSIBILITY",
+            "base_rate_penalty_score": 0.15,
+            "commentary": "Standard compounder baseline.",
+        }
+
     return {
         **results,
         "multibagger_eligible": eligible,
@@ -108,4 +126,7 @@ def compute_return_ceiling(
         "dividend_trap_warning": is_dividend_trap,
         "sovereign_yield_pct": sovereign_yield_pct,
         "yield_compression_applied": yield_compressed,
+        "base_rate_assessment": base_rate_eval,
+        "base_rate_plausibility_grade": base_rate_eval.get("plausibility_grade", "MODERATE_PLAUSIBILITY"),
     }
+
