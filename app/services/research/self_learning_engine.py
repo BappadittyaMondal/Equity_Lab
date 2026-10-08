@@ -146,6 +146,46 @@ class SelfLearningEngine:
             "relevance": {"swing_3d": 0.0, "swing_10d": 0.05, "positional_30d": 0.30, "sip_compounder": 0.70, "turnaround": 0.40, "multibagger": 0.50},
             "modifier": {"metric": "dividend_quality_cfo_backing", "weight_delta": -0.25},
         },
+        "WYCKOFF_SPRING_ABSORPTION": {
+            "patterns": [r"\b(wyckoff\s*spring|terminal\s*shakeout|phase\s*c\s*spring|absorption\s*volume|effort\s*vs\s*result|composite\s*operator)\b"],
+            "name": "Richard Wyckoff Spring & Absorption Tape Reading Mechanics",
+            "category": "MARKET_MICROSTRUCTURE",
+            "desc": "Institutional terminal shakeout below trading range support quickly recovered on drying volume (Spring) or high volume with tight spread at resistance (Absorption).",
+            "relevance": {"swing_3d": 0.40, "swing_10d": 0.60, "positional_30d": 0.70, "multibagger": 0.65, "sip_compounder": 0.0},
+            "modifier": {"metric": "wyckoff_spring_absorption_integrity", "weight_delta": 0.20},
+        },
+        "NISON_CANDLESTICK_CONFLUENCE": {
+            "patterns": [r"\b(steve\s*nison|candlestick\s*reversal|hammer\s*candle|bullish\s*engulfing|morning\s*star|shooting\s*star|bearish\s*engulfing)\b"],
+            "name": "Steve Nison Japanese Candlestick Reversal Confluence",
+            "category": "MARKET_MICROSTRUCTURE",
+            "desc": "High-conviction Japanese candlestick reversal triggers (Hammer, Bullish Engulfing, Morning Star) aligning strictly with key support levels.",
+            "relevance": {"swing_3d": 0.65, "swing_10d": 0.55, "positional_30d": 0.40, "multibagger": 0.25, "sip_compounder": 0.0},
+            "modifier": {"metric": "candlestick_reversal_confluence", "weight_delta": 0.20},
+        },
+        "WEINSTEIN_MANSFIELD_RS": {
+            "patterns": [r"\b(stan\s*weinstein|mansfield\s*relative\s*strength|mansfield\s*rs|stage\s*2\s*breakout|30\s*week\s*ma)\b"],
+            "name": "Stan Weinstein 4-Stage & Mansfield Relative Strength System",
+            "category": "MARKET_MICROSTRUCTURE",
+            "desc": "Strict Stage 2 breakout qualification requiring rising 30-week (150/200 DMA) with positive and expanding Mansfield Relative Strength against the benchmark.",
+            "relevance": {"swing_3d": 0.25, "swing_10d": 0.50, "positional_30d": 0.75, "multibagger": 0.70, "sip_compounder": 0.15},
+            "modifier": {"metric": "mansfield_rs_outperformance", "weight_delta": 0.22},
+        },
+        "LIVERMORE_PIVOT_EXHAUSTION_GUARD": {
+            "patterns": [r"\b(jesse\s*livermore|pivotal\s*point|extended\s*pivot|false\s*breakout\s*trap|line\s*of\s*least\s*resistance|pyramiding\s*rule)\b"],
+            "name": "Jesse Livermore Pivotal Point & False Breakout Exhaustion Guard",
+            "category": "MARKET_MICROSTRUCTURE",
+            "desc": "Decisive pivotal point breakout tracking with hard guard against chasing extended moves (>15% above 20 EMA) or low-volume bull traps.",
+            "relevance": {"swing_3d": 0.50, "swing_10d": 0.55, "positional_30d": 0.45, "multibagger": 0.35, "sip_compounder": 0.0},
+            "modifier": {"metric": "pivotal_point_breakout_integrity", "weight_delta": 0.18},
+        },
+        "DARVAS_BOX_GEOMETRY": {
+            "patterns": [r"\b(darvas\s*box|box\s*theory|ascending\s*consolidation\s*box|edwards\s*magee\s*rectangle|triangle\s*breakout)\b"],
+            "name": "Nicolas Darvas Box Theory & Classical Geometric Consolidation",
+            "category": "MARKET_MICROSTRUCTURE",
+            "desc": "Deterministic bounding box tracking where breakout above upper box ceiling establishes a new floor; breach of box floor triggers stop.",
+            "relevance": {"swing_3d": 0.35, "swing_10d": 0.50, "positional_30d": 0.65, "multibagger": 0.50, "sip_compounder": 0.0},
+            "modifier": {"metric": "darvas_box_stability", "weight_delta": 0.15},
+        },
     }
 
     def __init__(self, registry_file: Optional[str] = None):

@@ -1,6 +1,6 @@
 {
   "version": "1.2.0",
-  "last_updated_utc": "2026-10-07T15:22:10.768438+00:00",
+  "last_updated_utc": "2026-10-08T08:05:57.370832+00:00",
   "entities": {
     "EXCHANGE_CASS_MECHANISM": {
       "entity_id": "EXCHANGE_CASS_MECHANISM",
@@ -236,6 +236,121 @@
       "sensationalism_penalty": 0.0,
       "created_at_utc": "2026-10-05T18:30:58.678085+00:00",
       "last_validated_at_utc": "2026-10-05T18:30:58.678085+00:00"
+    },
+    "WYCKOFF_SPRING_ABSORPTION": {
+      "entity_id": "WYCKOFF_SPRING_ABSORPTION",
+      "canonical_name": "Richard Wyckoff Spring & Absorption Tape Reading Mechanics",
+      "category": "MARKET_MICROSTRUCTURE",
+      "confidence_score": 0.77,
+      "verification_status": "CERTIFIED_FACT",
+      "source_origin": "INSTITUTIONAL_CANON_PHASE163",
+      "relevance_vector": {
+        "swing_3d": 0.4,
+        "swing_10d": 0.6,
+        "positional_30d": 0.7,
+        "multibagger": 0.65,
+        "sip_compounder": 0.0
+      },
+      "bayesian_prior_modifier": {
+        "metric": "wyckoff_spring_absorption_integrity",
+        "weight_delta": 0.2
+      },
+      "description": "Institutional terminal shakeout below trading range support quickly recovered on drying volume (Spring) or high volume with tight spread at resistance (Absorption).",
+      "sensationalism_penalty": 0.0,
+      "created_at_utc": "2026-10-08T08:05:57.314557+00:00",
+      "last_validated_at_utc": "2026-10-08T08:05:57.314557+00:00"
+    },
+    "NISON_CANDLESTICK_CONFLUENCE": {
+      "entity_id": "NISON_CANDLESTICK_CONFLUENCE",
+      "canonical_name": "Steve Nison Japanese Candlestick Reversal Confluence",
+      "category": "MARKET_MICROSTRUCTURE",
+      "confidence_score": 0.77,
+      "verification_status": "CERTIFIED_FACT",
+      "source_origin": "INSTITUTIONAL_CANON_PHASE163",
+      "relevance_vector": {
+        "swing_3d": 0.65,
+        "swing_10d": 0.55,
+        "positional_30d": 0.4,
+        "multibagger": 0.25,
+        "sip_compounder": 0.0
+      },
+      "bayesian_prior_modifier": {
+        "metric": "candlestick_reversal_confluence",
+        "weight_delta": 0.2
+      },
+      "description": "High-conviction Japanese candlestick reversal triggers (Hammer, Bullish Engulfing, Morning Star) aligning strictly with key support levels.",
+      "sensationalism_penalty": 0.0,
+      "created_at_utc": "2026-10-08T08:05:57.316679+00:00",
+      "last_validated_at_utc": "2026-10-08T08:05:57.316679+00:00"
+    },
+    "WEINSTEIN_MANSFIELD_RS": {
+      "entity_id": "WEINSTEIN_MANSFIELD_RS",
+      "canonical_name": "Stan Weinstein 4-Stage & Mansfield Relative Strength System",
+      "category": "MARKET_MICROSTRUCTURE",
+      "confidence_score": 0.77,
+      "verification_status": "CERTIFIED_FACT",
+      "source_origin": "INSTITUTIONAL_CANON_PHASE163",
+      "relevance_vector": {
+        "swing_3d": 0.25,
+        "swing_10d": 0.5,
+        "positional_30d": 0.75,
+        "multibagger": 0.7,
+        "sip_compounder": 0.15
+      },
+      "bayesian_prior_modifier": {
+        "metric": "mansfield_rs_outperformance",
+        "weight_delta": 0.22
+      },
+      "description": "Strict Stage 2 breakout qualification requiring rising 30-week (150/200 DMA) with positive and expanding Mansfield Relative Strength against the benchmark.",
+      "sensationalism_penalty": 0.0,
+      "created_at_utc": "2026-10-08T08:05:57.330727+00:00",
+      "last_validated_at_utc": "2026-10-08T08:05:57.330727+00:00"
+    },
+    "LIVERMORE_PIVOT_EXHAUSTION_GUARD": {
+      "entity_id": "LIVERMORE_PIVOT_EXHAUSTION_GUARD",
+      "canonical_name": "Jesse Livermore Pivotal Point & False Breakout Exhaustion Guard",
+      "category": "MARKET_MICROSTRUCTURE",
+      "confidence_score": 0.77,
+      "verification_status": "CERTIFIED_FACT",
+      "source_origin": "INSTITUTIONAL_CANON_PHASE163",
+      "relevance_vector": {
+        "swing_3d": 0.5,
+        "swing_10d": 0.55,
+        "positional_30d": 0.45,
+        "multibagger": 0.35,
+        "sip_compounder": 0.0
+      },
+      "bayesian_prior_modifier": {
+        "metric": "pivotal_point_breakout_integrity",
+        "weight_delta": 0.18
+      },
+      "description": "Decisive pivotal point breakout tracking with hard guard against chasing extended moves (>15% above 20 EMA) or low-volume bull traps.",
+      "sensationalism_penalty": 0.0,
+      "created_at_utc": "2026-10-08T08:05:57.344126+00:00",
+      "last_validated_at_utc": "2026-10-08T08:05:57.344126+00:00"
+    },
+    "DARVAS_BOX_GEOMETRY": {
+      "entity_id": "DARVAS_BOX_GEOMETRY",
+      "canonical_name": "Nicolas Darvas Box Theory & Classical Geometric Consolidation",
+      "category": "MARKET_MICROSTRUCTURE",
+      "confidence_score": 0.77,
+      "verification_status": "CERTIFIED_FACT",
+      "source_origin": "INSTITUTIONAL_CANON_PHASE163",
+      "relevance_vector": {
+        "swing_3d": 0.35,
+        "swing_10d": 0.5,
+        "positional_30d": 0.65,
+        "multibagger": 0.5,
+        "sip_compounder": 0.0
+      },
+      "bayesian_prior_modifier": {
+        "metric": "darvas_box_stability",
+        "weight_delta": 0.15
+      },
+      "description": "Deterministic bounding box tracking where breakout above upper box ceiling establishes a new floor; breach of box floor triggers stop.",
+      "sensationalism_penalty": 0.0,
+      "created_at_utc": "2026-10-08T08:05:57.359323+00:00",
+      "last_validated_at_utc": "2026-10-08T08:05:57.359323+00:00"
     }
   }
 }

@@ -470,6 +470,319 @@ class TechnicalBaseQualityEngine:
         }
 
     @classmethod
+    def _detect_nison_candlestick_triggers(cls, data: Dict[str, Any]) -> Dict[str, Any]:
+        """Detects Steve Nison Japanese Candlestick reversal triggers (Hammer,
+        Bullish/Bearish Engulfing, Morning/Evening Star, Shooting Star).
+        """
+        cand_pat = data.get("candlestick_pattern") or data.get("candle_pattern")
+        if cand_pat:
+            pat_str = str(cand_pat).upper()
+            if any(k in pat_str for k in ("HAMMER", "BULLISH_ENGULFING", "MORNING_STAR")):
+                return {
+                    "pattern_name": pat_str,
+                    "is_bullish_reversal": True,
+                    "is_bearish_reversal": False,
+                    "candle_score": 0.95,
+                    "trigger_type": "HIGH_CONVICTION_BULLISH",
+                }
+            elif any(k in pat_str for k in ("SHOOTING_STAR", "BEARISH_ENGULFING", "EVENING_STAR")):
+                return {
+                    "pattern_name": pat_str,
+                    "is_bullish_reversal": False,
+                    "is_bearish_reversal": True,
+                    "candle_score": 0.20,
+                    "trigger_type": "HIGH_CONVICTION_BEARISH",
+                }
+
+        candles = data.get("candles") or data.get("bars") or data.get("recent_candles") or []
+        pattern_name = "NEUTRAL"
+        is_bullish = False
+        is_bearish = False
+        score = 0.50
+
+        if isinstance(candles, list) and len(candles) >= 1:
+            curr = candles[-1]
+            if isinstance(curr, dict):
+                c_o = float(curr.get("open") or 0.0)
+                c_h = float(curr.get("high") or 0.0)
+                c_l = float(curr.get("low") or 0.0)
+                c_c = float(curr.get("close") or 0.0)
+                rng = c_h - c_l
+                body = abs(c_c - c_o)
+                u_wick = c_h - max(c_o, c_c)
+                l_wick = min(c_o, c_c) - c_l
+
+                if rng > 0:
+                    if l_wick >= 2.0 * body and u_wick <= max(body, rng * 0.15) and body > 0:
+                        pattern_name = "HAMMER"
+                        is_bullish = True
+                        score = 0.95
+                    elif u_wick >= 2.0 * body and l_wick <= max(body, rng * 0.15) and body > 0:
+                        pattern_name = "SHOOTING_STAR"
+                        is_bearish = True
+                        score = 0.20
+                    elif body <= 0.08 * rng:
+                        pattern_name = "DOJI_EQUILIBRIUM"
+                        score = 0.50
+
+            if len(candles) >= 2:
+                prev = candles[-2]
+                if isinstance(prev, dict) and isinstance(curr, dict):
+                    p_o = float(prev.get("open") or 0.0)
+                    p_c = float(prev.get("close") or 0.0)
+                    c_o = float(curr.get("open") or 0.0)
+                    c_c = float(curr.get("close") or 0.0)
+
+                    if p_c < p_o and c_c > c_o and c_o <= p_c and c_c >= p_o:
+                        pattern_name = "BULLISH_ENGULFING"
+                        is_bullish = True
+                        score = 1.00
+                    elif p_c > p_o and c_c < c_o and c_o >= p_c and c_c <= p_o:
+                        pattern_name = "BEARISH_ENGULFING"
+                        is_bearish = True
+                        score = 0.15
+
+            if len(candles) >= 3:
+                c0 = candles[-3]
+                c1 = candles[-2]
+                c2 = candles[-1]
+                if isinstance(c0, dict) and isinstance(c1, dict) and isinstance(c2, dict):
+                    c0_o = float(c0.get("open") or 0.0)
+                    c0_c = float(c0.get("close") or 0.0)
+                    c1_o = float(c1.get("open") or 0.0)
+                    c1_c = float(c1.get("close") or 0.0)
+                    c2_o = float(c2.get("open") or 0.0)
+                    c2_c = float(c2.get("close") or 0.0)
+
+                    b0 = abs(c0_c - c0_o)
+                    b1 = abs(c1_c - c1_o)
+                    if c0_c < c0_o and b1 <= 0.40 * b0 and c2_c > c2_o and c2_c >= (c0_o + c0_c) / 2.0:
+                        pattern_name = "MORNING_STAR"
+                        is_bullish = True
+                        score = 1.00
+                    elif c0_c > c0_o and b1 <= 0.40 * b0 and c2_c < c2_o and c2_c <= (c0_o + c0_c) / 2.0:
+                        pattern_name = "EVENING_STAR"
+                        is_bearish = True
+                        score = 0.15
+
+        return {
+            "pattern_name": pattern_name,
+            "is_bullish_reversal": is_bullish,
+            "is_bearish_reversal": is_bearish,
+            "candle_score": round(score, 4),
+            "trigger_type": "BULLISH_REVERSAL" if is_bullish else ("BEARISH_REVERSAL" if is_bearish else "NEUTRAL"),
+        }
+
+    @classmethod
+    def _detect_wyckoff_spring_and_absorption(cls, data: Dict[str, Any]) -> Dict[str, Any]:
+        """Detects Richard Wyckoff tape-reading mechanics:
+        1. Phase C Spring (Terminal Shakeout): Price breaches base support then snaps back.
+        2. Absorption Volume: Heavy volume with tight spread at resistance.
+        3. Upthrust After Distribution (UTAD): False breakout trapping retail buyers.
+        """
+        is_spring = bool(data.get("wyckoff_spring") or data.get("spring_detected"))
+        is_absorption = bool(data.get("wyckoff_absorption") or data.get("absorption_detected"))
+        is_utad = bool(data.get("wyckoff_utad") or data.get("upthrust_detected"))
+
+        price = float(data.get("current_price") or 0.0)
+        low_52w = float(data.get("low_52w") or 0.0)
+        high_52w = float(data.get("high_52w") or 0.0)
+        vol_z = float(data.get("volume_z_score") or data.get("vol_z") or 0.0)
+
+        candles = data.get("candles") or data.get("bars") or data.get("recent_candles") or []
+        spring_inval = round(price * 0.92, 2)
+
+        if isinstance(candles, list) and len(candles) >= 5:
+            lows = [float(c.get("low") or 0.0) for c in candles if isinstance(c, dict)]
+            highs = [float(c.get("high") or 0.0) for c in candles if isinstance(c, dict)]
+            closes = [float(c.get("close") or 0.0) for c in candles if isinstance(c, dict)]
+            vols = [float(c.get("volume") or 0.0) for c in candles if isinstance(c, dict)]
+
+            prior_low = min(lows[:-1]) if len(lows) >= 2 else lows[0]
+            curr_l = lows[-1]
+            curr_c = closes[-1]
+            curr_v = vols[-1] if vols else 1.0
+            avg_v = (sum(vols[:-1]) / float(len(vols) - 1)) if len(vols) >= 2 else curr_v
+
+            if curr_l < prior_low and curr_c > prior_low and curr_v <= 1.3 * avg_v:
+                is_spring = True
+                spring_inval = round(curr_l * 0.995, 2)
+
+            prior_high = max(highs[:-1]) if len(highs) >= 2 else highs[0]
+            curr_h = highs[-1]
+            if curr_h > prior_high and curr_c < prior_high and curr_v >= 1.5 * avg_v:
+                is_utad = True
+
+        if is_utad:
+            state = "WYCKOFF_UTAD_DISTRIBUTION_TRAP"
+            score = 0.20
+        elif is_spring:
+            state = "WYCKOFF_PHASE_C_SPRING"
+            score = 0.95
+        elif is_absorption or (price > 0 and high_52w > 0 and ((high_52w - price) / high_52w) <= 0.03 and vol_z >= 1.2):
+            state = "WYCKOFF_ABSORPTION_AT_RESISTANCE"
+            score = 0.90
+            is_absorption = True
+        else:
+            state = "NEUTRAL"
+            score = 0.50
+
+        return {
+            "wyckoff_state": state,
+            "spring_detected": is_spring,
+            "absorption_detected": is_absorption,
+            "utad_warning": is_utad,
+            "wyckoff_score": round(score, 4),
+            "spring_invalidation_level": spring_inval,
+        }
+
+    @classmethod
+    def _detect_darvas_box_and_classical_patterns(cls, data: Dict[str, Any]) -> Dict[str, Any]:
+        """Detects Nicolas Darvas Box Theory & Edwards-Magee Classical Geometry:
+        1. Darvas Box Floor and Ceiling levels.
+        2. Breakout into a higher box with volume.
+        3. Structural invalidation at the box ceiling (old ceiling becomes new floor).
+        """
+        price = float(data.get("current_price") or 0.0)
+        high_52w = float(data.get("high_52w") or 0.0)
+        low_52w = float(data.get("low_52w") or 0.0)
+
+        box_ceiling = float(data.get("darvas_box_high") or 0.0)
+        box_floor = float(data.get("darvas_box_low") or 0.0)
+
+        candles = data.get("candles") or data.get("bars") or data.get("recent_candles") or []
+        if isinstance(candles, list) and len(candles) >= 5:
+            highs = [float(c.get("high") or 0.0) for c in candles[:-1] if isinstance(c, dict)]
+            lows = [float(c.get("low") or 0.0) for c in candles[:-1] if isinstance(c, dict)]
+            if highs and lows:
+                box_ceiling = max(highs)
+                box_floor = min(lows)
+        elif not box_ceiling and high_52w > 0 and low_52w > 0:
+            box_ceiling = high_52w
+            box_floor = round(high_52w * 0.85, 2)
+
+        box_height_pct = round(((box_ceiling - box_floor) / box_ceiling * 100.0), 2) if box_ceiling > 0 else 15.0
+        is_breakout = (price > box_ceiling and box_ceiling > 0)
+        is_breakdown = (price < box_floor and box_floor > 0)
+
+        if is_breakout:
+            state = "DARVAS_BOX_BREAKOUT_STAGE2"
+            score = 0.95
+            inval = round(box_ceiling * 0.99, 2)
+        elif is_breakdown:
+            state = "DARVAS_BOX_BREAKDOWN_STAGE4"
+            score = 0.15
+            inval = round(box_ceiling, 2)
+        else:
+            state = "CONSOLIDATING_INSIDE_BOX"
+            score = 0.80 if box_height_pct <= 15.0 else 0.60
+            inval = round(box_floor * 0.99, 2) if box_floor > 0 else round(price * 0.93, 2)
+
+        return {
+            "darvas_state": state,
+            "box_ceiling": round(box_ceiling, 2),
+            "box_floor": round(box_floor, 2),
+            "box_height_pct": box_height_pct,
+            "is_box_breakout": is_breakout,
+            "darvas_score": round(score, 4),
+            "box_invalidation_level": inval,
+        }
+
+    @classmethod
+    def _calculate_mansfield_rs(cls, data: Dict[str, Any]) -> Dict[str, Any]:
+        """Calculates Stan Weinstein's Mansfield Relative Strength (MRS):
+        MRS = ((R_t / SMA_n(R)) - 1.0) * 100.0
+        where R_t = P_stock / P_index.
+        """
+        raw_mrs = data.get("mansfield_rs")
+        if raw_mrs is not None:
+            mrs_val = float(raw_mrs)
+        else:
+            stock_series = data.get("stock_prices") or []
+            index_series = data.get("benchmark_prices") or data.get("index_prices") or []
+            if isinstance(stock_series, list) and isinstance(index_series, list) and len(stock_series) >= 5 and len(stock_series) == len(index_series):
+                ratios = [float(s) / max(0.01, float(b)) for s, b in zip(stock_series, index_series)]
+                sma_r = sum(ratios) / float(len(ratios))
+                mrs_val = round(((ratios[-1] / max(0.0001, sma_r)) - 1.0) * 100.0, 2)
+            else:
+                rs_rating = float(data.get("rs_rating") or 50.0)
+                mrs_val = round((rs_rating - 50.0) / 5.0, 2)
+
+        is_outperforming = mrs_val > 0.0
+        if mrs_val >= 5.0:
+            mrs_score = 1.00
+        elif mrs_val > 0.0:
+            mrs_score = 0.85
+        elif mrs_val >= -5.0:
+            mrs_score = 0.50
+        else:
+            mrs_score = 0.25
+
+        return {
+            "mansfield_rs": mrs_val,
+            "is_outperforming": is_outperforming,
+            "mansfield_rs_score": round(mrs_score, 4),
+            "rs_regime": "OUTPERFORMING_BENCHMARK" if is_outperforming else "UNDERPERFORMING_BENCHMARK",
+        }
+
+    @classmethod
+    def _evaluate_livermore_pivot_and_bull_trap(cls, data: Dict[str, Any]) -> Dict[str, Any]:
+        """Evaluates Jesse Livermore Pivotal Points and enforces False Breakout / Bull Trap guards:
+        1. Extended Pivot Trap: Buying > 15% above 20 EMA is high-risk exhaustion.
+        2. Low Volume Trap: Breakout without >= 1.5x ADTV volume expansion is prone to failure.
+        3. Line of Least Resistance: Confirms unobstructed overhead price discovery.
+        """
+        price = float(data.get("current_price") or 0.0)
+        dma_20 = float(data.get("dma_20") or data.get("ema_20") or 0.0)
+        dma_50 = float(data.get("dma_50") or 0.0)
+        high_52w = float(data.get("high_52w") or 0.0)
+        vol_z = float(data.get("volume_z_score") or data.get("vol_z") or 0.0)
+        vol_mult = float(data.get("breakout_volume_mult") or data.get("volume_multiple") or 1.0)
+
+        ref_ma = dma_20 if dma_20 > 0 else dma_50
+        is_overextended = False
+        extension_pct = 0.0
+        if price > 0 and ref_ma > 0:
+            extension_pct = round(((price - ref_ma) / ref_ma) * 100.0, 2)
+            if extension_pct > 15.0:
+                is_overextended = True
+
+        dist_from_high = ((high_52w - price) / high_52w) if (high_52w > 0 and price > 0) else 0.5
+        is_breakout_zone = (dist_from_high <= 0.05) or bool(data.get("is_breakout"))
+        is_low_vol_trap = is_breakout_zone and (vol_mult < 1.3 and vol_z < 0.8)
+
+        bull_trap_warning = is_overextended or is_low_vol_trap
+        trap_reason = "NONE"
+        if is_overextended and is_low_vol_trap:
+            trap_reason = f"EXTENDED_AND_LOW_VOLUME_TRAP (+{extension_pct}% above MA, vol_mult={vol_mult}x)"
+        elif is_overextended:
+            trap_reason = f"OVEREXTENDED_PIVOT_EXHAUSTION (+{extension_pct}% above MA)"
+        elif is_low_vol_trap:
+            trap_reason = f"LOW_VOLUME_BULL_TRAP (breakout on only {vol_mult}x volume)"
+
+        if bull_trap_warning:
+            score = 0.25
+        elif is_breakout_zone and (vol_mult >= 1.8 or vol_z >= 1.5):
+            score = 1.00
+        elif not is_overextended:
+            score = 0.75
+        else:
+            score = 0.50
+
+        structural_stop = round(ref_ma * 0.98, 2) if ref_ma > 0 else round(price * 0.93, 2)
+
+        return {
+            "is_breakout_zone": is_breakout_zone,
+            "is_overextended": is_overextended,
+            "extension_above_ma_pct": extension_pct,
+            "is_low_volume_trap": is_low_vol_trap,
+            "bull_trap_warning": bull_trap_warning,
+            "trap_reason": trap_reason,
+            "structural_stop_loss": structural_stop,
+            "livermore_score": round(score, 4),
+        }
+
+    @classmethod
     def score(cls, data: Dict[str, Any]) -> Tuple[float, Dict[str, Any]]:
         """
         Main entry point.
@@ -504,12 +817,26 @@ class TechnicalBaseQualityEngine:
         vsa_res = cls._detect_vsa_absorption(data)
         vt_res  = cls._detect_vijay_thakkar_momentum(data)
         ew_res  = cls._detect_elliott_wave_and_cycles(data)
+        nison_res = cls._detect_nison_candlestick_triggers(data)
+        wyckoff_res = cls._detect_wyckoff_spring_and_absorption(data)
+        darvas_res = cls._detect_darvas_box_and_classical_patterns(data)
+        mrs_res = cls._calculate_mansfield_rs(data)
+        livermore_res = cls._evaluate_livermore_pivot_and_bull_trap(data)
 
         footprint_score = round(
             0.30 * smc_res["smc_score"]
             + 0.25 * vsa_res["vsa_score"]
             + 0.25 * vt_res["vt_momentum_score"]
             + 0.20 * ew_res["wave_stage_score"],
+            4,
+        )
+
+        master_pattern_score = round(
+            0.25 * nison_res["candle_score"]
+            + 0.25 * wyckoff_res["wyckoff_score"]
+            + 0.20 * darvas_res["darvas_score"]
+            + 0.15 * mrs_res["mansfield_rs_score"]
+            + 0.15 * livermore_res["livermore_score"],
             4,
         )
 
@@ -524,6 +851,19 @@ class TechnicalBaseQualityEngine:
         else:
             readiness = "DISTRIBUTION_OR_DOWNTREND"
 
+        # Determine optimal single-tick structural invalidation stop
+        cand_invals = [
+            ew_res.get("wave_invalidation_level"),
+            wyckoff_res.get("spring_invalidation_level"),
+            darvas_res.get("box_invalidation_level"),
+            livermore_res.get("structural_stop_loss"),
+        ]
+        valid_invals = [float(p) for p in cand_invals if p is not None and float(p) > 0.0]
+        cur_price = float(data.get("current_price") or 0.0)
+        # Select highest valid stop that is below current price (tightest structural risk)
+        stops_below = [p for p in valid_invals if cur_price <= 0 or p < cur_price]
+        structural_stop = max(stops_below) if stops_below else (min(valid_invals) if valid_invals else round(cur_price * 0.92, 2))
+
         breakdown: Dict[str, Any] = {
             "weinstein_stage":              stage_label,
             "stage_score":                  stage_score,
@@ -536,6 +876,14 @@ class TechnicalBaseQualityEngine:
             "vsa_signals":                  vsa_res,
             "vijay_thakkar_momentum":       vt_res,
             "elliott_wave_cycle":           ew_res,
+            "nison_candlestick":            nison_res,
+            "wyckoff_market_mechanics":     wyckoff_res,
+            "darvas_box_classical":         darvas_res,
+            "mansfield_relative_strength":  mrs_res,
+            "livermore_pivot_guard":        livermore_res,
+            "structural_invalidation_stop": structural_stop,
             "institutional_footprint_score": footprint_score,
+            "master_pattern_score":         master_pattern_score,
         }
         return composite, breakdown
+
