@@ -226,6 +226,38 @@ class SelfLearningEngine:
             "relevance": {"sip_compounder": 0.75, "multibagger": 0.75, "positional_30d": 0.35, "turnaround": 0.70, "swing_3d": 0.0, "swing_10d": 0.0},
             "modifier": {"metric": "life_cycle_valuation_alignment", "weight_delta": 0.20},
         },
+        "GREENWALD_EARNINGS_POWER_VALUE": {
+            "patterns": [r"\b(bruce\s*greenwald|earnings\s*power\s*value|epv|asset\s*reproduction\s*cost|franchise\s*value|competition\s*demystified)\b"],
+            "name": "Bruce Greenwald Earnings Power Value & Franchise Moat Deconstruction",
+            "category": "VALUATION_BASE_RATE",
+            "desc": "Deconstructs valuation into Asset Reproduction Cost (AV), Zero-Growth Earnings Power Value (EPV), and Franchise Value Moat multiple.",
+            "relevance": {"sip_compounder": 0.85, "multibagger": 0.80, "positional_30d": 0.30, "turnaround": 0.40, "swing_3d": 0.0, "swing_10d": 0.0},
+            "modifier": {"metric": "epv_franchise_moat_multiple", "weight_delta": 0.25},
+        },
+        "SCHILIT_FORENSIC_SHENANIGANS": {
+            "patterns": [r"\b(howard\s*schilit|financial\s*shenanigans|cwip\s*capitalization|premature\s*revenue|channel\s*stuffing|other\s*income\s*boost)\b"],
+            "name": "Howard Schilit 7 Financial Shenanigans & Accounting Quality Guard",
+            "category": "ACCOUNTING_INFLECTION",
+            "desc": "Forensic algorithms detecting routine opex parked in CWIP, unbilled revenue / DSO divergence, and other income profit masking.",
+            "relevance": {"sip_compounder": 0.85, "multibagger": 0.80, "positional_30d": 0.40, "turnaround": 0.70, "swing_3d": 0.0, "swing_10d": 0.0},
+            "modifier": {"metric": "schilit_forensic_hygiene_score", "weight_delta": 0.25},
+        },
+        "MARKS_CREDIT_CYCLE_PENDULUM": {
+            "patterns": [r"\b(howard\s*marks|credit\s*cycle|market\s*pendulum|risk\s*posture|tight\s*credit\s*spread|distressed\s*opportunity)\b"],
+            "name": "Howard Marks Market & Credit Cycle Pendulum Scorer",
+            "category": "GEOPOLITICAL_CORRIDOR",
+            "desc": "Macro sentiment and credit availability positioning: oscillates between defensive risk control (euphoria/tight spreads) and aggressive capital deployment (distress).",
+            "relevance": {"sip_compounder": 0.70, "multibagger": 0.65, "positional_30d": 0.50, "turnaround": 0.75, "swing_3d": 0.10, "swing_10d": 0.20},
+            "modifier": {"metric": "marks_credit_cycle_posture", "weight_delta": 0.20},
+        },
+        "MCKINSEY_ECONOMIC_PROFIT": {
+            "patterns": [r"\b(mckinsey\s*valuation|tim\s*koller|economic\s*profit|invested\s*capital|blume\s*adjusted\s*beta|roic\s*wacc\s*spread)\b"],
+            "name": "McKinsey Tim Koller Economic Profit & Invested Capital Model",
+            "category": "ACCOUNTING_INFLECTION",
+            "desc": "Calculates real economic value creation: Invested Capital * (ROIC - WACC), with Blume mean-reverting Beta calibration.",
+            "relevance": {"sip_compounder": 0.85, "multibagger": 0.75, "positional_30d": 0.25, "turnaround": 0.40, "swing_3d": 0.0, "swing_10d": 0.0},
+            "modifier": {"metric": "economic_profit_creation_spread", "weight_delta": 0.22},
+        },
     }
 
     def __init__(self, registry_file: Optional[str] = None):

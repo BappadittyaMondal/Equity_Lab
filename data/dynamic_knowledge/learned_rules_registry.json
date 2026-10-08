@@ -1,6 +1,6 @@
 {
   "version": "1.2.0",
-  "last_updated_utc": "2026-10-08T09:42:29.742858+00:00",
+  "last_updated_utc": "2026-10-08T10:29:57.787105+00:00",
   "entities": {
     "EXCHANGE_CASS_MECHANISM": {
       "entity_id": "EXCHANGE_CASS_MECHANISM",
@@ -471,6 +471,102 @@
       "sensationalism_penalty": 0.0,
       "created_at_utc": "2026-10-08T09:42:29.742850+00:00",
       "last_validated_at_utc": "2026-10-08T09:42:29.742852+00:00"
+    },
+    "GREENWALD_EARNINGS_POWER_VALUE": {
+      "entity_id": "GREENWALD_EARNINGS_POWER_VALUE",
+      "canonical_name": "Bruce Greenwald Earnings Power Value & Franchise Moat Deconstruction",
+      "category": "VALUATION_BASE_RATE",
+      "confidence_score": 0.88,
+      "verification_status": "CERTIFIED_FACT",
+      "source_origin": "ACADEMIC_CANON_PHASE165",
+      "relevance_vector": {
+        "sip_compounder": 0.85,
+        "multibagger": 0.8,
+        "positional_30d": 0.3,
+        "turnaround": 0.4,
+        "swing_3d": 0.0,
+        "swing_10d": 0.0
+      },
+      "bayesian_prior_modifier": {
+        "metric": "epv_franchise_moat_multiple",
+        "weight_delta": 0.25
+      },
+      "description": "Zero-growth earnings power capitalized at WACC compared against net asset reproduction cost to isolate true economic moats.",
+      "sensationalism_penalty": 0.0,
+      "created_at_utc": "2026-10-08T10:29:57.787059+00:00",
+      "last_validated_at_utc": "2026-10-08T10:29:57.787078+00:00"
+    },
+    "SCHILIT_FORENSIC_SHENANIGANS": {
+      "entity_id": "SCHILIT_FORENSIC_SHENANIGANS",
+      "canonical_name": "Howard Schilit 7 Financial Shenanigans & Accounting Quality Guard",
+      "category": "ACCOUNTING_INFLECTION",
+      "confidence_score": 0.9,
+      "verification_status": "CERTIFIED_FACT",
+      "source_origin": "ACADEMIC_CANON_PHASE165",
+      "relevance_vector": {
+        "sip_compounder": 0.85,
+        "multibagger": 0.8,
+        "positional_30d": 0.4,
+        "turnaround": 0.7,
+        "swing_3d": 0.0,
+        "swing_10d": 0.0
+      },
+      "bayesian_prior_modifier": {
+        "metric": "schilit_forensic_hygiene_score",
+        "weight_delta": 0.25
+      },
+      "description": "Algorithmic detection of operating expense capitalization into CWIP, premature revenue recognition, and other income profit masking.",
+      "sensationalism_penalty": 0.0,
+      "created_at_utc": "2026-10-08T10:29:57.787083+00:00",
+      "last_validated_at_utc": "2026-10-08T10:29:57.787086+00:00"
+    },
+    "MARKS_CREDIT_CYCLE_PENDULUM": {
+      "entity_id": "MARKS_CREDIT_CYCLE_PENDULUM",
+      "canonical_name": "Howard Marks Market & Credit Cycle Pendulum Scorer",
+      "category": "GEOPOLITICAL_CORRIDOR",
+      "confidence_score": 0.82,
+      "verification_status": "CERTIFIED_FACT",
+      "source_origin": "ACADEMIC_CANON_PHASE165",
+      "relevance_vector": {
+        "sip_compounder": 0.7,
+        "multibagger": 0.65,
+        "positional_30d": 0.5,
+        "turnaround": 0.75,
+        "swing_3d": 0.1,
+        "swing_10d": 0.2
+      },
+      "bayesian_prior_modifier": {
+        "metric": "marks_credit_cycle_posture",
+        "weight_delta": 0.2
+      },
+      "description": "Tracks credit spread expansion/compression and valuation euphoria to dynamically recommend cash allocation and risk posture.",
+      "sensationalism_penalty": 0.0,
+      "created_at_utc": "2026-10-08T10:29:57.787090+00:00",
+      "last_validated_at_utc": "2026-10-08T10:29:57.787092+00:00"
+    },
+    "MCKINSEY_ECONOMIC_PROFIT": {
+      "entity_id": "MCKINSEY_ECONOMIC_PROFIT",
+      "canonical_name": "McKinsey Tim Koller Economic Profit & Invested Capital Model",
+      "category": "ACCOUNTING_INFLECTION",
+      "confidence_score": 0.86,
+      "verification_status": "CERTIFIED_FACT",
+      "source_origin": "ACADEMIC_CANON_PHASE165",
+      "relevance_vector": {
+        "sip_compounder": 0.85,
+        "multibagger": 0.75,
+        "positional_30d": 0.25,
+        "turnaround": 0.4,
+        "swing_3d": 0.0,
+        "swing_10d": 0.0
+      },
+      "bayesian_prior_modifier": {
+        "metric": "economic_profit_creation_spread",
+        "weight_delta": 0.22
+      },
+      "description": "Calculates true economic profit spread over invested capital with Blume-adjusted mean-reverting equity Betas.",
+      "sensationalism_penalty": 0.0,
+      "created_at_utc": "2026-10-08T10:29:57.787096+00:00",
+      "last_validated_at_utc": "2026-10-08T10:29:57.787098+00:00"
     }
   }
 }
