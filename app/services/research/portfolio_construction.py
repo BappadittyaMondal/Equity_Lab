@@ -95,6 +95,17 @@ def evaluate_portfolio_construction(
     event_multiplier = float(data.get("position_sizing_multiplier") or data.get("event_proximity_multiplier") or haircut_mult)
     recommended_pct = round(base_recommended_pct * event_multiplier, 1)
 
+    # Steenbarger Emotional Tilt & Consecutive Stop-Loss Throttle (§Steenbarger Performance Guard)
+    consecutive_stops = int(data.get("consecutive_stop_losses") or data.get("recent_stop_outs") or 0)
+    tilt_active = bool(data.get("tilt_protection_active") or consecutive_stops >= 2)
+    tilt_multiplier = 0.50 if tilt_active else 1.0
+    if tilt_active:
+        recommended_pct = round(recommended_pct * tilt_multiplier, 1)
+        evidence.append(
+            f"🛡️ STEENBARGER DRAWDOWN CIRCUIT BREAKER ACTIVE: {consecutive_stops} consecutive stop-outs detected. "
+            f"Capital allocation throttled by 50% (from {base_recommended_pct}% to {recommended_pct}%) to prevent emotional revenge risk."
+        )
+
     # 3. Scaling Ladder (§35)
     scaling_ladder = [
         {"stage": "STARTER_POSITION", "size_pct": round(recommended_pct * 0.5, 1), "condition": "Initial thesis formation & Gate pass"},
@@ -139,7 +150,10 @@ def evaluate_portfolio_construction(
         exit_triggers=exit_triggers,
         drawdown_tolerance_band_pct=drawdown_tolerance_band,
         event_proximity_multiplier=event_multiplier,
-        base_recommended_pct=base_recommended_pct
+        base_recommended_pct=base_recommended_pct,
+        tilt_protection_active=tilt_active,
+        tilt_multiplier=tilt_multiplier,
+        consecutive_stop_losses=consecutive_stops
     )
 
     return {
@@ -149,6 +163,9 @@ def evaluate_portfolio_construction(
         "base_recommended_position_pct": base_recommended_pct,
         "event_proximity_multiplier": event_multiplier,
         "drawdown_tolerance_band_pct": drawdown_tolerance_band,
+        "tilt_protection_active": tilt_active,
+        "tilt_multiplier": tilt_multiplier,
+        "consecutive_stop_losses": consecutive_stops,
         "portfolio_signal": signal.model_dump(),
         "evidence": evidence,
         "meta": create_meta_header(source="Portfolio Position Sizing Engine (§35, §36, §37)")

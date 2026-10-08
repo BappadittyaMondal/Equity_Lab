@@ -1089,6 +1089,9 @@ class PortfolioPositionSizingSignal(BaseModel):
     drawdown_tolerance_band_pct: float = 25.0
     event_proximity_multiplier: float = 1.0
     base_recommended_pct: Optional[float] = None
+    tilt_protection_active: bool = False
+    tilt_multiplier: float = 1.0
+    consecutive_stop_losses: int = 0
 
 
 class RedTeamReviewRecord(BaseModel):

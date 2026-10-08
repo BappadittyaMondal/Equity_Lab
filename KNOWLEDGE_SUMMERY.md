@@ -238,3 +238,149 @@ With the addition of Optic 10, Equity Lab's comprehensive research pipeline now 
                                                       ▼
                       [ULTIMATE INSTITUTIONAL CONFLUENCE ENGINE]
 ```
+
+
+---
+
+## 9. Extended Video Inventory & Masterclasses (Videos 33 to 43)
+
+Following an exhaustive audit of the 11 additional masterclasses and trading psychology lectures, the knowledge base is expanded with the following verifiable mechanics:
+
+| # | Video ID | Speaker & Source | Core Domain | Exact Verifiable Mechanics & Principles |
+|:---:|:---|:---|:---:|:---|
+| **33** | `DYXUb6S2rz0` | Harsh Bhagat (*100 Days Challenge*) | Volume Tops & Bottoms | **Climax Volume vs Exhaustion:** Ultra-high volume at tops with narrow spread or long upper wick = institutional dumping into retail FOMO; volume divergence (price higher, volume lower) signals dying momentum; ultra-low volume retests of base support indicate floating supply absorption is complete. |
+| **34** | `1Dj2DPVkVzM` | Pankaj Bhardwaj (*Trading Ways*) | Retail Trader Pitfalls | **Why 95% of Retail Traders Fail:** Risking 5%–20% of account per trade instead of 1% max; chasing weekly out-of-the-money (OTM) options where theta decay guarantees a 100% loss; revenge trading after initial losses; lack of a written, non-negotiable exit plan. |
+| **35** | `4Waz6fmeoOk` | Pankaj Bhardwaj (*Bazaar Ke Mahir*) | Operator Mechanics & Traps | **Bade Operators Market Manipulation:** Large institutional operators cannot accumulate without retail liquidity; they intentionally engineer textbook chart patterns (double bottoms, resistance breakouts) to lure retail buying, then dump size into them; true entries occur *after* the retail trap is sprung. |
+| **36** | `Y6_4AILVsbc` | Harsh Bhagat (*100 Days Challenge*) | Volume Effort vs Result | **Wyckoffian Effort vs Result:** Massive volume (effort) without proportionate price advance (result) reveals invisible institutional limit supply; breakout failure confirmation occurs when a high-volume breakout candle is immediately followed by an equal-volume engulfing reversal. |
+| **37** | `Pd8UutXytog` | Pankaj Bhardwaj (*Way2Laabh*) | Recovery from Ruin to Edge | **Trading Evolution:** Moving from cluttered indicator screens (MACD, Stochastics, Supertrend) to naked price and volume; mastering a single repeatable setup (Support-Resistance Flip + Liquidity Sweep); accepting monetary risk as a routine business operating expense before entering. |
+| **38** | `86EA3t7KTOE` | Pankaj Bhardwaj (*Way2Laabh*) | Reverse Gaming Supply/Demand | **Reverse Gaming Framework:** Markets are a zero-sum liquidity transfer; fresh supply/demand zones hold high institutional orders, whereas zones tested 3+ times become structurally degraded and are primed for trap breakdowns; speed/violence of initial departure defines true institutional interest. |
+| **39** | `SMZErzQcZN0` | Pankaj Bhardwaj (*Way2Laabh*) | LOGIC 11: Fear Elimination | **Conquering Fear of Loss:** Fear is a mathematical symptom of oversized positions; sizing positions so that maximum loss is emotionally imperceptible restores cold rational execution; viewing each trade as 1 sample in a 100-trade statistical probability distribution. |
+| **40** | `Mc7FHPN0eVw` | Dr. Brett Steenbarger (*Book Summary*) | Trading Neuro-Psychology | **10 Master Lessons in Trading Mindset:** The market reflects subconscious psychological defects; cognitive reframing of losses as calibrated data; physiological awareness of emotional hijacking (tunnel vision, elevated heart rate); decoupling process quality from financial outcome. |
+| **41** | `wrJWjkaSb0Y` | Psychology Masterclass | Dopamine & Execution Discipline | **Subconscious Trading Discipline:** Distinguishing the dopamine thrill of gambling from the methodical boredom of institutional execution; patience as an asymmetric mathematical edge (spending 80% of time in cash waiting for 3-way confluence). |
+| **42** | `Y5Gf1rD8QNQ` | Way2Laabh Master Series | Gap Psychology & Trap Setups | **Opening Gap Mechanics:** Institutional vs retail opening gaps; "Gap & Crap" traps occur when gap-up occurs into major overhead supply without volume support; true runaway gaps clear supply with surging volume and refuse to fill intraday. |
+| **43** | `E3mVKL_lYDM` | Way2Laabh Master Series | Microstructure Price Purity | **Indicator Clutter Elimination:** Price and volume are primary leading variables; all mathematical indicators are lagging derivatives; trading decisions must be grounded in who is buying, who is selling, and where stop-losses are clustered. |
+
+---
+
+## 10. OPTIC 11: Operator Mind Games, Liquidity Traps & Reverse Gaming (Pankaj Bhardwaj / Way2Laabh)
+
+### Core Philosophy
+Institutional operators do not trade indicators; they trade **liquidity pools**. Because large funds and market operators trade thousands of lots or crores in equity, they cannot buy at market price without moving the stock against themselves. They must intentionally manipulate price into areas where retail traders place stop-losses or execute emotional FOMO orders.
+
+### The 4 Pillars of Reverse Gaming
+
+1. **The Reverse Gaming Mindset:**
+   - Never ask: *"Is this a bullish pattern?"*
+   - Always ask: *"Where are retail traders trapped? Where are their stop-losses located? If they are trapped long, who will buy from them when they panic?"*
+   - Enter trades when trapped retail traders are forced to liquidate, providing frictionless liquidity to your position.
+
+2. **Zone Degradation & The 3rd-Touch Trap:**
+   - **Fresh Zone (1st Touch):** Contains unexecuted institutional limit orders $\rightarrow$ High reaction probability.
+   - **Tested Zone (2nd Touch):** Moderate unfilled orders remaining $\rightarrow$ Lower probability.
+   - **Degraded Zone (3rd/4th Touch):** Institutional liquidity has been completely absorbed; retail traders now view it as "strong support" $\rightarrow$ Prime target for an institutional stop-hunt breakdown.
+
+3. **The Retail Trap Confirmation Sequence:**
+   $$\text{Obvious Breakout at Resistance} \longrightarrow \text{Retail FOMO Enters} \longrightarrow \text{High Volume Stalling} \longrightarrow \text{Immediate Reversal into Base} \longrightarrow \text{Cascading Retail Stop Liquidation}$$
+
+4. **Sizing Down to Kill Fear (LOGIC 11):**
+   - The sensation of market fear is purely a biological warning that position size exceeds financial and psychological capacity.
+   - If an investor fears a pullback, the position is mathematically too large. Halving position size immediately shifts the mind from emotional panic to strategic detachment.
+
+---
+
+## 11. OPTIC 12: Behavioral Neuro-Psychology & Performance Mindset (Dr. Brett Steenbarger Framework)
+
+### Core Philosophy
+Trading and investing performance is governed by human cognitive biology. The brain's limbic system (fight-or-flight) constantly attempts to hijack the prefrontal cortex (rational calculation) during financial risk events. Achieving long-term compounding requires institutional emotional regulation protocols.
+
+### The 5 Cognitive Laws of Performance Psychology
+
+1. **Decoupling Process from Outcome:**
+   - A trade that followed all rules, had positive statistical expectancy, but hit a stop-loss is a **Good Trade**.
+   - A trade that broke rules, had reckless sizing, but made money through luck is a **Catastrophic Failure** because it reinforces toxic habits that guarantee eventual ruin.
+
+2. **Cognitive Reframing of Capital Losses:**
+   - Amateur: *"I lost ₹50,000; the market is rigged and I failed."*
+   - Professional: *"I paid ₹50,000 in operational research costs to execute an asymmetric hypothesis whose invalidation level was hit. My capital defense protocol functioned flawlessly."*
+
+3. **Physiological Warning Signals (The Tilt Detector):**
+   - Emotional hijacking is preceded by physical cues: shallow breathing, jaw clenching, rapid pulse, and compulsive screen refresh.
+   - Mandatory institutional rule: Immediate physical disengagement for 60 minutes upon detecting physiological tilt.
+
+4. **Structured Pre-Mortem Visualization:**
+   - Before taking any position, mentally visualize the stock immediately dropping to the hard stop-loss. If this visualization causes emotional distress, the position size is too large or the thesis is ungrounded.
+
+5. **The Deliberate Practice Feedback Loop:**
+   - Daily logging of emotional state alongside trade execution; reviewing not just PnL, but execution fidelity against the pre-defined playbook.
+
+---
+
+## 12. OPTIC 13: Volume Exhaustion Tops & Climax Bottoms (Harsh Bhagat Micro-Signal Framework)
+
+### Core Philosophy
+Volume is the fuel of price movement. Price can lie through manipulative spreads, but volume represents real capital commitment that cannot be erased from the exchange order book.
+
+### The 4 Volume Micro-Signals
+
+1. **Blow-Off Climax Top (The Exhaustion Candle):**
+   - Price surges into a new 52-week high or breakout.
+   - Volume expands to $> 4\text{x}$ the 20-day average.
+   - The candle produces a long upper shadow (wick) or closes in the bottom 40% of its daily range.
+   - **Meaning:** Smart money is aggressively offloading millions of shares into the liquidity created by retail FOMO buyers.
+
+2. **Effort vs. Result Breakdown (Wyckoff Absorption):**
+   - Enormous trading volume occurs across 3–5 consecutive days, but price makes almost zero upward progress ($\Delta \text{Price} \approx 0$).
+   - **Meaning:** Huge buying effort met with equal or greater institutional selling resistance $\rightarrow$ Imminent downward reversal.
+
+3. **The Ultra-Low Volume Dry-Up Test (The Launchpad):**
+   - After a consolidation base, price pulls back to the 20 EMA or base support.
+   - Volume dries up to multi-month lows (less than 30% of average volume).
+   - **Meaning:** Floating market supply is completely exhausted. There are no remaining sellers to push price lower. A tiny spark of institutional buying will cause an explosive upward price expansion.
+
+4. **Delivery Volume vs. Speculative Churn Filter:**
+   - In Indian equities, raw volume can be inflated by intraday day-traders.
+   - True institutional accumulation requires **Delivery Percentage $\ge 45\%–60\%$**.
+   - If volume surges $5\text{x}$ but delivery percentage plunges below $18\%$, it is speculative intraday churn and operator manipulation, NOT institutional accumulation.
+
+---
+
+## 13. Exhaustive Multi-Domain Expert Agreement & Critical Optics Audit
+
+| Optic | Focus Domain | Agreement % | Core Analytical Strength | Critical Vulnerability / Failure Mode if Used Alone |
+|:---:|:---|:---:|:---|:---|
+| **Optic 1** | Classical Price Action | **95%** | Maps structural trend & polarity flips cleanly. | Retail patterns (double bottoms, flags) are frequently hunted for liquidity. |
+| **Optic 2** | Volume Spread Analysis (VSA) | **100%** | Exposes institutional effort vs result and supply exhaustion. | Requires high liquidity; micro-caps with thin float can distort volume spreads. |
+| **Optic 3** | Smart Money Concepts (SMC) | **92%** | Pinpoints exact institutional order blocks and FVGs. | Can lead to over-analysis on lower timeframes; must be anchored to daily/weekly charts. |
+| **Optic 4** | Vijay Thakkar Momentum | **98%** | Captures multi-month Stage 2 multibagger runs near 52W Highs. | Will suffer whipsaws during choppy, range-bound broader market regimes. |
+| **Optic 5** | Fundamental Forensics & Lamba | **100%** | Eliminates accounting frauds, value traps, and working capital decay. | Strong fundamentals alone do not provide entry timing; stocks can stay cheap for years. |
+| **Optic 6** | Sovereign Debt & Macro | **92%** | Sets equity valuation ceilings based on sovereign bond yields. | Macro themes take years to play out; timing individual stock entries via macro is impossible. |
+| **Optic 7** | 2027 Capex Supercycles | **100%** | Catches multibaggers at inflection point (CWIP expansion before PAT). | Capex execution can face regulatory delays, cost overruns, or commodity spikes. |
+| **Optic 8** | Fibonacci & Cycles | **75%** | Provides objective mathematical retracement and extension targets. | Can degenerate into numerology/curve-fitting if not confirmed by horizontal volume levels. |
+| **Optic 9** | Expectancy & Asymmetric Risk | **100%** | Mathematical guarantee of long-term account survival and compounding. | Requires iron emotional discipline to take small consecutive losses without tilting. |
+| **Optic 10** | Kedianomics Santulan | **95%** | 4-tier institutional hierarchy prevents indicator overload. | Requires high market experience to correctly identify multi-degree wave degrees. |
+| **Optic 11** | Operator Traps & Reverse Gaming | **96%** | Protects against retail breakout traps and identifies false moves. | Can create cynical paranoia if investor starts seeing "operator traps" in every normal pullback. |
+| **Optic 12** | Steenbarger Performance Psychology | **98%** | Neutralizes emotional hijacking, overtrading, and revenge trading. | Pure psychology cannot compensate for a mathematically flawed trading strategy. |
+| **Optic 13** | Volume Exhaustion Micro-Signals | **97%** | Identifies exact blow-off tops and ultra-low volume launchpad setups. | Must verify NSE delivery percentage to distinguish true accumulation from intraday churn. |
+
+---
+
+## 14. Plain-English Guide to the Micro-Signal Architecture
+
+> ### Understanding Micro-Signals for Everyday Investors:
+>
+> 1. **What is a Micro-Signal?**  
+>    A Macro-Signal tells you *what* sector to look at (e.g., "India needs massive power transformers"). A Fundamental Signal tells you *which* company is solid (e.g., "Indo Tech has 40% ROCE and zero debt"). A **Micro-Signal** tells you the *exact week and price* when big institutions have finished quietly accumulating and the stock is ready to fly, protecting you from buying too early or falling into an operator trap.
+>
+> 2. **Is it a Big Upgrade or a Small Upgrade?**  
+>    It is a **Targeted Precision Upgrade (A High-Resolution Lens)**, NOT a destructive system overhaul. The engine's core brain (Arbiter, Reverse DCF, Beneish M-Score, Altman Z-Score) remains 100% intact. Micro-signals simply act as a sharper sensor for the existing `timing` score ($TBQE$) and `Red-Team` verification.
+>
+> 3. **Is it Truly Required?**  
+>    **YES, STRONGLY RECOMMENDED.** If you want to catch multibaggers *before* they make their big 100%–300% moves ("Pre-Fly"), you cannot rely on quarterly balance sheets alone because balance sheets are published 45 days after the quarter ends. By then, the stock has already doubled. Micro-signals (Volume Dry-Up, Delivery Spikes, Order Block absorption) give you real-time footprints of what smart money is doing *right now*.
+>
+> 4. **Will it Conflict with Any Existing Math or Code?**  
+>    **ABSOLUTELY ZERO CONFLICT.** Equity Lab is built with modular sub-signal enrichers. Micro-signals feed exclusively into the existing `TECHNICAL` and `TIMING` weight buckets without touching fundamental formulas, valuation calculations, or risk-sizing limits.
+>
+> 5. **The 3 Inventions We Must Insist on Adding in Future Phases:**  
+>    - **The Retail Froth & Delivery Churn Filter:** Discard breakouts where volume is high but delivery percentage is $< 20\%$.  
+>    - **The Wyckoff Spring / False Breakdown Detector:** Buy when a stock briefly breaks below its base on heavy volume and snaps back immediately within 48 hours (the classic operator stop hunt).  
+>    - **The Steenbarger Drawdown Circuit Breaker:** Programmatic capital deployment throttling after market shock events to eliminate emotional revenge trading.

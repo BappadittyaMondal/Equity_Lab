@@ -18,7 +18,8 @@ from app.services.market_data import normalize_symbol, create_meta_header, get_h
 
 def evaluate_volume_and_microstructure(
     symbol: str,
-    as_of: Optional[datetime] = None
+    as_of: Optional[datetime] = None,
+    delivery_override_pct: Optional[float] = None
 ) -> Dict[str, Any]:
     """Evaluates RVOL, UDVR, Delivery trends, and Anchored VWAP confirmation."""
     norm_symbol = normalize_symbol(symbol)
@@ -59,9 +60,16 @@ def evaluate_volume_and_microstructure(
 
     # 3. Delivery Quantity / Delivery % Proxy (§26)
     # Estimate institutional delivery percentage based on close location inside wide range bars
-    daily_spread = high - low
-    close_pct = (close - low) / daily_spread.replace(0, 1.0)
-    delivery_proxy_pct = float(min(85.0, max(25.0, 40.0 + (close_pct.tail(10).mean() * 30.0))))
+    if delivery_override_pct is not None:
+        delivery_proxy_pct = float(delivery_override_pct)
+        delivery_source = "NSE_REPORTED_DELIVERY"
+        is_reported_delivery = True
+    else:
+        daily_spread = high - low
+        close_pct = (close - low) / daily_spread.replace(0, 1.0)
+        delivery_proxy_pct = float(min(85.0, max(25.0, 40.0 + (close_pct.tail(10).mean() * 30.0))))
+        delivery_source = "PRICE_RANGE_ACCUMULATION_PROXY"
+        is_reported_delivery = False
 
     # 4. Event-Anchored VWAP (last 20-day anchor as catalyst proxy) (§29)
     # Cumulative (Volume * Typical Price) / Cumulative Volume
@@ -86,11 +94,23 @@ def evaluate_volume_and_microstructure(
     if dry_up_signal:
         evidence.append(f"🎯 VOLUME DRY-UP NEAR RESISTANCE: RVOL={rvol:.2f} while price is within 4% of 20D high")
 
+    # 6. Operator Churn & Retail Froth Trap Detector (§108)
+    # If volume surges (RVOL >= 2.5) but delivery percentage is weak (< 25%), it signals speculative intraday churning rather than institutional accumulation.
+    operator_churn_trap = bool(rvol >= 2.5 and delivery_proxy_pct < 25.0)
+    if operator_churn_trap:
+        evidence.append(
+            f"⚠️ OPERATOR CHURN TRAP DETECTED: High RVOL ({rvol:.2f}x) with weak delivery ({delivery_proxy_pct:.1f}% < 25.0%) "
+            f"indicates intraday day-trading churn, NOT institutional float absorption."
+        )
+
     evidence.append(f"Relative Volume (RVOL): {rvol}x | Up/Down Vol Ratio (UDVR): {udvr}")
-    evidence.append(f"Institutional Delivery Proxy: {delivery_proxy_pct:.1f}%")
+    evidence.append(f"Institutional Delivery Proxy: {delivery_proxy_pct:.1f}% ({delivery_source})")
 
     # Participation Score (0-100)
-    part_score = min(100.0, max(0.0, 40.0 + (rvol * 15.0) + (udvr * 10.0) + (10.0 if vwap_status == "ABOVE_ANCHORED_VWAP" else 0.0)))
+    part_score = 40.0 + (rvol * 15.0) + (udvr * 10.0) + (10.0 if vwap_status == "ABOVE_ANCHORED_VWAP" else 0.0)
+    if operator_churn_trap:
+        part_score -= 25.0  # Penalize speculative churn trap
+    part_score = min(100.0, max(0.0, part_score))
 
     return {
         "symbol": norm_symbol,
@@ -100,11 +120,12 @@ def evaluate_volume_and_microstructure(
         "udvr": udvr,
         "delivery_pct": round(delivery_proxy_pct, 1),
         "delivery_proxy_pct": round(delivery_proxy_pct, 1),
-        "delivery_source": "PRICE_RANGE_ACCUMULATION_PROXY",
-        "is_exchange_reported_delivery": False,
+        "delivery_source": delivery_source,
+        "is_exchange_reported_delivery": is_reported_delivery,
         "anchored_vwap_status": vwap_status,
         "anchored_vwap_price": round(float(anchored_vwap), 2),
         "volume_dry_up_near_resistance": dry_up_signal,
+        "operator_churn_trap": operator_churn_trap,
         "evidence": evidence,
         "meta": create_meta_header(source=f"Volume & Microstructure Engine ({norm_symbol})")
     }
