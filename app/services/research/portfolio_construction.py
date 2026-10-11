@@ -60,8 +60,14 @@ def evaluate_portfolio_construction(
     win_prob = min(0.80, max(0.20, (mivs_score / 100.0) * (conf_pct / 100.0)))
     payoff_ratio = 3.0  # 3:1 reward-to-risk benchmark
     full_kelly = (win_prob * payoff_ratio - (1.0 - win_prob)) / payoff_ratio
-    fractional_kelly = max(0.01, full_kelly * 0.25)
-    advisory_kelly_pct = round(fractional_kelly * 100.0, 1)
+    # Phase 170: Fix negative-edge floor bug. When expected edge is non-positive (full_kelly <= 0.0),
+    # allocation must fail closed to 0.0%, NOT floor at 1.0% (max(0.01, ...)).
+    if full_kelly > 0.0:
+        fractional_kelly = round(full_kelly * 0.25, 4)
+        advisory_kelly_pct = round(fractional_kelly * 100.0, 1)
+    else:
+        fractional_kelly = 0.0
+        advisory_kelly_pct = 0.0
 
     # 2. Liquidity, Thesis Maturity & Discovery Status Caps (§Phase 100 ADV Participation Protection)
     # Institutional liquidity limit: 5 days of 15% ADV participation (total 75% of single-day ADV) relative to fund AUM.
@@ -138,7 +144,10 @@ def evaluate_portfolio_construction(
         evidence.append("⚪ Evidence confidence unobserved: using conservative baseline 70.0% calibration for advisory Kelly calculation.")
     if event_multiplier < 1.0:
         evidence.append(f"Event Proximity Haircut Applied: {event_multiplier:.2f}x (Imminent binary catalyst risk; position reduced from {base_recommended_pct}% to {recommended_pct}%).")
-    evidence.append(f"Fractional-Kelly (Quarter-Kelly): {fractional_kelly * 100.0:.1f}% | Win Prob: {win_prob * 100.0:.0f}%")
+    if full_kelly > 0.0:
+        evidence.append(f"Fractional-Kelly (Quarter-Kelly): {fractional_kelly * 100.0:.1f}% | Win Prob: {win_prob * 100.0:.0f}%")
+    else:
+        evidence.append("⚪ Negative/Zero Expected Edge: Full-Kelly edge is non-positive; fractional-Kelly advisory sizing fails closed to 0.0%.")
     evidence.append(f"Archetype Drawdown Tolerance: {drawdown_tolerance_band:.0f}% | Archetype: {archetype_upper}")
 
     signal = PortfolioPositionSizingSignal(

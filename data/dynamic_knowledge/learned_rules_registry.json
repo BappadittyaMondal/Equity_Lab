@@ -1,6 +1,6 @@
 {
   "version": "1.2.0",
-  "last_updated_utc": "2026-10-11T15:29:18.185023+00:00",
+  "last_updated_utc": "2026-10-11T17:23:35.168970+00:00",
   "entities": {
     "EXCHANGE_CASS_MECHANISM": {
       "entity_id": "EXCHANGE_CASS_MECHANISM",
@@ -8,7 +8,7 @@
       "category": "MARKET_MICROSTRUCTURE",
       "confidence_score": 0.71,
       "verification_status": "CERTIFIED_FACT",
-      "source_origin": "USER_FEEDBACK_FB-1791732558",
+      "source_origin": "USER_FEEDBACK_FB-1791739415",
       "relevance_vector": {
         "swing_3d": 0.15,
         "swing_10d": 0.1,
@@ -21,8 +21,8 @@
       },
       "description": "Post-market multilateral closing auction establishing deterministic VWAP and dampening end-of-session volatility.",
       "sensationalism_penalty": 0.0,
-      "created_at_utc": "2026-10-11T15:29:18.123584+00:00",
-      "last_validated_at_utc": "2026-10-11T15:29:18.123584+00:00",
+      "created_at_utc": "2026-10-11T17:23:35.156005+00:00",
+      "last_validated_at_utc": "2026-10-11T17:23:35.156005+00:00",
       "shadow_status": "SHADOW",
       "sample_count": 0,
       "success_count": 0,
@@ -55,7 +55,7 @@
       "category": "GEOPOLITICAL_CORRIDOR",
       "confidence_score": 0.71,
       "verification_status": "CERTIFIED_FACT",
-      "source_origin": "USER_FEEDBACK_FB-1791732558",
+      "source_origin": "USER_FEEDBACK_FB-1791739415",
       "relevance_vector": {
         "swing_3d": 0.0,
         "swing_10d": 0.05,
@@ -68,8 +68,8 @@
       },
       "description": "Bilateral foreign direct investment in South American lithium brine reserves under RIGI regulatory concessions.",
       "sensationalism_penalty": 0.0,
-      "created_at_utc": "2026-10-11T15:29:18.138046+00:00",
-      "last_validated_at_utc": "2026-10-11T15:29:18.138046+00:00",
+      "created_at_utc": "2026-10-11T17:23:35.159708+00:00",
+      "last_validated_at_utc": "2026-10-11T17:23:35.159708+00:00",
       "shadow_status": "SHADOW",
       "sample_count": 0,
       "success_count": 0,

@@ -354,12 +354,30 @@ def compute_altman_zscore(financials: List[Any]) -> Dict[str, Any]:
     z_score = 1.2 * x1 + 1.4 * x2 + 3.3 * x3 + 0.6 * x4 + 1.0 * x5
     z_score = round(z_score, 3)
     z_prime_score = round(0.717 * x1 + 0.847 * x2 + 3.107 * x3 + 0.420 * x4 + 0.998 * x5, 3)
+    
+    # Phase 170: Altman Z'' Emerging Market / Non-Manufacturer Model (Altman 1993/2002)
+    # Excludes X5 (asset turnover) to eliminate industry/asset-intensity bias
+    z_double_prime = 3.25 + 6.56 * x1 + 3.26 * x2 + 6.72 * x3 + 1.05 * x4
+    z_double_prime_score = round(z_double_prime, 3)
+    if z_double_prime_score > 5.85:
+        z_double_prime_zone = "SAFE"
+    elif z_double_prime_score >= 4.15:
+        z_double_prime_zone = "GREY"
+    else:
+        z_double_prime_zone = "DISTRESS"
 
     result.update({
         "z_score": z_score,
         "z_prime_score": z_prime_score,
+        "z_double_prime_score": z_double_prime_score,
+        "z_double_prime_zone": z_double_prime_zone,
         "model_variant": "ALTMAN_Z_BOOK_EQUITY_VARIANT",
-        "canonical_specification_note": "X4 utilizes Book Value of Equity. For canonical 1968 manufacturing Z-Score, X4 requires Market Value of Equity; Z' represents the 1983 book-equity model.",
+        "canonical_specification_note": (
+            "Z represents 1968 manufacturing model (cut-offs 1.81/2.99). "
+            "Z' represents 1983 book-equity model. "
+            "Z'' represents 1993/2002 Emerging Market non-manufacturing model "
+            "(3.25 + 6.56*X1 + 3.26*X2 + 6.72*X3 + 1.05*X4, cut-offs 4.15/5.85)."
+        ),
         "x1_working_capital_ratio": round(x1, 3),
         "x2_retained_earnings_ratio": round(x2, 3),
         "x3_ebit_ratio": round(x3, 3),
@@ -377,9 +395,69 @@ def compute_altman_zscore(financials: List[Any]) -> Dict[str, Any]:
         zone = "DISTRESS"
         evidence.append(f"⚠️ Altman Z-Score = {z_score:.2f}: DISTRESS zone (< 1.81) — financial risk")
 
+    evidence.append(f"Altman Z'' (EM Non-Mfg) = {z_double_prime_score:.2f}: {z_double_prime_zone} zone (Safe>5.85, Distress<4.15)")
     result["zone"] = zone
     result["evidence"] = evidence
     return result
+
+
+def compute_altman_zscore_em(financials: List[Any], sector: Optional[str] = None) -> Dict[str, Any]:
+    """Compute Altman Z'' Emerging Market / Non-Manufacturer Score (Phase 170).
+
+    Formula (Altman 1993/2002):
+      Z'' = 3.25 + 6.56*X1 + 3.26*X2 + 6.72*X3 + 1.05*X4
+
+    Excludes X5 (asset turnover) to eliminate asset-intensity distortion for
+    services, technology, healthcare, EPC, and non-manufacturing firms.
+
+    Zones:
+      Z'' > 5.85  → SAFE (Low default probability)
+      4.15–5.85   → GREY ZONE (Moderate caution)
+      Z'' < 4.15  → DISTRESS (High insolvency/default risk)
+
+    Financial Institution / Banking Exemption:
+      Banks and NBFCs possess structurally inverted balance sheets (debt is raw material).
+      Altman models are mathematically non-applicable and return NOT_APPLICABLE.
+    """
+    sec_norm = (sector or "").upper().strip().replace(" ", "_").replace("-", "_")
+    FINANCIAL_SECTORS = frozenset([
+        "BANKING", "BANKS", "FINANCIAL_SERVICES", "FINANCIALS", "FINANCE",
+        "NBFC", "INSURANCE", "ASSET_MANAGEMENT", "SECURITIES"
+    ])
+    if any(k in sec_norm for k in FINANCIAL_SECTORS):
+        return {
+            "status": "not_applicable",
+            "model_variant": "ALTMAN_Z_DOUBLE_PRIME_EM",
+            "sector": sector,
+            "reason": "Altman distress models do not apply to banks, NBFCs, and financial institutions.",
+            "evidence": ["Financial sector detected: Altman Z-Score structurally non-applicable."],
+        }
+
+    base_res = compute_altman_zscore(financials)
+    if base_res.get("status") == "insufficient_data":
+        return base_res
+
+    z_double_prime = base_res.get("z_double_prime_score", 0.0)
+    zone = base_res.get("z_double_prime_zone", "GREY")
+
+    return {
+        "status": "success",
+        "model_variant": "ALTMAN_Z_DOUBLE_PRIME_EM",
+        "z_double_prime_score": z_double_prime,
+        "zone": zone,
+        "thresholds": {"distress_cutoff": 4.15, "safe_cutoff": 5.85},
+        "components": {
+            "x1_working_capital_ratio": base_res.get("x1_working_capital_ratio"),
+            "x2_retained_earnings_ratio": base_res.get("x2_retained_earnings_ratio"),
+            "x3_ebit_ratio": base_res.get("x3_ebit_ratio"),
+            "x4_equity_debt_ratio": base_res.get("x4_equity_debt_ratio"),
+        },
+        "evidence": [
+            f"Altman Z'' (EM Non-Mfg) = {z_double_prime:.2f}: {zone} zone (Safe > 5.85, Distress < 4.15)",
+            "Model: Altman (1993/2002) 4-variable EM specification (excludes asset turnover)",
+        ]
+    }
+
 
 
 # ─────────────────────────────────────────────────────────────────────────────

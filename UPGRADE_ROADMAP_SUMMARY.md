@@ -6146,3 +6146,54 @@ Evaluated across the 3 expert lenses:
 
 
 
+
+---
+
+## Phase 170: Kelly Sizing Edge Protection, Additive Altman Z'' EM Model, and Unified 5-Tier Pledge Hierarchy
+
+**Date**: 2026-10-11 | **Prerequisite**: Phase 169 (P1/P2/P3/P4 Fixes)
+**Scope**: 3 Critical Mathematical & Structural Upgrades Resolved with Zero Regressions.
+**Test Result**: **7 / 7 PASSED (100%) in 0.39s** | **Consolidated Regression: 90 / 90 PASSED (100%) in 7.98s**
+
+### 1. Root Cause Analysis & Technical Solutions
+
+#### P170-1 — Kelly Sizing Negative-Edge Floor Defect (`app/services/research/portfolio_construction.py`)
+- **Root Cause**: `fractional_kelly = max(0.01, full_kelly * 0.25)` in Line 63 floored allocations at `0.01` (1.0% of AUM). When an investment thesis had negative expected edge ($f^* \le 0.0$), the system erroneously allocated 1% of portfolio capital instead of failing closed to 0.0%.
+- **Fix**: Replaced with clean conditional gate:
+  ```python
+  if full_kelly > 0.0:
+      fractional_kelly = round(full_kelly * 0.25, 4)
+      advisory_kelly_pct = round(fractional_kelly * 100.0, 1)
+  else:
+      fractional_kelly = 0.0
+      advisory_kelly_pct = 0.0
+  ```
+  Appended transparent audit diagnostic to evidence trail when edge is non-positive.
+- **Verification**: Machine-verified via `TestKellySizingNegativeEdgeFailClosed` (2/2 passed). Negative-edge setup produces `0.0%` allocation.
+
+#### P170-2 — Additive Altman Z'' Emerging Market / Non-Manufacturer Model (`app/services/strategies/forensic_engine.py`)
+- **Root Cause**: `compute_altman_zscore()` only calculated the 1968 manufacturing formula ($1.2 X_1 + 1.4 X_2 + 3.3 X_3 + 0.6 X_4 + 1.0 X_5$). When applied to non-manufacturing, healthcare, software, or service firms, asset turnover ($X_5$) introduced structural asset-intensity distortions.
+- **Fix**:
+  1. Extended `compute_altman_zscore()` to calculate and expose $Z''$ (Altman 1993/2002 Emerging Market 4-ratio formula):
+     $$Z'' = 3.25 + 6.56 X_1 + 3.26 X_2 + 6.72 X_3 + 1.05 X_4$$
+     Zones: Safe ($Z'' > 5.85$), Grey ($4.15 \le Z'' \le 5.85$), Distress ($Z'' < 4.15$).
+  2. Implemented dedicated `compute_altman_zscore_em(financials, sector)` with explicit banking/financial sector exemption returning `status: "not_applicable"`.
+- **Verification**: Machine-verified via `TestAltmanZDoublePrimeEM` (4/4 passed). Exact mathematical parity ($Z'' = 7.658$ on sample fixture), distress classification, banking exemption, and 100% backward compatibility preserved.
+
+#### P170-3 — Unified 5-Tier Promoter Pledge Hierarchy (`app/core/constants.py`)
+- **Root Cause**: Pledge thresholds were historically scattered across different modules with varying numeric cut-offs (2%, 5%, 10%, 25%, 40%), creating potential perception of conflict.
+- **Fix**: Centralized the complete, explicit 5-tier institutional pledge cascade in `app/core/constants.py`:
+  - `PLEDGE_PRISTINE_MAX = 2.0` (Tier 1: Pristine unencumbered institutional target)
+  - `PLEDGE_QUALITY_PASS_MAX = 5.0` (Tier 2: Governance quality invariant pass)
+  - `PLEDGE_WARNING_MIN = 10.0` (Tier 3: Amber risk warning flag threshold)
+  - `PLEDGE_DISQUALIFY_MIN = 25.0` (Tier 4: Multibagger disqualification & state-machine exit)
+  - `PLEDGE_VETO_THRESHOLD = 40.0` (Tier 5: System-wide catastrophic fatal veto in Arbiter)
+- **Verification**: Machine-verified via `TestPledgeHierarchyConstants` (1/1 passed). Monotonic ordering guaranteed ($2.0 < 5.0 < 10.0 < 25.0 < 40.0$).
+
+---
+
+### 2. Regression & Production Certification
+
+- **Dedicated Suite**: `py -3.14 -m pytest app/tests/test_phase170_kelly_altman_em_pledge_hierarchy.py` — **7 / 7 PASSED (100%)**
+- **Consolidated Multi-Phase Regression**: **90 / 90 PASSED (100%) in 7.98s** across Phases 141, 142, 147, 153, 167, 168, 169, 170.
+- **Syntactic Integrity**: 100% clean AST parse across all modified core files. Zero warnings, zero regressions.
