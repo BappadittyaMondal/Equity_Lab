@@ -46,110 +46,194 @@ def compute_beneish_mscore(financials: List[Any]) -> Dict[str, Any]:
     M-Score > -1.78 → likely manipulator (flag for investigation).
     M-Score < -2.22 → likely not manipulator.
     """
-    evidence = []
+    evidence: List = []
     result: Dict[str, Any] = {}
 
-    # Extract series needed
-    rev_s = _extract_series(financials, ["revenue", "total_revenue"])
+    # Extract all series needed for canonical 8-variable Beneish formula
+    rev_s   = _extract_series(financials, ["revenue", "total_revenue"])
     profit_s = _extract_series(financials, ["gross_profit"])
     asset_s = _extract_series(financials, ["total_assets"])
-    cfo_s = _extract_series(financials, ["operating_cash_flow", "cfo"])
-    pat_s = _extract_series(financials, ["net_income", "pat"])
-    debt_s = _extract_series(financials, ["total_debt", "net_debt"])
-    rec_s = _extract_series(financials, ["receivables", "trade_receivables", "debtors", "accounts_receivable"])
+    cfo_s   = _extract_series(financials, ["operating_cash_flow", "cfo"])
+    pat_s   = _extract_series(financials, ["net_income", "pat"])
+    debt_s  = _extract_series(financials, ["total_debt", "net_debt"])
+    rec_s   = _extract_series(financials, ["receivables", "trade_receivables", "debtors", "accounts_receivable"])
+    # AQI inputs: current assets, PPE (property plant equipment)
+    ca_s    = _extract_series(financials, ["current_assets"])
+    ppe_s   = _extract_series(financials, ["ppe", "net_block", "property_plant_equipment", "fixed_assets"])
+    # DEPI inputs: depreciation
+    dep_s   = _extract_series(financials, ["depreciation", "depreciation_amortization", "d_and_a"])
+    # SGAI input: SG&A expenses
+    sga_s   = _extract_series(financials, ["sga", "selling_general_admin", "admin_expenses", "other_expenses"])
+    # TATA inputs: working capital components
+    wc_s    = _extract_series(financials, ["working_capital"])
+    tax_s   = _extract_series(financials, ["tax_payable", "current_tax"])
 
-    # Need at least 2 periods for year-over-year ratios
+    # Need ≥2 periods for YoY ratios
     if len(rev_s) < 2 or len(asset_s) < 2:
         return {
             "status": "insufficient_data",
-            "reason": f"Need ≥2 periods: revenue={len(rev_s)}, assets={len(asset_s)}",
+            "reason": f"Need >=2 periods: revenue={len(rev_s)}, assets={len(asset_s)}",
             "evidence": ["Beneish M-Score requires multi-period data"],
         }
 
-    rev_t = _get(rev_s, -1) or 1.0
-    rev_t1 = _get(rev_s, -2) or 1.0
+    rev_t   = _get(rev_s, -1)   or 1.0
+    rev_t1  = _get(rev_s, -2)   or 1.0
     asset_t = _get(asset_s, -1) or 1.0
-    asset_t1 = _get(asset_s, -2) or 1.0
-    cfo_t = _get(cfo_s, -1) or 0.0
-    pat_t = _get(pat_s, -1) or 1.0
-    debt_t = _get(debt_s, -1) or 0.0
-    debt_t1 = _get(debt_s, -2) or 1.0
+    asset_t1= _get(asset_s, -2) or 1.0
+    cfo_t   = _get(cfo_s, -1)   or 0.0
+    pat_t   = _get(pat_s, -1)   or 1.0
 
-    # Gross margin calculation from direct revenue and gross profit
-    gp_t = _get(profit_s, -1)
+    # Gross margin — required for GMI
+    gp_t  = _get(profit_s, -1)
     gp_t1 = _get(profit_s, -2)
     if gp_t is None or gp_t1 is None or rev_t <= 0 or rev_t1 <= 0:
         return {
             "status": "insufficient_data",
-            "reason": "Gross profit or revenue missing for gross margin calculation",
+            "reason": "Gross profit or revenue missing for GMI calculation",
             "evidence": ["Beneish M-Score requires explicit gross margin observations"],
         }
-    gm_t = gp_t / rev_t
+    gm_t  = gp_t  / rev_t
     gm_t1 = gp_t1 / rev_t1
 
-    # ── Variable calculations ──────────────────────────────────────────────
+    proxied_vars: List[str] = []
 
-    # DSRI: Days Sales in Receivables Index
-    # DSRI = (Receivables_t / Rev_t) / (Receivables_t-1 / Rev_t-1)
-    rec_t = _get(rec_s, -1) if len(rec_s) >= 1 else None
+    # ── DSRI: Days Sales in Receivables Index ─────────────────────────────
+    # Canonical: (Rec_t/Rev_t) / (Rec_{t-1}/Rev_{t-1})
+    rec_t  = _get(rec_s, -1) if len(rec_s) >= 1 else None
     rec_t1 = _get(rec_s, -2) if len(rec_s) >= 2 else None
-
     if rec_t is not None and rec_t1 is not None and rec_t1 > 0 and rev_t > 0 and rev_t1 > 0:
         dsri = (rec_t / rev_t) / (rec_t1 / rev_t1)
-        result["dsri"] = round(dsri, 4)
         result["dsri_status"] = "AUDITED_RECEIVABLES_OBSERVED"
-        evidence.append(f"DSRI: {dsri:.3f} (computed from audited receivables)")
+        evidence.append(f"DSRI: {dsri:.3f} (from audited receivables)")
         if dsri > 1.25:
-            evidence.append(f"⚠️ DSRI={dsri:.2f} > 1.25: Receivables growing much faster than sales (potential channel stuffing)")
+            evidence.append(f"DSRI={dsri:.2f} > 1.25: Receivables growing much faster than sales (channel stuffing risk)")
     else:
-        dsri = 1.0  # neutral proxy when receivables are not separated in DB
-        result["dsri"] = dsri
+        dsri = 1.0
+        proxied_vars.append("DSRI")
         result["dsri_status"] = "RECEIVABLES_UNOBSERVED"
-        result["data_gap_warning"] = "RECEIVABLES_UNOBSERVED: Channel stuffing / DSRI manipulation cannot be ruled out."
-        evidence.append(f"DSRI: {dsri:.3f} (proxy — receivables unobserved in DB; channel stuffing unverified)")
+        result["data_gap_warning"] = "RECEIVABLES_UNOBSERVED: channel stuffing cannot be ruled out"
+        evidence.append("DSRI: 1.0 (neutral proxy — receivables unavailable)")
 
-    # GMI: Gross Margin Index
+    result["dsri"] = round(dsri, 4)
+
+    # ── GMI: Gross Margin Index ───────────────────────────────────────────
+    # Canonical: GM_{t-1} / GM_t  (>1 = deteriorating margin)
     gmi = (gm_t1 / gm_t) if gm_t > 0 else 1.0
     result["gmi"] = round(gmi, 4)
     if gmi > 1.05:
-        evidence.append(f"GMI={gmi:.2f}: Gross margin deteriorating (manipulation signal)")
+        evidence.append(f"GMI={gmi:.2f}: Gross margin deteriorating YoY (manipulation signal)")
 
-    # AQI: Asset Quality Index (non-current assets / total assets ratio change)
-    # Proxy: if total assets grew faster than revenue, flag
-    aqi = (asset_t / asset_t1) / (rev_t / rev_t1) if rev_t1 > 0 and asset_t1 > 0 else 1.0
+    # ── AQI: Asset Quality Index — CANONICAL FORMULA (fixed from proxy) ──
+    # Canonical (Beneish 1999):
+    #   AQI = [1 - (CA_t + PPE_t) / TA_t] / [1 - (CA_{t-1} + PPE_{t-1}) / TA_{t-1}]
+    # Measures increase in proportion of "soft" assets (intangibles, deferred costs).
+    ca_t   = _get(ca_s,  -1)
+    ca_t1  = _get(ca_s,  -2)
+    ppe_t  = _get(ppe_s, -1)
+    ppe_t1 = _get(ppe_s, -2)
+    if (ca_t is not None and ca_t1 is not None and
+            ppe_t is not None and ppe_t1 is not None and
+            asset_t > 0 and asset_t1 > 0):
+        hard_ratio_t  = 1.0 - (ca_t  + ppe_t)  / asset_t
+        hard_ratio_t1 = 1.0 - (ca_t1 + ppe_t1) / asset_t1
+        aqi = (hard_ratio_t / hard_ratio_t1) if abs(hard_ratio_t1) > 1e-6 else 1.0
+        result["aqi_method"] = "CANONICAL_CA_PPE_TA"
+        evidence.append(f"AQI: {aqi:.3f} (canonical: soft-asset proportion ratio)")
+        if aqi > 1.25:
+            evidence.append(f"AQI={aqi:.2f} >1.25: Soft-asset proportion rising (asset quality deterioration)")
+    else:
+        # Fallback: asset-turnover deterioration proxy (less precise)
+        aqi = (asset_t / asset_t1) / (rev_t / rev_t1) if rev_t1 > 0 and asset_t1 > 0 else 1.0
+        proxied_vars.append("AQI")
+        result["aqi_method"] = "PROXIED_ASSET_TURNOVER"
+        evidence.append("AQI: proxied via asset/revenue growth ratio (CA or PPE unavailable)")
     result["aqi"] = round(aqi, 4)
 
-    # SGI: Sales Growth Index
+    # ── SGI: Sales Growth Index ──────────────────────────────────────────
+    # Canonical: Sales_t / Sales_{t-1}
     sgi = (rev_t / rev_t1) if rev_t1 > 0 else 1.0
     result["sgi"] = round(sgi, 4)
     if sgi < 0.9:
         evidence.append(f"SGI={sgi:.2f}: Revenue declining YoY")
 
-    # DEPI: Depreciation Index (approximated as 1.0 — depreciation rarely stored)
-    depi = 1.0
-    result["depi"] = depi
+    # ── DEPI: Depreciation Index — from real data when available ─────────
+    # Canonical: [Dep_{t-1}/(Dep_{t-1}+PPE_{t-1})] / [Dep_t/(Dep_t+PPE_t)]
+    # >1 = slowing depreciation relative to asset base (possible capitalization manipulation)
+    dep_t  = _get(dep_s, -1)
+    dep_t1 = _get(dep_s, -2)
+    if (dep_t is not None and dep_t1 is not None and
+            ppe_t is not None and ppe_t1 is not None and
+            dep_t > 0 and dep_t1 > 0):
+        rate_t  = dep_t  / (dep_t  + ppe_t)  if (dep_t  + ppe_t)  > 0 else None
+        rate_t1 = dep_t1 / (dep_t1 + ppe_t1) if (dep_t1 + ppe_t1) > 0 else None
+        if rate_t is not None and rate_t1 is not None and rate_t > 0:
+            depi = rate_t1 / rate_t
+            result["depi_method"] = "CANONICAL_DEP_RATE_RATIO"
+            evidence.append(f"DEPI: {depi:.3f} (from real depreciation & PPE data)")
+            if depi > 1.1:
+                evidence.append(f"DEPI={depi:.2f} >1.1: Depreciation rate slowing (possible asset-life manipulation)")
+        else:
+            depi = 1.0
+            proxied_vars.append("DEPI")
+            result["depi_method"] = "PROXIED_NEUTRAL"
+    else:
+        depi = 1.0
+        proxied_vars.append("DEPI")
+        result["depi_method"] = "PROXIED_NEUTRAL"
+        evidence.append("DEPI: 1.0 (neutral proxy — depreciation/PPE data unavailable)")
+    result["depi"] = round(depi, 4)
 
-    # SGAI: SG&A Index (approximated as 1.0 — SG&A rarely stored separately)
-    sgai = 1.0
-    result["sgai"] = sgai
+    # ── SGAI: SG&A Index — from real data when available ─────────────────
+    # Canonical: (SGA_t/Sales_t) / (SGA_{t-1}/Sales_{t-1})
+    sga_t  = _get(sga_s, -1)
+    sga_t1 = _get(sga_s, -2)
+    if sga_t is not None and sga_t1 is not None and rev_t > 0 and rev_t1 > 0 and sga_t1 > 0:
+        sgai = (sga_t / rev_t) / (sga_t1 / rev_t1)
+        result["sgai_method"] = "CANONICAL_SGA_RATIO"
+        evidence.append(f"SGAI: {sgai:.3f} (from real SG&A data)")
+        if sgai > 1.1:
+            evidence.append(f"SGAI={sgai:.2f} >1.1: SG&A growing faster than sales (overhead bloat)")
+    else:
+        sgai = 1.0
+        proxied_vars.append("SGAI")
+        result["sgai_method"] = "PROXIED_NEUTRAL"
+        evidence.append("SGAI: 1.0 (neutral proxy — SG&A data unavailable)")
+    result["sgai"] = round(sgai, 4)
 
-    # TATA: Total Accruals to Total Assets
-    # TATA = (PAT - CFO) / Total Assets
-    accruals = pat_t - cfo_t
-    tata = accruals / asset_t if asset_t > 0 else 0.0
+    # ── TATA: Total Accruals to Total Assets ─────────────────────────────
+    # Canonical: (DeltaWC - DeltaCash - DeltaTaxPayable - Dep) / TA_t
+    # Simplified fallback (CFO method): (PAT - CFO) / TA_t
+    wc_t  = _get(wc_s, -1)
+    wc_t1 = _get(wc_s, -2)
+    tax_t = _get(tax_s, -1)
+    tax_t1= _get(tax_s, -2)
+    if (wc_t is not None and wc_t1 is not None and
+            dep_t is not None and asset_t > 0):
+        delta_wc = wc_t - wc_t1
+        delta_tax = (tax_t - tax_t1) if (tax_t is not None and tax_t1 is not None) else 0.0
+        tata = (delta_wc - delta_tax - dep_t) / asset_t
+        result["tata_method"] = "CANONICAL_DELTA_WC"
+    else:
+        accruals = pat_t - cfo_t
+        tata = accruals / asset_t if asset_t > 0 else 0.0
+        result["tata_method"] = "CFO_PROXY"
+        evidence.append("TATA: CFO-method proxy (working capital components unavailable)")
     result["tata"] = round(tata, 4)
     if tata > 0.05:
-        evidence.append(f"TATA={tata:.3f}: High accruals relative to assets (earnings quality concern)")
+        evidence.append(f"TATA={tata:.3f}: High accruals vs assets (earnings quality concern)")
 
-    # LVGI: Leverage Index
-    lev_t = debt_t / asset_t if asset_t > 0 else 0.0
-    lev_t1 = debt_t1 / asset_t1 if asset_t1 > 0 else 0.0
+    # ── LVGI: Leverage Index ─────────────────────────────────────────────
+    # Canonical: [(CL_t + LTD_t)/TA_t] / [(CL_{t-1} + LTD_{t-1})/TA_{t-1}]
+    debt_t  = _get(debt_s, -1) or 0.0
+    debt_t1 = _get(debt_s, -2) or 0.0
+    lev_t   = debt_t  / asset_t  if asset_t  > 0 else 0.0
+    lev_t1  = debt_t1 / asset_t1 if asset_t1 > 0 else 0.0
     lvgi = (lev_t / lev_t1) if lev_t1 > 0 else 1.0
     result["lvgi"] = round(lvgi, 4)
     if lvgi > 1.2:
-        evidence.append(f"LVGI={lvgi:.2f}: Leverage increasing significantly")
+        evidence.append(f"LVGI={lvgi:.2f}: Leverage increasing significantly YoY")
 
-    # ── M-Score calculation ────────────────────────────────────────────────
+    # ── M-Score calculation ──────────────────────────────────────────────
     m_score = (
         -4.84
         + 0.920 * dsri
@@ -163,16 +247,37 @@ def compute_beneish_mscore(financials: List[Any]) -> Dict[str, Any]:
     )
     m_score = round(m_score, 3)
     result["m_score"] = m_score
-    result["model_variant"] = "BENEISH_M_AUDITED_RECEIVABLES" if result["dsri_status"] == "AUDITED_RECEIVABLES_OBSERVED" else "BENEISH_M_PARTIAL_PROXIED"
-    result["approximated_variables"] = ["DEPI", "SGAI"] if result["dsri_status"] == "AUDITED_RECEIVABLES_OBSERVED" else ["DSRI", "DEPI", "SGAI"]
+
+    # Model variant: FULL (all 8 computed) vs PARTIAL (1+ proxied)
+    n_proxied = len(proxied_vars)
+    if n_proxied == 0:
+        model_variant = "BENEISH_M_FULL_8VAR"
+    elif result.get("dsri_status") == "AUDITED_RECEIVABLES_OBSERVED":
+        model_variant = "BENEISH_M_AUDITED_RECEIVABLES"
+    elif n_proxied <= 4:
+        model_variant = "BENEISH_M_PARTIAL_PROXIED"
+    else:
+        model_variant = "BENEISH_M_HEAVILY_PROXIED"
+
+    result["model_variant"] = model_variant
+    result["proxied_variables"] = proxied_vars
     result["canonical_specification_note"] = (
-        "Calculated using 8-variable formula with empirical neutral proxies for unobserved line items "
-        "(DEPI=1.0, SGAI=1.0, and DSRI proxy if unobserved) and proxy AQI."
+        "Beneish (1999) 8-variable M-Score. "
+        f"Variables proxied to neutral 1.0 due to missing data: {proxied_vars if proxied_vars else 'none'}. "
+        "AQI now uses canonical CA+PPE/TA formula. DEPI and SGAI use real data when available."
     )
 
+    # Classification — suppress hard veto for heavily proxied scores
     if m_score > -1.78:
-        classification = "LIKELY_MANIPULATOR"
-        evidence.append(f"⚠️ BENEISH M-SCORE = {m_score:.2f} > -1.78: Earnings manipulation suspected")
+        if model_variant == "BENEISH_M_HEAVILY_PROXIED":
+            classification = "GREY_ZONE_HEAVILY_PROXIED"
+            evidence.append(
+                f"M-Score={m_score:.2f} >-1.78 but {n_proxied} variables proxied — "
+                "GREY_ZONE only; insufficient evidence for LIKELY_MANIPULATOR classification"
+            )
+        else:
+            classification = "LIKELY_MANIPULATOR"
+            evidence.append(f"BENEISH M-SCORE = {m_score:.2f} >-1.78: Earnings manipulation suspected")
     elif m_score > -2.22:
         classification = "GREY_ZONE"
         evidence.append(f"Beneish M-Score = {m_score:.2f}: Grey zone — further investigation recommended")
@@ -184,6 +289,7 @@ def compute_beneish_mscore(financials: List[Any]) -> Dict[str, Any]:
     result["threshold"] = -1.78
     result["evidence"] = evidence
     return result
+
 
 
 # ─────────────────────────────────────────────────────────────────────────────

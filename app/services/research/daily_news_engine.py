@@ -52,6 +52,16 @@ RSS_SOURCES = [
         "url": "https://www.livemint.com/rss/markets",
         "category": "MARKET",
     },
+    {
+        "name": "TradeBrains_All",
+        "url": "https://tradebrains.in/rss",
+        "category": "EQUITY_IDEAS",
+    },
+    {
+        "name": "BSE_Corp_Announcements",
+        "url": "https://www.bseindia.com/data/xml/corporate_announcements.xml",
+        "category": "REGULATORY",
+    },
 ]
 
 # ─────────────────────────────────────────────────────────────────────────────
@@ -172,11 +182,162 @@ def fetch_rss_headlines(source: Dict[str, str], timeout: int = 15) -> List[Dict[
     return headlines
 
 
-def classify_headline(title: str) -> Dict[str, Any]:
-    """Classify a headline by sector, impact direction, and magnitude.
+# ─────────────────────────────────────────────────────────────────────────────
+# Canonical Indian Equities Ticker & Entity Directory
+# ─────────────────────────────────────────────────────────────────────────────
 
-    Uses keyword ontology matching. No external API call needed.
-    """
+CANONICAL_TICKER_MAP: Dict[str, List[str]] = {
+    "ADANIGREEN": ["adani green", "adani green energy", "khavda"],
+    "ANANDRATHI": ["anand rathi", "anand rathi wealth"],
+    "KPIGREEN": ["kpi green", "kpi green energy"],
+    "NETWEB": ["netweb technologies", "netweb"],
+    "SUZLON": ["suzlon", "suzlon energy"],
+    "HAL": ["hindustan aeronautics", "hal"],
+    "BEL": ["bharat electronics", "bel"],
+    "MAZDOCK": ["mazagon dock", "mazdock"],
+    "COCHINSHIP": ["cochin shipyard"],
+    "DIXON": ["dixon technologies", "dixon"],
+    "KAYNES": ["kaynes technology", "kaynes"],
+    "TATASTEEL": ["tata steel"],
+    "TATAPOWER": ["tata power"],
+    "TCS": ["tcs", "tata consultancy services"],
+    "INFY": ["infosys"],
+    "RELIANCE": ["reliance industries", "ril", "jio"],
+    "HDFCBANK": ["hdfc bank"],
+    "ICICIBANK": ["icici bank"],
+    "SBIN": ["state bank of india", "sbi"],
+    "LT": ["larsen & toubro", "l&t"],
+    "ZOMATO": ["zomato"],
+    "JSLL": ["jeena sikho", "jsll", "jeena", "panchkarma", "ayurveda hospital"],
+    "DYCL": ["dynamic cables", "dycl", "dynamic cable"],
+    "FRONTSP": ["frontier springs", "frontsp", "vande bharat spring"],
+    "NITTAGELA": ["nitta gelatin", "nittagela", "nitta", "gelatin india"],
+    "MAYURUNIQ": ["mayur uniquoters", "mayuruniq", "mayur", "synthetic leather"],
+}
+
+
+def resolve_ticker_entities(title: str) -> Optional[str]:
+    """Resolves headline text to a canonical NSE/BSE ticker symbol."""
+    lower = title.lower()
+    for ticker, aliases in CANONICAL_TICKER_MAP.items():
+        for alias in aliases:
+            if re.search(rf"\b{re.escape(alias)}\b", lower):
+                return ticker
+    return None
+
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Anti-Clickbait Forensic Guard & Catalyst Tier Classifier
+# ─────────────────────────────────────────────────────────────────────────────
+
+CLICKBAIT_HYPE_PATTERNS = [
+    r"\b(penny\s*stock|under\s*rs\.?\s*\d+|locked\s*in\s*upper\s*circuit|hits?\s*upper\s*circuit|upper\s*circuit\s*limit)\b",
+    r"\b(multibagger\s*in\s*\d+\s*(day|week|month)|500%\s*return|1000%\s*return|turn\s*\d+\s*into\s*\d+|rocket\s*stock)\b",
+    r"\b(circuit\s*to\s*circuit|guaranteed\s*gain|secret\s*multibagger|hidden\s*gem\s*under\s*rs)\b",
+]
+
+ORDER_VALUE_REGEX = re.compile(
+    r"(?:rs\.?|inr|₹)?\s*([0-9,]+(?:\.[0-9]+)?)\s*(?:cr|crore|crores)",
+    re.IGNORECASE,
+)
+
+
+def classify_headline_forensics(title: str, text: str = "") -> Dict[str, Any]:
+    """Evaluates headline for retail clickbait/operator churn hype and quantifies catalysts."""
+    combined = f"{title} {text}".lower()
+
+    # 1. Clickbait / Operator Hype Detection
+    is_clickbait = False
+    for pat in CLICKBAIT_HYPE_PATTERNS:
+        if re.search(pat, combined):
+            is_clickbait = True
+            break
+
+    operator_risk_tier = "HIGH_SPECULATIVE_RISK" if is_clickbait else "NORMAL_MONITORING"
+    forensic_warning = (
+        "WARNING: Retail promotional hype or upper-circuit trap detected. "
+        "Enforce Delivery % >= 25% and Promoter Pledge < 20% before capital allocation."
+        if is_clickbait
+        else ""
+    )
+
+    # 2. Order Value Extraction
+    order_val_cr = None
+    m = ORDER_VALUE_REGEX.search(combined)
+    if m:
+        try:
+            order_val_cr = float(m.group(1).replace(",", ""))
+        except ValueError:
+            pass
+
+    # 3. Catalyst Tier Classification
+    if is_clickbait:
+        catalyst_tier = "OPERATOR_HYPE_TRAP"
+    elif order_val_cr and order_val_cr >= 500.0:
+        catalyst_tier = "TIER_1_MOMENTUM_CATALYST"
+    elif order_val_cr and order_val_cr >= 100.0:
+        catalyst_tier = "TIER_2_MODERATE_CATALYST"
+    elif any(k in combined for k in ["pat jumps", "pat surges", "profit doubles", "beats estimates", "capacity expansion"]):
+        catalyst_tier = "TIER_1_MOMENTUM_CATALYST"
+    else:
+        catalyst_tier = "STANDARD_ANNOUNCEMENT"
+
+    return {
+        "is_clickbait_hype": is_clickbait,
+        "operator_risk_tier": operator_risk_tier,
+        "forensic_warning": forensic_warning,
+        "order_value_cr": order_val_cr,
+        "catalyst_tier": catalyst_tier,
+    }
+
+
+def synthesize_news_capsule(headline_item: Dict[str, Any]) -> Dict[str, Any]:
+    """Synthesizes an institutional-grade, multi-expert news capsule from a classified item."""
+    title = headline_item.get("title", "")
+    ticker = headline_item.get("resolved_ticker") or "UNRESOLVED"
+    sector = headline_item.get("sectors", ["GENERAL"])[0]
+    direction = headline_item.get("direction", "NEUTRAL")
+    magnitude = headline_item.get("magnitude", "LOW")
+    tier = headline_item.get("catalyst_tier", "STANDARD_ANNOUNCEMENT")
+    is_clickbait = headline_item.get("is_clickbait_hype", False)
+    order_val = headline_item.get("order_value_cr")
+
+    if is_clickbait:
+        verdict = "HIGH OPERATOR RISK: Retail hype pattern detected. Check Delivery % >= 25% and forensic flags before trading."
+        grade = "OPERATOR_HYPE_TRAP"
+    elif tier == "TIER_1_MOMENTUM_CATALYST":
+        verdict = f"HIGH-IMPACT CATALYST: Verified material corporate event{' (₹' + str(order_val) + ' Cr)' if order_val else ''}. Check PEAD continuation."
+        grade = "CLEAN_FUNDAMENTAL"
+    elif tier == "TIER_2_MODERATE_CATALYST":
+        verdict = f"MODERATE CATALYST: Corporate order win of ₹{order_val} Cr. Check Event Materiality Ratio (EMR) vs annual revenue."
+        grade = "CLEAN_FUNDAMENTAL"
+    else:
+        verdict = "ROUTINE DISCLOSURE: Informational development; no immediate structural inflection."
+        grade = "STANDARD_DISCLOSURE"
+
+    briefing = [
+        f"Headline: {title}",
+        f"Entity: {ticker} ({sector}) | Catalyst: {tier} [{direction}/{magnitude}]",
+        f"Verdict: {verdict}",
+    ]
+
+    return {
+        "ticker": ticker,
+        "headline": title,
+        "sector": sector,
+        "catalyst_tier": tier,
+        "direction": direction,
+        "magnitude": magnitude,
+        "order_value_cr": order_val,
+        "is_clickbait_hype": is_clickbait,
+        "forensic_grade": grade,
+        "actionable_verdict": verdict,
+        "executive_briefing": briefing,
+    }
+
+
+def classify_headline(title: str) -> Dict[str, Any]:
+    """Classify a headline by sector, impact direction, magnitude, ticker, and forensics."""
     title_lower = title.lower()
 
     # Sector classification
@@ -210,11 +371,23 @@ def classify_headline(title: str) -> Dict[str, Any]:
     else:
         magnitude = "LOW"
 
-    return {
+    # Ticker entity resolution
+    resolved_ticker = resolve_ticker_entities(title)
+
+    # Forensic & Clickbait Analysis
+    forensics = classify_headline_forensics(title)
+
+    base_result = {
         "sectors": matched_sectors,
         "direction": direction,
         "magnitude": magnitude,
+        "resolved_ticker": resolved_ticker,
+        **forensics,
     }
+
+    base_result["news_capsule"] = synthesize_news_capsule(dict(base_result, title=title))
+
+    return base_result
 
 
 def generate_daily_digest(max_per_source: int = 15) -> Dict[str, Any]:
@@ -240,12 +413,17 @@ def generate_daily_digest(max_per_source: int = 15) -> Dict[str, Any]:
     dir_order = {"NEGATIVE": 0, "POSITIVE": 1, "NEUTRAL": 2}
     classified.sort(key=lambda x: (mag_order.get(x["magnitude"], 3), dir_order.get(x["direction"], 3)))
 
+    capsules = [h["news_capsule"] for h in classified if "news_capsule" in h]
+    high_risk_hype = [h for h in classified if h.get("is_clickbait_hype")]
+
     digest = {
         "date": datetime.now(timezone.utc).strftime("%Y-%m-%d"),
         "generated_at": datetime.now(timezone.utc).isoformat(),
         "total_headlines": len(classified),
         "sources_checked": len(RSS_SOURCES),
         "headlines": classified[:30],  # Top 30 most impactful
+        "news_capsules": capsules[:10],  # Top 10 institutional capsules
+        "high_risk_hype_count": len(high_risk_hype),
         "sector_summary": _compute_sector_summary(classified),
     }
 
@@ -291,13 +469,9 @@ WATCHLIST_TICKER_SECTORS = {
     "MAYURUNIQ": ["AUTO", "CHEMICALS_MATERIALS"],
 }
 
-# Direct ticker mention keywords
+# Direct ticker mention keywords (augmented by canonical entity directory)
 TICKER_KEYWORDS = {
-    "JSLL": ["jeena sikho", "jsll", "jeena", "panchkarma", "ayurveda hospital"],
-    "DYCL": ["dynamic cables", "dycl", "dynamic cable"],
-    "FRONTSP": ["frontier springs", "frontsp", "vande bharat spring"],
-    "NITTAGELA": ["nitta gelatin", "nittagela", "nitta", "gelatin india"],
-    "MAYURUNIQ": ["mayur uniquoters", "mayuruniq", "mayur", "synthetic leather"],
+    **CANONICAL_TICKER_MAP,
 }
 
 
@@ -321,15 +495,19 @@ def generate_portfolio_alerts(
     for headline in digest.get("headlines", []):
         title_lower = headline.get("title", "").lower()
         headline_sectors = set(headline.get("sectors", []))
+        resolved = headline.get("resolved_ticker")
 
         for ticker, sectors in watchlist.items():
             match_type = None
 
-            # Direct ticker mention (strongest signal)
-            for kw in ticker_kw.get(ticker, []):
-                if kw.lower() in title_lower:
-                    match_type = "DIRECT_MENTION"
-                    break
+            # Direct ticker match via entity resolver or keywords
+            if resolved == ticker:
+                match_type = "DIRECT_MENTION"
+            else:
+                for kw in ticker_kw.get(ticker, []):
+                    if kw.lower() in title_lower:
+                        match_type = "DIRECT_MENTION"
+                        break
 
             # Sector overlap (weaker signal)
             if match_type is None and headline_sectors.intersection(set(sectors)):
@@ -354,3 +532,47 @@ def generate_portfolio_alerts(
     alerts.sort(key=lambda x: (match_order.get(x["match_type"], 2), mag_order.get(x["magnitude"], 3)))
 
     return alerts
+
+
+def feed_news_to_self_learning(
+    headlines: List[Dict[str, Any]],
+    self_learning_engine: Optional[Any] = None,
+) -> List[Dict[str, Any]]:
+    """Feeds classified news headlines to the Epistemic Dynamic Self-Learning Brain."""
+    if self_learning_engine is None:
+        try:
+            from app.services.research.self_learning_engine import SelfLearningEngine
+            self_learning_engine = SelfLearningEngine()
+        except ImportError:
+            logger.warning("SelfLearningEngine not available for news feedback loop.")
+            return []
+
+    learned_records = []
+    for h in headlines:
+        title = h.get("title", "")
+        tier = h.get("catalyst_tier", "")
+        is_clickbait = h.get("is_clickbait_hype", False)
+
+        target_entity_id = None
+        if is_clickbait:
+            target_entity_id = "OPERATOR_CHURN_PENNY_HYPE"
+        elif tier == "TIER_1_MOMENTUM_CATALYST" and any(k in title.lower() for k in ["order", "contract", "bags", "wins", "awarded"]):
+            target_entity_id = "REG30_MEGA_ORDER_CATALYST"
+        elif any(k in title.lower() for k in ["pat jumps", "pat surges", "net profit", "results"]):
+            target_entity_id = "EARNINGS_SUE_DRIFT_CATALYST"
+
+        if target_entity_id and hasattr(self_learning_engine, "UNMAPPED_CANDIDATE_PATTERNS") and target_entity_id in self_learning_engine.UNMAPPED_CANDIDATE_PATTERNS:
+            try:
+                learned_ent = self_learning_engine.evaluate_and_learn_entity(
+                    entity_id=target_entity_id,
+                    text_context=title,
+                    source_origin="DAILY_NEWS_INTELLIGENCE_LOOP",
+                    provenance_score=0.88,
+                    corroboration_count=2,
+                )
+                learned_records.append(learned_ent.model_dump())
+            except Exception as e:
+                logger.warning("Failed to learn news entity %s: %s", target_entity_id, e)
+
+    return learned_records
+

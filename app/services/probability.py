@@ -137,12 +137,27 @@ def calculate_return_probability(req: ReturnProbabilityRequest) -> ReturnProbabi
     conf_upper = round(float(p50 + q90_score), 2)
 
     current_price = float(closes[-1]) if len(closes) > 0 else 100.0
+
+    # G37 fix: Derive data_trust_tier from actual data quality (was hardcoded "HIGH")
+    # Trust tier depends on: sample size, data length vs. horizon, and live/mock status.
+    is_mock_data = (
+        hasattr(hist, "attrs") and (hist.attrs.get("data_mode") == "MOCK" or hist.attrs.get("is_mock") is True)
+    )
+    if is_mock_data or sample_size < 20:
+        derived_trust_tier = "INSUFFICIENT"
+    elif sample_size >= 252:
+        derived_trust_tier = "HIGH"
+    elif sample_size >= 60:
+        derived_trust_tier = "MEDIUM"
+    else:
+        derived_trust_tier = "LOW"
+
     risk_tier = ConformalTieringEngine.assign_confidence_tier(
         score=prob_above,
         current_price=current_price,
         lower_bound=conf_lower,
         upper_bound=conf_upper,
-        data_trust_tier="HIGH",
+        data_trust_tier=derived_trust_tier,
     )
 
     start_date = dates[0].strftime("%Y-%m-%d")

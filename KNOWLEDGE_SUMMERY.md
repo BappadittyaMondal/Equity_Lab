@@ -384,3 +384,41 @@ Volume is the fuel of price movement. Price can lie through manipulative spreads
 >    - **The Retail Froth & Delivery Churn Filter:** Discard breakouts where volume is high but delivery percentage is $< 20\%$.  
 >    - **The Wyckoff Spring / False Breakdown Detector:** Buy when a stock briefly breaks below its base on heavy volume and snaps back immediately within 48 hours (the classic operator stop hunt).  
 >    - **The Steenbarger Drawdown Circuit Breaker:** Programmatic capital deployment throttling after market shock events to eliminate emotional revenge trading.
+
+---
+
+## 15. Financial News Intelligence, Anti-Clickbait Forensics & Dynamic Self-Learning (Phase 167)
+
+### 1. The Critical Truth About Stock Market News Portals
+Specialized retail news portals (like Trade Brains and DSIJ Trending News) do not possess private insider information. **100% of their market news originates from public regulatory filings:**
+1. *Recent Order Wins* $\to$ SEBI LODR Regulation 30 corporate announcements.
+2. *Bulk / Block Deals* $\to$ BSE/NSE exchange transaction logs.
+3. *Earnings Results* $\to$ Regulation 33 quarterly financial statements.
+4. *Corporate Actions* $\to$ Dividend, bonus, and split records.
+
+### 2. The Retail Media Danger: Clickbait vs. Real Catalysts
+Retail news portals frequently publish promotional headlines designed to generate retail engagement:
+- *"Top Penny Stock under ₹20 locked in upper circuit after bagging deal!"*
+- *"Multibagger micro-cap jumps 15% in a single day!"*
+
+In reality, smart-money operators use these sensationalized headlines to distribute over-extended stock to unsuspecting retail investors. An order win of ₹50 Crore sounds massive in a headline, but if the company's annual revenue is ₹5,000 Crore, the **Event Materiality Ratio ($EMR$)** is only $1.0\%$ (routine operational noise).
+
+### 3. The 3 Programmatic Shields Implemented in Phase 167:
+1. **The Universal Entity Resolver:** Automatically maps company names mentioned across headlines (e.g., "Anand Rathi", "KPI Green", "Adani Green", "Netweb", "Dynamic Cables", "HAL") to their verified NSE/BSE security symbols.
+2. **The Anti-Clickbait Forensic Guard:** Automatically flags promotional penny stock / upper-circuit hype patterns, assigns `operator_risk_tier: HIGH_SPECULATIVE_RISK`, tags the event as `OPERATOR_HYPE_TRAP`, and issues a mandatory warning: *"Enforce Delivery % >= 25% and Promoter Pledge < 20% before capital allocation."*
+3. **The Institutional News Capsule Synthesizer:** Condenses raw news into an actionable 3-bullet executive briefing with extracted order values (₹ Cr), catalyst tiers (`TIER_1_MOMENTUM_CATALYST` vs `STANDARD_ANNOUNCEMENT`), and clear institutional verdicts.
+
+### 4. Epistemic Dynamic Self-Learning Feedback Loop
+Whenever daily news is ingested, verified catalysts feed directly into the **Epistemic Dynamic Memory (`SelfLearningEngine`)**, registering 3 new canonical knowledge entities:
+- `REG30_MEGA_ORDER_CATALYST`: Large order wins ($EMR \ge 25\%$) driving institutional price drift.
+- `OPERATOR_CHURN_PENNY_HYPE`: Promotional penny stock articles masking operator distribution.
+- `EARNINGS_SUE_DRIFT_CATALYST`: Standardized unexpected quarterly earnings ($SUE \ge 2.0$) driving multi-week post-earnings announcement drift (PEAD).
+
+### 5. Plain-English Summary for Everyday Investors:
+> - **Before:** The system only fetched generic headlines and did not flag retail promotional traps or connect news back to its learning brain.
+> - **After:** When you see a news headline, the system immediately tells you:
+>   1. *Which stock is actually involved.*
+>   2. *Whether the deal is truly big ($EMR$) or tiny noise.*
+>   3. *Whether it is a genuine fundamental catalyst or an operator clickbait trap.*
+>   4. *It automatically teaches itself the pattern so its research brain gets smarter every single day.*
+

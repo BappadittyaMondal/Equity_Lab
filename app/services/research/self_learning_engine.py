@@ -10,6 +10,7 @@ data/dynamic_knowledge/learned_rules_registry.json.
 
 import json
 import logging
+import math
 import os
 import re
 from datetime import datetime, timezone
@@ -36,6 +37,13 @@ class KnowledgeEntity(BaseModel):
     sensationalism_penalty: float = Field(0.0, ge=0.0, le=1.0)
     created_at_utc: str
     last_validated_at_utc: str
+    shadow_status: str = Field("SHADOW", description="Lifecycle stage: SHADOW, SHADOW_QUALIFIED, PROMOTED, or REJECTED")
+    sample_count: int = Field(0, description="Independent verified outcome sample size")
+    success_count: int = Field(0, description="Number of positive/outperforming outcomes")
+    p_value: Optional[float] = Field(None, description="One-tailed binomial p-value against null hypothesis (p0=0.50)")
+    fdr_q_value: Optional[float] = Field(None, description="Benjamini-Hochberg False Discovery Rate q-value")
+    performance_delta: float = Field(0.0, description="Cumulative alpha / return spread vs baseline")
+    human_signoff: bool = Field(False, description="Manual human sign-off flag required for promotion")
 
 
 class SelfLearningEngine:
@@ -258,6 +266,30 @@ class SelfLearningEngine:
             "relevance": {"sip_compounder": 0.85, "multibagger": 0.75, "positional_30d": 0.25, "turnaround": 0.40, "swing_3d": 0.0, "swing_10d": 0.0},
             "modifier": {"metric": "economic_profit_creation_spread", "weight_delta": 0.22},
         },
+        "REG30_MEGA_ORDER_CATALYST": {
+            "patterns": [r"\b(mega\s*order|contract\s*award|order\s*win\s*(worth|of)?\s*rs\s*\d+|letter\s*of\s*award|loa\s*win|bags\s*order)\b"],
+            "name": "SEBI Reg 30 Mega Order Win & Contract Momentum Inflection",
+            "category": "MARKET_MICROSTRUCTURE",
+            "desc": "High-conviction SEBI Regulation 30 order win disclosure with EMR >= 25% driving post-announcement price-volume momentum.",
+            "relevance": {"swing_3d": 0.35, "swing_10d": 0.50, "positional_30d": 0.65, "multibagger": 0.70, "sip_compounder": 0.10},
+            "modifier": {"metric": "reg30_order_win_momentum", "weight_delta": 0.22},
+        },
+        "OPERATOR_CHURN_PENNY_HYPE": {
+            "patterns": [r"\b(penny\s*stock\s*under\s*rs|locked\s*in\s*upper\s*circuit|upper\s*circuit\s*multibagger|micro-?cap\s*rocket|circuit\s*to\s*circuit)\b"],
+            "name": "Retail Promotional Media Penny Stock & Operator Churn Trap",
+            "category": "MARKET_MICROSTRUCTURE",
+            "desc": "Retail media clickbait promotional headlines hyping sub-50 penny stocks to engineer liquidity exit for operators on weak delivery.",
+            "relevance": {"swing_3d": -0.40, "swing_10d": -0.50, "positional_30d": -0.60, "multibagger": -0.30, "sip_compounder": -0.70},
+            "modifier": {"metric": "operator_churn_hype_penalty", "weight_delta": -0.30},
+        },
+        "EARNINGS_SUE_DRIFT_CATALYST": {
+            "patterns": [r"\b(pat\s*(surged|jumped|beat|grew\s*by\s*\d+%)\s*yoy|q\d\s*net\s*profit\s*beats|quarterly\s*pat\s*doubles|net\s*profit\s*jumps)\b"],
+            "name": "Standardized Unexpected Earnings (SUE) & Post-Earnings Drift (PEAD)",
+            "category": "ACCOUNTING_INFLECTION",
+            "desc": "Material quarterly earnings beat (SUE >= 2.0) generating persistent multi-week post-earnings announcement drift across institutional portfolios.",
+            "relevance": {"swing_3d": 0.30, "swing_10d": 0.55, "positional_30d": 0.75, "multibagger": 0.60, "sip_compounder": 0.40},
+            "modifier": {"metric": "pead_sue_drift_acceleration", "weight_delta": 0.25},
+        },
     }
 
     def __init__(self, registry_file: Optional[str] = None):
@@ -373,6 +405,7 @@ class SelfLearningEngine:
         modifier = meta.get("modifier", {"status": "ACTIVE"})
 
         now_str = datetime.now(timezone.utc).isoformat()
+        init_shadow = "REJECTED" if status == "SPECULATIVE_NARRATIVE_NOISE" else "SHADOW"
         entity = KnowledgeEntity(
             entity_id=entity_id,
             canonical_name=canonical_name,
@@ -386,6 +419,11 @@ class SelfLearningEngine:
             sensationalism_penalty=sensationalism,
             created_at_utc=now_str,
             last_validated_at_utc=now_str,
+            shadow_status=init_shadow,
+            sample_count=0,
+            success_count=0,
+            performance_delta=0.0,
+            human_signoff=False,
         )
 
         # Persist to registry
@@ -420,6 +458,7 @@ class SelfLearningEngine:
         category: Optional[str] = None,
         min_confidence: float = 0.60,
         exclude_noise: bool = True,
+        require_promoted: bool = False,
     ) -> List[Dict[str, Any]]:
         """Queries verified dynamic priors for consumption by research or decision engines."""
         reg = self._read_registry()
@@ -427,6 +466,8 @@ class SelfLearningEngine:
 
         for eid, ent in reg.get("entities", {}).items():
             if exclude_noise and ent.get("verification_status") == "SPECULATIVE_NARRATIVE_NOISE":
+                continue
+            if require_promoted and ent.get("shadow_status") != "PROMOTED":
                 continue
             if ent.get("confidence_score", 0.0) < min_confidence:
                 continue
@@ -436,6 +477,157 @@ class SelfLearningEngine:
 
         return results
 
+    def record_trial_outcome(
+        self,
+        entity_id: str,
+        success: bool,
+        return_delta: float,
+    ) -> Optional[KnowledgeEntity]:
+        """Records an independent trial outcome for a candidate rule in shadow testing.
+
+        Monitors sample size, updates binomial p-value, and triggers auto-rollback
+        if cumulative performance drops below -15% underperformance threshold.
+        """
+        reg = self._read_registry()
+        ent_data = reg.get("entities", {}).get(entity_id)
+        if not ent_data:
+            logger.warning(f"Entity {entity_id} not found in dynamic registry.")
+            return None
+
+        entity = KnowledgeEntity(**ent_data)
+        entity.sample_count += 1
+        if success:
+            entity.success_count += 1
+
+        # Running average for performance delta
+        old_delta = entity.performance_delta
+        entity.performance_delta = round(
+            (old_delta * (entity.sample_count - 1) + return_delta) / entity.sample_count, 4
+        )
+
+        # Statistical significance: 1-tailed binomial test against p0 = 0.50
+        n = entity.sample_count
+        k = entity.success_count
+        p0 = 0.50
+        if n >= 10:
+            std_dev = math.sqrt(n * p0 * (1.0 - p0))
+            if std_dev > 0:
+                z = (k - 0.5 - (n * p0)) / std_dev
+                p_val = 0.5 * (1.0 - math.erf(z / math.sqrt(2.0)))
+                entity.p_value = round(max(0.0001, min(0.9999, p_val)), 4)
+
+        # Automated Safety Circuit Breaker: Auto-Rollback if performance underperforms by > 15%
+        if entity.performance_delta < -0.15:
+            entity.shadow_status = "REJECTED"
+            entity.verification_status = "SPECULATIVE_NARRATIVE_NOISE"
+            logger.warning(
+                f"Auto-rollback triggered for {entity_id}: Underperformance delta "
+                f"({entity.performance_delta:.2%}) breached -15.0% risk floor."
+            )
+
+        entity.last_validated_at_utc = datetime.now(timezone.utc).isoformat()
+        reg["entities"][entity_id] = entity.model_dump()
+        self._write_registry(reg)
+        return entity
+
+    def evaluate_fdr_and_promotion(
+        self,
+        alpha_fdr: float = 0.05,
+        min_samples: int = 100,
+    ) -> Dict[str, Any]:
+        """Applies Benjamini-Hochberg False Discovery Rate (FDR) control and promotion gates.
+
+        Mandatory Institutional Gates:
+        1. Sample Size: N >= min_samples (default 100 independent verified trades/forecasts).
+        2. FDR Control: Benjamini-Hochberg adjusted q-value <= alpha_fdr (default 0.05).
+        3. Positive Performance Delta: performance_delta > 0.
+        4. Human Sign-Off Gate: Requires explicit human auditor approval before PROMOTED status.
+        """
+        reg = self._read_registry()
+        entities = reg.get("entities", {})
+
+        candidates: List[KnowledgeEntity] = []
+        for eid, edata in entities.items():
+            ent = KnowledgeEntity(**edata)
+            if ent.shadow_status in ("SHADOW", "SHADOW_QUALIFIED") and ent.sample_count >= min_samples and ent.p_value is not None:
+                candidates.append(ent)
+
+        if not candidates:
+            return {
+                "total_candidates_tested": 0,
+                "promoted_count": 0,
+                "promoted_entities": [],
+                "qualified_awaiting_signoff_count": 0,
+                "qualified_awaiting_signoff_entities": [],
+                "rejected_count": 0,
+                "rejected_entities": [],
+            }
+
+        # Sort candidates ascending by p-value
+        candidates.sort(key=lambda x: x.p_value or 1.0)
+        m = len(candidates)
+
+        # Benjamini-Hochberg step-up procedure
+        raw_qs = [(m / (i + 1)) * (cand.p_value or 1.0) for i, cand in enumerate(candidates)]
+        q_values = [0.0] * m
+        min_tail = 1.0
+        for i in range(m - 1, -1, -1):
+            min_tail = min(min_tail, raw_qs[i])
+            q_values[i] = min(1.0, round(min_tail, 4))
+
+        promoted: List[str] = []
+        qualified_awaiting_signoff: List[str] = []
+        rejected: List[str] = []
+
+        for i, cand in enumerate(candidates):
+            cand.fdr_q_value = q_values[i]
+            if cand.fdr_q_value <= alpha_fdr and cand.performance_delta > 0:
+                if cand.human_signoff:
+                    cand.shadow_status = "PROMOTED"
+                    cand.verification_status = "CERTIFIED_FACT"
+                    promoted.append(cand.entity_id)
+                else:
+                    cand.shadow_status = "SHADOW_QUALIFIED"
+                    qualified_awaiting_signoff.append(cand.entity_id)
+            else:
+                if cand.performance_delta < 0:
+                    cand.shadow_status = "REJECTED"
+                    cand.verification_status = "SPECULATIVE_NARRATIVE_NOISE"
+                    rejected.append(cand.entity_id)
+
+            cand.last_validated_at_utc = datetime.now(timezone.utc).isoformat()
+            reg["entities"][cand.entity_id] = cand.model_dump()
+
+        self._write_registry(reg)
+
+        return {
+            "total_candidates_tested": m,
+            "promoted_count": len(promoted),
+            "promoted_entities": promoted,
+            "qualified_awaiting_signoff_count": len(qualified_awaiting_signoff),
+            "qualified_awaiting_signoff_entities": qualified_awaiting_signoff,
+            "rejected_count": len(rejected),
+            "rejected_entities": rejected,
+        }
+
+    def approve_human_signoff(self, entity_id: str) -> Optional[KnowledgeEntity]:
+        """Provides explicit human auditor sign-off for a shadow-qualified rule."""
+        reg = self._read_registry()
+        ent_data = reg.get("entities", {}).get(entity_id)
+        if not ent_data:
+            return None
+
+        entity = KnowledgeEntity(**ent_data)
+        entity.human_signoff = True
+        if entity.shadow_status == "SHADOW_QUALIFIED":
+            entity.shadow_status = "PROMOTED"
+            entity.verification_status = "CERTIFIED_FACT"
+
+        entity.last_validated_at_utc = datetime.now(timezone.utc).isoformat()
+        reg["entities"][entity_id] = entity.model_dump()
+        self._write_registry(reg)
+        return entity
+
     def get_learning_stats(self) -> Dict[str, Any]:
         """Returns diagnostic metrics on dynamic knowledge acquisition."""
         reg = self._read_registry()
@@ -443,6 +635,10 @@ class SelfLearningEngine:
         certified = sum(1 for e in entities.values() if e.get("verification_status") == "CERTIFIED_FACT")
         provisional = sum(1 for e in entities.values() if e.get("verification_status") == "PROVISIONAL_OBSERVATION")
         noise = sum(1 for e in entities.values() if e.get("verification_status") == "SPECULATIVE_NARRATIVE_NOISE")
+        shadow = sum(1 for e in entities.values() if e.get("shadow_status") == "SHADOW")
+        shadow_qual = sum(1 for e in entities.values() if e.get("shadow_status") == "SHADOW_QUALIFIED")
+        promoted = sum(1 for e in entities.values() if e.get("shadow_status") == "PROMOTED")
+        rejected = sum(1 for e in entities.values() if e.get("shadow_status") == "REJECTED")
 
         categories = {}
         for e in entities.values():
@@ -454,6 +650,10 @@ class SelfLearningEngine:
             "certified_facts": certified,
             "provisional_observations": provisional,
             "speculative_noise_quarantined": noise,
+            "shadow_testing": shadow,
+            "shadow_qualified": shadow_qual,
+            "shadow_promoted": promoted,
+            "shadow_rejected": rejected,
             "categories": categories,
             "last_updated_utc": reg.get("last_updated_utc"),
         }

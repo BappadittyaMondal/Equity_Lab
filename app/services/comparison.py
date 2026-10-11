@@ -335,6 +335,23 @@ def compare_stocks(req: ComparisonRequest) -> ComparisonResponse:
                 drivers.append(f"Expansion Velocity: {ret_val}% (+{ret_pts:.1f} pts)")
                 drivers.append(f"ROCE Capital Efficiency: {roce_val}% (+{roce_pts:.1f} pts)")
                 drivers.append(f"Balance Sheet Strength: D/E {dte_val} (+{debt_pts:.1f} pts)")
+            elif "DEADLIEST" in target_intent or "PRE_FLY" in target_intent or "PREFLY" in target_intent or "LAUNCHPAD" in target_intent:
+                ret_val = v1.get("price_return_pct") or 0.0
+                dist_high = v3.get("distance_from_52w_high_pct") if v3.get("distance_from_52w_high_pct") is not None else -15.0
+                adtv_val = v1.get("adtv_30d_cr") or 0.0
+                roce_val = v2.get("roce_pct") or 0.0
+                dte_val = v2.get("debt_to_equity") if v2.get("debt_to_equity") is not None else 1.0
+                cfo_val = v2.get("cfo_last_year_cr") or 0.0
+
+                timing_pts = min(25.0, max(0.0, (20.0 + dist_high) * 1.25)) + (15.0 if adtv_val >= 5.0 else (8.0 if adtv_val >= 1.0 else 0.0))
+                roce_pts = min(25.0, max(0.0, (roce_val / 20.0) * 20.0))
+                solvency_pts = 15.0 if dte_val <= 0.35 else (8.0 if dte_val <= 0.70 else 0.0)
+                cfo_pts = 20.0 if cfo_val > 0 else 0.0
+                score = round(min(100.0, timing_pts + roce_pts + solvency_pts + cfo_pts), 1)
+
+                drivers.append(f"Pre-Fly Timing & Liquidity: (+{timing_pts:.1f} pts, 52W High Gap: {dist_high}%, ADTV: ₹{adtv_val:.1f} Cr)")
+                drivers.append(f"Capital Efficiency: ROCE {roce_val}% (+{roce_pts:.1f} pts)")
+                drivers.append(f"Solvency Fortress: D/E {dte_val} (+{solvency_pts:.1f} pts)")
                 if cfo_val > 0:
                     drivers.append(f"Operational Cash: ₹{cfo_val} Cr (+{cfo_pts:.1f} pts)")
 

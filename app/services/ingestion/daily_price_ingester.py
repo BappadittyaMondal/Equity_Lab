@@ -111,8 +111,15 @@ class DailyPriceIngester:
                     "low_price": float(low_val),
                     "close_price": float(close_val),
                     "volume": vol_int,
-                    "delivery_volume": None,
-                    "delivery_pct": None,
+                    # P4: delivery_volume and delivery_pct are None because yfinance does NOT
+                    # provide NSE/BSE official bhavcopy delivery data. Delivery % is available
+                    # from NSE bhavcopy (CM_BHAVCOPY_*.zip) on T+1 only.
+                    # TODO (P4): Ingest bhavcopy delivery data via NSE data API or bulk download.
+                    # Until then, any gate requiring delivery_pct MUST check for None and
+                    # must NOT treat None as 0% or as passing a delivery threshold.
+                    "delivery_volume": None,   # bhavcopy T+1 source required
+                    "delivery_pct": None,      # bhavcopy T+1 source required
+                    "delivery_data_source": "PENDING_BHAVCOPY",  # explicit pending marker
                     "market_cap": None,
                     "published_at": now_iso,
                     "source_name": "yfinance",

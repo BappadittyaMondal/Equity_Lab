@@ -16,17 +16,40 @@ logger = logging.getLogger(__name__)
 
 def verify_api_key(x_api_key: str = Header(default="")) -> bool:
     """Verifies that incoming requests contain a valid API key header.
-    
+
     Checks X-API-Key against settings.API_KEY_SECRET or settings.ADMIN_API_KEY.
-    If API keys are explicitly configured, validates the header.
+    Fail-closed behaviour:
+      - Production + no keys configured → HTTP 503 (server misconfiguration, not open pass).
+      - Production + keys configured → validate; mismatch → HTTP 401.
+      - Development + no keys → warning logged, pass (preserves local dev workflow).
+      - Development + keys configured → validate normally.
     """
     valid_keys = [k for k in [settings.API_KEY_SECRET, settings.ADMIN_API_KEY] if k]
-    if valid_keys:
-        if not x_api_key or not any(hmac.compare_digest(x_api_key, k) for k in valid_keys):
-            raise HTTPException(
-                status_code=status.HTTP_401_UNAUTHORIZED,
-                detail="Valid API authentication key required."
+    env = os.getenv("IERL_ENVIRONMENT", "development").lower()
+
+    if not valid_keys:
+        if env == "production":
+            # P1 fix: fail-closed — never allow open-pass in production
+            logger.error(
+                "SECURITY: verify_api_key called in production with no API keys configured. "
+                "Refusing request. Set API_KEY_SECRET or ADMIN_API_KEY."
             )
+            raise HTTPException(
+                status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+                detail="Server authentication is not configured. Contact administrator.",
+            )
+        # Development: no keys configured — warn and pass for local dev convenience
+        logger.warning(
+            "SECURITY WARNING: verify_api_key called with no API keys configured. "
+            "Endpoint is UNAUTHENTICATED. Set API_KEY_SECRET for production use."
+        )
+        return True
+
+    if not x_api_key or not any(hmac.compare_digest(x_api_key, k) for k in valid_keys):
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Valid API authentication key required.",
+        )
     return True
 
 

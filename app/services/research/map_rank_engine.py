@@ -38,6 +38,9 @@ _MAP_WEIGHT_PROFILES: Dict[str, Dict[str, float]] = {
     "SWING_3D":          {"solvency": 0.10, "cash_quality": 0.15, "val_headroom": 0.35, "geo_moat": 0.40},
     "SWING_10D":         {"solvency": 0.15, "cash_quality": 0.20, "val_headroom": 0.30, "geo_moat": 0.35},
     "POSITIONAL_30D":    {"solvency": 0.20, "cash_quality": 0.25, "val_headroom": 0.30, "geo_moat": 0.25},
+    "MICRO_MULTIBAGGER": {"solvency": 0.25, "cash_quality": 0.35, "val_headroom": 0.25, "geo_moat": 0.15},
+    "PRE_FLY":           {"solvency": 0.15, "cash_quality": 0.15, "val_headroom": 0.35, "geo_moat": 0.35},
+    "DEADLIEST_COMBO":   {"solvency": 0.25, "cash_quality": 0.30, "val_headroom": 0.25, "geo_moat": 0.20},
     "DEFAULT":           {"solvency": 0.25, "cash_quality": 0.30, "val_headroom": 0.25, "geo_moat": 0.20},
 }
 

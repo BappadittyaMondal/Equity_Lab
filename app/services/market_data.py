@@ -433,8 +433,30 @@ def create_meta_header(source: str = "IERL Market Data", stale: bool = False, li
 
 def _get_mock_fallback_quote(symbol: str) -> Quote:
     clean = normalize_symbol(symbol).replace(".NS", "").upper()
-    base = _OFFLINE_MOCK_QUOTES.get(clean, {"symbol": normalize_symbol(symbol), "price": 1200.0, "change_percent": 0.5, "fifty_two_week_high": 1500.0, "fifty_two_week_low": 1000.0, "pe_ratio": None, "volume": 500000}).copy()
-    base["meta"] = create_meta_header(source="IERL Offline Mock Quote", data_mode="MOCK", limitations=["SIMULATED DATA — not from live market feed"])
+    known_quote = _OFFLINE_MOCK_QUOTES.get(clean)
+    if known_quote:
+        base = known_quote.copy()
+        base["is_unknown_symbol_mock"] = False
+        base["data_trust_tier"] = "MOCK_KNOWN"
+    else:
+        # G35 guard: unknown symbol in offline mode — explicitly flagged as synthetic.
+        # Production code MUST check is_unknown_symbol_mock=True and refuse to use price.
+        base = {
+            "symbol": normalize_symbol(symbol),
+            "price": 1200.0,
+            "change_percent": 0.5,
+            "fifty_two_week_high": 1500.0,
+            "fifty_two_week_low": 1000.0,
+            "pe_ratio": None,
+            "volume": 500000,
+            "is_unknown_symbol_mock": True,       # G35: explicit synthetic-data sentinel
+            "data_trust_tier": "SYNTHETIC_UNKNOWN",  # G35: trust tier for downstream guards
+        }
+    base["meta"] = create_meta_header(
+        source="IERL Offline Mock Quote",
+        data_mode="MOCK",
+        limitations=["SIMULATED DATA — not from live market feed"],
+    )
     return base
 
 # ---------------------------------------------------------------------------

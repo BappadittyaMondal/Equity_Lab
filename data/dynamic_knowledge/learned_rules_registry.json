@@ -1,6 +1,6 @@
 {
   "version": "1.2.0",
-  "last_updated_utc": "2026-10-08T10:29:57.787105+00:00",
+  "last_updated_utc": "2026-10-11T15:29:18.185023+00:00",
   "entities": {
     "EXCHANGE_CASS_MECHANISM": {
       "entity_id": "EXCHANGE_CASS_MECHANISM",
@@ -8,7 +8,7 @@
       "category": "MARKET_MICROSTRUCTURE",
       "confidence_score": 0.71,
       "verification_status": "CERTIFIED_FACT",
-      "source_origin": "USER_FEEDBACK_FB-1791386530",
+      "source_origin": "USER_FEEDBACK_FB-1791732558",
       "relevance_vector": {
         "swing_3d": 0.15,
         "swing_10d": 0.1,
@@ -21,8 +21,15 @@
       },
       "description": "Post-market multilateral closing auction establishing deterministic VWAP and dampening end-of-session volatility.",
       "sensationalism_penalty": 0.0,
-      "created_at_utc": "2026-10-07T15:22:10.757405+00:00",
-      "last_validated_at_utc": "2026-10-07T15:22:10.757405+00:00"
+      "created_at_utc": "2026-10-11T15:29:18.123584+00:00",
+      "last_validated_at_utc": "2026-10-11T15:29:18.123584+00:00",
+      "shadow_status": "SHADOW",
+      "sample_count": 0,
+      "success_count": 0,
+      "p_value": null,
+      "fdr_q_value": null,
+      "performance_delta": 0.0,
+      "human_signoff": false
     },
     "CONSPIRACY_THEORY_TEST": {
       "entity_id": "CONSPIRACY_THEORY_TEST",
@@ -48,7 +55,7 @@
       "category": "GEOPOLITICAL_CORRIDOR",
       "confidence_score": 0.71,
       "verification_status": "CERTIFIED_FACT",
-      "source_origin": "USER_FEEDBACK_FB-1791386530",
+      "source_origin": "USER_FEEDBACK_FB-1791732558",
       "relevance_vector": {
         "swing_3d": 0.0,
         "swing_10d": 0.05,
@@ -61,8 +68,15 @@
       },
       "description": "Bilateral foreign direct investment in South American lithium brine reserves under RIGI regulatory concessions.",
       "sensationalism_penalty": 0.0,
-      "created_at_utc": "2026-10-07T15:22:10.759218+00:00",
-      "last_validated_at_utc": "2026-10-07T15:22:10.759218+00:00"
+      "created_at_utc": "2026-10-11T15:29:18.138046+00:00",
+      "last_validated_at_utc": "2026-10-11T15:29:18.138046+00:00",
+      "shadow_status": "SHADOW",
+      "sample_count": 0,
+      "success_count": 0,
+      "p_value": null,
+      "fdr_q_value": null,
+      "performance_delta": 0.0,
+      "human_signoff": false
     },
     "OTHER_INCOME_EARNINGS_ILLUSION": {
       "entity_id": "OTHER_INCOME_EARNINGS_ILLUSION",
@@ -567,6 +581,75 @@
       "sensationalism_penalty": 0.0,
       "created_at_utc": "2026-10-08T10:29:57.787096+00:00",
       "last_validated_at_utc": "2026-10-08T10:29:57.787098+00:00"
+    },
+    "REG30_MEGA_ORDER_CATALYST": {
+      "entity_id": "REG30_MEGA_ORDER_CATALYST",
+      "canonical_name": "SEBI Reg 30 Mega Order Win & Contract Momentum Inflection",
+      "category": "MARKET_MICROSTRUCTURE",
+      "confidence_score": 0.87,
+      "verification_status": "CERTIFIED_FACT",
+      "source_origin": "DAILY_NEWS_INTELLIGENCE_LOOP",
+      "relevance_vector": {
+        "swing_3d": 0.35,
+        "swing_10d": 0.5,
+        "positional_30d": 0.65,
+        "multibagger": 0.7,
+        "sip_compounder": 0.1
+      },
+      "bayesian_prior_modifier": {
+        "metric": "reg30_order_win_momentum",
+        "weight_delta": 0.22
+      },
+      "description": "High-conviction SEBI Regulation 30 order win disclosure with EMR >= 25% driving post-announcement price-volume momentum.",
+      "sensationalism_penalty": 0.0,
+      "created_at_utc": "2026-10-10T16:48:39.764190+00:00",
+      "last_validated_at_utc": "2026-10-10T16:48:39.764190+00:00"
+    },
+    "OPERATOR_CHURN_PENNY_HYPE": {
+      "entity_id": "OPERATOR_CHURN_PENNY_HYPE",
+      "canonical_name": "Retail Promotional Media Penny Stock & Operator Churn Trap",
+      "category": "MARKET_MICROSTRUCTURE",
+      "confidence_score": 0.87,
+      "verification_status": "CERTIFIED_FACT",
+      "source_origin": "DAILY_NEWS_INTELLIGENCE_LOOP",
+      "relevance_vector": {
+        "swing_3d": -0.4,
+        "swing_10d": -0.5,
+        "positional_30d": -0.6,
+        "multibagger": -0.3,
+        "sip_compounder": -0.7
+      },
+      "bayesian_prior_modifier": {
+        "metric": "operator_churn_hype_penalty",
+        "weight_delta": -0.3
+      },
+      "description": "Retail media clickbait promotional headlines hyping sub-50 penny stocks to engineer liquidity exit for operators on weak delivery.",
+      "sensationalism_penalty": 0.0,
+      "created_at_utc": "2026-10-10T16:48:39.779708+00:00",
+      "last_validated_at_utc": "2026-10-10T16:48:39.779708+00:00"
+    },
+    "EARNINGS_SUE_DRIFT_CATALYST": {
+      "entity_id": "EARNINGS_SUE_DRIFT_CATALYST",
+      "canonical_name": "Standardized Unexpected Earnings (SUE) & Post-Earnings Drift (PEAD)",
+      "category": "ACCOUNTING_INFLECTION",
+      "confidence_score": 0.87,
+      "verification_status": "CERTIFIED_FACT",
+      "source_origin": "DAILY_NEWS_INTELLIGENCE_LOOP",
+      "relevance_vector": {
+        "swing_3d": 0.3,
+        "swing_10d": 0.55,
+        "positional_30d": 0.75,
+        "multibagger": 0.6,
+        "sip_compounder": 0.4
+      },
+      "bayesian_prior_modifier": {
+        "metric": "pead_sue_drift_acceleration",
+        "weight_delta": 0.25
+      },
+      "description": "Material quarterly earnings beat (SUE >= 2.0) generating persistent multi-week post-earnings announcement drift across institutional portfolios.",
+      "sensationalism_penalty": 0.0,
+      "created_at_utc": "2026-10-10T16:48:39.794269+00:00",
+      "last_validated_at_utc": "2026-10-10T16:48:39.794269+00:00"
     }
   }
 }

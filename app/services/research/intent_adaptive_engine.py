@@ -131,6 +131,36 @@ ARCHETYPE_WEIGHT_PROFILES = {
         "OTHER":       0.00,
         "OPTIONS":     0.00,
     },
+    "MICRO_MULTIBAGGER": {
+        "FUNDAMENTAL": 0.35,  # Sub-₹15,000 Cr MCap, operating leverage convexity Omega >= 1.0, ROCE >= 20%
+        "FORENSIC":    0.25,  # Clean D/E <= 0.35, promoter pledge <= 5%, CFO/PAT > 0
+        "VALUATION":   0.20,  # Return ceiling runway & re-rating potential
+        "GOVERNANCE":  0.15,  # High unencumbered insider conviction
+        "TECHNICAL":   0.05,  # Base consolidation
+        "MACRO":       0.00,
+        "OTHER":       0.00,
+        "OPTIONS":     0.00,
+    },
+    "PRE_FLY": {
+        "TECHNICAL":   0.60,  # Weinstein Stage 1/2 base coiling, VCP compression, OBV accumulation
+        "FORENSIC":    0.20,  # Upper circuit headroom >= 3.0%, daily traded turnover guard
+        "FUNDAMENTAL": 0.10,  # Baseline operational solvency
+        "MACRO":       0.10,  # Sector tailwind & relative strength
+        "VALUATION":   0.00,  # Valuation relaxed for pure launchpad breakout timing
+        "GOVERNANCE":  0.00,
+        "OTHER":       0.00,
+        "OPTIONS":     0.00,
+    },
+    "DEADLIEST_COMBO": {
+        "FUNDAMENTAL": 0.35,  # Micro-multibagger compounding (ROCE >= 20%, Omega >= 1.0, MCap ₹150–15k Cr)
+        "TECHNICAL":   0.30,  # Pre-fly launchpad timing (Weinstein Stage 1/2, VCP coiling, volume surge)
+        "FORENSIC":    0.20,  # Continuous quality Q >= 0.70, D/E <= 0.35, pledge <= 5%
+        "VALUATION":   0.15,  # Reverse-DCF return ceiling headroom factor
+        "GOVERNANCE":  0.00,
+        "MACRO":       0.00,
+        "OTHER":       0.00,
+        "OPTIONS":     0.00,
+    },
     "PEER_COMPARE": {
         "FUNDAMENTAL": 0.30,  # Relative ROIC vs WACC spread
         "VALUATION":   0.25,  # Relative multiples & FCF yield
@@ -202,6 +232,18 @@ class QueryAdaptiveConstraintEngine:
         "EARLY_MICROCAP": [
             "microcap", "early stage", "100cr", "500cr", "nano cap",
             "smallcap", "illiquid", "micro cap"
+        ],
+        "MICRO_MULTIBAGGER": [
+            "micro multibagger", "micro_multibagger", "microcap multibagger",
+            "micro-multibagger", "sub 15000cr compounder", "operating leverage convexity"
+        ],
+        "PRE_FLY": [
+            "pre-fly", "pre fly", "pre_fly", "launchpad", "stage 1 base", "stage 2 base",
+            "vcp breakout", "base coiling", "tbqe", "volatility contraction"
+        ],
+        "DEADLIEST_COMBO": [
+            "deadliest combo", "deadliest combination", "deadliest_combo",
+            "pre fly multibagger", "dual engine conjunction", "deadliest score", "deadliest list"
         ],
         "PEER_COMPARE": [
             "compare", "comparison", "vs", "versus", "better than", "peer",
@@ -278,6 +320,12 @@ class QueryAdaptiveConstraintEngine:
             norm_intent = "SWING_POSITIONAL"
         elif norm_intent in ("MICROCAP", "NANO_CAP", "EARLY_STAGE"):
             norm_intent = "EARLY_MICROCAP"
+        elif norm_intent in ("MICRO_MULTIBAGGER", "MICRO-MULTIBAGGER", "MICROMULTIBAGGER"):
+            norm_intent = "MICRO_MULTIBAGGER"
+        elif norm_intent in ("PRE_FLY", "PRE-FLY", "PREFLY", "LAUNCHPAD"):
+            norm_intent = "PRE_FLY"
+        elif norm_intent in ("DEADLIEST_COMBO", "DEADLIEST-COMBO", "DEADLIEST", "DEADLIEST_COMBINATION"):
+            norm_intent = "DEADLIEST_COMBO"
         elif norm_intent in ("MULTIBAGGER", "10X", "5X"):
             norm_intent = "MULTIBAGGER"
         elif norm_intent in ("COMPARE", "PEER"):
@@ -326,6 +374,51 @@ class QueryAdaptiveConstraintEngine:
         close_pos = _get_opt_float(["close_position", "close_pos", "cp_ratio"])
         days_to_earnings = _get_opt_float(["days_to_earnings", "earnings_in_days"])
         breakout_vol = _get_opt_float(["breakout_volume_mult", "breakout_vol", "volume_multiple"])
+        cfo_direct = _get_opt_float(["cfo", "cfo_cr", "cfo_last_year", "operating_cash_flow_cr", "cfo_ttm"])
+        pat_direct = _get_opt_float(["pat", "pat_cr", "net_profit_last_year", "pat_latest", "net_income"])
+        price_chg = _get_opt_float(["price_change_pct", "chg_pct", "pct_change", "change_pct", "day_change_pct", "price_change"])
+
+        # ── UNIVERSAL SURVEILLANCE & REGULATORY HARD VETO LAYER (All Archetypes) ──
+        asm_stage = _get_opt_float(["asm_stage", "sebi_asm_stage"])
+        gsm_stage = _get_opt_float(["gsm_stage", "sebi_gsm_stage"])
+        esm_stage = _get_opt_float(["esm_stage", "sebi_esm_stage"])
+        is_nclt = bool(data.get("nclt_status") or data.get("insolvency_flag") or data.get("is_nclt"))
+        is_circuit_locked = bool(data.get("circuit_locked") or data.get("is_circuit_locked"))
+        is_auditor_resigned = bool(data.get("auditor_resigned") or data.get("abrupt_auditor_resignation"))
+        is_qualified_audit = bool(data.get("qualified_audit") or data.get("adverse_audit_opinion"))
+
+        if is_nclt:
+            msg = "FATAL: Company is undergoing NCLT insolvency proceedings (IBC Code)."
+            fatal_vetoes.append(msg)
+            vetoes.append(msg)
+        if asm_stage is not None and asm_stage >= 3:
+            msg = f"FATAL: Stock placed under SEBI Additional Surveillance Measure (ASM Stage {int(asm_stage)})."
+            fatal_vetoes.append(msg)
+            vetoes.append(msg)
+        elif asm_stage is not None and asm_stage >= 1:
+            warnings.append(f"CAUTION: Stock placed under SEBI ASM Stage {int(asm_stage)} surveillance.")
+        if gsm_stage is not None and gsm_stage >= 1:
+            msg = f"FATAL: Stock placed under SEBI Graded Surveillance Measure (GSM Stage {int(gsm_stage)})."
+            fatal_vetoes.append(msg)
+            vetoes.append(msg)
+        if esm_stage is not None and esm_stage >= 2:
+            msg = f"FATAL: Stock placed under SEBI Enhanced Surveillance Measure (ESM Stage {int(esm_stage)})."
+            fatal_vetoes.append(msg)
+            vetoes.append(msg)
+        elif esm_stage is not None and esm_stage == 1:
+            warnings.append("CAUTION: Stock placed under SEBI ESM Stage 1 surveillance.")
+        if is_circuit_locked:
+            msg = "FATAL: Stock is currently locked in circuit band with zero trading liquidity."
+            fatal_vetoes.append(msg)
+            vetoes.append(msg)
+        if is_auditor_resigned:
+            msg = "FATAL: Statutory auditor resigned abruptly without signing financial results."
+            fatal_vetoes.append(msg)
+            vetoes.append(msg)
+        if is_qualified_audit:
+            msg = "FATAL: Statutory auditor issued qualified or adverse opinion on financial statements."
+            fatal_vetoes.append(msg)
+            vetoes.append(msg)
 
         # ── 1. TURNAROUND INTENT ─────────────────────────────────────────
         if norm_intent == "TURNAROUND":
@@ -337,60 +430,87 @@ class QueryAdaptiveConstraintEngine:
             if not relaxed:
                 relaxed.append("Historical 3Y/5Y trailing earnings CAGR hurdles relaxed for turnaround thesis.")
 
-            # Tighten real-time survival & inflection
+            # Tighten real-time survival & inflection: EBITDA/Interest >= 2.0x
             if interest_cov is None:
                 warnings.append("CAUTION: Interest coverage ratio unobserved; debt service safety unconfirmed.")
-                tightened.append("Debt service safety: Interest coverage >= 1.5x strictly enforced (unobserved).")
-            elif interest_cov < 1.5:
-                msg = f"OBJECTIVE_BLOCK: Interest coverage ratio ({interest_cov:.2f}x) is below minimum turnaround survival threshold (1.5x)."
+                tightened.append("Debt service safety: Interest coverage >= 2.0x strictly enforced (unobserved).")
+            elif interest_cov < 2.0:
+                msg = f"OBJECTIVE_BLOCK: Interest coverage ratio ({interest_cov:.2f}x) is below minimum turnaround survival threshold (2.0x)."
                 objective_blocks.append(msg)
                 vetoes.append(msg)
-                tightened.append(f"Debt service safety: Interest coverage >= 1.5x strictly enforced (failed: {interest_cov:.2f}x).")
+                tightened.append(f"Debt service safety: Interest coverage >= 2.0x strictly enforced (failed: {interest_cov:.2f}x).")
             else:
-                tightened.append(f"Interest coverage ({interest_cov:.2f}x >= 1.5x) strictly verified for debt service safety.")
+                tightened.append(f"Interest coverage ({interest_cov:.2f}x >= 2.0x) strictly verified for debt service safety.")
 
-            if cfo_pat is None:
+            # Direct cash realization check (fixing negative PAT ratio arithmetic trap)
+            cfo_direct = _get_opt_float(["cfo", "cfo_cr", "cfo_last_year", "operating_cash_flow_cr", "cfo_ttm"])
+            pat_direct = _get_opt_float(["pat", "pat_cr", "net_profit_last_year", "pat_latest", "net_income"])
+
+            is_cfo_positive = False
+            if cfo_direct is not None:
+                is_cfo_positive = (cfo_direct > 0)
+            elif cfo_pat is not None:
+                if pat_direct is not None and pat_direct < 0:
+                    is_cfo_positive = (cfo_pat < 0)  # Positive CFO over negative PAT gives negative ratio
+                else:
+                    is_cfo_positive = (cfo_pat > 0)
+
+            if cfo_direct is None and cfo_pat is None:
                 warnings.append("CAUTION: Operating cash flow (CFO) unobserved; sequential cash inflection unconfirmed.")
-                tightened.append("Sequential cash inflection: CFO/PAT > 0 strictly enforced (unobserved).")
-            elif cfo_pat < 0:
-                msg = "OBJECTIVE_BLOCK: Operating cash flow (CFO) is negative; turnaround requires positive sequential cash realization."
+                tightened.append("Sequential cash inflection: Operating cash flow (CFO) > 0 strictly enforced (unobserved).")
+            elif not is_cfo_positive:
+                msg = "OBJECTIVE_BLOCK: Operating cash flow (CFO) is non-positive; turnaround requires positive cash generation."
                 objective_blocks.append(msg)
                 vetoes.append(msg)
-                tightened.append(f"Sequential cash inflection: CFO/PAT > 0 strictly enforced (failed: {cfo_pat:.2f}).")
+                tightened.append("Sequential cash inflection: Operating cash flow (CFO) > 0 strictly enforced (failed: negative/zero cash).")
             else:
-                tightened.append(f"Positive cash inflection strictly confirmed (CFO/PAT: {cfo_pat:.2f}).")
+                tightened.append("Positive operating cash inflection strictly confirmed (CFO > 0).")
 
+            # Tighten promoter pledge in distressed turnaround to <= 10.0%
             if pledge_pct is None:
                 warnings.append("CAUTION: Promoter pledge unobserved; cannot verify unencumbered equity.")
-            elif pledge_pct > 20.0:
-                msg = f"FATAL: Promoter pledge ({pledge_pct:.1f}%) exceeds turnaround distress ceiling (20%)."
+            elif pledge_pct > 10.0:
+                msg = f"FATAL: Promoter pledge ({pledge_pct:.1f}%) exceeds tightened turnaround distress ceiling (10.0%)."
                 fatal_vetoes.append(msg)
                 vetoes.append(msg)
+                tightened.append(f"Distressed promoter pledge <= 10.0% strictly enforced (failed: {pledge_pct:.1f}%).")
+            else:
+                tightened.append(f"Clean promoter equity verified (Pledge: {pledge_pct:.1f}% <= 10.0%).")
 
-            # Solvency Liquidity Runway Gate (Cash + Liquid Investments vs Operating Cash Burn)
+            # Dimensionally pure quarterly solvency runway formula
             cash_st_inv = _get_opt_float(["cash_and_equivalents", "cash_equivalents_cr", "liquid_cash_cr"])
-            quarterly_burn = _get_opt_float(["quarterly_cash_burn", "operating_cash_burn_cr", "cfo_burn_quarterly"])
-            cfo_raw = _get_opt_float(["cfo", "cfo_cr", "operating_cash_flow_cr"])
+            annual_interest = _get_opt_float(["interest_expense", "annual_interest_cr", "finance_costs"]) or 0.0
+            current_debt_12m = _get_opt_float(["current_debt", "short_term_debt", "debt_due_12m"]) or 0.0
+            committed_capex = _get_opt_float(["committed_capex", "cwip", "capex_12m"]) or 0.0
 
-            # Auto-derive quarterly cash burn if unobserved but operating cash flow is negative
-            if quarterly_burn is None and cfo_raw is not None and cfo_raw < 0:
-                quarterly_burn = round(abs(cfo_raw) / 4.0, 2)
+            quarterly_burn = 0.0
+            if cfo_direct is not None and cfo_direct < 0:
+                quarterly_burn = abs(cfo_direct) / 4.0
+            elif cfo_pat is not None and pat_direct is not None:
+                implied_cfo = cfo_pat * pat_direct
+                if implied_cfo < 0:
+                    quarterly_burn = abs(implied_cfo) / 4.0
 
-            if quarterly_burn is not None and quarterly_burn > 0:
-                if cash_st_inv is not None:
-                    runway_quarters = round(cash_st_inv / max(0.1, quarterly_burn), 1)
-                    if runway_quarters < 4.0:
-                        msg = f"OBJECTIVE_BLOCK: Solvency liquidity runway ({runway_quarters:.1f} quarters) is below minimum turnaround survival threshold (4.0 quarters / 12 months)."
-                        objective_blocks.append(msg)
-                        vetoes.append(msg)
-                        tightened.append(f"Solvency runway >= 12 months strictly enforced (failed: {runway_quarters:.1f}Q).")
-                    else:
-                        tightened.append(f"Solvency liquidity runway strictly verified: {runway_quarters:.1f} quarters (>= 4.0Q / 12 months).")
-                else:
-                    msg = f"OBJECTIVE_BLOCK: Unverified liquidity buffer during active cash burn (estimated burn: Rs {quarterly_burn:.2f} Cr/quarter)."
+            quarterly_debt_service = (annual_interest + current_debt_12m) / 4.0
+            quarterly_capex = committed_capex / 4.0
+            net_quarterly_outflow = quarterly_burn + quarterly_debt_service + quarterly_capex
+
+            if net_quarterly_outflow <= 0.05 and is_cfo_positive:
+                tightened.append("Solvency liquidity runway: Self-sustaining positive cash flow with zero net burn (infinite runway).")
+            elif cash_st_inv is not None:
+                runway_quarters = round(cash_st_inv / max(0.1, net_quarterly_outflow), 1)
+                if runway_quarters < 4.0:
+                    msg = f"OBJECTIVE_BLOCK: Solvency liquidity runway ({runway_quarters:.1f} quarters) is below minimum turnaround survival threshold (4.0 quarters / 12 months)."
                     objective_blocks.append(msg)
                     vetoes.append(msg)
-                    tightened.append("Solvency runway verification failed closed due to unobserved cash balance during active cash burn.")
+                    tightened.append(f"Solvency runway >= 12 months strictly enforced (failed: {runway_quarters:.1f}Q).")
+                else:
+                    tightened.append(f"Solvency liquidity runway strictly verified: {runway_quarters:.1f} quarters (>= 4.0Q / 12 months).")
+            elif quarterly_burn > 0:
+                msg = f"OBJECTIVE_BLOCK: Unverified liquidity buffer during active cash burn (estimated burn: Rs {quarterly_burn:.2f} Cr/quarter)."
+                objective_blocks.append(msg)
+                vetoes.append(msg)
+                tightened.append("Solvency runway verification failed closed due to unobserved cash balance during active cash burn.")
 
         # ── 2. VALUE BUYING INTENT ───────────────────────────────────────
         elif norm_intent == "VALUE_BUYING":
@@ -538,6 +658,17 @@ class QueryAdaptiveConstraintEngine:
             elif pledge_pct > 0.0:
                 warnings.append(f"CAUTION: Promoter pledging ({pledge_pct:.1f}%) detected in compounder scrip.")
 
+            # Hard Valuation Sanity Cap for SIP Compounder
+            pe_val = _get_opt_float(["pe_ratio", "pe", "trailing_pe"])
+            peg_val = _get_opt_float(["peg_ratio", "peg"])
+            if pe_val is not None and pe_val > 95.0 and (peg_val is None or peg_val > 2.8):
+                msg = f"OBJECTIVE_BLOCK: Valuation exceeds institutional SIP compounder sanity ceiling (P/E: {pe_val:.1f}x > 95.0x, PEG: {peg_val or 0.0:.2f} > 2.8)."
+                objective_blocks.append(msg)
+                vetoes.append(msg)
+                tightened.append(f"Valuation sanity ceiling strictly enforced (failed: P/E {pe_val:.1f}x).")
+            elif pe_val is not None:
+                tightened.append(f"Valuation sanity verified (P/E: {pe_val:.1f}x within institutional tier).")
+
         # ── 4. SWING POSITIONAL INTENT ───────────────────────────────────
         elif norm_intent == "SWING_POSITIONAL":
             # Relax long-term DCF and multi-year runway
@@ -572,12 +703,23 @@ class QueryAdaptiveConstraintEngine:
                 else:
                     tightened.append(f"Safe circuit headroom verified ({circuit_headroom:.1f}% >= 3.0%).")
 
-            # Daily turnover liquidity floor (min Rs 5 Cr ADTV for clean exit)
+            # Tiered Daily turnover liquidity floor scaling by market cap
+            mcap_val_cr = mcap or 1000.0
+            if mcap_val_cr < 1500.0:
+                adtv_floor_3d = 1.0
+                tier_lbl_3d = "Micro-cap (<₹1,500 Cr)"
+            elif mcap_val_cr < 6000.0:
+                adtv_floor_3d = 3.0
+                tier_lbl_3d = "Small-cap (₹1,500–6,000 Cr)"
+            else:
+                adtv_floor_3d = 5.0
+                tier_lbl_3d = "Mid/Large-cap (>₹6,000 Cr)"
+
             if adtv is not None:
-                if adtv < 5.0:
-                    warnings.append(f"CAUTION: Daily turnover (₹{adtv:.1f}Cr) is below optimal 3-day tactical liquidity benchmark (₹5.0Cr).")
+                if adtv < adtv_floor_3d:
+                    warnings.append(f"CAUTION: Daily turnover (₹{adtv:.1f}Cr) is below {tier_lbl_3d} tactical liquidity benchmark (₹{adtv_floor_3d:.1f}Cr).")
                 else:
-                    tightened.append(f"Tactical exit liquidity verified (ADTV: ₹{adtv:.1f}Cr >= ₹5.0Cr).")
+                    tightened.append(f"Tactical exit liquidity verified (ADTV: ₹{adtv:.1f}Cr >= ₹{adtv_floor_3d:.1f}Cr for {tier_lbl_3d}).")
 
         elif norm_intent == "SWING_10D":
             # 1-2 Week Multi-Session Swing Horizon
@@ -806,7 +948,207 @@ class QueryAdaptiveConstraintEngine:
                 fatal_vetoes.append(msg)
                 vetoes.append(msg)
 
-        # ── 11. GENERAL INTENT ───────────────────────────────────────────
+        # ── 11. MICRO MULTIBAGGER INTENT ─────────────────────────────────
+        elif norm_intent == "MICRO_MULTIBAGGER":
+            mcap_cr_val = mcap or 1000.0
+            relaxed.append(f"Small/Micro-cap scale (MCap: ₹{mcap_cr_val:.0f} Cr) and institutional coverage relaxed for micro-multibagger discovery.")
+
+            # Hard Gate: MCap between ₹150 Cr and ₹15,000 Cr
+            if mcap_cr_val < 150.0:
+                msg = f"OBJECTIVE_BLOCK: MCap (₹{mcap_cr_val:.0f} Cr) below minimum micro-multibagger universe limit (₹150 Cr)."
+                objective_blocks.append(msg)
+                vetoes.append(msg)
+            elif mcap_cr_val > 15000.0:
+                msg = f"OBJECTIVE_BLOCK: MCap (₹{mcap_cr_val:.0f} Cr) exceeds micro-multibagger ceiling (₹15,000 Cr)."
+                objective_blocks.append(msg)
+                vetoes.append(msg)
+            else:
+                tightened.append(f"Micro-Multibagger universe bounds verified (MCap: ₹{mcap_cr_val:.0f} Cr within ₹150–15,000 Cr).")
+
+            # ROCE >= 20%
+            if roce is None:
+                warnings.append("CAUTION: ROCE unobserved; micro-multibagger capital efficiency unconfirmed.")
+                tightened.append("Capital efficiency hurdle: ROCE >= 20.0% strictly enforced (unobserved).")
+            elif roce < 20.0:
+                msg = f"OBJECTIVE_BLOCK: ROCE ({roce:.1f}%) is below micro-multibagger compounding threshold (20.0%)."
+                objective_blocks.append(msg)
+                vetoes.append(msg)
+                tightened.append(f"ROCE >= 20.0% strictly enforced (failed: {roce:.1f}%).")
+            else:
+                tightened.append(f"High capital efficiency verified (ROCE: {roce:.1f}% >= 20.0%).")
+
+            # D/E <= 0.35
+            if debt_eq is not None and debt_eq > 0.35:
+                msg = f"OBJECTIVE_BLOCK: Debt/Equity ({debt_eq:.2f}) exceeds micro-multibagger safety ceiling (0.35)."
+                objective_blocks.append(msg)
+                vetoes.append(msg)
+                tightened.append(f"Solvency ceiling Debt/Equity <= 0.35 strictly enforced (failed: {debt_eq:.2f}).")
+            elif debt_eq is not None:
+                tightened.append(f"Clean balance sheet verified (Debt/Equity: {debt_eq:.2f} <= 0.35).")
+
+            # Promoter pledge <= 5.0%
+            if pledge_pct is not None and pledge_pct > 5.0:
+                msg = f"FATAL: Promoter pledge ({pledge_pct:.1f}%) exceeds micro-multibagger threshold (5.0%)."
+                fatal_vetoes.append(msg)
+                vetoes.append(msg)
+                tightened.append(f"Promoter pledge <= 5.0% strictly enforced (failed: {pledge_pct:.1f}%).")
+            elif pledge_pct is not None:
+                tightened.append(f"Unencumbered promoter equity verified (Pledge: {pledge_pct:.1f}% <= 5.0%).")
+
+            # Positive cash realization check (direct CFO or sign-corrected CFO/PAT)
+            is_cfo_pos_micro = False
+            if cfo_direct is not None:
+                is_cfo_pos_micro = (cfo_direct > 0)
+            elif cfo_pat is not None:
+                if pat_direct is not None and pat_direct < 0:
+                    is_cfo_pos_micro = (cfo_pat < 0)  # Positive CFO over negative PAT
+                else:
+                    is_cfo_pos_micro = (cfo_pat > 0)
+
+            if cfo_direct is None and cfo_pat is None:
+                warnings.append("CAUTION: Operating cash flow unobserved; micro-multibagger cash realization unconfirmed.")
+                tightened.append("Cash conversion CFO > 0 strictly enforced (unobserved).")
+            elif not is_cfo_pos_micro:
+                msg = f"OBJECTIVE_BLOCK: CFO/PAT ({cfo_pat if cfo_pat is not None else -1.0:.2f}) is non-positive; micro-multibagger compounding requires cash realization."
+                objective_blocks.append(msg)
+                vetoes.append(msg)
+                tightened.append(f"Cash conversion CFO/PAT > 0 strictly enforced (failed: non-positive cash flow).")
+            else:
+                tightened.append(f"Positive operational cash conversion verified (CFO > 0).")
+
+        # ── 12. PRE FLY INTENT ───────────────────────────────────────────
+        elif norm_intent == "PRE_FLY":
+            relaxed.append("Multi-year 10Y DCF intrinsic valuation and long-term reinvestment runway relaxed for pre-fly technical launchpad.")
+            tightened.append("Weinstein Stage 1/2 base coiling, Volatility Contraction Pattern (VCP), and volume accumulation strictly enforced.")
+
+            # Circuit headroom >= 3.0%
+            if circuit_headroom is not None and circuit_headroom < 3.0:
+                msg = f"OBJECTIVE_BLOCK: Upper circuit headroom ({circuit_headroom:.1f}% < 3.0%) insufficient; immediate liquidity freeze risk."
+                objective_blocks.append(msg)
+                vetoes.append(msg)
+                tightened.append(f"Upper circuit headroom >= 3.0% strictly enforced (failed: {circuit_headroom:.1f}%).")
+            elif circuit_headroom is not None:
+                tightened.append(f"Safe circuit headroom verified ({circuit_headroom:.1f}% >= 3.0%).")
+
+            # Tiered launchpad liquidity floor scaling by market cap
+            mcap_val_prefly = mcap or 1000.0
+            if mcap_val_prefly < 1500.0:
+                adtv_floor_prefly = 1.0
+                tier_prefly = "Micro-cap (<₹1,500 Cr)"
+            elif mcap_val_prefly < 6000.0:
+                adtv_floor_prefly = 3.0
+                tier_prefly = "Small-cap (₹1,500–6,000 Cr)"
+            else:
+                adtv_floor_prefly = 5.0
+                tier_prefly = "Mid/Large-cap (>₹6,000 Cr)"
+
+            if adtv is not None and adtv < adtv_floor_prefly:
+                warnings.append(f"CAUTION: Daily turnover (₹{adtv:.1f} Cr) below preferred launchpad liquidity benchmark (₹{adtv_floor_prefly:.1f} Cr for {tier_prefly}).")
+            elif adtv is not None:
+                tightened.append(f"Launchpad liquidity verified (ADTV: ₹{adtv:.1f} Cr >= ₹{adtv_floor_prefly:.1f} Cr for {tier_prefly}).")
+
+            # Anti-operator churn guard: abnormal volume spike with stagnant price advance
+            if vol_z is not None and vol_z >= 3.0 and price_chg is not None and abs(price_chg) <= 0.5:
+                msg = f"OBJECTIVE_BLOCK: Suspect volume churn/distribution: Volume surge (+{vol_z:.1f}σ) with stagnant price action ({price_chg:.2f}%)."
+                objective_blocks.append(msg)
+                vetoes.append(msg)
+                tightened.append(f"Anti-operator churn guard strictly triggered: {msg}")
+
+        # ── 13. DEADLIEST COMBO INTENT ───────────────────────────────────
+        elif norm_intent == "DEADLIEST_COMBO":
+            relaxed.append("Large-cap institutional ownership and 10Y terminal DCF relaxed under Deadliest Combo dual-engine conjunction.")
+            tightened.append("Conjunction of Micro-Multibagger fundamentals (ROCE >= 20%, D/E <= 0.35, MCap ₹150–15k Cr) AND Pre-Fly technical timing strictly enforced.")
+
+            # Hard gate 1: MCap ₹150 Cr – ₹15,000 Cr
+            mcap_cr_val = mcap or 1000.0
+            if mcap_cr_val < 150.0 or mcap_cr_val > 15000.0:
+                msg = f"OBJECTIVE_BLOCK: MCap (₹{mcap_cr_val:.0f} Cr) outside Deadliest Combo band (₹150 Cr – ₹15,000 Cr)."
+                objective_blocks.append(msg)
+                vetoes.append(msg)
+            else:
+                tightened.append(f"Universe bounds verified (MCap: ₹{mcap_cr_val:.0f} Cr within ₹150–15,000 Cr).")
+
+            # Hard gate 2: D/E <= 0.35
+            if debt_eq is not None and debt_eq > 0.35:
+                msg = f"OBJECTIVE_BLOCK: Debt/Equity ({debt_eq:.2f}) exceeds Deadliest Combo threshold (0.35)."
+                objective_blocks.append(msg)
+                vetoes.append(msg)
+                tightened.append(f"Solvency ceiling Debt/Equity <= 0.35 strictly enforced (failed: {debt_eq:.2f}).")
+            elif debt_eq is not None:
+                tightened.append(f"Solvency verified: Debt/Equity ({debt_eq:.2f} <= 0.35).")
+
+            # Hard gate 3: Promoter Pledge <= 5.0%
+            if pledge_pct is not None and pledge_pct > 5.0:
+                msg = f"FATAL: Promoter pledge ({pledge_pct:.1f}%) exceeds Deadliest Combo ceiling (5.0%)."
+                fatal_vetoes.append(msg)
+                vetoes.append(msg)
+                tightened.append(f"Promoter pledge <= 5.0% strictly enforced (failed: {pledge_pct:.1f}%).")
+            elif pledge_pct is not None:
+                tightened.append(f"Unencumbered equity verified (Pledge: {pledge_pct:.1f}% <= 5.0%).")
+
+            # Hard gate 4: ROCE >= 20.0%
+            if roce is not None and roce < 20.0:
+                msg = f"OBJECTIVE_BLOCK: ROCE ({roce:.1f}%) below Deadliest Combo compounding hurdle (20.0%)."
+                objective_blocks.append(msg)
+                vetoes.append(msg)
+                tightened.append(f"Compounding hurdle ROCE >= 20.0% strictly enforced (failed: {roce:.1f}%).")
+            elif roce is not None:
+                tightened.append(f"Capital efficiency verified (ROCE: {roce:.1f}% >= 20.0%).")
+
+            # Hard gate 5: Direct cash realization (CFO > 0)
+            is_cfo_pos_combo = False
+            if cfo_direct is not None:
+                is_cfo_pos_combo = (cfo_direct > 0)
+            elif cfo_pat is not None:
+                if pat_direct is not None and pat_direct < 0:
+                    is_cfo_pos_combo = (cfo_pat < 0)
+                else:
+                    is_cfo_pos_combo = (cfo_pat > 0)
+
+            if cfo_direct is None and cfo_pat is None:
+                warnings.append("CAUTION: Operating cash flow unobserved; Deadliest Combo cash realization unconfirmed.")
+                tightened.append("Cash conversion CFO > 0 strictly enforced (unobserved).")
+            elif not is_cfo_pos_combo:
+                msg = f"OBJECTIVE_BLOCK: CFO/PAT ({cfo_pat if cfo_pat is not None else -1.0:.2f}) is non-positive; positive cash conversion mandatory."
+                objective_blocks.append(msg)
+                vetoes.append(msg)
+                tightened.append(f"Cash conversion CFO/PAT > 0 strictly enforced (failed: non-positive cash flow).")
+            else:
+                tightened.append(f"Positive cash conversion verified (CFO > 0).")
+
+            # Technical timing: Circuit headroom >= 3.0%
+            if circuit_headroom is not None and circuit_headroom < 3.0:
+                msg = f"OBJECTIVE_BLOCK: Circuit headroom ({circuit_headroom:.1f}% < 3.0%) insufficient for launchpad entry."
+                objective_blocks.append(msg)
+                vetoes.append(msg)
+                tightened.append(f"Circuit headroom >= 3.0% strictly enforced (failed: {circuit_headroom:.1f}%).")
+            elif circuit_headroom is not None:
+                tightened.append(f"Safe launchpad circuit headroom verified ({circuit_headroom:.1f}% >= 3.0%).")
+
+            # Tiered launchpad liquidity floor scaling by market cap
+            if mcap_cr_val < 1500.0:
+                adtv_floor_combo = 1.0
+                tier_combo = "Micro-cap (<₹1,500 Cr)"
+            elif mcap_cr_val < 6000.0:
+                adtv_floor_combo = 3.0
+                tier_combo = "Small-cap (₹1,500–6,000 Cr)"
+            else:
+                adtv_floor_combo = 5.0
+                tier_combo = "Mid/Large-cap (>₹6,000 Cr)"
+
+            if adtv is not None and adtv < adtv_floor_combo:
+                warnings.append(f"CAUTION: Daily turnover (₹{adtv:.1f} Cr) below preferred launchpad liquidity benchmark (₹{adtv_floor_combo:.1f} Cr for {tier_combo}).")
+            elif adtv is not None:
+                tightened.append(f"Launchpad liquidity verified (ADTV: ₹{adtv:.1f} Cr >= ₹{adtv_floor_combo:.1f} Cr for {tier_combo}).")
+
+            # Anti-operator churn guard
+            if vol_z is not None and vol_z >= 3.0 and price_chg is not None and abs(price_chg) <= 0.5:
+                msg = f"OBJECTIVE_BLOCK: Suspect volume churn/distribution: Volume surge (+{vol_z:.1f}σ) with stagnant price action ({price_chg:.2f}%)."
+                objective_blocks.append(msg)
+                vetoes.append(msg)
+                tightened.append(f"Anti-operator churn guard strictly triggered: {msg}")
+
+        # ── 14. GENERAL INTENT ───────────────────────────────────────────
         else:
             relaxed.append("Standard balanced weighting: no single dimension excessively penalized or boosted.")
             tightened.append("Baseline institutional risk checks enforced: solvency, governance, and forensic hygiene.")
