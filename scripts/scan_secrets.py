@@ -5,7 +5,7 @@ assign_pattern = re.compile(r'([A-Z0-9_]*(?:KEY|SECRET|TOKEN|PASSWORD|CLIENT_COD
 
 findings = []
 for root, dirs, files in os.walk('.'):
-    if any(p in root for p in ['.git', '.venv', '__pycache__', '.pytest_cache', 'unnecessary_files_archive', 'Not_Required_Upload']):
+    if any(p in root for p in ['.git', '.venv', '__pycache__', '.pytest_cache', 'unnecessary_files_archive', 'Not_Required_Upload', 'DELETION_REQUIRED']):
         continue
     for file in files:
         filepath = os.path.join(root, file)

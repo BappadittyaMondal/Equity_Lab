@@ -51,6 +51,7 @@ EXCLUDED_DIR_NAMES = {
     ".gemini",
     "brain",
     "artifacts",
+    "DELETION_REQUIRED",
 }
 
 EXCLUDED_FILE_PATTERNS = {

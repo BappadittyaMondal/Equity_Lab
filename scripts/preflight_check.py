@@ -158,6 +158,30 @@ def check_backup_script() -> bool:
     return True
 
 
+def check_workspace_and_report_hygiene() -> bool:
+    """Ensure Stocks_Analysis_Report subfolders exist and auto-quarantine non-required root files into DELETION_REQUIRED/."""
+    try:
+        from app.services.research.report_archiver import (
+            ensure_report_directories,
+            quarantine_unnecessary_files,
+            CANONICAL_REPORT_SUBFOLDERS,
+        )
+        rep_root = ensure_report_directories(base_root=PROJECT_ROOT)
+        missing_subs = [s for s in CANONICAL_REPORT_SUBFOLDERS if not (rep_root / s).is_dir()]
+        if missing_subs:
+            print(f"[FAIL] PREFLIGHT FAIL: Missing Stocks_Analysis_Report subfolders: {missing_subs}")
+            return False
+        moved = quarantine_unnecessary_files(base_root=PROJECT_ROOT)
+        if moved:
+            print(f"[PASS] PREFLIGHT PASS: Auto-quarantined {len(moved)} non-required root file(s) into DELETION_REQUIRED/.")
+        else:
+            print("[PASS] PREFLIGHT PASS: Workspace root hygiene & Stocks_Analysis_Report taxonomy verified.")
+        return True
+    except Exception as exc:
+        print(f"[FAIL] PREFLIGHT FAIL: Workspace hygiene check error: {exc}")
+        return False
+
+
 def main():
     print("=== Running Equity Lab Preflight Integrity Checks ===")
     checks = [
@@ -167,6 +191,7 @@ def main():
         check_database_population(),
         check_validation_reports(),
         check_backup_script(),
+        check_workspace_and_report_hygiene(),
     ]
     if all(checks):
         print("=== ALL PREFLIGHT CHECKS PASSED SUCCESSFULLY ===")
@@ -178,3 +203,4 @@ def main():
 
 if __name__ == "__main__":
     main()
+

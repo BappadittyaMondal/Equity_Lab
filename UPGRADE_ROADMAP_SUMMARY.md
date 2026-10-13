@@ -6197,3 +6197,62 @@ Evaluated across the 3 expert lenses:
 - **Dedicated Suite**: `py -3.14 -m pytest app/tests/test_phase170_kelly_altman_em_pledge_hierarchy.py` — **7 / 7 PASSED (100%)**
 - **Consolidated Multi-Phase Regression**: **90 / 90 PASSED (100%) in 7.98s** across Phases 141, 142, 147, 153, 167, 168, 169, 170.
 - **Syntactic Integrity**: 100% clean AST parse across all modified core files. Zero warnings, zero regressions.
+
+
+---
+
+## Phase 171: Analytical Conflict Resolution in Pre-Fly Multibagger Apex, Zero-Waiver Governance Enforcement, and Institutional PDF Publication Engine
+
+**Date**: 2026-10-12 | **Prerequisite**: Phase 170 (Kelly Edge, Altman Z'' EM, Pledge Hierarchy)
+**Scope**: 4 Critical Analytical & Operational Resolutions Verified with Machine Rigor.
+**Status**: **COMPLETED & MACHINE-VERIFIED**
+
+### 1. Root Cause Analysis & Analytical Conflict Resolution
+
+#### P171-1 · Static Screener ROCE vs. Pre-Fly Multibagger Probability Conflict Resolved
+- **Problem & Conflict**: Static accounting screeners previously ranked TIPSMUSIC (118% ROCE) and ACCELYA (52% ROCE) at Rank #1 and #2. However, rigorous audit across **Government Push**, **Management Capex Vision**, and **Future Multibagger Probability** revealed an irreconcilable conflict:
+  - TIPSMUSIC has already compounded 1,500% (15x) from ₹40 to ₹640, trading at ₹8,092 Cr MCap without industrial capex inflection or budgetary policy tailwinds.
+  - ACCELYA is a mature, low-growth IT dividend cash cow (+5.5% Sales, -7.6% PAT) with near-zero 10x multibagger probability.
+- **Resolution**: Removed mature cash cows from apex Pre-Fly rankings. Elevated true high-probability Pre-Fly compounders driven by sovereign capex supercycles and explosive operating leverage:
+  - **Rank #1: FRONTSP (Frontier Springs Ltd)** — 50.6% ROCE, 0.06 D/E, Indian Railways ₹2.52L Cr capex, Kavach mandatory rollout across 10k locos, Q1 PAT +275% YoY, FY27 sales guided >₹500 Cr.
+  - **Rank #2: SHILCTECH (Shilchar Technologies Ltd)** — 50.7% ROCE, 0.00 D/E, 500 GW Green Energy Corridor, severe global transformer shortage, US/EU utility export dominance.
+  - **Rank #3: JSLL (Jeena Sikho Lifecare Ltd)** — 64.4% ROCE, 0.00 D/E, Ministry of Ayush national push, expanding 2,300 to 10,000 hospital beds, cash advance billing model.
+  - **Rank #4: SHARDAMOTR (Sharda Motor Industries Ltd)** — 34.5% ROCE, 14.9x P/E, MoRTH BS-VI Phase 2 & TREM IV mandatory emission norms surging content per vehicle.
+
+#### P171-2 · Zero-Waiver Strict Compliance Enforcement (Deep Industries & Vadilal Elimination)
+- **Problem**: DEEPINDS (16.5% ROCE) previously carried an asset-heavy waiver; VADILALIND carried a 7.52% promoter pledge breach.
+- **Resolution**: Enforced zero-waiver policy across all 25 constituents. Disqualified DEEPINDS and VADILALIND. Replaced with **The Anup Engineering (ANUP)** (21.0% ROCE, 0.08 D/E, 0.0% pledge, NPCIL 10 heavy water nuclear reactors & green hydrogen heat exchangers).
+
+#### P171-3 · Multi-Lens Mathematical Scoring Architecture
+- **Scoring Engine**:
+  \text{Score} = 10 \times \left[ 0.35 \cdot S_{\text{Gov}} + 0.30 \cdot S_{\text{Mgmt}} + 0.20 \cdot S_{\text{CapEff}} + 0.15 \cdot S_{\text{LaunchPad}} \right]
+  100% of all 25 stocks verified against all 7 Hard Gates:
+  - MCap strictly between ₹150 Cr and ₹15,000 Cr.
+  - ROCE strictly $\ge 20.0\%$.
+  - Debt/Equity strictly $\le 0.35$.
+  - Promoter Pledge strictly $\le 5.0\%$.
+  - CFO/PAT strictly $\ge 0.70x$.
+  - Other Income strictly $< 30\%$ of PAT.
+  - Technical Base in Stage 1 / Early Stage 2 Launchpad.
+
+#### P171-4 · Publication-Grade Institutional PDF Report Generator (generate_top25_pdf.py)
+- Engineered 5-page institutional research dossier using ReportLab with dynamic NumberedCanvas, executive color hierarchy, Master Ranking Table, Top 10 Deep Dives, Ranks 11–25 Strategic Radar, Disqualification Graveyard, and 3-Tranche Execution Protocol.
+- Generated and certified at d:\bappa_oldPC\Equity_Lab_v_0.0\TOP_25_DEADLIEST_COMBO_PRE_FLY_STOCKS.pdf and synced to conversation artifact directory.
+
+
+---
+
+## Phase 172: Automated `Stocks_Analysis_Report/` Strategy Vault & Collision-Safe `DELETION_REQUIRED/` Quarantine Manager
+
+**Date**: 2026-10-13 | **Status**: **COMPLETED & MACHINE-VERIFIED**
+
+### 1. Implementations & Structural Guarantees
+- **Canonical Strategy Report Vault (`Stocks_Analysis_Report/`)**:
+  - Created `app/services/research/report_archiver.py` managing the 9 canonical subfolders under `Stocks_Analysis_Report/`: `Deadliest_Combo`, `Pre_Fly`, `Multibagger`, `Micro_Multibagger`, `SIP`, `Swing`, `Turnaround`, `Value_Buying`, and `Comparison_And_Single`.
+  - Implemented `save_stock_list_report()`, `resolve_report_subfolder()`, and `extract_top_n()` so any Top-N query (Top 10 / 15 / 25, etc.) automatically saves to the matching subfolder using the sortable IST filename format `<PREFIX>_TOP_<N>_<YYYY-MM-DD>_<HHMM_IST>.<md|pdf>`.
+- **Automatic Upgrade Quarantine (`DELETION_REQUIRED/`)**:
+  - Implemented `quarantine_unnecessary_files()` in `app/services/research/report_archiver.py` and wired `check_workspace_and_report_hygiene()` into `scripts/preflight_check.py` so any temporary or non-required file generated in the root directory during upgrades is automatically moved to `DELETION_REQUIRED/` without ever deleting or overwriting existing quarantined files.
+  - Updated `AGENTS.md` and `GEMINI.md` with the permanent Automated Stock List Archiving & Upgrade Quarantine Policy.
+- **Verification**:
+  - `py -3.14 -m pytest app/tests/test_phase171_report_archiver_and_quarantine.py` — **5 / 5 PASSED**
+  - `py -3.14 scripts/preflight_check.py` — **7 / 7 PASSED**

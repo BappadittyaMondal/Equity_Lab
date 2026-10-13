@@ -21,7 +21,7 @@ PATTERNS = [
     (re.compile(r'(?i)angel_?one.*api_?key.*[=:][\s"\']([A-Za-z0-9]{8,16})["\']'), "Angel One API Key Assignment"),
 ]
 
-EXCLUDE_DIRS = {'.git', '.venv', 'venv', '__pycache__', '.pytest_cache', '.pytest_temp', '.pytest_tmp', 'unnecessary_files_archive', 'Not_Required_Upload', 'scratch'}
+EXCLUDE_DIRS = {'.git', '.venv', 'venv', '__pycache__', '.pytest_cache', '.pytest_temp', '.pytest_tmp', 'unnecessary_files_archive', 'Not_Required_Upload', 'scratch', 'DELETION_REQUIRED'}
 
 FORBIDDEN_ARCHIVE_EXTENSIONS = ('.env', '.db', '.sqlite', '.sqlite3', '.pem', '.key')
 

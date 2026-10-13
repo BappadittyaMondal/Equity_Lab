@@ -614,7 +614,7 @@ def run_forensic_engine(
     governance_flags = []
 
     try:
-        _, financials, _, _, _, _ = data_store.get_timeline(norm, as_of=as_of)
+        company, financials, _, _, _, _ = data_store.get_timeline(norm, as_of=as_of)
     except Exception as e:
         return StrategyRunResponse(
             strategy_id=strategy_id,
@@ -645,8 +645,10 @@ def run_forensic_engine(
             meta=create_meta_header(source=f"IERL Forensic Engine ({norm})"),
         )
 
+    sector_str = getattr(company, "sector", None) if company else None
     beneish = compute_beneish_mscore(financials)
     altman = compute_altman_zscore(financials)
+    altman_em = compute_altman_zscore_em(financials, sector=sector_str)
     piotroski = compute_piotroski_fscore(financials)
 
     all_evidence.extend(beneish.get("evidence", []))
@@ -655,7 +657,10 @@ def run_forensic_engine(
 
     # Determine if any CRITICAL flag
     beneish_flag = beneish.get("classification") == "LIKELY_MANIPULATOR"
-    altman_distress = altman.get("zone") == "DISTRESS"
+    if altman_em.get("status") == "not_applicable":
+        altman_distress = False
+    else:
+        altman_distress = altman.get("zone") == "DISTRESS" and altman_em.get("zone") == "DISTRESS"
     piotroski_weak = piotroski.get("strength") == "WEAK"
 
     if beneish_flag:
@@ -689,6 +694,7 @@ def run_forensic_engine(
         results={
             "beneish_m_score": beneish,
             "altman_z_score": altman,
+            "altman_z_double_prime_em": altman_em,
             "piotroski_f_score": piotroski,
             "governance_flags": governance_flags,
             "forensic_risk": forensic_risk,
@@ -699,6 +705,7 @@ def run_forensic_engine(
         metrics={
             "m_score": beneish.get("m_score"),
             "z_score": altman.get("z_score"),
+            "z_double_prime_score": altman.get("z_double_prime_score"),
             "f_score": piotroski.get("f_score"),
             "forensic_risk": forensic_risk,
             "governance_grade": gov_grade,

@@ -27,6 +27,7 @@ EXCLUDE_DIRS = {
     ".venv",
     "venv",
     "node_modules",
+    "DELETION_REQUIRED",
 }
 
 EXCLUDE_FILES = {

@@ -8,6 +8,7 @@ from typing import Dict, Any, Optional
 from datetime import datetime
 from app.services.market_data import normalize_symbol, create_meta_header
 from app.models.schemas import InsiderConvictionSignal, GovernanceRedFlagChecklist
+from app.core.constants import PLEDGE_WARNING_MIN, PLEDGE_DISQUALIFY_MIN, PLEDGE_VETO_THRESHOLD
 
 
 def evaluate_promoter_behaviour(
@@ -87,7 +88,7 @@ def evaluate_promoter_behaviour(
     # Calculate Insider Conviction Score (0-100)
     net_buy_score = min(30.0, max(0.0, (net_buy_shares / 100000.0) * 10.0)) if net_buy_shares > 0 else 0.0
     if pledge_pct is not None:
-        pledge_score = 30.0 if pledge_pct < 10.0 and pledge_trend in ["DECREASING", "ZERO"] else (15.0 if pledge_pct < 25.0 else 0.0)
+        pledge_score = 30.0 if pledge_pct < PLEDGE_WARNING_MIN and pledge_trend in ["DECREASING", "ZERO"] else (15.0 if pledge_pct < PLEDGE_DISQUALIFY_MIN else 0.0)
     else:
         pledge_score = 15.0  # Neutral unobserved baseline with Amber cap
     weakness_bonus = 15.0 if buying_into_weakness and net_buy_shares > 0 else 0.0
@@ -99,14 +100,14 @@ def evaluate_promoter_behaviour(
     # Heroic Promoter Trap Demasking (Zee Paradigm):
     # If promoter stake is < 15% (e.g. wiped by pledge calls) or in NCLT distress,
     # any insider buying/warrants is NOT growth conviction — it is a control defense / anti-dilution gamble.
-    is_heroic_promoter_trap = (promoter_holding_pct < 15.0 and pledge_pct is not None and pledge_pct > 25.0) or is_insolvent_or_court
+    is_heroic_promoter_trap = (promoter_holding_pct < 15.0 and pledge_pct is not None and pledge_pct > PLEDGE_DISQUALIFY_MIN) or is_insolvent_or_court
     if is_heroic_promoter_trap and net_buy_shares > 0:
         red_flags.append("CRITICAL: Heroic Promoter Trap — Insider buying under low equity (<15%) or insolvency indicates survival/control retention gamble, not growth conviction.")
         insider_conviction_score = min(25.0, insider_conviction_score * 0.3)
 
     # Governance Checklist Hard Veto checks
-    if pledge_pct is not None and pledge_pct > 40.0:
-        red_flags.append(f"CRITICAL: Promoter Pledge {pledge_pct:.1f}% > 40% threshold")
+    if pledge_pct is not None and pledge_pct > PLEDGE_VETO_THRESHOLD:
+        red_flags.append(f"CRITICAL: Promoter Pledge {pledge_pct:.1f}% > {int(PLEDGE_VETO_THRESHOLD)}% threshold")
     if auditor_changes > 1:
         red_flags.append(f"WARNING: Frequent Auditor Changes ({auditor_changes} in 3y)")
     if cfo_changes > 2:

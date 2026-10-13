@@ -25,7 +25,12 @@ def clean_workspace(root_dir: Path, verify_only: bool = False) -> int:
     print(f"[*] Scanning workspace directory: {root_dir}")
     
     for dirpath, dirnames, filenames in os.walk(root_dir):
+        for skip_dir in ("DELETION_REQUIRED", "Stocks_Analysis_Report"):
+            if skip_dir in dirnames:
+                dirnames.remove(skip_dir)
         dp = Path(dirpath)
+        if "DELETION_REQUIRED" in dp.parts or "Stocks_Analysis_Report" in dp.parts:
+            continue
         
         # Remove __pycache__ and .pytest_cache
         if dp.name in [".pytest_cache", "__pycache__", "scratch", "temp_pytest", ".pytest_temp"]:

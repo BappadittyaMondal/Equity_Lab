@@ -23,6 +23,7 @@ from app.services.intelligence.sub_agents import (
     SupplyChainCatalystSubAgent,
     RedTeamBearCaseSubAgent,
 )
+from app.core.constants import PLEDGE_PRISTINE_MAX, PLEDGE_WARNING_MIN
 from app.services.intelligence.committee_arbiter import VirtualICArbiter
 
 logger = logging.getLogger(__name__)
@@ -357,12 +358,12 @@ class VirtualInvestmentCommittee:
             concerns.append(f"Base Scale Limit (S): Large market cap (Rs {mcap:.0f} Cr) dampens multi-fold SMILE multiplier.")
 
         # M - Management track record & integrity
-        if prom_hold >= 50.0 and pledge <= 2.0:
+        if prom_hold >= 50.0 and pledge <= PLEDGE_PRISTINE_MAX:
             findings.append(f"Pristine Insider Alignment (M): Promoter holding {prom_hold:.1f}%, near-zero pledge ({pledge:.1f}%).")
         elif prom_hold < 40.0:
             concerns.append(f"Low Skin in the Game (M): Promoter holding is only {prom_hold:.1f}%.")
 
-        if pledge > 10.0:
+        if pledge > PLEDGE_WARNING_MIN:
             concerns.append(f"Promoter Pledge Vulnerability: {pledge:.1f}% shares encumbered.")
 
         # I & L - Conservative Solvency & Long Runway

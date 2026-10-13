@@ -10,6 +10,7 @@ import os
 import re
 from typing import Dict, Any, List, Optional
 from app.services.data_ingestion.screener_connector import ScreenerCloudConnector
+from app.core.constants import PLEDGE_QUALITY_PASS_MAX, PLEDGE_WARNING_MIN, PLEDGE_DISQUALIFY_MIN
 
 logger = logging.getLogger(__name__)
 
@@ -641,8 +642,8 @@ class InstitutionalMultibaggerEngine:
             pass  # Professionally managed: zero promoter pledge is standard
         elif pledged_pct is None:
             disqualifications.append("Promoter Pledge Data Missing/Unverified (Fail-Closed Risk Gate)")
-        elif pledged_pct > 25.0:
-            disqualifications.append(f"Excessive Promoter Pledge ({pledged_pct:.1f}% > 25%)")
+        elif pledged_pct > PLEDGE_DISQUALIFY_MIN:
+            disqualifications.append(f"Excessive Promoter Pledge ({pledged_pct:.1f}% > {int(PLEDGE_DISQUALIFY_MIN)}%)")
         if auditor_resigned:
             disqualifications.append("Auditor Resignation Flagged")
         if related_party_red_flag:
@@ -1645,11 +1646,11 @@ class InstitutionalMultibaggerEngine:
         total += c1
 
         # Component 2: Promoter quality + no dilution
-        if promoter_holding >= 50.0 and pledged_pct <= 5.0 and not recent_equity_dilution:
+        if promoter_holding >= 50.0 and pledged_pct <= PLEDGE_QUALITY_PASS_MAX and not recent_equity_dilution:
             c2 = 20.0
-        elif promoter_holding >= 50.0 and pledged_pct <= 5.0:
+        elif promoter_holding >= 50.0 and pledged_pct <= PLEDGE_QUALITY_PASS_MAX:
             c2 = 12.0
-        elif promoter_holding >= 40.0 and pledged_pct <= 10.0:
+        elif promoter_holding >= 40.0 and pledged_pct <= PLEDGE_WARNING_MIN:
             c2 = 5.0
         else:
             c2 = 0.0

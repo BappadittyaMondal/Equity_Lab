@@ -23,6 +23,7 @@ from app.services.market_data import (
 )
 from app.services.data_ingestion.screener_connector import ScreenerCloudConnector
 from app.services.research.institutional_multibagger_engine import InstitutionalMultibaggerEngine
+from app.core.constants import PLEDGE_DISQUALIFY_MIN
 
 logger = logging.getLogger(__name__)
 
@@ -147,7 +148,7 @@ class MultiHorizonMatrixEngine:
         if pledge_pct is not None:
             if pledge_pct == 0.0:
                 conf_score += 5.0
-            elif pledge_pct > 25.0:
+            elif pledge_pct > PLEDGE_DISQUALIFY_MIN:
                 conf_score -= 25.0
         else:
             conf_score -= 15.0  # Undisclosed/missing promoter pledge penalty in production

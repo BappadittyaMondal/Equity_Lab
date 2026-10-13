@@ -744,3 +744,24 @@ def format_pipeline_report(
     lines.append("- **Operating Leverage Convexity Omega**: Range `[1.0, 2.5]` boosting operating acceleration.")
 
     return "\n".join(lines)
+
+
+def save_pipeline_report(
+    results: List[DeadliestComboResult],
+    disqualified: Optional[List[DeadliestComboResult]] = None,
+    category_or_query: str = "DEADLIEST_COMBO",
+    top_n: Optional[int] = None,
+) -> str:
+    """Format and automatically archive pipeline results into Stocks_Analysis_Report/<Category>/."""
+    from app.services.research.report_archiver import save_stock_list_report
+
+    md_text = format_pipeline_report(results, disqualified=disqualified)
+    n_count = top_n if (top_n is not None and top_n > 0) else max(1, len(results))
+    saved_path = save_stock_list_report(
+        content=md_text,
+        category_or_query=category_or_query,
+        top_n=n_count,
+        ext="md",
+    )
+    return str(saved_path)
+

@@ -11,3 +11,8 @@
 - **Live fundamental data is mandatory.** Always verify: Market Cap, P/E, RoCE%, Debt/Equity, Revenue growth (latest quarter YoY), PAT growth (latest quarter YoY), and CFO/PAT from Screener.in before any analysis.
 - **Zero tolerance for stale data.** Do not use figures from earlier in a session for stock analysis — always re-verify because markets move intraday and quarterly results update frequently.
 - **Flag data age explicitly.** Always state the date/time the data was fetched. If data cannot be fetched (network issue), explicitly say so — never silently substitute stale data.
+
+## Automated Stock List Archiving & Upgrade Quarantine Policy
+- **Automatic Top-N Report Filing (`Stocks_Analysis_Report/`):** Whenever the user asks for a Top 10 / 15 / 25 (or any Top-N) stock list, automatically save the generated report inside the matching strategy subfolder under `Stocks_Analysis_Report/` (`Deadliest_Combo`, `Pre_Fly`, `Multibagger`, `Micro_Multibagger`, `SIP`, `Swing`, `Turnaround`, `Value_Buying`, `Comparison_And_Single`) using `save_stock_list_report()` from `app/services/research/report_archiver.py` with the naming format `<PREFIX>_TOP_<N>_<YYYY-MM-DD>_<HHMM_IST>.<md|pdf>`.
+- **Zero Root Clutter & Upgrade Quarantine (`DELETION_REQUIRED/`):** Whenever temporary scripts, intermediate JSON dumps, or unnecessary files are generated during project upgrades or ad-hoc screening, keep them inside `DELETION_REQUIRED/` (or run `quarantine_unnecessary_files()` / `scripts/preflight_check.py`). Never delete any file inside `DELETION_REQUIRED/`.
+
