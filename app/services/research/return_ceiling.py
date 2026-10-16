@@ -12,6 +12,28 @@ but were labeled 'multibagger' with targets like '60% to 3x'.
 from typing import Dict, Any, Optional
 
 
+# Phase 180: Sector-Specific Baseline Terminal P/E multiples
+SECTOR_TERMINAL_PE_MAP: Dict[str, Dict[str, float]] = {
+    "FMCG": {"base": 35.0, "bull": 45.0, "bear": 25.0},
+    "CONSUMER": {"base": 35.0, "bull": 45.0, "bear": 25.0},
+    "CONSUMER DURABLES": {"base": 30.0, "bull": 40.0, "bear": 20.0},
+    "TECHNOLOGY": {"base": 25.0, "bull": 32.0, "bear": 18.0},
+    "IT SERVICES": {"base": 25.0, "bull": 32.0, "bear": 18.0},
+    "HEALTHCARE": {"base": 25.0, "bull": 32.0, "bear": 18.0},
+    "PHARMACEUTICALS": {"base": 25.0, "bull": 32.0, "bear": 18.0},
+    "CAPITAL GOODS": {"base": 24.0, "bull": 30.0, "bear": 16.0},
+    "DEFENCE": {"base": 25.0, "bull": 32.0, "bear": 16.0},
+    "AUTOMOBILE": {"base": 18.0, "bull": 24.0, "bear": 12.0},
+    "CHEMICALS": {"base": 22.0, "bull": 28.0, "bear": 15.0},
+    "FINANCIAL SERVICES": {"base": 18.0, "bull": 22.0, "bear": 12.0},
+    "METALS & MINING": {"base": 10.0, "bull": 14.0, "bear": 7.0},
+    "ENERGY": {"base": 10.0, "bull": 14.0, "bear": 7.0},
+    "UTILITIES": {"base": 12.0, "bull": 16.0, "bear": 8.0},
+    "REAL ESTATE": {"base": 18.0, "bull": 24.0, "bear": 12.0},
+    "GENERAL": {"base": 18.0, "bull": 25.0, "bear": 12.0},
+}
+
+
 def compute_return_ceiling(
     current_mcap_cr: float,
     ttm_pat_cr: float,
@@ -20,22 +42,9 @@ def compute_return_ceiling(
     sovereign_yield_pct: Optional[float] = None,
     dividend_yield_pct: Optional[float] = None,
     cfo_pat_ratio: Optional[float] = None,
+    sector: Optional[str] = None,
 ) -> Dict[str, Any]:
-    """Compute Bear / Base / Bull return multiples via reverse-DCF.
-
-    Args:
-        current_mcap_cr: Current market cap in ₹ Crore.
-        ttm_pat_cr: Trailing twelve-month PAT in ₹ Crore.
-        growth_scenarios: Optional custom scenarios. If None, uses defaults.
-        horizon_years: Investment horizon in years (default 3).
-        sovereign_yield_pct: Optional 10Y sovereign benchmark yield % (e.g. 7.1%).
-        dividend_yield_pct: Optional dividend yield % for yield trap guard.
-        cfo_pat_ratio: Optional CFO/PAT ratio for cash realization verification.
-
-    Returns:
-        Dict with bear/base/bull multiples, multibagger_eligible flag,
-        and sovereign yield & dividend trap indicators.
-    """
+    """Compute Bear / Base / Bull return multiples via reverse-DCF with sector awareness."""
     if current_mcap_cr <= 0 or ttm_pat_cr <= 0:
         return {
             "bear_multiple": 0.0,
@@ -46,12 +55,23 @@ def compute_return_ceiling(
             "horizon_years": horizon_years,
             "dividend_trap_warning": False,
             "sovereign_yield_pct": sovereign_yield_pct,
+            "sector": str(sector or "GENERAL").upper(),
         }
 
     # Macro yield gravity multiple compression
-    base_terminal_pe = 18.0
-    bull_terminal_pe = 25.0
-    bear_terminal_pe = 12.0
+    norm_sector = str(sector or "GENERAL").upper().strip()
+    pe_defaults = SECTOR_TERMINAL_PE_MAP.get(norm_sector)
+    if not pe_defaults:
+        for k, v in SECTOR_TERMINAL_PE_MAP.items():
+            if k in norm_sector or norm_sector in k:
+                pe_defaults = v
+                break
+    if not pe_defaults:
+        pe_defaults = SECTOR_TERMINAL_PE_MAP["GENERAL"]
+
+    base_terminal_pe = pe_defaults["base"]
+    bull_terminal_pe = pe_defaults["bull"]
+    bear_terminal_pe = pe_defaults["bear"]
     yield_compressed = False
 
     if sovereign_yield_pct is not None and float(sovereign_yield_pct) > 8.0:
@@ -123,6 +143,7 @@ def compute_return_ceiling(
         "horizon_years": horizon_years,
         "current_mcap_cr": current_mcap_cr,
         "ttm_pat_cr": ttm_pat_cr,
+        "sector": norm_sector,
         "dividend_trap_warning": is_dividend_trap,
         "sovereign_yield_pct": sovereign_yield_pct,
         "yield_compression_applied": yield_compressed,

@@ -35,6 +35,106 @@ _DEFAULT_UNIVERSE = [
     "PERSISTENT", "COFORGE", "KALYANKJIL", "TRENT", "BEL", "HAL", "MAZDOCK", "CDSL"
 ]
 
+# Phase 180: Intent-Adaptive Default Universes across market caps and strategies
+_ARCHETYPE_DEFAULT_UNIVERSES: Dict[str, List[str]] = {
+    "MICRO_MULTIBAGGER": [
+        "KAYNES", "DATAPATT", "ZENITH", "AETHER", "ANUPAM", "SANSERA", "CRAFTSMAN",
+        "JAMNAAUTO", "SUPRAJIT", "PRICOLLTD", "GABRIEL", "NEWGEN", "ASTRAZEN", "ERIS",
+        "GRANULES", "SUVENPHAR", "TEJASNET", "AMBER", "FIVESTAR", "SBFC", "HOMEFIRST",
+        "AAVAS", "APTUS", "REPCOHOME", "INDIAGLYCO", "ALKYLAMINE", "BALAMINES", "NEOGEN",
+        "PAUSHAK", "SURYAROSNI", "STYRENIX", "SARDAEN", "GODAWARI", "LANDMARK", "ETHOSLTD",
+        "SAFARI", "GARFIBRES"
+    ],
+    "EARLY_MICROCAP": [
+        "KAYNES", "DATAPATT", "ZENITH", "AETHER", "ANUPAM", "SANSERA", "CRAFTSMAN",
+        "JAMNAAUTO", "SUPRAJIT", "PRICOLLTD", "GABRIEL", "NEWGEN", "ASTRAZEN", "ERIS",
+        "GRANULES", "SUVENPHAR", "TEJASNET", "AMBER", "FIVESTAR", "SBFC", "HOMEFIRST",
+        "AAVAS", "APTUS", "REPCOHOME", "INDIAGLYCO", "ALKYLAMINE", "BALAMINES", "NEOGEN",
+        "PAUSHAK", "SURYAROSNI", "STYRENIX", "SARDAEN", "GODAWARI", "LANDMARK", "ETHOSLTD"
+    ],
+    "PRE_FLY": [
+        "DIXON", "POLYCAB", "KEI", "MAZDOCK", "COCHINSHIP", "GRSE", "BEML", "ZENITH",
+        "TRENT", "BEL", "HAL", "BDL", "KAYNES", "APARINDS", "CGPOWER", "TUBEINVEST",
+        "SOLARINDS", "SUZLON", "INOXWIND", "RVNL", "IRFC", "BSE", "MCX", "CDSL", "ANGELONE"
+    ],
+    "DEADLIEST_COMBO": [
+        "DIXON", "POLYCAB", "KEI", "MAZDOCK", "COCHINSHIP", "GRSE", "BEML", "ZENITH",
+        "TRENT", "BEL", "HAL", "BDL", "KAYNES", "APARINDS", "CGPOWER", "TUBEINVEST",
+        "SOLARINDS", "SUZLON", "INOXWIND", "RVNL", "IRFC", "BSE", "MCX", "CDSL", "ANGELONE",
+        "DATAPATT", "NEWGEN", "SANSERA", "CRAFTSMAN", "AETHER"
+    ],
+    "SWING_POSITIONAL": [
+        "DIXON", "POLYCAB", "KEI", "MAZDOCK", "COCHINSHIP", "GRSE", "BEML", "ZENITH",
+        "TRENT", "BEL", "HAL", "BDL", "KAYNES", "APARINDS", "CGPOWER", "TUBEINVEST",
+        "SOLARINDS", "SUZLON", "INOXWIND", "RVNL", "IRFC", "BSE", "MCX", "CDSL", "ANGELONE"
+    ],
+    "SWING_3D": [
+        "DIXON", "POLYCAB", "KEI", "MAZDOCK", "COCHINSHIP", "GRSE", "BEML", "ZENITH",
+        "TRENT", "BEL", "HAL", "BDL", "KAYNES", "APARINDS", "CGPOWER", "TUBEINVEST",
+        "SOLARINDS", "SUZLON", "INOXWIND", "RVNL", "IRFC", "BSE", "MCX", "CDSL", "ANGELONE"
+    ],
+    "SWING_10D": [
+        "DIXON", "POLYCAB", "KEI", "MAZDOCK", "COCHINSHIP", "GRSE", "BEML", "ZENITH",
+        "TRENT", "BEL", "HAL", "BDL", "KAYNES", "APARINDS", "CGPOWER", "TUBEINVEST",
+        "SOLARINDS", "SUZLON", "INOXWIND", "RVNL", "IRFC", "BSE", "MCX", "CDSL", "ANGELONE"
+    ],
+    "POSITIONAL_30D": [
+        "DIXON", "POLYCAB", "KEI", "MAZDOCK", "COCHINSHIP", "GRSE", "BEML", "ZENITH",
+        "TRENT", "BEL", "HAL", "BDL", "KAYNES", "APARINDS", "CGPOWER", "TUBEINVEST",
+        "SOLARINDS", "SUZLON", "INOXWIND", "RVNL", "IRFC", "BSE", "MCX", "CDSL", "ANGELONE"
+    ],
+    "VALUE_BUYING": [
+        "COALINDIA", "NMDC", "SAIL", "IOC", "BPCL", "ONGC", "GAIL", "PETRONET", "RECLTD",
+        "PFC", "IREDA", "CANBK", "PNB", "BANKBARODA", "UNIONBANK", "BHEL", "SUZLON",
+        "INOXWIND", "YESBANK", "JAPOWER", "FACT", "NFL", "CHENNPETRO", "MRPL", "SJVN", "NHPC"
+    ],
+    "TURNAROUND": [
+        "BHEL", "SUZLON", "INOXWIND", "YESBANK", "JAPOWER", "FACT", "NFL", "CHENNPETRO",
+        "MRPL", "SJVN", "NHPC", "IDEA", "SAIL", "GMRINFRA"
+    ],
+    "SIP_COMPOUNDER": [
+        "HINDUNILVR", "ITC", "TITAN", "TCS", "INFY", "HDFCBANK", "ICICIBANK", "KOTAKBANK",
+        "PIDILITIND", "ASIANPAINT", "BAJFINANCE", "COLPAL", "DABUR", "MARICO", "BRITANNIA",
+        "GODREJCP", "VBL", "TATACONSUM", "POLYCAB", "DIVISLAB", "SUNPHARMA", "CUMMINSIND",
+        "SIEMENS", "ABB"
+    ],
+    "KEDIA_SMILE": [
+        "PATELENG", "TALBROSAUTO", "TAJGVK", "NEULANDLAB", "ATALREAL",
+        "SUDARSHAN", "VAIBHAVGBL", "AFFLE", "ELECON", "REPRO"
+    ],
+    "KACHOLIA_SCALABILITY": [
+        "SAFARI", "SHIVALIK", "GRAVITA", "AMIORG", "ADFFOODS",
+        "REPRO", "YASHOPTICS", "GENUSPOWER", "TARC", "VINDHYATEL"
+    ],
+    "AGRAWAL_INFLECTION": [
+        "ZENITH", "NEOGEN", "PARAS", "RADICO", "DREAMFOLKS",
+        "TAJGVK", "DISHTV", "PTC", "RAYMOND", "DYNAMIC"
+    ],
+    # Phase 181: Dedicated MULTIBAGGER pool — mid/smallcap high-ROIC growth compounders
+    "MULTIBAGGER": [
+        "DIXON", "POLYCAB", "KAYNES", "APARINDS", "CGPOWER", "SANSERA", "CRAFTSMAN",
+        "PERSISTENT", "COFORGE", "TRENT", "TITAN", "BAJFINANCE", "PIIND", "ATUL",
+        "CLEAN", "VINSC", "AETHER", "NEWGEN", "DATAPATT", "SAFARI", "GRAVITA",
+        "AMIORG", "SHIVALIK", "GARFIBRES", "SARDAEN", "ETHOSLTD", "FIVESTAR",
+        "SBFC", "HOMEFIRST", "AAVAS", "APTUS"
+    ],
+    # Phase 181: SMART_SUPERSTAR_INVESTOR — union of known ace-investor portfolios
+    "SMART_SUPERSTAR_INVESTOR": [
+        # Kedia SMILE
+        "PATELENG", "TALBROSAUTO", "TAJGVK", "NEULANDLAB", "ATALREAL",
+        "SUDARSHAN", "VAIBHAVGBL", "AFFLE", "ELECON", "REPRO",
+        # Kacholia Scalability
+        "SAFARI", "SHIVALIK", "GRAVITA", "AMIORG", "ADFFOODS",
+        "YASHOPTICS", "GENUSPOWER", "TARC", "VINDHYATEL",
+        # Agrawal Inflection
+        "ZENITH", "NEOGEN", "PARAS", "RADICO", "DREAMFOLKS",
+        "DISHTV", "PTC", "RAYMOND", "DYNAMIC",
+        # Dolly Khanna / Damani intersection picks
+        "RAIN", "TIDEWATER", "ORIENT", "MANAPPURAM", "INDIAGLYCO"
+    ],
+}
+
+
 
 def run_technical_universe_screener(
     universe: Optional[List[str]] = None,
@@ -44,7 +144,12 @@ def run_technical_universe_screener(
     as_of: Optional[datetime] = None
 ) -> Dict[str, Any]:
     """Executes 3-tier technical universe screener and returns top technical probability candidates with intent routing."""
-    symbols = universe or _DEFAULT_UNIVERSE
+    if universe:
+        symbols = universe
+    elif intent_archetype and intent_archetype.upper() in _ARCHETYPE_DEFAULT_UNIVERSES:
+        symbols = _ARCHETYPE_DEFAULT_UNIVERSES[intent_archetype.upper()]
+    else:
+        symbols = _DEFAULT_UNIVERSE
     regime = classify_market_regime(as_of=as_of)
 
     tier0_survivors = []

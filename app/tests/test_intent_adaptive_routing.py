@@ -13,8 +13,8 @@ def test_intent_detection():
     assert QueryAdaptiveConstraintEngine.detect_query_intent("Find turnaround stocks recovering from loss") == "TURNAROUND"
     assert QueryAdaptiveConstraintEngine.detect_query_intent("Graham deep value net-net buying") == "VALUE_BUYING"
     assert QueryAdaptiveConstraintEngine.detect_query_intent("Best SIP compounder for 10 year horizon") == "SIP_COMPOUNDER"
-    assert QueryAdaptiveConstraintEngine.detect_query_intent("10 day swing trade breakout setup") == "SWING_POSITIONAL"
-    assert QueryAdaptiveConstraintEngine.detect_query_intent("Early stage 100cr microcap multibagger runway") == "EARLY_MICROCAP"
+    assert QueryAdaptiveConstraintEngine.detect_query_intent("10 day swing trade breakout setup") == "SWING_10D"  # Phase 180: precise sub-horizon routing
+    assert QueryAdaptiveConstraintEngine.detect_query_intent("Early stage 100cr microcap multibagger runway") == "MICRO_MULTIBAGGER"  # Phase 181: compound token → MICRO_MULTIBAGGER
     assert QueryAdaptiveConstraintEngine.detect_query_intent("Compare Tata Motors vs Mahindra") == "PEER_COMPARE"
     assert QueryAdaptiveConstraintEngine.detect_query_intent("Analyze Reliance Industries") == "GENERAL"
 
@@ -146,11 +146,11 @@ def test_dynamic_parameter_strictness_surfacing_in_manifest():
     assert manifest is not None
     assert "dynamic_parameter_adjustments" in manifest
     dpa = manifest["dynamic_parameter_adjustments"]
-    assert dpa["intent"] == "SWING_POSITIONAL"
+    assert dpa["intent"] == "SWING_10D"  # Phase 180: "10 day" keyword routes to precise SWING_10D
     assert len(dpa["relaxed_parameters"]) > 0
     assert len(dpa["tightened_parameters"]) > 0
     assert "strictness_summary" in dpa
-    assert "Intent SWING_POSITIONAL" in dpa["strictness_summary"]
+    assert "Intent SWING_10D" in dpa["strictness_summary"]  # Phase 180/181: "10 day" → SWING_10D
 
 
 def test_intent_adaptive_all_archetypes_strictness_coverage():

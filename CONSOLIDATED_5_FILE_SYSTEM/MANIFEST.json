@@ -3,17 +3,17 @@
     "PROJECT_VERSION": "0.0.0",
     "BUNDLE_VERSION": "2.0",
     "SCHEMA_VERSION": "1.0",
-    "GIT_COMMIT_SOURCE": "a31b391",
-    "GIT_COMMIT": "a31b391",
-    "GENERATED_AT": "2026-10-16T07:19:15.214694+00:00",
+    "GIT_COMMIT_SOURCE": "1175c49",
+    "GIT_COMMIT": "1175c49",
+    "GENERATED_AT": "2026-10-16T14:21:17.338314+00:00",
     "GENERATOR_VERSION": "2.0",
-    "SOURCE_HASH": "4da0d0b3157bbbc025b8dfa30e91e440683d8027dac23296500f044ae606fe9a"
+    "SOURCE_HASH": "8931ec95dcc4e0e13bc7eca015423d5418c143bf74a15096cc70ec21f89827b2"
   },
   "bundle_files": {
     "01_Master_System_Core_Instructions_Architecture.md": {
       "sources_count": 8,
       "output_bytes": 139171,
-      "sha256": "a3492897d2e999a70cec04479c52577252d8d86b4df6040cb8520017b45b10e9",
+      "sha256": "31dd53f887265b398c6428ff2833d46eb6ca0c6992e75de61f4a0a4c40caa80f",
       "embedded_sources": [
         {
           "position": 1,
@@ -76,7 +76,7 @@
     "02_Master_Engine_Contracts_Schemas_Registries.md": {
       "sources_count": 18,
       "output_bytes": 262276,
-      "sha256": "8983a25259020b0e7f4ff6ee14c3beb61e8df16b8984099281de0d1d34fcb839",
+      "sha256": "85adf6cc83ce6416d34983a779333814502140b1c0a902798e8829afc17e7f94",
       "embedded_sources": [
         {
           "position": 1,
@@ -209,7 +209,7 @@
     "03_Master_Skill_Library.md": {
       "sources_count": 21,
       "output_bytes": 633475,
-      "sha256": "e3654134ad7c6e49e39ceb2cfe02f73bd7d2ce346a239de90051ea31ec30c581",
+      "sha256": "6b896f2bbcea0b6b4c0d1e7cd7a9ca642fb830171f709f929b3074d5a45a4bf0",
       "embedded_sources": [
         {
           "position": 1,
@@ -363,7 +363,7 @@
     "04_Master_Knowledge_Base_Vol_1_Fundamentals_Valuation_Governance.md": {
       "sources_count": 24,
       "output_bytes": 167532,
-      "sha256": "f1ca6320434a8f6bf8b1295bb9e054bfe8da0244c4a3a4bd9fefe62ef9cf1d7b",
+      "sha256": "fba2680435ed53e967ad08cc13bdcd2f2bc4f849b0310d51d11791cfa48ffcc3",
       "embedded_sources": [
         {
           "position": 1,
@@ -538,7 +538,7 @@
     "05_Master_Knowledge_Base_Vol_2_Sectors_Frameworks_Screening.md": {
       "sources_count": 27,
       "output_bytes": 216508,
-      "sha256": "fecc778991b7bca50316a46db2ae64970aab01db24cfcdd580dc5e1581efbd1e",
+      "sha256": "1be89eae2d30ef24a08231ccc72aeac775ea5b56798c681a7dc299eab91db600",
       "embedded_sources": [
         {
           "position": 1,

@@ -85,8 +85,15 @@ class PenmanStatementReformulator:
             nopat = float(reported_pat)
             net_income = float(reported_pat)
 
-        # RNOA (Return on Net Operating Assets)
-        rnoa_pct = round((nopat / noa) * 100.0, 2) if noa > 0 else 0.0
+        # Phase 180: Asset-Light Negative Net Operating Assets (NOA) Float Efficiency
+        is_asset_light_negative_noa = False
+        if noa <= 0 and nopat > 0:
+            is_asset_light_negative_noa = True
+            rnoa_pct = 999.0  # Supreme operating return flag (negative working capital funded by float)
+        elif noa > 0:
+            rnoa_pct = round((nopat / noa) * 100.0, 2)
+        else:
+            rnoa_pct = 0.0
         
         # NBC (Net Borrowing Cost)
         nbc_pct = round((nfe / nfo) * 100.0, 2) if nfo > 0 else 0.0
@@ -123,6 +130,8 @@ class PenmanStatementReformulator:
         # Engine Quality Classification
         if debt_inflated_roe_trap:
             engine_quality = "FINANCIAL_ENGINEERING_TRAP"
+        elif is_asset_light_negative_noa:
+            engine_quality = "EXCEPTIONAL_ASSET_LIGHT_FLOAT"
         elif rnoa_pct >= 25.0 and flev <= 0.5:
             engine_quality = "EXCEPTIONAL_CORE_ENGINE"
         elif rnoa_pct >= 18.0 and spread_pct >= 5.0:
@@ -153,6 +162,12 @@ class PenmanStatementReformulator:
             "debt_inflated_roe_trap": debt_inflated_roe_trap,
             "trap_reason": trap_reason,
             "engine_quality": engine_quality,
+            "is_asset_light_negative_noa": is_asset_light_negative_noa,
+            "asset_light_efficiency_note": (
+                "Operating liabilities exceed operating assets (negative NOA) while generating positive NOPAT. "
+                "Demonstrates supreme capital efficiency funded by customer/supplier float."
+                if is_asset_light_negative_noa else None
+            ),
         }
 
 

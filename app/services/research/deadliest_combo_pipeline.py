@@ -275,7 +275,11 @@ def _calculate_operating_leverage_convexity(fundamentals: Dict[str, Any]) -> flo
     if pat_growth_val <= 0 or rev_growth_val <= 0:
         return 1.0
 
-    denom = max(5.0, rev_growth_val)
+    # Phase 180: Re-calibrated denominator floor to numerical stability threshold (1.0% instead of 5.0%).
+    # Previously, max(5.0, rev_growth_val) crushed valid operating leverage convexity for companies
+    # in the 0.1% to 5.0% revenue growth band (e.g., PAT +10%, Rev +1% was clamped to ratio 10/5=2.0
+    # instead of 10.0, or PAT +5%, Rev +0.1% gave ratio 5/5=1.0 with zero operating leverage credit).
+    denom = max(1.0, rev_growth_val)
     ratio = pat_growth_val / denom
 
     # Phase 177: Uncapitalized CWIP capacity expansion boost
@@ -800,6 +804,7 @@ def _run_deadliest_combo_pipeline_core(
                 "scoring_model": "multiplicative_cross_product_v2",
                 "powers": SCORING_POWERS,
                 "weights": COMPOSITE_WEIGHTS,
+                "panic_vs_derate": mb_result.get("panic_vs_derate"),
             },
         )
         results.append(result)

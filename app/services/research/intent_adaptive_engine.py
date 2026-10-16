@@ -226,8 +226,14 @@ class QueryAdaptiveConstraintEngine:
         ],
         "MULTIBAGGER": [
             "multibagger", "10x", "5x", "asymmetry", "runway", "under discovered",
-            "high growth compounder", "reinvestment runway", "super investor", "smart money",
-            "ace investor", "bulk deal", "block deal"
+            "high growth compounder", "reinvestment runway", "bulk deal", "block deal"
+        ],
+        "SMART_SUPERSTAR_INVESTOR": [
+            "super investor", "smart money", "ace investor", "superstar investor",
+            "smart investor", "superstar portfolio", "rakesh jhunjhunwala",
+            "dolly khanna", "ramdeo agrawal", "ramdev agrawal", "porinju",
+            "super ace", "smart ace", "big investor", "marquee investor",
+            "operator holding", "marquee holding", "superstar holding"
         ],
         "EARLY_MICROCAP": [
             "microcap", "early stage", "100cr", "500cr", "nano cap",
@@ -276,8 +282,16 @@ class QueryAdaptiveConstraintEngine:
         # Check explicit sub-horizon swing/positional patterns before generic keywords
         if re.search(r'\b(3\s*day|3d|3-day)\b', q_lower):
             return "SWING_3D"
+        if re.search(r'\b(10\s*day|10d|10-day|fortnightly)\b', q_lower):
+            return "SWING_10D"
         if re.search(r'\b(30\s*day|30d|30-day|monthly positional)\b', q_lower):
             return "POSITIONAL_30D"
+
+        # Phase 180: Unambiguous compound token pairing for MICRO_MULTIBAGGER
+        has_micro = bool(re.search(r'\b(micro|microcap|micro-cap|nano\s*cap)\b', q_lower))
+        has_multi = bool(re.search(r'\b(multibagger|multi-bagger|10x)\b', q_lower))
+        if has_micro and has_multi:
+            return "MICRO_MULTIBAGGER"
 
         # Score keyword matches
         scores = {arch: 0 for arch in cls.INTENT_KEYWORDS}

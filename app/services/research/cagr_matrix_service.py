@@ -19,8 +19,8 @@ from app.services.market_data import (
 logger = logging.getLogger(__name__)
 
 
-def generate_cagr_sensitivity_matrix(symbol: str) -> CAGRSensitivityMatrixResponse:
-    """Generate 5-scenario CAGR sensitivity matrix for a symbol."""
+def generate_cagr_sensitivity_matrix(symbol: str, sector: Optional[str] = None) -> CAGRSensitivityMatrixResponse:
+    """Generate 5-scenario CAGR sensitivity matrix for a symbol with sector awareness."""
     norm = normalize_symbol(symbol)
     is_offline = os.getenv("OFFLINE_TEST_MODE", "false").lower() == "true"
     
@@ -29,11 +29,13 @@ def generate_cagr_sensitivity_matrix(symbol: str) -> CAGRSensitivityMatrixRespon
     curr_pe = float(getattr(quote, "pe_ratio", 0.0) or (quote.get("pe_ratio") if isinstance(quote, dict) else 0.0) or 0.0)
 
     # If missing from quote, attempt audited fundamentals resolution
-    if curr_price <= 0 or curr_pe <= 0:
+    if curr_price <= 0 or curr_pe <= 0 or not sector:
         try:
             from app.services.data_ingestion.screener_connector import ScreenerCloudConnector
             fund = ScreenerCloudConnector.get_company_fundamentals(norm)
             if fund:
+                if not sector:
+                    sector = fund.get("sector") or fund.get("industry")
                 if curr_price <= 0 and fund.get("current_price"):
                     curr_price = float(fund["current_price"])
                 if curr_pe <= 0 and fund.get("pe_ratio"):
@@ -66,12 +68,28 @@ def generate_cagr_sensitivity_matrix(symbol: str) -> CAGRSensitivityMatrixRespon
 
     base_cagr = 15.0
 
+    # Phase 180: Sector-aware terminal P/E boundary calibration
+    pe_min = 15.0
+    pe_max = 60.0
+    if sector:
+        norm_sec = str(sector).upper().strip()
+        if any(k in norm_sec for k in ["METALS", "MINING", "COMMODITIES", "ENERGY", "OIL"]):
+            pe_min, pe_max = 8.0, 20.0
+        elif any(k in norm_sec for k in ["UTILITIES", "POWER"]):
+            pe_min, pe_max = 10.0, 25.0
+        elif any(k in norm_sec for k in ["BANK", "FINANCIAL", "NBFC", "BFSI"]):
+            pe_min, pe_max = 12.0, 30.0
+        elif any(k in norm_sec for k in ["FMCG", "CONSUMER"]):
+            pe_min, pe_max = 20.0, 65.0
+        elif any(k in norm_sec for k in ["TECH", "IT", "PHARMA", "HEALTHCARE"]):
+            pe_min, pe_max = 18.0, 50.0
+
     for g in scenarios_growth:
         g_pct = round(g * 100.0, 1)
         label = f"{int(g_pct)}% CAGR Growth"
         
-        # Price targets assuming terminal P/E scales with expected growth (1.5x multiplier, bounded [15.0, 60.0])
-        target_pe = max(15.0, min(60.0, g_pct * 1.5))
+        # Price targets assuming terminal P/E scales with expected growth (1.5x multiplier, bounded [pe_min, pe_max])
+        target_pe = max(pe_min, min(pe_max, g_pct * 1.5))
         pe_expansion_factor = target_pe / curr_pe if curr_pe > 0 else 1.0
 
         p1 = curr_price * (1.0 + g) * (1.0 + (pe_expansion_factor - 1.0) * 0.3)

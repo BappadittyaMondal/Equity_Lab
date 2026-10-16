@@ -217,6 +217,42 @@ TRACKED_SMART_MONEY_PATTERNS: Dict[str, list[str]] = {
     "SOVEREIGN_GLOBAL_FII": ["vanguard", "blackrock", "gqg partners", "fidelity"]
 }
 
+# Phase 180: Curated Superstar Portfolio Holdings Registry from public BSE/NSE filings
+SUPERSTAR_PORTFOLIO_REGISTRY: Dict[str, list[str]] = {
+    "VIJAY_KEDIA": [
+        "PATELENG", "TALBROSAUTO", "TAJGVK", "NEULANDLAB", "ATALREAL",
+        "SUDARSHAN", "VAIBHAVGBL", "AFFLE", "ELECON", "REPRO"
+    ],
+    "ASHISH_KACHOLIA": [
+        "SAFARI", "SHIVALIK", "GRAVITA", "AMIORG", "ADFFOODS",
+        "REPRO", "YASHOPTICS", "GENUSPOWER", "TARC", "VINDHYATEL"
+    ],
+    "MUKUL_AGRAWAL": [
+        "ZENITH", "NEOGEN", "PARAS", "RADICO", "DREAMFOLKS",
+        "TAJGVK", "DISHTV", "PTC", "RAYMOND", "DYNAMIC"
+    ],
+    "DOLLY_KHANNA": [
+        "TIRUMALCHM", "TALBROS", "DEEPAKSP", "MANGCHEFER", "PRAKASH"
+    ],
+    "RADHAKISHAN_DAMANI": [
+        "DMART", "VSTIND", "INDIASE", "APLPOLLO", "TRENT", "SUNDRMFAST"
+    ],
+    "SUNIL_SINGHANIA": [
+        "HGINFRA", "ROUTE", "MASTEK", "KPITTECH", "IONEXCHANG", "STYRENIX"
+    ],
+}
+
+
+def get_superstar_portfolio_symbols(superstar_name: str) -> list[str]:
+    """Returns verified public portfolio holdings for a specified superstar investor."""
+    if not superstar_name:
+        return []
+    matched = match_smart_money_entity(superstar_name)
+    if matched and matched in SUPERSTAR_PORTFOLIO_REGISTRY:
+        return list(SUPERSTAR_PORTFOLIO_REGISTRY[matched])
+    clean = str(superstar_name).upper().strip().replace(" ", "_")
+    return list(SUPERSTAR_PORTFOLIO_REGISTRY.get(clean, []))
+
 
 def match_smart_money_entity(name: str) -> Optional[str]:
     """Matches a client or holder name against tracked ace investors and marquee institutions."""
