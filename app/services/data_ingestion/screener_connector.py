@@ -1071,7 +1071,7 @@ class ScreenerCloudConnector:
                         item.get("vol_1y_avg", 0.0),
                         item.get("piotroski_score", 0.0),
                         item.get("promoter_holding", 0.0),
-                        item.get("pledged_pct", 0.0),
+                        item.get("pledged_pct"),
                         item.get("debt_to_equity", 0.0),
                         item.get("interest_coverage", 0.0),
                         item.get("peg_ratio", 0.0),

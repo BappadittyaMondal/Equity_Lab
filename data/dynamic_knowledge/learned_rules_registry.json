@@ -1,6 +1,6 @@
 {
   "version": "1.2.0",
-  "last_updated_utc": "2026-10-11T17:23:35.168970+00:00",
+  "last_updated_utc": "2026-10-16T07:28:55.832911+00:00",
   "entities": {
     "EXCHANGE_CASS_MECHANISM": {
       "entity_id": "EXCHANGE_CASS_MECHANISM",
@@ -8,7 +8,7 @@
       "category": "MARKET_MICROSTRUCTURE",
       "confidence_score": 0.71,
       "verification_status": "CERTIFIED_FACT",
-      "source_origin": "USER_FEEDBACK_FB-1791739415",
+      "source_origin": "USER_FEEDBACK_FB-1792135646",
       "relevance_vector": {
         "swing_3d": 0.15,
         "swing_10d": 0.1,
@@ -21,8 +21,8 @@
       },
       "description": "Post-market multilateral closing auction establishing deterministic VWAP and dampening end-of-session volatility.",
       "sensationalism_penalty": 0.0,
-      "created_at_utc": "2026-10-11T17:23:35.156005+00:00",
-      "last_validated_at_utc": "2026-10-11T17:23:35.156005+00:00",
+      "created_at_utc": "2026-10-16T07:27:26.397019+00:00",
+      "last_validated_at_utc": "2026-10-16T07:27:26.397019+00:00",
       "shadow_status": "SHADOW",
       "sample_count": 0,
       "success_count": 0,
@@ -55,7 +55,7 @@
       "category": "GEOPOLITICAL_CORRIDOR",
       "confidence_score": 0.71,
       "verification_status": "CERTIFIED_FACT",
-      "source_origin": "USER_FEEDBACK_FB-1791739415",
+      "source_origin": "USER_FEEDBACK_FB-1792135646",
       "relevance_vector": {
         "swing_3d": 0.0,
         "swing_10d": 0.05,
@@ -68,8 +68,8 @@
       },
       "description": "Bilateral foreign direct investment in South American lithium brine reserves under RIGI regulatory concessions.",
       "sensationalism_penalty": 0.0,
-      "created_at_utc": "2026-10-11T17:23:35.159708+00:00",
-      "last_validated_at_utc": "2026-10-11T17:23:35.159708+00:00",
+      "created_at_utc": "2026-10-16T07:27:26.400695+00:00",
+      "last_validated_at_utc": "2026-10-16T07:27:26.400695+00:00",
       "shadow_status": "SHADOW",
       "sample_count": 0,
       "success_count": 0,
@@ -650,6 +650,308 @@
       "sensationalism_penalty": 0.0,
       "created_at_utc": "2026-10-10T16:48:39.794269+00:00",
       "last_validated_at_utc": "2026-10-10T16:48:39.794269+00:00"
+    },
+    "TEXRAIL_ROCE_HARD_GATE_BREACH": {
+      "entity_id": "TEXRAIL_ROCE_HARD_GATE_BREACH",
+      "canonical_name": "TEXRAIL_ROCE_HARD_GATE_BREACH",
+      "category": "HARD_GATE_DISQUALIFICATION",
+      "confidence_score": 1.0,
+      "verification_status": "CERTIFIED_FACT",
+      "source_origin": "EMPIRICAL_AUDIT_VERIFICATION",
+      "relevance_vector": {
+        "multibagger": 0.5,
+        "sip_compounder": 0.5,
+        "swing_3d": 0.1
+      },
+      "bayesian_prior_modifier": {
+        "metric": "empirical_override",
+        "weight_delta": 0.0,
+        "target_symbol": "TEXRAIL"
+      },
+      "description": "Texmaco Rail ROCE is 11.5% on Screener, which breaches the 20.0% institutional floor.",
+      "sensationalism_penalty": 0.0,
+      "created_at_utc": "2026-10-16T07:28:55.608303+00:00",
+      "last_validated_at_utc": "2026-10-16T07:28:55.608303+00:00",
+      "shadow_status": "PROMOTED",
+      "sample_count": 1,
+      "success_count": 1,
+      "p_value": null,
+      "fdr_q_value": null,
+      "performance_delta": 0.0,
+      "human_signoff": true
+    },
+    "TESTBADSTOCK_ROCE_HARD_GATE_BREACH": {
+      "entity_id": "TESTBADSTOCK_ROCE_HARD_GATE_BREACH",
+      "canonical_name": "TESTBADSTOCK_ROCE_HARD_GATE_BREACH",
+      "category": "HARD_GATE_DISQUALIFICATION",
+      "confidence_score": 1.0,
+      "verification_status": "CERTIFIED_FACT",
+      "source_origin": "EMPIRICAL_AUDIT_VERIFICATION",
+      "relevance_vector": {
+        "multibagger": 0.5,
+        "sip_compounder": 0.5,
+        "swing_3d": 0.1
+      },
+      "bayesian_prior_modifier": {
+        "metric": "empirical_override",
+        "weight_delta": 0.0,
+        "target_symbol": "TESTBADSTOCK"
+      },
+      "description": "TestBadStock ROCE is below the 20% institutional floor.",
+      "sensationalism_penalty": 0.0,
+      "created_at_utc": "2026-10-16T07:28:55.637357+00:00",
+      "last_validated_at_utc": "2026-10-16T07:28:55.637357+00:00",
+      "shadow_status": "PROMOTED",
+      "sample_count": 1,
+      "success_count": 1,
+      "p_value": null,
+      "fdr_q_value": null,
+      "performance_delta": 0.0,
+      "human_signoff": true
+    },
+    "TEST_EMPIRICAL_TARGET_RULE": {
+      "entity_id": "TEST_EMPIRICAL_TARGET_RULE",
+      "canonical_name": "TEST_EMPIRICAL_TARGET_RULE",
+      "category": "HARD_GATE_DISQUALIFICATION",
+      "confidence_score": 0.9,
+      "verification_status": "CERTIFIED_FACT",
+      "source_origin": "EMPIRICAL_AUDIT_VERIFICATION",
+      "relevance_vector": {
+        "multibagger": 0.5,
+        "sip_compounder": 0.5,
+        "swing_3d": 0.1
+      },
+      "bayesian_prior_modifier": {
+        "metric": "empirical_override",
+        "weight_delta": 0.0,
+        "target_symbol": "TESTXYZ"
+      },
+      "description": "Test rule for target symbol preservation",
+      "sensationalism_penalty": 0.0,
+      "created_at_utc": "2026-10-16T07:28:55.675751+00:00",
+      "last_validated_at_utc": "2026-10-16T07:28:55.675751+00:00",
+      "shadow_status": "PROMOTED",
+      "sample_count": 1,
+      "success_count": 1,
+      "p_value": null,
+      "fdr_q_value": null,
+      "performance_delta": 0.0,
+      "human_signoff": true
+    },
+    "SUPERSTAR_EXIT_REKHA_JHUNJHUNWALA_RAGHAV": {
+      "entity_id": "SUPERSTAR_EXIT_REKHA_JHUNJHUNWALA_RAGHAV",
+      "canonical_name": "SUPERSTAR_EXIT_REKHA_JHUNJHUNWALA_RAGHAV",
+      "category": "HARD_GATE_DISQUALIFICATION",
+      "confidence_score": 0.95,
+      "verification_status": "CERTIFIED_FACT",
+      "source_origin": "EMPIRICAL_AUDIT_VERIFICATION",
+      "relevance_vector": {
+        "multibagger": 0.9,
+        "sip_compounder": 0.7,
+        "swing_3d": 0.4
+      },
+      "bayesian_prior_modifier": {
+        "metric": "phantom_superstar_exit",
+        "weight_delta": -0.25,
+        "target_symbol": "RAGHAV",
+        "superstar": "Rekha Jhunjhunwala",
+        "exit_quarter": "Q4 FY25"
+      },
+      "description": "Superstar investor Rekha Jhunjhunwala has exited or trimmed stake below 1.0% in RAGHAV as of Q4 FY25. Stake trimmed below 1.0% SEBI disclosure threshold",
+      "sensationalism_penalty": 0.0,
+      "created_at_utc": "2026-10-16T07:28:55.739306+00:00",
+      "last_validated_at_utc": "2026-10-16T07:28:55.739306+00:00",
+      "shadow_status": "PROMOTED",
+      "sample_count": 1,
+      "success_count": 1,
+      "p_value": null,
+      "fdr_q_value": null,
+      "performance_delta": 0.0,
+      "human_signoff": true
+    },
+    "DISQUALIFY_STAGE0_TARGET_STOCK": {
+      "entity_id": "DISQUALIFY_STAGE0_TARGET_STOCK",
+      "canonical_name": "DISQUALIFY_STAGE0_TARGET_STOCK",
+      "category": "HARD_GATE_DISQUALIFICATION",
+      "confidence_score": 0.95,
+      "verification_status": "CERTIFIED_FACT",
+      "source_origin": "EMPIRICAL_AUDIT_VERIFICATION",
+      "relevance_vector": {
+        "multibagger": 0.5,
+        "sip_compounder": 0.5,
+        "swing_3d": 0.1
+      },
+      "bayesian_prior_modifier": {
+        "metric": "empirical_override",
+        "weight_delta": 0.0,
+        "target_symbol": "STAGE0BAD"
+      },
+      "description": "Simulated fraudulent accounting veto",
+      "sensationalism_penalty": 0.0,
+      "created_at_utc": "2026-10-16T07:28:55.795337+00:00",
+      "last_validated_at_utc": "2026-10-16T07:28:55.795337+00:00",
+      "shadow_status": "PROMOTED",
+      "sample_count": 1,
+      "success_count": 1,
+      "p_value": null,
+      "fdr_q_value": null,
+      "performance_delta": 0.0,
+      "human_signoff": true
+    },
+    "SUPERSTAR_EXIT_REKHA_JHUNJHUNWALA_+_ASHISH_KACHOLIA_+_MUKUL_AGRAWAL_RAGHAV": {
+      "entity_id": "SUPERSTAR_EXIT_REKHA_JHUNJHUNWALA_+_ASHISH_KACHOLIA_+_MUKUL_AGRAWAL_RAGHAV",
+      "canonical_name": "SUPERSTAR_EXIT_REKHA_JHUNJHUNWALA_+_ASHISH_KACHOLIA_+_MUKUL_AGRAWAL_RAGHAV",
+      "category": "HARD_GATE_DISQUALIFICATION",
+      "confidence_score": 0.95,
+      "verification_status": "CERTIFIED_FACT",
+      "source_origin": "EMPIRICAL_AUDIT_VERIFICATION",
+      "relevance_vector": {
+        "multibagger": 0.9,
+        "sip_compounder": 0.7,
+        "swing_3d": 0.4
+      },
+      "bayesian_prior_modifier": {
+        "metric": "phantom_superstar_exit",
+        "weight_delta": -0.25,
+        "target_symbol": "RAGHAV",
+        "superstar": "Rekha Jhunjhunwala + Ashish Kacholia + Mukul Agrawal",
+        "exit_quarter": "Q3-FY25 to Q2-FY26"
+      },
+      "description": "Superstar investor Rekha Jhunjhunwala + Ashish Kacholia + Mukul Agrawal has exited or trimmed stake below 1.0% in RAGHAV as of Q3-FY25 to Q2-FY26. All three superstars exited after 6x-8x rally. P/E reached 133x. PHANTOM_EXIT_DISTRIBUTION_TRAP confirmed.",
+      "sensationalism_penalty": 0.0,
+      "created_at_utc": "2026-10-16T05:49:00.706049+00:00",
+      "last_validated_at_utc": "2026-10-16T05:49:00.706049+00:00",
+      "shadow_status": "PROMOTED",
+      "sample_count": 1,
+      "success_count": 1,
+      "p_value": null,
+      "fdr_q_value": null,
+      "performance_delta": 0.0,
+      "human_signoff": true
+    },
+    "SUPERSTAR_EXIT_REKHA_JHUNJHUNWALA_(RARE_ENTERPRISES)_NAZARA": {
+      "entity_id": "SUPERSTAR_EXIT_REKHA_JHUNJHUNWALA_(RARE_ENTERPRISES)_NAZARA",
+      "canonical_name": "SUPERSTAR_EXIT_REKHA_JHUNJHUNWALA_(RARE_ENTERPRISES)_NAZARA",
+      "category": "HARD_GATE_DISQUALIFICATION",
+      "confidence_score": 0.95,
+      "verification_status": "CERTIFIED_FACT",
+      "source_origin": "EMPIRICAL_AUDIT_VERIFICATION",
+      "relevance_vector": {
+        "multibagger": 0.9,
+        "sip_compounder": 0.7,
+        "swing_3d": 0.4
+      },
+      "bayesian_prior_modifier": {
+        "metric": "phantom_superstar_exit",
+        "weight_delta": -0.25,
+        "target_symbol": "NAZARA",
+        "superstar": "Rekha Jhunjhunwala (Rare Enterprises)",
+        "exit_quarter": "June 2025"
+      },
+      "description": "Superstar investor Rekha Jhunjhunwala (Rare Enterprises) has exited or trimmed stake below 1.0% in NAZARA as of June 2025. Full 7.06% (61.8L shares) liquidated via open-market block deals June 2025. Confirmed BSE bulk deal filing.",
+      "sensationalism_penalty": 0.0,
+      "created_at_utc": "2026-10-16T05:49:00.709811+00:00",
+      "last_validated_at_utc": "2026-10-16T05:49:00.709811+00:00",
+      "shadow_status": "PROMOTED",
+      "sample_count": 1,
+      "success_count": 1,
+      "p_value": null,
+      "fdr_q_value": null,
+      "performance_delta": 0.0,
+      "human_signoff": true
+    },
+    "SUPERSTAR_EXIT_VIJAY_KEDIA_NEULANDLAB": {
+      "entity_id": "SUPERSTAR_EXIT_VIJAY_KEDIA_NEULANDLAB",
+      "canonical_name": "SUPERSTAR_EXIT_VIJAY_KEDIA_NEULANDLAB",
+      "category": "HARD_GATE_DISQUALIFICATION",
+      "confidence_score": 0.95,
+      "verification_status": "CERTIFIED_FACT",
+      "source_origin": "EMPIRICAL_AUDIT_VERIFICATION",
+      "relevance_vector": {
+        "multibagger": 0.9,
+        "sip_compounder": 0.7,
+        "swing_3d": 0.4
+      },
+      "bayesian_prior_modifier": {
+        "metric": "phantom_superstar_exit",
+        "weight_delta": -0.25,
+        "target_symbol": "NEULANDLAB",
+        "superstar": "Vijay Kedia",
+        "exit_quarter": "FY21-FY22"
+      },
+      "description": "Superstar investor Vijay Kedia has exited or trimmed stake below 1.0% in NEULANDLAB as of FY21-FY22. Vijay Kedia held ~1.0% in 2020-2021 and fully exited by FY22. Only Mukul Agrawal anchor (3.12%) remains.",
+      "sensationalism_penalty": 0.0,
+      "created_at_utc": "2026-10-16T05:49:00.724504+00:00",
+      "last_validated_at_utc": "2026-10-16T05:49:00.724504+00:00",
+      "shadow_status": "PROMOTED",
+      "sample_count": 1,
+      "success_count": 1,
+      "p_value": null,
+      "fdr_q_value": null,
+      "performance_delta": 0.0,
+      "human_signoff": true
+    },
+    "SUPERSTAR_EXIT_ASHISH_KACHOLIA_+_MUKUL_AGRAWAL_REPRO": {
+      "entity_id": "SUPERSTAR_EXIT_ASHISH_KACHOLIA_+_MUKUL_AGRAWAL_REPRO",
+      "canonical_name": "SUPERSTAR_EXIT_ASHISH_KACHOLIA_+_MUKUL_AGRAWAL_REPRO",
+      "category": "HARD_GATE_DISQUALIFICATION",
+      "confidence_score": 0.95,
+      "verification_status": "CERTIFIED_FACT",
+      "source_origin": "EMPIRICAL_AUDIT_VERIFICATION",
+      "relevance_vector": {
+        "multibagger": 0.9,
+        "sip_compounder": 0.7,
+        "swing_3d": 0.4
+      },
+      "bayesian_prior_modifier": {
+        "metric": "phantom_superstar_exit",
+        "weight_delta": -0.25,
+        "target_symbol": "REPRO",
+        "superstar": "Ashish Kacholia + Mukul Agrawal",
+        "exit_quarter": "FY22-FY23"
+      },
+      "description": "Superstar investor Ashish Kacholia + Mukul Agrawal has exited or trimmed stake below 1.0% in REPRO as of FY22-FY23. Both trimmed below 1% SEBI threshold by FY23 amid revenue contraction. Only Vijay Kedia (6.32%) remains.",
+      "sensationalism_penalty": 0.0,
+      "created_at_utc": "2026-10-16T05:49:00.738482+00:00",
+      "last_validated_at_utc": "2026-10-16T05:49:00.738482+00:00",
+      "shadow_status": "PROMOTED",
+      "sample_count": 1,
+      "success_count": 1,
+      "p_value": null,
+      "fdr_q_value": null,
+      "performance_delta": 0.0,
+      "human_signoff": true
+    },
+    "SUPERSTAR_EXIT_ASHISH_KACHOLIA_+_RAMESH_DAMANI_GOLDIAM": {
+      "entity_id": "SUPERSTAR_EXIT_ASHISH_KACHOLIA_+_RAMESH_DAMANI_GOLDIAM",
+      "canonical_name": "SUPERSTAR_EXIT_ASHISH_KACHOLIA_+_RAMESH_DAMANI_GOLDIAM",
+      "category": "HARD_GATE_DISQUALIFICATION",
+      "confidence_score": 0.95,
+      "verification_status": "CERTIFIED_FACT",
+      "source_origin": "EMPIRICAL_AUDIT_VERIFICATION",
+      "relevance_vector": {
+        "multibagger": 0.9,
+        "sip_compounder": 0.7,
+        "swing_3d": 0.4
+      },
+      "bayesian_prior_modifier": {
+        "metric": "phantom_superstar_exit",
+        "weight_delta": -0.25,
+        "target_symbol": "GOLDIAM",
+        "superstar": "Ashish Kacholia + Ramesh Damani",
+        "exit_quarter": "FY23-FY24"
+      },
+      "description": "Superstar investor Ashish Kacholia + Ramesh Damani has exited or trimmed stake below 1.0% in GOLDIAM as of FY23-FY24. Both trimmed below 1% after gains. Only Mukul Agrawal (2.29%) remains. PARTIAL_SUPERSTAR_DEPARTURE.",
+      "sensationalism_penalty": 0.0,
+      "created_at_utc": "2026-10-16T05:49:00.752242+00:00",
+      "last_validated_at_utc": "2026-10-16T05:49:00.752242+00:00",
+      "shadow_status": "PROMOTED",
+      "sample_count": 1,
+      "success_count": 1,
+      "p_value": null,
+      "fdr_q_value": null,
+      "performance_delta": 0.0,
+      "human_signoff": true
     }
   }
 }

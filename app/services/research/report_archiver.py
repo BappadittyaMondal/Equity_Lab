@@ -238,6 +238,25 @@ def save_stock_list_report(
     return target_path
 
 
+def format_disqualification_ledger(disqualified_results: List[Any]) -> str:
+    """Format disqualified stocks into a clean, auditable Markdown Disqualification Ledger."""
+    if not disqualified_results:
+        return ""
+    lines = [
+        "\n## Disqualification & Re-Classification Ledger",
+        "The following candidates were evaluated and rejected by institutional hard gates:\n",
+        "| Symbol | Company Name | Hard Gate Failure Reason | Status |",
+        "|:---|:---|:---|:---:|",
+    ]
+    for dq in disqualified_results:
+        sym = getattr(dq, "symbol", "UNKNOWN")
+        name = getattr(dq, "company_name", sym)
+        reason = getattr(dq, "disqualification_reason", "Unspecified hard gate failure")
+        lines.append(f"| **{sym}** | {name} | `{reason}` | `DISQUALIFIED` |")
+    lines.append("")
+    return "\n".join(lines)
+
+
 def quarantine_unnecessary_files(base_root: Optional[Path] = None) -> List[Path]:
     """Automatically move any non-required root files or scratch files into `DELETION_REQUIRED/`.
 

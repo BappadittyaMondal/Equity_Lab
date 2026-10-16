@@ -73,10 +73,13 @@ COMPOSITE_WEIGHTS = {
 def _check_hard_gates(fundamentals: Dict[str, Any]) -> Optional[str]:
     """Return disqualification reason string, or None if all gates pass.
 
-    Hard constraints:
+    Hard constraints (Phase 173 Institutional Hardened):
     - MCap between ₹150 Cr and ₹15,000 Cr
-    - D/E <= 0.35
-    - Promoter pledge <= 5.0%
+    - D/E <= 0.35 (inclusive)
+    - Promoter pledge <= 5.0% (inclusive)
+    - ROCE >= 20.0% (inclusive)
+    - P/E <= 80.0 (inclusive multiple-compression ceiling)
+    - PAT growth YoY > 0.0% (no quarterly/annual contraction)
     - PAT quality flag != NON_OPERATING_DOMINATED
     """
     mcap = fundamentals.get("market_cap", 0.0) or 0.0
@@ -94,12 +97,87 @@ def _check_hard_gates(fundamentals: Dict[str, Any]) -> Optional[str]:
         return f"OUT_OF_SCOPE_V1: Sector '{sector}' is a financial lending institution (requires banking asset-quality gates, not industrial D/E)"
 
     d_e = fundamentals.get("debt_to_equity", 0.0) or 0.0
-    if d_e > 0.35:
-        return f"D/E {d_e:.2f} > 0.35 threshold"
+    try:
+        d_e_val = float(d_e)
+    except (ValueError, TypeError):
+        d_e_val = 0.0
+    if d_e_val > 0.35:
+        return f"D/E {d_e_val:.2f} > 0.35 threshold"
 
     pledged = fundamentals.get("pledged_pct")
-    if pledged is not None and pledged > 5.0:
-        return f"Promoter pledge {pledged:.1f}% > 5% threshold"
+    if pledged is not None:
+        try:
+            pl_val = float(pledged)
+            if pl_val > 5.0:
+                return f"Promoter pledge {pl_val:.1f}% > 5% threshold"
+        except (ValueError, TypeError):
+            pass
+
+    # Phase 173: ROCE >= 20.0% Hard Gate
+    roce = fundamentals.get("roce_latest")
+    if roce is None:
+        roce = fundamentals.get("roce")
+    if roce is None:
+        roce = fundamentals.get("trailing_roce")
+    if roce is not None:
+        try:
+            roce_val = float(roce)
+            if roce_val < 20.0:
+                return f"ROCE {roce_val:.1f}% < 20.0% institutional floor"
+        except (ValueError, TypeError):
+            pass
+
+    # Phase 173/175: P/E Multiple Compression Ceiling & Loss-Making Gate
+    pe = fundamentals.get("pe_ratio")
+    if pe is None:
+        pe = fundamentals.get("pe")
+    if pe is None:
+        pe = fundamentals.get("current_pe")
+    if pe is not None:
+        try:
+            pe_val = float(pe)
+            if pe_val <= 0.0:
+                return f"P/E {pe_val:.1f} <= 0 (negative earnings / loss-making entity out of scope for compounder pipeline)"
+            if pe_val > 80.0:
+                return f"P/E {pe_val:.1f} > 80.0 multiple-compression ceiling (routed to high-valuation radar)"
+        except (ValueError, TypeError):
+            pass
+
+    # Phase 173: Quarterly / YoY PAT Contraction Gate
+    pat_growth = fundamentals.get("pat_growth_latest")
+    if pat_growth is None:
+        pat_growth = fundamentals.get("pat_growth_yoy")
+    if pat_growth is not None:
+        try:
+            pg_val = float(pat_growth)
+            if pg_val <= 0.0:
+                return f"PAT growth {pg_val:.1f}% <= 0.0% (contracting net profit)"
+        except (ValueError, TypeError):
+            pass
+
+    # Phase 175: 3-Year Cumulative Cash Flow Realization Gate (CFO/PAT >= 0.70x)
+    cfo_3y = fundamentals.get("cfo_3yr") or fundamentals.get("cfo_cumulative_3yr")
+    pat_last = fundamentals.get("net_profit_last_year") or fundamentals.get("pat_latest")
+    pat_3y = fundamentals.get("pat_3yr") or fundamentals.get("pat_cumulative_3yr")
+    if pat_3y is None and pat_last is not None:
+        try:
+            pat_3y = float(pat_last) * 3.0
+        except (ValueError, TypeError):
+            pat_3y = None
+
+    if cfo_3y is not None:
+        try:
+            cfo_3y_val = float(cfo_3y)
+            if cfo_3y_val < 0.0:
+                return f"3Y Cumulative CFO ₹{cfo_3y_val:.1f} Cr < 0 (negative operating cash flow burn)"
+            if pat_3y is not None:
+                pat_3y_val = float(pat_3y)
+                if pat_3y_val > 0.0:
+                    cum_conv = cfo_3y_val / pat_3y_val
+                    if cum_conv < 0.70:
+                        return f"3Y Cumulative CFO/PAT {cum_conv:.2f}x < 0.70x institutional floor (receivable / working capital trap)"
+        except (ValueError, TypeError):
+            pass
 
     pat_qf = fundamentals.get("pat_quality_flag", "")
     if pat_qf == "NON_OPERATING_DOMINATED":
@@ -199,7 +277,30 @@ def _calculate_operating_leverage_convexity(fundamentals: Dict[str, Any]) -> flo
 
     denom = max(5.0, rev_growth_val)
     ratio = pat_growth_val / denom
-    return round(min(2.5, max(1.0, ratio)), 3)
+
+    # Phase 177: Uncapitalized CWIP capacity expansion boost
+    # Phase 178-3: FIXED dead zone — apply boost AFTER floor, not before.
+    # Previously: boost was added to raw `ratio` before max(1.0,...) clamp,
+    # meaning pre-revenue/low-earnings companies (ratio < 1.0) had boost
+    # absorbed by the floor and received zero benefit — the exact use case
+    # this was designed to identify. Now: omega_base is clamped first, then
+    # the CWIP boost extends it beyond 1.0 for genuine pre-commissioning inflections.
+    cwip = fundamentals.get("cwip") or fundamentals.get("capital_wip") or 0.0
+    net_block = fundamentals.get("net_block") or fundamentals.get("gross_block") or 0.0
+    cwip_boost = 0.0
+    try:
+        cwip_val = float(cwip)
+        nb_val = float(net_block)
+        if cwip_val > 0 and nb_val > 0 and (cwip_val / nb_val) >= 0.25:
+            # CWIP >= 25% of Net Block signals imminent commercialization operating leverage
+            cwip_boost = min(0.30, round((cwip_val / nb_val) * 0.40, 3))
+    except (ValueError, TypeError):
+        cwip_boost = 0.0
+
+    # Apply floor/ceiling first, then boost — preserves semantics for all company types
+    omega_base = max(1.0, ratio)
+    return round(min(2.5, omega_base + cwip_boost), 3)
+
 
 
 # ─────────────────────────────────────────────────────────────────────────────
@@ -221,6 +322,54 @@ def _calculate_order_book_burn_rate(fundamentals: Dict[str, Any]) -> Optional[fl
     except (ValueError, TypeError):
         pass
     return None
+
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Phase 173 Contract Execution-Tenure Annualized Book-to-Bill Normalization
+# ─────────────────────────────────────────────────────────────────────────────
+
+def _calculate_annualized_book_to_bill(fundamentals: Dict[str, Any]) -> Dict[str, Any]:
+    """Calculate Annualized Book-to-Bill normalized by contract execution tenure (Years).
+
+    Formula:
+        Annualized Book-to-Bill = Order Backlog / (Execution Tenure * TTM Revenue)
+    """
+    order_book = fundamentals.get("order_book") or fundamentals.get("order_book_cr", 0.0) or 0.0
+    annual_rev = fundamentals.get("total_revenue") or fundamentals.get("sales_latest") or fundamentals.get("revenue_ttm", 0.0) or 0.0
+    tenure_years = fundamentals.get("contract_execution_tenure_years")
+    if tenure_years is None:
+        sector = str(fundamentals.get("sector") or fundamentals.get("industry") or "").upper().strip()
+        if "METER" in sector or "SMART" in sector or "AMISP" in sector:
+            tenure_years = 7.0
+        elif "RAIL" in sector or "EPC" in sector or "INFRA" in sector:
+            tenure_years = 2.5
+        elif "TRANSFORMER" in sector or "POWER" in sector:
+            tenure_years = 1.75
+        elif "FORGING" in sector or "AUTO" in sector or "PUMP" in sector:
+            tenure_years = 1.0
+        else:
+            tenure_years = 2.0
+
+    try:
+        ob = float(order_book)
+        rev = float(annual_rev)
+        tenure = max(0.5, float(tenure_years))
+        if ob > 0 and rev > 0:
+            raw_b2b = round(ob / rev, 3)
+            annualized_b2b = round(ob / (tenure * rev), 3)
+            return {
+                "raw_book_to_bill": raw_b2b,
+                "execution_tenure_years": tenure,
+                "annualized_book_to_bill": annualized_b2b,
+            }
+    except (ValueError, TypeError):
+        pass
+
+    return {
+        "raw_book_to_bill": None,
+        "execution_tenure_years": float(tenure_years) if tenure_years else 2.0,
+        "annualized_book_to_bill": None,
+    }
 
 
 # ─────────────────────────────────────────────────────────────────────────────
@@ -361,6 +510,31 @@ def _run_deadliest_combo_pipeline_core(
         logger.info(f"[PIPELINE] Processing {ticker}...")
         symbol = ticker.upper().strip()
 
+        # ── Stage 0: Dynamic Memory & Empirical Rule Recall ──────────────
+        try:
+            from app.services.research.self_learning_engine import SelfLearningEngine
+            sle = SelfLearningEngine()
+            norm_sym = symbol.replace(".NS", "").replace(".BO", "")
+            learned_disqualifications = sle.query_learned_priors(category="HARD_GATE_DISQUALIFICATION")
+            active_veto = None
+            for rule in learned_disqualifications:
+                rule_id = rule.get("entity_id", "")
+                target_sym = rule.get("bayesian_prior_modifier", {}).get("target_symbol")
+                if (norm_sym in rule_id) or (target_sym and target_sym.upper() == norm_sym):
+                    active_veto = rule.get("description", "Disqualified by verified empirical rule in dynamic registry")
+                    break
+            if active_veto:
+                logger.info(f"[PIPELINE] {symbol} disqualified by learned rule: {active_veto}")
+                disqualified.append(DeadliestComboResult(
+                    symbol=symbol, company_name=symbol,
+                    hard_gate_pass=False,
+                    disqualification_reason=f"LEARNED_RULE_DISQUALIFICATION: {active_veto}",
+                    composite_score=0.0,
+                ))
+                continue
+        except Exception as e:
+            logger.debug(f"[PIPELINE] Self-learning prior check skipped for {symbol}: {e}")
+
         # ── Stage 1: Fetch Fundamentals ──────────────────────────────────
         try:
             if fetch_live:
@@ -463,6 +637,7 @@ def _run_deadliest_combo_pipeline_core(
         continuous_q, q_min, q_max, cfo_state = calculate_continuous_q_bounds(fundamentals)
         omega = _calculate_operating_leverage_convexity(fundamentals)
         kappa = _calculate_order_book_burn_rate(fundamentals)
+        b2b_data = _calculate_annualized_book_to_bill(fundamentals)
         segmented_info = _get_segmented_thresholds(mcap_cr)
         headroom_delivery = _calculate_headroom_and_delivery(fundamentals)
 
@@ -615,6 +790,8 @@ def _run_deadliest_combo_pipeline_core(
                 "s_max": s_max,
                 "operating_leverage_convexity_omega": omega,
                 "order_book_burn_rate_kappa": kappa,
+                "order_book_execution_flag": "SLOW_BURN_EXECUTION_RISK" if (kappa is not None and kappa < 0.20) else "OPTIMAL_BURN",
+                "annualized_book_to_bill": b2b_data,
                 "segmented_tier": segmented_info["tier"],
                 "segmented_thresholds": segmented_info,
                 "headroom_and_delivery": headroom_delivery,

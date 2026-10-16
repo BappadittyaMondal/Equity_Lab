@@ -19,8 +19,17 @@ class InstitutionalMultibaggerEngine:
     """Master institutional 100-point scoring, archetype, and thesis generation engine."""
 
     @classmethod
-    def evaluate_company(cls, item: Dict[str, Any]) -> Dict[str, Any]:
-        """Evaluate a single company profile across all 27 sub-engines."""
+    def evaluate_company(cls, item: Dict[str, Any], shareholding_verdict: Optional[Dict[str, Any]] = None) -> Dict[str, Any]:
+        """Evaluate a single company profile across all 27 sub-engines.
+
+        Args:
+            item: Company profile dict with financial metrics.
+            shareholding_verdict: Optional result from shareholding_pattern.evaluate_shareholding_pattern().
+                When provided, Phase 178-5 applies conviction adjustments:
+                - HIGH_CONVICTION_ACTIVE_CLUSTER  → +5 pts (max 100)
+                - PARTIAL_SUPERSTAR_DEPARTURE     → -10 pts (floor 0)
+                - PHANTOM_EXIT_DISTRIBUTION_TRAP  → -25 pts (floor 0)
+        """
         symbol = item.get("symbol", "UNKNOWN")
         name = item.get("company_name", symbol)
 
@@ -174,7 +183,10 @@ class InstitutionalMultibaggerEngine:
         if net_block_3yr_back > 0 and net_block >= 1.4 * net_block_3yr_back:
             capex_score += 5.0
 
-        # 8. Engine: Ownership Alignment (Max: 3)
+        # 8. Engine: Ownership Alignment (Max: 3 base + Phase 178-5 superstar conviction adjustment)
+        # Phase 178-5: Wires shareholding_pattern.detect_phantom_superstar_status() verdict
+        # into the scoring pipeline. Previously these two modules were siloed — the
+        # shareholding engine detected phantom exits but the multibagger scorer ignored them.
         ownership_score = 0.0
         if promoter_holding >= 40.0:
             ownership_score += 2.0
@@ -232,8 +244,12 @@ class InstitutionalMultibaggerEngine:
                 risk_penalties -= 10.0
                 risk_flags.append(f"Weak Interest Coverage ({interest_coverage:.2f}x < 2x)")
         else:
-            risk_penalties -= 10.0
-            risk_flags.append("Interest Coverage Data Missing/Unverified")
+            # Phase 175: Zero-debt exemption (EBIT / 0 -> infinity; not penalized if D/E == 0.0)
+            if debt_to_equity is not None and float(debt_to_equity) == 0.0:
+                pass
+            else:
+                risk_penalties -= 10.0
+                risk_flags.append("Interest Coverage Data Missing/Unverified")
         
         # Gap B: Heavy FCF Burn / Capex Trap Penalty
         de_for_burn = debt_to_equity if debt_to_equity is not None else 0.0
@@ -241,9 +257,46 @@ class InstitutionalMultibaggerEngine:
             risk_penalties -= 15.0
             risk_flags.append(f"Severe Free Cash Flow Burn / Capex Trap (FCF: ₹{fcf_last_year:.1f}Cr)")
 
+        # Phase 173: Multiple-Compression Valuation Trap Penalty
+        pe_val = item.get("pe_ratio") or item.get("pe") or item.get("current_pe")
+        if pe_val is not None:
+            try:
+                pe_float = float(pe_val)
+                if pe_float > 150.0:
+                    risk_penalties -= 20.0
+                    risk_flags.append(f"Extreme Valuation Compression Risk (P/E {pe_float:.1f} > 150x)")
+                elif pe_float > 80.0:
+                    risk_penalties -= 10.0
+                    risk_flags.append(f"Elevated Multiple Compression Risk (P/E {pe_float:.1f} > 80x)")
+            except (ValueError, TypeError):
+                pass
+
         overall_score = max(0.0, min(100.0, raw_score + risk_penalties))
 
+        # ── Phase 178-5: Superstar Conviction Adjustment (Shareholding Verdict Wire) ──
+        # Wires shareholding_pattern.evaluate_shareholding_pattern() verdict into the
+        # multibagger scoring pipeline. The two modules were previously siloed:
+        # shareholding engine detected phantom exits / active clusters, but the
+        # multibagger scorer ignored them. Now the verdict flows in as an optional
+        # parameter and adjusts overall_score accordingly.
+        _sv_label_applied: Optional[str] = None
+        if shareholding_verdict:
+            sv_label = shareholding_verdict.get("verdict_label", "")
+            if sv_label == "PHANTOM_EXIT_DISTRIBUTION_TRAP":
+                overall_score = max(0.0, overall_score - 25.0)
+                risk_flags.append("PHANTOM_EXIT_DISTRIBUTION_TRAP: -25 pts applied (superstar exit detected)")
+                _sv_label_applied = sv_label
+            elif sv_label == "PARTIAL_SUPERSTAR_DEPARTURE":
+                overall_score = max(0.0, overall_score - 10.0)
+                risk_flags.append("PARTIAL_SUPERSTAR_DEPARTURE: -10 pts applied (partial superstar exit)")
+                _sv_label_applied = sv_label
+            elif sv_label == "HIGH_CONVICTION_ACTIVE_CLUSTER":
+                overall_score = min(100.0, overall_score + 5.0)
+                risk_flags.append("HIGH_CONVICTION_ACTIVE_CLUSTER: +5 pts applied (active superstar cluster)")
+                _sv_label_applied = sv_label
+
         # ── Phase 139: CAQI Hard Gate (Cash Accrual Quality Index) ───────────
+
         # CAQI = CFO_TTM / PAT_TTM. Tier-1 Multibagger 5x status requires CAQI ≥ 0.80.
         # Uses cfo_last_year / net_profit_last_year as TTM proxy (both from annual filing).
         # Applies only when PAT > 0; otherwise DATA_UNAVAILABLE (not a disqualifier by itself).
@@ -608,12 +661,27 @@ class InstitutionalMultibaggerEngine:
             "causal_chain_steps": causal_chain,
             "positive_drivers": positive_drivers[:5],
             "risk_flags": risk_flags,
-            "invalidation_criteria": invalidation_criteria
+            "invalidation_criteria": invalidation_criteria,
+            "shareholding_verdict_applied": _sv_label_applied,  # Phase 178-5: audit trail
+            "panic_vs_derate": cls.classify_panic_vs_derate(item),  # Phase 179
         }
 
 
+
+    @classmethod
+    def classify_panic_vs_derate(cls, item: Dict[str, Any]) -> Dict[str, Any]:
+        """Phase 179: Delegate to standalone panic_vs_derate module.
+
+        Classifies a price drop as panic dislocation or structural de-rating.
+        Returns verdict: PANIC_DISLOCATION_OPPORTUNITY | STRUCTURAL_DE_RATING_AVOID | AMBIGUOUS_AWAIT_NEXT_QUARTER.
+        Always includes methodology_note (heuristic disclosure).
+        """
+        from app.services.research.panic_vs_derate import classify_panic_vs_derate
+        return classify_panic_vs_derate(item)
+
     @classmethod
     def evaluate_hard_risk_gate(cls, item: Dict[str, Any]) -> Dict[str, Any]:
+
         """Hard Risk Gate: disqualifies high-risk candidates before scoring."""
         is_offline = os.getenv("OFFLINE_TEST_MODE", "false").lower() == "true"
         pledged_raw = item.get("pledged_pct")

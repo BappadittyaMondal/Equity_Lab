@@ -433,6 +433,90 @@ class SelfLearningEngine:
 
         return entity
 
+    def record_empirical_rule(
+        self,
+        rule_name: str,
+        category: str,
+        confidence: float,
+        logic_statement: str,
+        target_symbol: Optional[str] = None,
+        relevance: Optional[Dict[str, float]] = None,
+        modifier: Optional[Dict[str, Any]] = None,
+    ) -> KnowledgeEntity:
+        """Phase 173: Directly records an empirical rule into the dynamic registry.
+
+        Provides zero-friction persistence for verified market facts and falsified data points.
+        """
+        entity_id = rule_name.upper().strip().replace(" ", "_")
+        rel = relevance or {"multibagger": 0.50, "sip_compounder": 0.50, "swing_3d": 0.10}
+        mod = modifier or {"metric": "empirical_override", "weight_delta": 0.0}
+        if target_symbol:
+            mod["target_symbol"] = str(target_symbol).upper().strip().replace(".NS", "").replace(".BO", "")
+
+        status = "CERTIFIED_FACT" if confidence >= 0.70 else "PROVISIONAL_OBSERVATION"
+        now_utc = datetime.now(timezone.utc).isoformat()
+
+        entity = KnowledgeEntity(
+            entity_id=entity_id,
+            canonical_name=rule_name,
+            category=category,
+            confidence_score=round(max(0.05, min(1.0, confidence)), 2),
+            verification_status=status,
+            source_origin="EMPIRICAL_AUDIT_VERIFICATION",
+            relevance_vector=rel,
+            bayesian_prior_modifier=mod,
+            description=logic_statement,
+            sensationalism_penalty=0.0,
+            created_at_utc=now_utc,
+            last_validated_at_utc=now_utc,
+            shadow_status="PROMOTED" if confidence >= 0.85 else "SHADOW",
+            sample_count=1,
+            success_count=1,
+            human_signoff=True,
+        )
+
+        reg = self._read_registry()
+        reg["entities"][entity_id] = entity.model_dump()
+        self._write_registry(reg)
+        logger.info(f"[SELF-LEARNING] Recorded empirical rule: {entity_id} ({status})")
+        return entity
+
+    def record_superstar_exit(
+        self,
+        symbol: str,
+        superstar_name: str,
+        exit_quarter: str,
+        reason: Optional[str] = None,
+        confidence: float = 0.95,
+    ) -> KnowledgeEntity:
+        """Phase 177: 1-Step Conversational Self-Learning for verified superstar exits.
+
+        Registers an empirical truth that a marquee investor has exited or trimmed below 1%
+        in a given stock, immediately available to Stage 0 Dynamic Memory Recall.
+        """
+        clean_sym = symbol.upper().strip().replace(".NS", "").replace(".BO", "")
+        rule_name = f"SUPERSTAR_EXIT_{superstar_name.upper().replace(' ', '_')}_{clean_sym}"
+        desc = (
+            f"Superstar investor {superstar_name} has exited or trimmed stake below 1.0% "
+            f"in {clean_sym} as of {exit_quarter}. "
+            f"{reason or 'Exited/trimmed below SEBI disclosure threshold; retail distribution risk.'}"
+        )
+        return self.record_empirical_rule(
+            rule_name=rule_name,
+            category="HARD_GATE_DISQUALIFICATION",
+            confidence=confidence,
+            logic_statement=desc,
+            target_symbol=clean_sym,
+            relevance={"multibagger": 0.90, "sip_compounder": 0.70, "swing_3d": 0.40},
+            modifier={
+                "metric": "phantom_superstar_exit",
+                "weight_delta": -0.25,
+                "target_symbol": clean_sym,
+                "superstar": superstar_name,
+                "exit_quarter": exit_quarter,
+            },
+        )
+
     def learn_from_text(
         self,
         text: str,

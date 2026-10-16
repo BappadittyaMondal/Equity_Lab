@@ -99,11 +99,29 @@ def evaluate_shareholding_pattern(
     if lag_eval.get("warning"):
         evidence.append(lag_eval["warning"])
 
-    # Smart money clustering evaluation
+    # Smart money clustering evaluation (active co-investors >= 1%)
     holders_list = data.get("tracked_holders") or data.get("public_shareholders_above_1pct") or []
     clustering_eval = detect_smart_money_clustering(holders_list)
     if clustering_eval["is_smart_money_clustered"]:
         evidence.append(f"Smart Money Clustering Confirmed: {clustering_eval['cluster_count']} ace investors present ({', '.join(clustering_eval['tracked_entities'])}).")
+
+    # Phase 178-4: Phantom Superstar Exit Gate — now automatic (previously opt-in only).
+    # Detects stealth exits below 1% SEBI disclosure threshold without manual triggering.
+    hist_holders_list = data.get("historical_holders") or data.get("prior_quarter_holders") or []
+    queried_sup = data.get("queried_superstar") or None
+    phantom_eval = detect_phantom_superstar_status(
+        symbol=norm_symbol,
+        current_holders=holders_list,
+        historical_holders=hist_holders_list,
+        queried_superstar=queried_sup,
+    )
+    if phantom_eval["is_phantom_detected"]:
+        exited_names = [e["superstar_entity"] for e in phantom_eval["exited_superstars"]]
+        evidence.append(
+            f"[WARNING: {phantom_eval['verdict_label']}] "
+            f"Phantom exit detected for: {', '.join(exited_names)}. "
+            f"Conviction haircut: -{phantom_eval['conviction_haircut_pts']:.0f} pts applied."
+        )
 
     # Daily bulk deals tracking (T+0 exchange disclosures)
     bulk_deals_input = data.get("daily_bulk_deals") or data.get("bulk_deals")
@@ -131,10 +149,12 @@ def evaluate_shareholding_pattern(
         "pattern_intelligence": intelligence.model_dump(),
         "reporting_lag_analysis": lag_eval,
         "smart_money_clustering": clustering_eval,
+        "phantom_superstar_gate": phantom_eval,
         "daily_bulk_deals": bulk_eval,
         "evidence": evidence,
         "meta": create_meta_header(source="Shareholding Pattern Intelligence Engine (§24)")
     }
+
 
 
 def calculate_reporting_lag_risk(
@@ -181,7 +201,12 @@ TRACKED_SMART_MONEY_PATTERNS: Dict[str, list[str]] = {
     "VIJAY_KEDIA": ["kedia"],
     "ASHISH_KACHOLIA": ["kacholia", "lucky investment"],
     "MUKUL_AGRAWAL": ["mukul agrawal", "mukul agarwal", "param capital"],
+    "REKHA_JHUNJHUNWALA": ["rekha jhunjhunwala", "rakesh jhunjhunwala", "rare enterprises"],
+    "RAMESH_DAMANI": ["ramesh damani"],
+    "SUNIL_SINGHANIA": ["sunil singhania", "abakkus"],
     "DOLLY_KHANNA": ["dolly khanna", "rajiv khanna"],
+    "PORINJU_VELIYATH": ["porinju veliyath", "equity intelligence"],
+    "NIKHIL_KAMATH": ["nikhil kamath", "kamath associates", "nksquared"],
     "KENNETH_ANDRADE": ["andrade", "old bridge"],
     "RADHAKISHAN_DAMANI": ["damani", "derive trading", "gopikishan damani"],
     "LIC_INDIA": ["life insurance corporation", "lic of india"],
@@ -243,6 +268,92 @@ def detect_smart_money_clustering(
         "tracked_entities": sorted(list(detected_clusters)),
         "holder_details": holder_details,
         "clustering_signal": "HIGH_CONVICTION_CLUSTER" if is_clustered else ("SINGLE_INVESTOR_OBSERVED" if cluster_count == 1 else "NO_ACE_CLUSTER")
+    }
+
+
+def detect_phantom_superstar_status(
+    symbol: str,
+    current_holders: Optional[Any] = None,
+    historical_holders: Optional[Any] = None,
+    queried_superstar: Optional[str] = None,
+) -> Dict[str, Any]:
+    """Phase 177: Detects Phantom Superstar Holdings / Stealth Distribution Traps.
+
+    Identifies when an ace investor was historically publicized as a shareholder (or queried
+    by user/media) but has quietly trimmed below the 1.0% SEBI mandatory disclosure threshold
+    or completely exited, leaving retail investors vulnerable to distribution traps.
+    """
+    c_holders = current_holders if isinstance(current_holders, list) else []
+    h_holders = historical_holders if isinstance(historical_holders, list) else []
+
+    # Map current active superstars >= 1.0%
+    active_superstars: Dict[str, float] = {}
+    for h in c_holders:
+        if isinstance(h, dict):
+            name = str(h.get("holder_name") or h.get("name") or "").strip()
+            pct = float(h.get("holding_pct") or h.get("stake_pct") or 0.0)
+            tag = match_smart_money_entity(name)
+            if tag and pct >= 1.0:
+                active_superstars[tag] = max(active_superstars.get(tag, 0.0), pct)
+
+    # Map historical superstars >= 1.0%
+    hist_superstars: Dict[str, float] = {}
+    for h in h_holders:
+        if isinstance(h, dict):
+            name = str(h.get("holder_name") or h.get("name") or "").strip()
+            pct = float(h.get("holding_pct") or h.get("stake_pct") or 0.0)
+            tag = match_smart_money_entity(name)
+            if tag and pct >= 1.0:
+                hist_superstars[tag] = max(hist_superstars.get(tag, 0.0), pct)
+
+    exited_superstars: list[Dict[str, Any]] = []
+
+    # Case A: Queried superstar is not actively present in current filings >= 1.0%
+    if queried_superstar:
+        matched_queried = match_smart_money_entity(queried_superstar) or queried_superstar.upper().strip().replace(" ", "_")
+        if matched_queried not in active_superstars:
+            exited_superstars.append({
+                "superstar_entity": matched_queried,
+                "current_status": "ABSENT_OR_SUB_1_PCT",
+                "last_observed_pct": hist_superstars.get(matched_queried, 0.0),
+                "is_phantom": True,
+            })
+
+    # Case B: Historical superstars that vanished from current filings
+    for tag, hist_pct in hist_superstars.items():
+        if tag not in active_superstars:
+            # Check not already recorded via queried_superstar
+            if not any(e["superstar_entity"] == tag for e in exited_superstars):
+                exited_superstars.append({
+                    "superstar_entity": tag,
+                    "current_status": "EXITED_BELOW_1_PCT",
+                    "historical_pct": hist_pct,
+                    "is_phantom": True,
+                })
+
+    is_phantom = len(exited_superstars) > 0
+    active_count = len(active_superstars)
+
+    if is_phantom and active_count == 0:
+        verdict = "PHANTOM_EXIT_DISTRIBUTION_TRAP"
+    elif is_phantom and active_count > 0:
+        verdict = "PARTIAL_SUPERSTAR_DEPARTURE"
+    elif active_count >= 2:
+        verdict = "HIGH_CONVICTION_ACTIVE_CLUSTER"
+    elif active_count == 1:
+        verdict = "VERIFIED_ACTIVE_HOLDING"
+    else:
+        verdict = "NO_SUPERSTAR_DISCLOSED"
+
+    return {
+        "symbol": normalize_symbol(symbol),
+        "is_phantom_detected": is_phantom,
+        "phantom_superstars_count": len(exited_superstars),
+        "exited_superstars": exited_superstars,
+        "active_superstars": [{"entity": k, "holding_pct": v} for k, v in active_superstars.items()],
+        "active_superstars_count": active_count,
+        "conviction_haircut_pts": 25.0 if is_phantom else 0.0,
+        "verdict_label": verdict,
     }
 
 
