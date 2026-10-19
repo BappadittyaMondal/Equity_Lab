@@ -1,0 +1,1317 @@
+{
+  "date": "2026-10-17",
+  "generated_at": "2026-10-17T16:48:16.161945+00:00",
+  "total_headlines": 119,
+  "sources_checked": 7,
+  "headlines": [
+    {
+      "title": "IDBI Bank Q2 net profit falls 39% to Rs 2,205 crore on lower other income",
+      "link": "https://economictimes.indiatimes.com/industry/banking/finance/banking/idbi-bank-q2-net-profit-falls-39-to-rs-2205-crore-on-lower-other-income/articleshow/135011823.cms",
+      "published": "Sat, 17 Oct 2026 15:41:06 +0530",
+      "source_name": "ET_Industry",
+      "category": "INDUSTRY",
+      "sectors": [
+        "IT_TECH",
+        "BANKING_FINANCE"
+      ],
+      "direction": "NEGATIVE",
+      "magnitude": "HIGH",
+      "resolved_ticker": null,
+      "is_clickbait_hype": false,
+      "operator_risk_tier": "NORMAL_MONITORING",
+      "forensic_warning": "",
+      "order_value_cr": null,
+      "catalyst_tier": "STANDARD_ANNOUNCEMENT",
+      "news_capsule": {
+        "ticker": "UNRESOLVED",
+        "headline": "IDBI Bank Q2 net profit falls 39% to Rs 2,205 crore on lower other income",
+        "sector": "IT_TECH",
+        "catalyst_tier": "STANDARD_ANNOUNCEMENT",
+        "direction": "NEGATIVE",
+        "magnitude": "HIGH",
+        "order_value_cr": null,
+        "is_clickbait_hype": false,
+        "forensic_grade": "STANDARD_DISCLOSURE",
+        "actionable_verdict": "ROUTINE DISCLOSURE: Informational development; no immediate structural inflection.",
+        "executive_briefing": [
+          "Headline: IDBI Bank Q2 net profit falls 39% to Rs 2,205 crore on lower other income",
+          "Entity: UNRESOLVED (IT_TECH) | Catalyst: STANDARD_ANNOUNCEMENT [NEGATIVE/HIGH]",
+          "Verdict: ROUTINE DISCLOSURE: Informational development; no immediate structural inflection."
+        ]
+      }
+    },
+    {
+      "title": "Tata Elxsi Q4 net profit, revenue decline QoQ; firm declares dividend of Rs 70 per share",
+      "link": "https://www.moneycontrol.com/news/business/tata-elxsi-q4-net-profit-revenue-decline-qoq-firm-declares-dividendrs-70-per-share_17532061.html",
+      "published": "Tue, 23 Apr 2024 18:51:45 +0530",
+      "source_name": "Moneycontrol_Business",
+      "category": "BUSINESS",
+      "sectors": [
+        "IT_TECH",
+        "AUTO"
+      ],
+      "direction": "POSITIVE",
+      "magnitude": "HIGH",
+      "resolved_ticker": null,
+      "is_clickbait_hype": false,
+      "operator_risk_tier": "NORMAL_MONITORING",
+      "forensic_warning": "",
+      "order_value_cr": null,
+      "catalyst_tier": "STANDARD_ANNOUNCEMENT",
+      "news_capsule": {
+        "ticker": "UNRESOLVED",
+        "headline": "Tata Elxsi Q4 net profit, revenue decline QoQ; firm declares dividend of Rs 70 per share",
+        "sector": "IT_TECH",
+        "catalyst_tier": "STANDARD_ANNOUNCEMENT",
+        "direction": "POSITIVE",
+        "magnitude": "HIGH",
+        "order_value_cr": null,
+        "is_clickbait_hype": false,
+        "forensic_grade": "STANDARD_DISCLOSURE",
+        "actionable_verdict": "ROUTINE DISCLOSURE: Informational development; no immediate structural inflection.",
+        "executive_briefing": [
+          "Headline: Tata Elxsi Q4 net profit, revenue decline QoQ; firm declares dividend of Rs 70 per share",
+          "Entity: UNRESOLVED (IT_TECH) | Catalyst: STANDARD_ANNOUNCEMENT [POSITIVE/HIGH]",
+          "Verdict: ROUTINE DISCLOSURE: Informational development; no immediate structural inflection."
+        ]
+      }
+    },
+    {
+      "title": "ICICI Pru Life Q4 net profit falls 26% to Rs 174 cr, insurer announces dividend",
+      "link": "https://www.moneycontrol.com/news/business/icici-pru-life-q4-net-profit-falls-26-to-rs-174-cr-insurer-announces-dividend_17532101.html",
+      "published": "Tue, 23 Apr 2024 18:26:16 +0530",
+      "source_name": "Moneycontrol_Business",
+      "category": "BUSINESS",
+      "sectors": [
+        "IT_TECH",
+        "BANKING_FINANCE"
+      ],
+      "direction": "POSITIVE",
+      "magnitude": "HIGH",
+      "resolved_ticker": null,
+      "is_clickbait_hype": false,
+      "operator_risk_tier": "NORMAL_MONITORING",
+      "forensic_warning": "",
+      "order_value_cr": null,
+      "catalyst_tier": "STANDARD_ANNOUNCEMENT",
+      "news_capsule": {
+        "ticker": "UNRESOLVED",
+        "headline": "ICICI Pru Life Q4 net profit falls 26% to Rs 174 cr, insurer announces dividend",
+        "sector": "IT_TECH",
+        "catalyst_tier": "STANDARD_ANNOUNCEMENT",
+        "direction": "POSITIVE",
+        "magnitude": "HIGH",
+        "order_value_cr": null,
+        "is_clickbait_hype": false,
+        "forensic_grade": "STANDARD_DISCLOSURE",
+        "actionable_verdict": "ROUTINE DISCLOSURE: Informational development; no immediate structural inflection.",
+        "executive_briefing": [
+          "Headline: ICICI Pru Life Q4 net profit falls 26% to Rs 174 cr, insurer announces dividend",
+          "Entity: UNRESOLVED (IT_TECH) | Catalyst: STANDARD_ANNOUNCEMENT [POSITIVE/HIGH]",
+          "Verdict: ROUTINE DISCLOSURE: Informational development; no immediate structural inflection."
+        ]
+      }
+    },
+    {
+      "title": "Tata Consumer Q4 net profit falls 19% to Rs 217 cr, firm declares dividend of Rs 7.75 per share",
+      "link": "https://www.moneycontrol.com/news/business/tata-consumer-q4-net-profit-falls-19-to-rs-217-cr-firm-declares-dividendrs-775-per-share_17532071.html",
+      "published": "Tue, 23 Apr 2024 16:27:47 +0530",
+      "source_name": "Moneycontrol_Business",
+      "category": "BUSINESS",
+      "sectors": [
+        "IT_TECH"
+      ],
+      "direction": "POSITIVE",
+      "magnitude": "HIGH",
+      "resolved_ticker": null,
+      "is_clickbait_hype": false,
+      "operator_risk_tier": "NORMAL_MONITORING",
+      "forensic_warning": "",
+      "order_value_cr": null,
+      "catalyst_tier": "STANDARD_ANNOUNCEMENT",
+      "news_capsule": {
+        "ticker": "UNRESOLVED",
+        "headline": "Tata Consumer Q4 net profit falls 19% to Rs 217 cr, firm declares dividend of Rs 7.75 per share",
+        "sector": "IT_TECH",
+        "catalyst_tier": "STANDARD_ANNOUNCEMENT",
+        "direction": "POSITIVE",
+        "magnitude": "HIGH",
+        "order_value_cr": null,
+        "is_clickbait_hype": false,
+        "forensic_grade": "STANDARD_DISCLOSURE",
+        "actionable_verdict": "ROUTINE DISCLOSURE: Informational development; no immediate structural inflection.",
+        "executive_briefing": [
+          "Headline: Tata Consumer Q4 net profit falls 19% to Rs 217 cr, firm declares dividend of Rs 7.75 per share",
+          "Entity: UNRESOLVED (IT_TECH) | Catalyst: STANDARD_ANNOUNCEMENT [POSITIVE/HIGH]",
+          "Verdict: ROUTINE DISCLOSURE: Informational development; no immediate structural inflection."
+        ]
+      }
+    },
+    {
+      "title": "Tata Consumer Q4 net profit falls 19% to Rs 217 cr, firm declares dividend of Rs 7.75 per share",
+      "link": "https://www.moneycontrol.com/news/business/tata-consumer-q4-net-profit-falls-19-to-rs-217-cr-firm-declares-dividendrs-775-per-share_17532081.html",
+      "published": "Tue, 23 Apr 2024 16:27:47 +0530",
+      "source_name": "Moneycontrol_Business",
+      "category": "BUSINESS",
+      "sectors": [
+        "IT_TECH"
+      ],
+      "direction": "POSITIVE",
+      "magnitude": "HIGH",
+      "resolved_ticker": null,
+      "is_clickbait_hype": false,
+      "operator_risk_tier": "NORMAL_MONITORING",
+      "forensic_warning": "",
+      "order_value_cr": null,
+      "catalyst_tier": "STANDARD_ANNOUNCEMENT",
+      "news_capsule": {
+        "ticker": "UNRESOLVED",
+        "headline": "Tata Consumer Q4 net profit falls 19% to Rs 217 cr, firm declares dividend of Rs 7.75 per share",
+        "sector": "IT_TECH",
+        "catalyst_tier": "STANDARD_ANNOUNCEMENT",
+        "direction": "POSITIVE",
+        "magnitude": "HIGH",
+        "order_value_cr": null,
+        "is_clickbait_hype": false,
+        "forensic_grade": "STANDARD_DISCLOSURE",
+        "actionable_verdict": "ROUTINE DISCLOSURE: Informational development; no immediate structural inflection.",
+        "executive_briefing": [
+          "Headline: Tata Consumer Q4 net profit falls 19% to Rs 217 cr, firm declares dividend of Rs 7.75 per share",
+          "Entity: UNRESOLVED (IT_TECH) | Catalyst: STANDARD_ANNOUNCEMENT [POSITIVE/HIGH]",
+          "Verdict: ROUTINE DISCLOSURE: Informational development; no immediate structural inflection."
+        ]
+      }
+    },
+    {
+      "title": "Yes Bank Q2 profit beats estimates, but Supreme Court's AT1 bond ruling impact not booked as lender weighs further appeal",
+      "link": "https://economictimes.indiatimes.com/industry/banking/finance/banking/yes-bank-q2-profit-beats-estimates-but-supreme-courts-at1-bond-ruling-impact-not-booked-as-lender-weighs-further-appeal/articleshow/135016631.cms",
+      "published": "Sat, 17 Oct 2026 21:30:11 +0530",
+      "source_name": "ET_Industry",
+      "category": "INDUSTRY",
+      "sectors": [
+        "IT_TECH",
+        "BANKING_FINANCE"
+      ],
+      "direction": "POSITIVE",
+      "magnitude": "HIGH",
+      "resolved_ticker": null,
+      "is_clickbait_hype": false,
+      "operator_risk_tier": "NORMAL_MONITORING",
+      "forensic_warning": "",
+      "order_value_cr": null,
+      "catalyst_tier": "TIER_1_MOMENTUM_CATALYST",
+      "news_capsule": {
+        "ticker": "UNRESOLVED",
+        "headline": "Yes Bank Q2 profit beats estimates, but Supreme Court's AT1 bond ruling impact not booked as lender weighs further appeal",
+        "sector": "IT_TECH",
+        "catalyst_tier": "TIER_1_MOMENTUM_CATALYST",
+        "direction": "POSITIVE",
+        "magnitude": "HIGH",
+        "order_value_cr": null,
+        "is_clickbait_hype": false,
+        "forensic_grade": "CLEAN_FUNDAMENTAL",
+        "actionable_verdict": "HIGH-IMPACT CATALYST: Verified material corporate event. Check PEAD continuation.",
+        "executive_briefing": [
+          "Headline: Yes Bank Q2 profit beats estimates, but Supreme Court's AT1 bond ruling impact not booked as lender weighs further appeal",
+          "Entity: UNRESOLVED (IT_TECH) | Catalyst: TIER_1_MOMENTUM_CATALYST [POSITIVE/HIGH]",
+          "Verdict: HIGH-IMPACT CATALYST: Verified material corporate event. Check PEAD continuation."
+        ]
+      }
+    },
+    {
+      "title": "Reliance Jio IPO GMP today: Listing-day jackpot or long-term bet? How should investors play Mukesh Ambani’s mega IPO?",
+      "link": "https://www.livemint.com/market/ipo/reliance-jio-ipo-gmp-today-listing-day-jackpot-or-long-term-bet-how-should-investors-play-mukesh-ambani-s-mega-ipo-11792233746569.html",
+      "published": "Sat, 17 Oct 2026 16:17:00 +0530",
+      "source_name": "LiveMint_Markets",
+      "category": "MARKET",
+      "sectors": [
+        "TELECOM"
+      ],
+      "direction": "POSITIVE",
+      "magnitude": "HIGH",
+      "resolved_ticker": "RELIANCE",
+      "is_clickbait_hype": false,
+      "operator_risk_tier": "NORMAL_MONITORING",
+      "forensic_warning": "",
+      "order_value_cr": null,
+      "catalyst_tier": "STANDARD_ANNOUNCEMENT",
+      "news_capsule": {
+        "ticker": "RELIANCE",
+        "headline": "Reliance Jio IPO GMP today: Listing-day jackpot or long-term bet? How should investors play Mukesh Ambani’s mega IPO?",
+        "sector": "TELECOM",
+        "catalyst_tier": "STANDARD_ANNOUNCEMENT",
+        "direction": "POSITIVE",
+        "magnitude": "HIGH",
+        "order_value_cr": null,
+        "is_clickbait_hype": false,
+        "forensic_grade": "STANDARD_DISCLOSURE",
+        "actionable_verdict": "ROUTINE DISCLOSURE: Informational development; no immediate structural inflection.",
+        "executive_briefing": [
+          "Headline: Reliance Jio IPO GMP today: Listing-day jackpot or long-term bet? How should investors play Mukesh Ambani’s mega IPO?",
+          "Entity: RELIANCE (TELECOM) | Catalyst: STANDARD_ANNOUNCEMENT [POSITIVE/HIGH]",
+          "Verdict: ROUTINE DISCLOSURE: Informational development; no immediate structural inflection."
+        ]
+      }
+    },
+    {
+      "title": "Reliance Jio IPO: From Dhirubhai Ambani's 1977 listing to Akash Ambani's mega issue - what's changed? Gen Z connect!",
+      "link": "https://www.livemint.com/market/stock-market-news/reliance-jio-ipo-from-dhirubhai-ambanis-1977-listing-to-akash-ambanis-mega-issue-whats-changed-gen-z-connect-11792219519404.html",
+      "published": "Sat, 17 Oct 2026 13:53:57 +0530",
+      "source_name": "LiveMint_Markets",
+      "category": "MARKET",
+      "sectors": [
+        "IT_TECH",
+        "TELECOM"
+      ],
+      "direction": "POSITIVE",
+      "magnitude": "HIGH",
+      "resolved_ticker": "RELIANCE",
+      "is_clickbait_hype": false,
+      "operator_risk_tier": "NORMAL_MONITORING",
+      "forensic_warning": "",
+      "order_value_cr": null,
+      "catalyst_tier": "STANDARD_ANNOUNCEMENT",
+      "news_capsule": {
+        "ticker": "RELIANCE",
+        "headline": "Reliance Jio IPO: From Dhirubhai Ambani's 1977 listing to Akash Ambani's mega issue - what's changed? Gen Z connect!",
+        "sector": "IT_TECH",
+        "catalyst_tier": "STANDARD_ANNOUNCEMENT",
+        "direction": "POSITIVE",
+        "magnitude": "HIGH",
+        "order_value_cr": null,
+        "is_clickbait_hype": false,
+        "forensic_grade": "STANDARD_DISCLOSURE",
+        "actionable_verdict": "ROUTINE DISCLOSURE: Informational development; no immediate structural inflection.",
+        "executive_briefing": [
+          "Headline: Reliance Jio IPO: From Dhirubhai Ambani's 1977 listing to Akash Ambani's mega issue - what's changed? Gen Z connect!",
+          "Entity: RELIANCE (IT_TECH) | Catalyst: STANDARD_ANNOUNCEMENT [POSITIVE/HIGH]",
+          "Verdict: ROUTINE DISCLOSURE: Informational development; no immediate structural inflection."
+        ]
+      }
+    },
+    {
+      "title": "LT manufactures hydrotreating reactor for refinery in Mexico",
+      "link": "https://www.moneycontrol.com/news/business/lt-manufactures-hydrotreating-reactor-for-refinerymexico_17531811.html",
+      "published": "Tue, 23 Apr 2024 14:47:18 +0530",
+      "source_name": "Moneycontrol_Business",
+      "category": "BUSINESS",
+      "sectors": [
+        "GENERAL"
+      ],
+      "direction": "NEGATIVE",
+      "magnitude": "MEDIUM",
+      "resolved_ticker": null,
+      "is_clickbait_hype": false,
+      "operator_risk_tier": "NORMAL_MONITORING",
+      "forensic_warning": "",
+      "order_value_cr": null,
+      "catalyst_tier": "STANDARD_ANNOUNCEMENT",
+      "news_capsule": {
+        "ticker": "UNRESOLVED",
+        "headline": "LT manufactures hydrotreating reactor for refinery in Mexico",
+        "sector": "GENERAL",
+        "catalyst_tier": "STANDARD_ANNOUNCEMENT",
+        "direction": "NEGATIVE",
+        "magnitude": "MEDIUM",
+        "order_value_cr": null,
+        "is_clickbait_hype": false,
+        "forensic_grade": "STANDARD_DISCLOSURE",
+        "actionable_verdict": "ROUTINE DISCLOSURE: Informational development; no immediate structural inflection.",
+        "executive_briefing": [
+          "Headline: LT manufactures hydrotreating reactor for refinery in Mexico",
+          "Entity: UNRESOLVED (GENERAL) | Catalyst: STANDARD_ANNOUNCEMENT [NEGATIVE/MEDIUM]",
+          "Verdict: ROUTINE DISCLOSURE: Informational development; no immediate structural inflection."
+        ]
+      }
+    },
+    {
+      "title": "Why India's steel demand is defying global weakness",
+      "link": "https://economictimes.indiatimes.com/markets/stocks/news/why-indias-steel-demand-is-defying-global-weakness/articleshow/135008082.cms",
+      "published": "Sat, 17 Oct 2026 11:08:59 +0530",
+      "source_name": "ET_Markets",
+      "category": "MARKET",
+      "sectors": [
+        "INFRA_REALTY"
+      ],
+      "direction": "NEGATIVE",
+      "magnitude": "MEDIUM",
+      "resolved_ticker": null,
+      "is_clickbait_hype": false,
+      "operator_risk_tier": "NORMAL_MONITORING",
+      "forensic_warning": "",
+      "order_value_cr": null,
+      "catalyst_tier": "STANDARD_ANNOUNCEMENT",
+      "news_capsule": {
+        "ticker": "UNRESOLVED",
+        "headline": "Why India's steel demand is defying global weakness",
+        "sector": "INFRA_REALTY",
+        "catalyst_tier": "STANDARD_ANNOUNCEMENT",
+        "direction": "NEGATIVE",
+        "magnitude": "MEDIUM",
+        "order_value_cr": null,
+        "is_clickbait_hype": false,
+        "forensic_grade": "STANDARD_DISCLOSURE",
+        "actionable_verdict": "ROUTINE DISCLOSURE: Informational development; no immediate structural inflection.",
+        "executive_briefing": [
+          "Headline: Why India's steel demand is defying global weakness",
+          "Entity: UNRESOLVED (INFRA_REALTY) | Catalyst: STANDARD_ANNOUNCEMENT [NEGATIVE/MEDIUM]",
+          "Verdict: ROUTINE DISCLOSURE: Informational development; no immediate structural inflection."
+        ]
+      }
+    },
+    {
+      "title": "AI bubble burst may trigger 2008-like banking crisis, says Gary Marcus",
+      "link": "https://economictimes.indiatimes.com/markets/us-stocks/wall-street-guide/ai-bubble-burst-may-trigger-2008-like-banking-crisis-says-gary-marcus/articleshow/135007219.cms",
+      "published": "Sat, 17 Oct 2026 09:56:04 +0530",
+      "source_name": "ET_Markets",
+      "category": "MARKET",
+      "sectors": [
+        "IT_TECH",
+        "BANKING_FINANCE"
+      ],
+      "direction": "NEGATIVE",
+      "magnitude": "MEDIUM",
+      "resolved_ticker": null,
+      "is_clickbait_hype": false,
+      "operator_risk_tier": "NORMAL_MONITORING",
+      "forensic_warning": "",
+      "order_value_cr": null,
+      "catalyst_tier": "STANDARD_ANNOUNCEMENT",
+      "news_capsule": {
+        "ticker": "UNRESOLVED",
+        "headline": "AI bubble burst may trigger 2008-like banking crisis, says Gary Marcus",
+        "sector": "IT_TECH",
+        "catalyst_tier": "STANDARD_ANNOUNCEMENT",
+        "direction": "NEGATIVE",
+        "magnitude": "MEDIUM",
+        "order_value_cr": null,
+        "is_clickbait_hype": false,
+        "forensic_grade": "STANDARD_DISCLOSURE",
+        "actionable_verdict": "ROUTINE DISCLOSURE: Informational development; no immediate structural inflection.",
+        "executive_briefing": [
+          "Headline: AI bubble burst may trigger 2008-like banking crisis, says Gary Marcus",
+          "Entity: UNRESOLVED (IT_TECH) | Catalyst: STANDARD_ANNOUNCEMENT [NEGATIVE/MEDIUM]",
+          "Verdict: ROUTINE DISCLOSURE: Informational development; no immediate structural inflection."
+        ]
+      }
+    },
+    {
+      "title": "Dollar heads for weekly loss as Fed hike bets fade, AI jitters linger",
+      "link": "https://economictimes.indiatimes.com/markets/forex/forex-news/dollar-heads-for-weekly-loss-as-fed-hike-bets-fade-ai-jitters-linger/articleshow/135007121.cms",
+      "published": "Sat, 17 Oct 2026 09:38:05 +0530",
+      "source_name": "ET_Markets",
+      "category": "MARKET",
+      "sectors": [
+        "IT_TECH",
+        "MACRO_POLICY"
+      ],
+      "direction": "NEGATIVE",
+      "magnitude": "MEDIUM",
+      "resolved_ticker": null,
+      "is_clickbait_hype": false,
+      "operator_risk_tier": "NORMAL_MONITORING",
+      "forensic_warning": "",
+      "order_value_cr": null,
+      "catalyst_tier": "STANDARD_ANNOUNCEMENT",
+      "news_capsule": {
+        "ticker": "UNRESOLVED",
+        "headline": "Dollar heads for weekly loss as Fed hike bets fade, AI jitters linger",
+        "sector": "IT_TECH",
+        "catalyst_tier": "STANDARD_ANNOUNCEMENT",
+        "direction": "NEGATIVE",
+        "magnitude": "MEDIUM",
+        "order_value_cr": null,
+        "is_clickbait_hype": false,
+        "forensic_grade": "STANDARD_DISCLOSURE",
+        "actionable_verdict": "ROUTINE DISCLOSURE: Informational development; no immediate structural inflection.",
+        "executive_briefing": [
+          "Headline: Dollar heads for weekly loss as Fed hike bets fade, AI jitters linger",
+          "Entity: UNRESOLVED (IT_TECH) | Catalyst: STANDARD_ANNOUNCEMENT [NEGATIVE/MEDIUM]",
+          "Verdict: ROUTINE DISCLOSURE: Informational development; no immediate structural inflection."
+        ]
+      }
+    },
+    {
+      "title": "HDFC Bank’s post-merger integration work largely behind us, says incoming MD &amp; CEO Anup Bagchi",
+      "link": "https://economictimes.indiatimes.com/industry/banking/finance/banking/hdfc-banks-post-merger-integration-work-largely-behind-us-says-incoming-md-ceo-anup-bagchi/articleshow/135015389.cms",
+      "published": "Sat, 17 Oct 2026 19:38:46 +0530",
+      "source_name": "ET_Industry",
+      "category": "INDUSTRY",
+      "sectors": [
+        "BANKING_FINANCE"
+      ],
+      "direction": "NEGATIVE",
+      "magnitude": "MEDIUM",
+      "resolved_ticker": "HDFCBANK",
+      "is_clickbait_hype": false,
+      "operator_risk_tier": "NORMAL_MONITORING",
+      "forensic_warning": "",
+      "order_value_cr": null,
+      "catalyst_tier": "STANDARD_ANNOUNCEMENT",
+      "news_capsule": {
+        "ticker": "HDFCBANK",
+        "headline": "HDFC Bank’s post-merger integration work largely behind us, says incoming MD &amp; CEO Anup Bagchi",
+        "sector": "BANKING_FINANCE",
+        "catalyst_tier": "STANDARD_ANNOUNCEMENT",
+        "direction": "NEGATIVE",
+        "magnitude": "MEDIUM",
+        "order_value_cr": null,
+        "is_clickbait_hype": false,
+        "forensic_grade": "STANDARD_DISCLOSURE",
+        "actionable_verdict": "ROUTINE DISCLOSURE: Informational development; no immediate structural inflection.",
+        "executive_briefing": [
+          "Headline: HDFC Bank’s post-merger integration work largely behind us, says incoming MD &amp; CEO Anup Bagchi",
+          "Entity: HDFCBANK (BANKING_FINANCE) | Catalyst: STANDARD_ANNOUNCEMENT [NEGATIVE/MEDIUM]",
+          "Verdict: ROUTINE DISCLOSURE: Informational development; no immediate structural inflection."
+        ]
+      }
+    },
+    {
+      "title": "Axis Bank appoints former HDFC Bank veteran Rahul Shukla to head Commercial, Bharat Banking",
+      "link": "https://economictimes.indiatimes.com/industry/banking/finance/banking/axis-bank-appoints-former-hdfc-bank-veteran-rahul-shukla-to-head-commercial-bharat-banking/articleshow/135014153.cms",
+      "published": "Sat, 17 Oct 2026 17:52:05 +0530",
+      "source_name": "ET_Industry",
+      "category": "INDUSTRY",
+      "sectors": [
+        "BANKING_FINANCE"
+      ],
+      "direction": "NEGATIVE",
+      "magnitude": "MEDIUM",
+      "resolved_ticker": "HDFCBANK",
+      "is_clickbait_hype": false,
+      "operator_risk_tier": "NORMAL_MONITORING",
+      "forensic_warning": "",
+      "order_value_cr": null,
+      "catalyst_tier": "STANDARD_ANNOUNCEMENT",
+      "news_capsule": {
+        "ticker": "HDFCBANK",
+        "headline": "Axis Bank appoints former HDFC Bank veteran Rahul Shukla to head Commercial, Bharat Banking",
+        "sector": "BANKING_FINANCE",
+        "catalyst_tier": "STANDARD_ANNOUNCEMENT",
+        "direction": "NEGATIVE",
+        "magnitude": "MEDIUM",
+        "order_value_cr": null,
+        "is_clickbait_hype": false,
+        "forensic_grade": "STANDARD_DISCLOSURE",
+        "actionable_verdict": "ROUTINE DISCLOSURE: Informational development; no immediate structural inflection.",
+        "executive_briefing": [
+          "Headline: Axis Bank appoints former HDFC Bank veteran Rahul Shukla to head Commercial, Bharat Banking",
+          "Entity: HDFCBANK (BANKING_FINANCE) | Catalyst: STANDARD_ANNOUNCEMENT [NEGATIVE/MEDIUM]",
+          "Verdict: ROUTINE DISCLOSURE: Informational development; no immediate structural inflection."
+        ]
+      }
+    },
+    {
+      "title": "Axis Bank's Freecharge gets in-principle RBI nod to operate as payment aggregator",
+      "link": "https://economictimes.indiatimes.com/industry/banking/finance/banking/axis-banks-freecharge-gets-in-principle-rbi-nod-to-operate-as-payment-aggregator/articleshow/135013514.cms",
+      "published": "Sat, 17 Oct 2026 17:18:50 +0530",
+      "source_name": "ET_Industry",
+      "category": "INDUSTRY",
+      "sectors": [
+        "BANKING_FINANCE"
+      ],
+      "direction": "NEGATIVE",
+      "magnitude": "MEDIUM",
+      "resolved_ticker": null,
+      "is_clickbait_hype": false,
+      "operator_risk_tier": "NORMAL_MONITORING",
+      "forensic_warning": "",
+      "order_value_cr": null,
+      "catalyst_tier": "STANDARD_ANNOUNCEMENT",
+      "news_capsule": {
+        "ticker": "UNRESOLVED",
+        "headline": "Axis Bank's Freecharge gets in-principle RBI nod to operate as payment aggregator",
+        "sector": "BANKING_FINANCE",
+        "catalyst_tier": "STANDARD_ANNOUNCEMENT",
+        "direction": "NEGATIVE",
+        "magnitude": "MEDIUM",
+        "order_value_cr": null,
+        "is_clickbait_hype": false,
+        "forensic_grade": "STANDARD_DISCLOSURE",
+        "actionable_verdict": "ROUTINE DISCLOSURE: Informational development; no immediate structural inflection.",
+        "executive_briefing": [
+          "Headline: Axis Bank's Freecharge gets in-principle RBI nod to operate as payment aggregator",
+          "Entity: UNRESOLVED (BANKING_FINANCE) | Catalyst: STANDARD_ANNOUNCEMENT [NEGATIVE/MEDIUM]",
+          "Verdict: ROUTINE DISCLOSURE: Informational development; no immediate structural inflection."
+        ]
+      }
+    },
+    {
+      "title": "One last bittersweet pitch for HDFC Bank as CEO Sashidhar Jagdishan prepares to exit",
+      "link": "https://economictimes.indiatimes.com/industry/banking/finance/banking/one-last-bittersweet-pitch-for-hdfc-bank-as-ceo-sashidhar-jagdishan-prepares-to-exit/articleshow/135012750.cms",
+      "published": "Sat, 17 Oct 2026 16:51:04 +0530",
+      "source_name": "ET_Industry",
+      "category": "INDUSTRY",
+      "sectors": [
+        "IT_TECH",
+        "BANKING_FINANCE"
+      ],
+      "direction": "NEGATIVE",
+      "magnitude": "MEDIUM",
+      "resolved_ticker": "HDFCBANK",
+      "is_clickbait_hype": false,
+      "operator_risk_tier": "NORMAL_MONITORING",
+      "forensic_warning": "",
+      "order_value_cr": null,
+      "catalyst_tier": "STANDARD_ANNOUNCEMENT",
+      "news_capsule": {
+        "ticker": "HDFCBANK",
+        "headline": "One last bittersweet pitch for HDFC Bank as CEO Sashidhar Jagdishan prepares to exit",
+        "sector": "IT_TECH",
+        "catalyst_tier": "STANDARD_ANNOUNCEMENT",
+        "direction": "NEGATIVE",
+        "magnitude": "MEDIUM",
+        "order_value_cr": null,
+        "is_clickbait_hype": false,
+        "forensic_grade": "STANDARD_DISCLOSURE",
+        "actionable_verdict": "ROUTINE DISCLOSURE: Informational development; no immediate structural inflection.",
+        "executive_briefing": [
+          "Headline: One last bittersweet pitch for HDFC Bank as CEO Sashidhar Jagdishan prepares to exit",
+          "Entity: HDFCBANK (IT_TECH) | Catalyst: STANDARD_ANNOUNCEMENT [NEGATIVE/MEDIUM]",
+          "Verdict: ROUTINE DISCLOSURE: Informational development; no immediate structural inflection."
+        ]
+      }
+    },
+    {
+      "title": "HDFC Bank deputy MD Kaizad Bharucha to step down on December 31",
+      "link": "https://economictimes.indiatimes.com/industry/banking/finance/banking/hdfc-bank-deputy-md-kaizad-bharucha-to-step-down-on-december-31/articleshow/135012912.cms",
+      "published": "Sat, 17 Oct 2026 16:47:48 +0530",
+      "source_name": "ET_Industry",
+      "category": "INDUSTRY",
+      "sectors": [
+        "IT_TECH",
+        "BANKING_FINANCE"
+      ],
+      "direction": "NEGATIVE",
+      "magnitude": "MEDIUM",
+      "resolved_ticker": "HDFCBANK",
+      "is_clickbait_hype": false,
+      "operator_risk_tier": "NORMAL_MONITORING",
+      "forensic_warning": "",
+      "order_value_cr": null,
+      "catalyst_tier": "STANDARD_ANNOUNCEMENT",
+      "news_capsule": {
+        "ticker": "HDFCBANK",
+        "headline": "HDFC Bank deputy MD Kaizad Bharucha to step down on December 31",
+        "sector": "IT_TECH",
+        "catalyst_tier": "STANDARD_ANNOUNCEMENT",
+        "direction": "NEGATIVE",
+        "magnitude": "MEDIUM",
+        "order_value_cr": null,
+        "is_clickbait_hype": false,
+        "forensic_grade": "STANDARD_DISCLOSURE",
+        "actionable_verdict": "ROUTINE DISCLOSURE: Informational development; no immediate structural inflection.",
+        "executive_briefing": [
+          "Headline: HDFC Bank deputy MD Kaizad Bharucha to step down on December 31",
+          "Entity: HDFCBANK (IT_TECH) | Catalyst: STANDARD_ANNOUNCEMENT [NEGATIVE/MEDIUM]",
+          "Verdict: ROUTINE DISCLOSURE: Informational development; no immediate structural inflection."
+        ]
+      }
+    },
+    {
+      "title": "HDFC Bank deputy MD Kaizad Bharucha  to step down on December 31",
+      "link": "https://economictimes.indiatimes.com/industry/banking/finance/banking/hdfc-bank-deputy-md-kaizad-bharucha-seeks-to-step-down-on-december-31/articleshow/135012434.cms",
+      "published": "Sat, 17 Oct 2026 16:25:23 +0530",
+      "source_name": "ET_Industry",
+      "category": "INDUSTRY",
+      "sectors": [
+        "IT_TECH",
+        "BANKING_FINANCE"
+      ],
+      "direction": "NEGATIVE",
+      "magnitude": "MEDIUM",
+      "resolved_ticker": "HDFCBANK",
+      "is_clickbait_hype": false,
+      "operator_risk_tier": "NORMAL_MONITORING",
+      "forensic_warning": "",
+      "order_value_cr": null,
+      "catalyst_tier": "STANDARD_ANNOUNCEMENT",
+      "news_capsule": {
+        "ticker": "HDFCBANK",
+        "headline": "HDFC Bank deputy MD Kaizad Bharucha  to step down on December 31",
+        "sector": "IT_TECH",
+        "catalyst_tier": "STANDARD_ANNOUNCEMENT",
+        "direction": "NEGATIVE",
+        "magnitude": "MEDIUM",
+        "order_value_cr": null,
+        "is_clickbait_hype": false,
+        "forensic_grade": "STANDARD_DISCLOSURE",
+        "actionable_verdict": "ROUTINE DISCLOSURE: Informational development; no immediate structural inflection.",
+        "executive_briefing": [
+          "Headline: HDFC Bank deputy MD Kaizad Bharucha  to step down on December 31",
+          "Entity: HDFCBANK (IT_TECH) | Catalyst: STANDARD_ANNOUNCEMENT [NEGATIVE/MEDIUM]",
+          "Verdict: ROUTINE DISCLOSURE: Informational development; no immediate structural inflection."
+        ]
+      }
+    },
+    {
+      "title": "FSSAI proposes banning addition of fructose, sucrose in baby food products",
+      "link": "https://economictimes.indiatimes.com/industry/cons-products/food/fssai-proposes-banning-addition-of-fructose-sucrose-in-baby-food-products/articleshow/135011959.cms",
+      "published": "Sat, 17 Oct 2026 16:10:07 +0530",
+      "source_name": "ET_Industry",
+      "category": "INDUSTRY",
+      "sectors": [
+        "IT_TECH"
+      ],
+      "direction": "NEGATIVE",
+      "magnitude": "MEDIUM",
+      "resolved_ticker": null,
+      "is_clickbait_hype": false,
+      "operator_risk_tier": "NORMAL_MONITORING",
+      "forensic_warning": "",
+      "order_value_cr": null,
+      "catalyst_tier": "STANDARD_ANNOUNCEMENT",
+      "news_capsule": {
+        "ticker": "UNRESOLVED",
+        "headline": "FSSAI proposes banning addition of fructose, sucrose in baby food products",
+        "sector": "IT_TECH",
+        "catalyst_tier": "STANDARD_ANNOUNCEMENT",
+        "direction": "NEGATIVE",
+        "magnitude": "MEDIUM",
+        "order_value_cr": null,
+        "is_clickbait_hype": false,
+        "forensic_grade": "STANDARD_DISCLOSURE",
+        "actionable_verdict": "ROUTINE DISCLOSURE: Informational development; no immediate structural inflection.",
+        "executive_briefing": [
+          "Headline: FSSAI proposes banning addition of fructose, sucrose in baby food products",
+          "Entity: UNRESOLVED (IT_TECH) | Catalyst: STANDARD_ANNOUNCEMENT [NEGATIVE/MEDIUM]",
+          "Verdict: ROUTINE DISCLOSURE: Informational development; no immediate structural inflection."
+        ]
+      }
+    },
+    {
+      "title": "Q2 results 2026 race: HDFC vs ICICI Bank vs Axis Bank vs Yes Bank vs IDBI - Which bank won in PAT, NII, asset quality?",
+      "link": "https://www.livemint.com/market/stock-market-news/q2-results-2026-race-hdfc-vs-icici-bank-vs-axis-bank-vs-yes-bank-vs-idbi-which-bank-won-in-pat-nii-revenue-growth-11792244738368.html",
+      "published": "Sat, 17 Oct 2026 20:16:51 +0530",
+      "source_name": "LiveMint_Markets",
+      "category": "MARKET",
+      "sectors": [
+        "IT_TECH",
+        "BANKING_FINANCE"
+      ],
+      "direction": "NEGATIVE",
+      "magnitude": "MEDIUM",
+      "resolved_ticker": "ICICIBANK",
+      "is_clickbait_hype": false,
+      "operator_risk_tier": "NORMAL_MONITORING",
+      "forensic_warning": "",
+      "order_value_cr": null,
+      "catalyst_tier": "STANDARD_ANNOUNCEMENT",
+      "news_capsule": {
+        "ticker": "ICICIBANK",
+        "headline": "Q2 results 2026 race: HDFC vs ICICI Bank vs Axis Bank vs Yes Bank vs IDBI - Which bank won in PAT, NII, asset quality?",
+        "sector": "IT_TECH",
+        "catalyst_tier": "STANDARD_ANNOUNCEMENT",
+        "direction": "NEGATIVE",
+        "magnitude": "MEDIUM",
+        "order_value_cr": null,
+        "is_clickbait_hype": false,
+        "forensic_grade": "STANDARD_DISCLOSURE",
+        "actionable_verdict": "ROUTINE DISCLOSURE: Informational development; no immediate structural inflection.",
+        "executive_briefing": [
+          "Headline: Q2 results 2026 race: HDFC vs ICICI Bank vs Axis Bank vs Yes Bank vs IDBI - Which bank won in PAT, NII, asset quality?",
+          "Entity: ICICIBANK (IT_TECH) | Catalyst: STANDARD_ANNOUNCEMENT [NEGATIVE/MEDIUM]",
+          "Verdict: ROUTINE DISCLOSURE: Informational development; no immediate structural inflection."
+        ]
+      }
+    },
+    {
+      "title": "Best 3 stocks to buy under  ₹100: Equitas SFB, UCO Bank, Suzlon by Mehul Kothari of Anand Rathi — Target, stop-loss",
+      "link": "https://www.livemint.com/market/stock-market-news/best-3-stocks-to-buy-under-rs-100-equitas-sfb-uco-bank-suzlon-by-mehul-kothari-of-anand-rathi-target-stoploss-11792229200001.html",
+      "published": "Sat, 17 Oct 2026 16:58:11 +0530",
+      "source_name": "LiveMint_Markets",
+      "category": "MARKET",
+      "sectors": [
+        "IT_TECH",
+        "BANKING_FINANCE"
+      ],
+      "direction": "NEGATIVE",
+      "magnitude": "MEDIUM",
+      "resolved_ticker": "ANANDRATHI",
+      "is_clickbait_hype": false,
+      "operator_risk_tier": "NORMAL_MONITORING",
+      "forensic_warning": "",
+      "order_value_cr": null,
+      "catalyst_tier": "STANDARD_ANNOUNCEMENT",
+      "news_capsule": {
+        "ticker": "ANANDRATHI",
+        "headline": "Best 3 stocks to buy under  ₹100: Equitas SFB, UCO Bank, Suzlon by Mehul Kothari of Anand Rathi — Target, stop-loss",
+        "sector": "IT_TECH",
+        "catalyst_tier": "STANDARD_ANNOUNCEMENT",
+        "direction": "NEGATIVE",
+        "magnitude": "MEDIUM",
+        "order_value_cr": null,
+        "is_clickbait_hype": false,
+        "forensic_grade": "STANDARD_DISCLOSURE",
+        "actionable_verdict": "ROUTINE DISCLOSURE: Informational development; no immediate structural inflection.",
+        "executive_briefing": [
+          "Headline: Best 3 stocks to buy under  ₹100: Equitas SFB, UCO Bank, Suzlon by Mehul Kothari of Anand Rathi — Target, stop-loss",
+          "Entity: ANANDRATHI (IT_TECH) | Catalyst: STANDARD_ANNOUNCEMENT [NEGATIVE/MEDIUM]",
+          "Verdict: ROUTINE DISCLOSURE: Informational development; no immediate structural inflection."
+        ]
+      }
+    },
+    {
+      "title": "Swiggy share price: Down 50% in 1 year; can food delivery stock recover? Should you buy the dip? Check target, stop-loss",
+      "link": "https://www.livemint.com/market/stock-market-news/swiggy-share-price-down-50-in-1-year-can-food-delivery-stock-recover-should-you-buy-the-dip-check-target-stoploss-11792165643709.html",
+      "published": "Sat, 17 Oct 2026 09:43:39 +0530",
+      "source_name": "LiveMint_Markets",
+      "category": "MARKET",
+      "sectors": [
+        "GENERAL"
+      ],
+      "direction": "NEGATIVE",
+      "magnitude": "MEDIUM",
+      "resolved_ticker": null,
+      "is_clickbait_hype": false,
+      "operator_risk_tier": "NORMAL_MONITORING",
+      "forensic_warning": "",
+      "order_value_cr": null,
+      "catalyst_tier": "STANDARD_ANNOUNCEMENT",
+      "news_capsule": {
+        "ticker": "UNRESOLVED",
+        "headline": "Swiggy share price: Down 50% in 1 year; can food delivery stock recover? Should you buy the dip? Check target, stop-loss",
+        "sector": "GENERAL",
+        "catalyst_tier": "STANDARD_ANNOUNCEMENT",
+        "direction": "NEGATIVE",
+        "magnitude": "MEDIUM",
+        "order_value_cr": null,
+        "is_clickbait_hype": false,
+        "forensic_grade": "STANDARD_DISCLOSURE",
+        "actionable_verdict": "ROUTINE DISCLOSURE: Informational development; no immediate structural inflection.",
+        "executive_briefing": [
+          "Headline: Swiggy share price: Down 50% in 1 year; can food delivery stock recover? Should you buy the dip? Check target, stop-loss",
+          "Entity: UNRESOLVED (GENERAL) | Catalyst: STANDARD_ANNOUNCEMENT [NEGATIVE/MEDIUM]",
+          "Verdict: ROUTINE DISCLOSURE: Informational development; no immediate structural inflection."
+        ]
+      }
+    },
+    {
+      "title": "Stocks slip as dollar heads for weekly loss",
+      "link": "https://www.livemint.com/market/stocks-slip-as-dollar-heads-for-weekly-loss-11792179512288.html",
+      "published": "Sat, 17 Oct 2026 01:08:31 +0530",
+      "source_name": "LiveMint_Markets",
+      "category": "MARKET",
+      "sectors": [
+        "MACRO_POLICY"
+      ],
+      "direction": "NEGATIVE",
+      "magnitude": "MEDIUM",
+      "resolved_ticker": null,
+      "is_clickbait_hype": false,
+      "operator_risk_tier": "NORMAL_MONITORING",
+      "forensic_warning": "",
+      "order_value_cr": null,
+      "catalyst_tier": "STANDARD_ANNOUNCEMENT",
+      "news_capsule": {
+        "ticker": "UNRESOLVED",
+        "headline": "Stocks slip as dollar heads for weekly loss",
+        "sector": "MACRO_POLICY",
+        "catalyst_tier": "STANDARD_ANNOUNCEMENT",
+        "direction": "NEGATIVE",
+        "magnitude": "MEDIUM",
+        "order_value_cr": null,
+        "is_clickbait_hype": false,
+        "forensic_grade": "STANDARD_DISCLOSURE",
+        "actionable_verdict": "ROUTINE DISCLOSURE: Informational development; no immediate structural inflection.",
+        "executive_briefing": [
+          "Headline: Stocks slip as dollar heads for weekly loss",
+          "Entity: UNRESOLVED (MACRO_POLICY) | Catalyst: STANDARD_ANNOUNCEMENT [NEGATIVE/MEDIUM]",
+          "Verdict: ROUTINE DISCLOSURE: Informational development; no immediate structural inflection."
+        ]
+      }
+    },
+    {
+      "title": "Yes Bank flags 250-bps impact on core capital ratio after Supreme Court upholds AT-1 bond write-off ruling",
+      "link": "https://www.livemint.com/market/stock-market-news/yes-bank-flags-250-bps-impact-in-core-capital-ratio-after-supreme-court-upholds-at-1-bond-write-off-ruling-11792175520924.html",
+      "published": "Sat, 17 Oct 2026 00:21:54 +0530",
+      "source_name": "LiveMint_Markets",
+      "category": "MARKET",
+      "sectors": [
+        "IT_TECH",
+        "BANKING_FINANCE",
+        "PHARMA_HEALTHCARE",
+        "CHEMICALS_MATERIALS"
+      ],
+      "direction": "NEGATIVE",
+      "magnitude": "MEDIUM",
+      "resolved_ticker": null,
+      "is_clickbait_hype": false,
+      "operator_risk_tier": "NORMAL_MONITORING",
+      "forensic_warning": "",
+      "order_value_cr": null,
+      "catalyst_tier": "STANDARD_ANNOUNCEMENT",
+      "news_capsule": {
+        "ticker": "UNRESOLVED",
+        "headline": "Yes Bank flags 250-bps impact on core capital ratio after Supreme Court upholds AT-1 bond write-off ruling",
+        "sector": "IT_TECH",
+        "catalyst_tier": "STANDARD_ANNOUNCEMENT",
+        "direction": "NEGATIVE",
+        "magnitude": "MEDIUM",
+        "order_value_cr": null,
+        "is_clickbait_hype": false,
+        "forensic_grade": "STANDARD_DISCLOSURE",
+        "actionable_verdict": "ROUTINE DISCLOSURE: Informational development; no immediate structural inflection.",
+        "executive_briefing": [
+          "Headline: Yes Bank flags 250-bps impact on core capital ratio after Supreme Court upholds AT-1 bond write-off ruling",
+          "Entity: UNRESOLVED (IT_TECH) | Catalyst: STANDARD_ANNOUNCEMENT [NEGATIVE/MEDIUM]",
+          "Verdict: ROUTINE DISCLOSURE: Informational development; no immediate structural inflection."
+        ]
+      }
+    },
+    {
+      "title": "5 Bank Stocks in Which FIIs Acquired Huge Stakes Worth Up to ₹52,878 Crore in the Last Year",
+      "link": "https://tradebrains.in/indian-markets/5-bank-stocks-in-which-fiis-acquired-huge-stakes-worth-up-to-52878-crore-in-the-last-year-12681253",
+      "published": "Sat, 17 Oct 2026 09:00:37 +0530",
+      "source_name": "TradeBrains_All",
+      "category": "EQUITY_IDEAS",
+      "sectors": [
+        "BANKING_FINANCE"
+      ],
+      "direction": "NEGATIVE",
+      "magnitude": "MEDIUM",
+      "resolved_ticker": null,
+      "is_clickbait_hype": false,
+      "operator_risk_tier": "NORMAL_MONITORING",
+      "forensic_warning": "",
+      "order_value_cr": null,
+      "catalyst_tier": "STANDARD_ANNOUNCEMENT",
+      "news_capsule": {
+        "ticker": "UNRESOLVED",
+        "headline": "5 Bank Stocks in Which FIIs Acquired Huge Stakes Worth Up to ₹52,878 Crore in the Last Year",
+        "sector": "BANKING_FINANCE",
+        "catalyst_tier": "STANDARD_ANNOUNCEMENT",
+        "direction": "NEGATIVE",
+        "magnitude": "MEDIUM",
+        "order_value_cr": null,
+        "is_clickbait_hype": false,
+        "forensic_grade": "STANDARD_DISCLOSURE",
+        "actionable_verdict": "ROUTINE DISCLOSURE: Informational development; no immediate structural inflection.",
+        "executive_briefing": [
+          "Headline: 5 Bank Stocks in Which FIIs Acquired Huge Stakes Worth Up to ₹52,878 Crore in the Last Year",
+          "Entity: UNRESOLVED (BANKING_FINANCE) | Catalyst: STANDARD_ANNOUNCEMENT [NEGATIVE/MEDIUM]",
+          "Verdict: ROUTINE DISCLOSURE: Informational development; no immediate structural inflection."
+        ]
+      }
+    },
+    {
+      "title": "Cyient DLM#39;s profit after tax in FY24 surges 93%",
+      "link": "https://www.moneycontrol.com/news/business/cyient-dlm39s-profit-after-taxfy24-surges-93_17532091.html",
+      "published": "Tue, 23 Apr 2024 17:56:47 +0530",
+      "source_name": "Moneycontrol_Business",
+      "category": "BUSINESS",
+      "sectors": [
+        "IT_TECH"
+      ],
+      "direction": "POSITIVE",
+      "magnitude": "MEDIUM",
+      "resolved_ticker": null,
+      "is_clickbait_hype": false,
+      "operator_risk_tier": "NORMAL_MONITORING",
+      "forensic_warning": "",
+      "order_value_cr": null,
+      "catalyst_tier": "STANDARD_ANNOUNCEMENT",
+      "news_capsule": {
+        "ticker": "UNRESOLVED",
+        "headline": "Cyient DLM#39;s profit after tax in FY24 surges 93%",
+        "sector": "IT_TECH",
+        "catalyst_tier": "STANDARD_ANNOUNCEMENT",
+        "direction": "POSITIVE",
+        "magnitude": "MEDIUM",
+        "order_value_cr": null,
+        "is_clickbait_hype": false,
+        "forensic_grade": "STANDARD_DISCLOSURE",
+        "actionable_verdict": "ROUTINE DISCLOSURE: Informational development; no immediate structural inflection.",
+        "executive_briefing": [
+          "Headline: Cyient DLM#39;s profit after tax in FY24 surges 93%",
+          "Entity: UNRESOLVED (IT_TECH) | Catalyst: STANDARD_ANNOUNCEMENT [POSITIVE/MEDIUM]",
+          "Verdict: ROUTINE DISCLOSURE: Informational development; no immediate structural inflection."
+        ]
+      }
+    },
+    {
+      "title": "LTIMindtree Q4 Preview: Lower pass-through revenue seen impacting growth marginally",
+      "link": "https://www.moneycontrol.com/news/business/ltimindtree-q4-preview-lower-pass-through-revenue-seen-impacting-growth-marginally_17531881.html",
+      "published": "Tue, 23 Apr 2024 15:51:27 +0530",
+      "source_name": "Moneycontrol_Business",
+      "category": "BUSINESS",
+      "sectors": [
+        "AUTO"
+      ],
+      "direction": "POSITIVE",
+      "magnitude": "MEDIUM",
+      "resolved_ticker": null,
+      "is_clickbait_hype": false,
+      "operator_risk_tier": "NORMAL_MONITORING",
+      "forensic_warning": "",
+      "order_value_cr": null,
+      "catalyst_tier": "STANDARD_ANNOUNCEMENT",
+      "news_capsule": {
+        "ticker": "UNRESOLVED",
+        "headline": "LTIMindtree Q4 Preview: Lower pass-through revenue seen impacting growth marginally",
+        "sector": "AUTO",
+        "catalyst_tier": "STANDARD_ANNOUNCEMENT",
+        "direction": "POSITIVE",
+        "magnitude": "MEDIUM",
+        "order_value_cr": null,
+        "is_clickbait_hype": false,
+        "forensic_grade": "STANDARD_DISCLOSURE",
+        "actionable_verdict": "ROUTINE DISCLOSURE: Informational development; no immediate structural inflection.",
+        "executive_briefing": [
+          "Headline: LTIMindtree Q4 Preview: Lower pass-through revenue seen impacting growth marginally",
+          "Entity: UNRESOLVED (AUTO) | Catalyst: STANDARD_ANNOUNCEMENT [POSITIVE/MEDIUM]",
+          "Verdict: ROUTINE DISCLOSURE: Informational development; no immediate structural inflection."
+        ]
+      }
+    },
+    {
+      "title": "Rising borrowing costs signal funding risks for global AI expansion: Jefferies report",
+      "link": "https://economictimes.indiatimes.com/markets/us-stocks/news/rising-borrowing-costs-signal-funding-risks-for-global-ai-expansion-jefferies-report/articleshow/135012567.cms",
+      "published": "Sat, 17 Oct 2026 16:34:01 +0530",
+      "source_name": "ET_Markets",
+      "category": "MARKET",
+      "sectors": [
+        "IT_TECH",
+        "BANKING_FINANCE"
+      ],
+      "direction": "POSITIVE",
+      "magnitude": "MEDIUM",
+      "resolved_ticker": null,
+      "is_clickbait_hype": false,
+      "operator_risk_tier": "NORMAL_MONITORING",
+      "forensic_warning": "",
+      "order_value_cr": null,
+      "catalyst_tier": "STANDARD_ANNOUNCEMENT",
+      "news_capsule": {
+        "ticker": "UNRESOLVED",
+        "headline": "Rising borrowing costs signal funding risks for global AI expansion: Jefferies report",
+        "sector": "IT_TECH",
+        "catalyst_tier": "STANDARD_ANNOUNCEMENT",
+        "direction": "POSITIVE",
+        "magnitude": "MEDIUM",
+        "order_value_cr": null,
+        "is_clickbait_hype": false,
+        "forensic_grade": "STANDARD_DISCLOSURE",
+        "actionable_verdict": "ROUTINE DISCLOSURE: Informational development; no immediate structural inflection.",
+        "executive_briefing": [
+          "Headline: Rising borrowing costs signal funding risks for global AI expansion: Jefferies report",
+          "Entity: UNRESOLVED (IT_TECH) | Catalyst: STANDARD_ANNOUNCEMENT [POSITIVE/MEDIUM]",
+          "Verdict: ROUTINE DISCLOSURE: Informational development; no immediate structural inflection."
+        ]
+      }
+    },
+    {
+      "title": "ixigo Q2 profit at Rs 63 cr on robust show in hotel booking biz",
+      "link": "https://economictimes.indiatimes.com/markets/stocks/earnings/ixigo-q2-profit-at-rs-63-cr-on-robust-show-in-hotel-booking-biz/articleshow/135012396.cms",
+      "published": "Sat, 17 Oct 2026 16:21:46 +0530",
+      "source_name": "ET_Markets",
+      "category": "MARKET",
+      "sectors": [
+        "IT_TECH"
+      ],
+      "direction": "POSITIVE",
+      "magnitude": "MEDIUM",
+      "resolved_ticker": null,
+      "is_clickbait_hype": false,
+      "operator_risk_tier": "NORMAL_MONITORING",
+      "forensic_warning": "",
+      "order_value_cr": null,
+      "catalyst_tier": "STANDARD_ANNOUNCEMENT",
+      "news_capsule": {
+        "ticker": "UNRESOLVED",
+        "headline": "ixigo Q2 profit at Rs 63 cr on robust show in hotel booking biz",
+        "sector": "IT_TECH",
+        "catalyst_tier": "STANDARD_ANNOUNCEMENT",
+        "direction": "POSITIVE",
+        "magnitude": "MEDIUM",
+        "order_value_cr": null,
+        "is_clickbait_hype": false,
+        "forensic_grade": "STANDARD_DISCLOSURE",
+        "actionable_verdict": "ROUTINE DISCLOSURE: Informational development; no immediate structural inflection.",
+        "executive_briefing": [
+          "Headline: ixigo Q2 profit at Rs 63 cr on robust show in hotel booking biz",
+          "Entity: UNRESOLVED (IT_TECH) | Catalyst: STANDARD_ANNOUNCEMENT [POSITIVE/MEDIUM]",
+          "Verdict: ROUTINE DISCLOSURE: Informational development; no immediate structural inflection."
+        ]
+      }
+    },
+    {
+      "title": "Jio IPO’s grey market hints at 20% listing pop. What are Emkay, SBI Securities saying?",
+      "link": "https://economictimes.indiatimes.com/markets/ipos/fpos/jio-ipos-grey-market-hints-at-20-listing-pop-what-are-emkay-sbi-securities-saying/articleshow/135008712.cms",
+      "published": "Sat, 17 Oct 2026 11:51:19 +0530",
+      "source_name": "ET_Markets",
+      "category": "MARKET",
+      "sectors": [
+        "IT_TECH",
+        "BANKING_FINANCE",
+        "TELECOM"
+      ],
+      "direction": "POSITIVE",
+      "magnitude": "MEDIUM",
+      "resolved_ticker": "RELIANCE",
+      "is_clickbait_hype": false,
+      "operator_risk_tier": "NORMAL_MONITORING",
+      "forensic_warning": "",
+      "order_value_cr": null,
+      "catalyst_tier": "STANDARD_ANNOUNCEMENT",
+      "news_capsule": {
+        "ticker": "RELIANCE",
+        "headline": "Jio IPO’s grey market hints at 20% listing pop. What are Emkay, SBI Securities saying?",
+        "sector": "IT_TECH",
+        "catalyst_tier": "STANDARD_ANNOUNCEMENT",
+        "direction": "POSITIVE",
+        "magnitude": "MEDIUM",
+        "order_value_cr": null,
+        "is_clickbait_hype": false,
+        "forensic_grade": "STANDARD_DISCLOSURE",
+        "actionable_verdict": "ROUTINE DISCLOSURE: Informational development; no immediate structural inflection.",
+        "executive_briefing": [
+          "Headline: Jio IPO’s grey market hints at 20% listing pop. What are Emkay, SBI Securities saying?",
+          "Entity: RELIANCE (IT_TECH) | Catalyst: STANDARD_ANNOUNCEMENT [POSITIVE/MEDIUM]",
+          "Verdict: ROUTINE DISCLOSURE: Informational development; no immediate structural inflection."
+        ]
+      }
+    }
+  ],
+  "news_capsules": [
+    {
+      "ticker": "UNRESOLVED",
+      "headline": "IDBI Bank Q2 net profit falls 39% to Rs 2,205 crore on lower other income",
+      "sector": "IT_TECH",
+      "catalyst_tier": "STANDARD_ANNOUNCEMENT",
+      "direction": "NEGATIVE",
+      "magnitude": "HIGH",
+      "order_value_cr": null,
+      "is_clickbait_hype": false,
+      "forensic_grade": "STANDARD_DISCLOSURE",
+      "actionable_verdict": "ROUTINE DISCLOSURE: Informational development; no immediate structural inflection.",
+      "executive_briefing": [
+        "Headline: IDBI Bank Q2 net profit falls 39% to Rs 2,205 crore on lower other income",
+        "Entity: UNRESOLVED (IT_TECH) | Catalyst: STANDARD_ANNOUNCEMENT [NEGATIVE/HIGH]",
+        "Verdict: ROUTINE DISCLOSURE: Informational development; no immediate structural inflection."
+      ]
+    },
+    {
+      "ticker": "UNRESOLVED",
+      "headline": "Tata Elxsi Q4 net profit, revenue decline QoQ; firm declares dividend of Rs 70 per share",
+      "sector": "IT_TECH",
+      "catalyst_tier": "STANDARD_ANNOUNCEMENT",
+      "direction": "POSITIVE",
+      "magnitude": "HIGH",
+      "order_value_cr": null,
+      "is_clickbait_hype": false,
+      "forensic_grade": "STANDARD_DISCLOSURE",
+      "actionable_verdict": "ROUTINE DISCLOSURE: Informational development; no immediate structural inflection.",
+      "executive_briefing": [
+        "Headline: Tata Elxsi Q4 net profit, revenue decline QoQ; firm declares dividend of Rs 70 per share",
+        "Entity: UNRESOLVED (IT_TECH) | Catalyst: STANDARD_ANNOUNCEMENT [POSITIVE/HIGH]",
+        "Verdict: ROUTINE DISCLOSURE: Informational development; no immediate structural inflection."
+      ]
+    },
+    {
+      "ticker": "UNRESOLVED",
+      "headline": "ICICI Pru Life Q4 net profit falls 26% to Rs 174 cr, insurer announces dividend",
+      "sector": "IT_TECH",
+      "catalyst_tier": "STANDARD_ANNOUNCEMENT",
+      "direction": "POSITIVE",
+      "magnitude": "HIGH",
+      "order_value_cr": null,
+      "is_clickbait_hype": false,
+      "forensic_grade": "STANDARD_DISCLOSURE",
+      "actionable_verdict": "ROUTINE DISCLOSURE: Informational development; no immediate structural inflection.",
+      "executive_briefing": [
+        "Headline: ICICI Pru Life Q4 net profit falls 26% to Rs 174 cr, insurer announces dividend",
+        "Entity: UNRESOLVED (IT_TECH) | Catalyst: STANDARD_ANNOUNCEMENT [POSITIVE/HIGH]",
+        "Verdict: ROUTINE DISCLOSURE: Informational development; no immediate structural inflection."
+      ]
+    },
+    {
+      "ticker": "UNRESOLVED",
+      "headline": "Tata Consumer Q4 net profit falls 19% to Rs 217 cr, firm declares dividend of Rs 7.75 per share",
+      "sector": "IT_TECH",
+      "catalyst_tier": "STANDARD_ANNOUNCEMENT",
+      "direction": "POSITIVE",
+      "magnitude": "HIGH",
+      "order_value_cr": null,
+      "is_clickbait_hype": false,
+      "forensic_grade": "STANDARD_DISCLOSURE",
+      "actionable_verdict": "ROUTINE DISCLOSURE: Informational development; no immediate structural inflection.",
+      "executive_briefing": [
+        "Headline: Tata Consumer Q4 net profit falls 19% to Rs 217 cr, firm declares dividend of Rs 7.75 per share",
+        "Entity: UNRESOLVED (IT_TECH) | Catalyst: STANDARD_ANNOUNCEMENT [POSITIVE/HIGH]",
+        "Verdict: ROUTINE DISCLOSURE: Informational development; no immediate structural inflection."
+      ]
+    },
+    {
+      "ticker": "UNRESOLVED",
+      "headline": "Tata Consumer Q4 net profit falls 19% to Rs 217 cr, firm declares dividend of Rs 7.75 per share",
+      "sector": "IT_TECH",
+      "catalyst_tier": "STANDARD_ANNOUNCEMENT",
+      "direction": "POSITIVE",
+      "magnitude": "HIGH",
+      "order_value_cr": null,
+      "is_clickbait_hype": false,
+      "forensic_grade": "STANDARD_DISCLOSURE",
+      "actionable_verdict": "ROUTINE DISCLOSURE: Informational development; no immediate structural inflection.",
+      "executive_briefing": [
+        "Headline: Tata Consumer Q4 net profit falls 19% to Rs 217 cr, firm declares dividend of Rs 7.75 per share",
+        "Entity: UNRESOLVED (IT_TECH) | Catalyst: STANDARD_ANNOUNCEMENT [POSITIVE/HIGH]",
+        "Verdict: ROUTINE DISCLOSURE: Informational development; no immediate structural inflection."
+      ]
+    },
+    {
+      "ticker": "UNRESOLVED",
+      "headline": "Yes Bank Q2 profit beats estimates, but Supreme Court's AT1 bond ruling impact not booked as lender weighs further appeal",
+      "sector": "IT_TECH",
+      "catalyst_tier": "TIER_1_MOMENTUM_CATALYST",
+      "direction": "POSITIVE",
+      "magnitude": "HIGH",
+      "order_value_cr": null,
+      "is_clickbait_hype": false,
+      "forensic_grade": "CLEAN_FUNDAMENTAL",
+      "actionable_verdict": "HIGH-IMPACT CATALYST: Verified material corporate event. Check PEAD continuation.",
+      "executive_briefing": [
+        "Headline: Yes Bank Q2 profit beats estimates, but Supreme Court's AT1 bond ruling impact not booked as lender weighs further appeal",
+        "Entity: UNRESOLVED (IT_TECH) | Catalyst: TIER_1_MOMENTUM_CATALYST [POSITIVE/HIGH]",
+        "Verdict: HIGH-IMPACT CATALYST: Verified material corporate event. Check PEAD continuation."
+      ]
+    },
+    {
+      "ticker": "RELIANCE",
+      "headline": "Reliance Jio IPO GMP today: Listing-day jackpot or long-term bet? How should investors play Mukesh Ambani’s mega IPO?",
+      "sector": "TELECOM",
+      "catalyst_tier": "STANDARD_ANNOUNCEMENT",
+      "direction": "POSITIVE",
+      "magnitude": "HIGH",
+      "order_value_cr": null,
+      "is_clickbait_hype": false,
+      "forensic_grade": "STANDARD_DISCLOSURE",
+      "actionable_verdict": "ROUTINE DISCLOSURE: Informational development; no immediate structural inflection.",
+      "executive_briefing": [
+        "Headline: Reliance Jio IPO GMP today: Listing-day jackpot or long-term bet? How should investors play Mukesh Ambani’s mega IPO?",
+        "Entity: RELIANCE (TELECOM) | Catalyst: STANDARD_ANNOUNCEMENT [POSITIVE/HIGH]",
+        "Verdict: ROUTINE DISCLOSURE: Informational development; no immediate structural inflection."
+      ]
+    },
+    {
+      "ticker": "RELIANCE",
+      "headline": "Reliance Jio IPO: From Dhirubhai Ambani's 1977 listing to Akash Ambani's mega issue - what's changed? Gen Z connect!",
+      "sector": "IT_TECH",
+      "catalyst_tier": "STANDARD_ANNOUNCEMENT",
+      "direction": "POSITIVE",
+      "magnitude": "HIGH",
+      "order_value_cr": null,
+      "is_clickbait_hype": false,
+      "forensic_grade": "STANDARD_DISCLOSURE",
+      "actionable_verdict": "ROUTINE DISCLOSURE: Informational development; no immediate structural inflection.",
+      "executive_briefing": [
+        "Headline: Reliance Jio IPO: From Dhirubhai Ambani's 1977 listing to Akash Ambani's mega issue - what's changed? Gen Z connect!",
+        "Entity: RELIANCE (IT_TECH) | Catalyst: STANDARD_ANNOUNCEMENT [POSITIVE/HIGH]",
+        "Verdict: ROUTINE DISCLOSURE: Informational development; no immediate structural inflection."
+      ]
+    },
+    {
+      "ticker": "UNRESOLVED",
+      "headline": "LT manufactures hydrotreating reactor for refinery in Mexico",
+      "sector": "GENERAL",
+      "catalyst_tier": "STANDARD_ANNOUNCEMENT",
+      "direction": "NEGATIVE",
+      "magnitude": "MEDIUM",
+      "order_value_cr": null,
+      "is_clickbait_hype": false,
+      "forensic_grade": "STANDARD_DISCLOSURE",
+      "actionable_verdict": "ROUTINE DISCLOSURE: Informational development; no immediate structural inflection.",
+      "executive_briefing": [
+        "Headline: LT manufactures hydrotreating reactor for refinery in Mexico",
+        "Entity: UNRESOLVED (GENERAL) | Catalyst: STANDARD_ANNOUNCEMENT [NEGATIVE/MEDIUM]",
+        "Verdict: ROUTINE DISCLOSURE: Informational development; no immediate structural inflection."
+      ]
+    },
+    {
+      "ticker": "UNRESOLVED",
+      "headline": "Why India's steel demand is defying global weakness",
+      "sector": "INFRA_REALTY",
+      "catalyst_tier": "STANDARD_ANNOUNCEMENT",
+      "direction": "NEGATIVE",
+      "magnitude": "MEDIUM",
+      "order_value_cr": null,
+      "is_clickbait_hype": false,
+      "forensic_grade": "STANDARD_DISCLOSURE",
+      "actionable_verdict": "ROUTINE DISCLOSURE: Informational development; no immediate structural inflection.",
+      "executive_briefing": [
+        "Headline: Why India's steel demand is defying global weakness",
+        "Entity: UNRESOLVED (INFRA_REALTY) | Catalyst: STANDARD_ANNOUNCEMENT [NEGATIVE/MEDIUM]",
+        "Verdict: ROUTINE DISCLOSURE: Informational development; no immediate structural inflection."
+      ]
+    }
+  ],
+  "high_risk_hype_count": 0,
+  "sector_summary": {
+    "IT_TECH": {
+      "POSITIVE": 29,
+      "NEGATIVE": 10,
+      "NEUTRAL": 44,
+      "total": 83
+    },
+    "BANKING_FINANCE": {
+      "POSITIVE": 8,
+      "NEGATIVE": 12,
+      "NEUTRAL": 17,
+      "total": 37
+    },
+    "AUTO": {
+      "POSITIVE": 7,
+      "NEGATIVE": 0,
+      "NEUTRAL": 10,
+      "total": 17
+    },
+    "TELECOM": {
+      "POSITIVE": 4,
+      "NEGATIVE": 0,
+      "NEUTRAL": 4,
+      "total": 8
+    },
+    "GENERAL": {
+      "POSITIVE": 0,
+      "NEGATIVE": 2,
+      "NEUTRAL": 8,
+      "total": 10
+    },
+    "INFRA_REALTY": {
+      "POSITIVE": 1,
+      "NEGATIVE": 1,
+      "NEUTRAL": 5,
+      "total": 7
+    },
+    "MACRO_POLICY": {
+      "POSITIVE": 0,
+      "NEGATIVE": 2,
+      "NEUTRAL": 2,
+      "total": 4
+    },
+    "PHARMA_HEALTHCARE": {
+      "POSITIVE": 0,
+      "NEGATIVE": 1,
+      "NEUTRAL": 4,
+      "total": 5
+    },
+    "CHEMICALS_MATERIALS": {
+      "POSITIVE": 0,
+      "NEGATIVE": 1,
+      "NEUTRAL": 0,
+      "total": 1
+    },
+    "DEFENCE": {
+      "POSITIVE": 2,
+      "NEGATIVE": 0,
+      "NEUTRAL": 2,
+      "total": 4
+    },
+    "POWER_ENERGY": {
+      "POSITIVE": 2,
+      "NEGATIVE": 0,
+      "NEUTRAL": 4,
+      "total": 6
+    }
+  }
+}

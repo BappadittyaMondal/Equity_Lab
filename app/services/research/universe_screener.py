@@ -43,14 +43,15 @@ _ARCHETYPE_DEFAULT_UNIVERSES: Dict[str, List[str]] = {
         "GRANULES", "SUVENPHAR", "TEJASNET", "AMBER", "FIVESTAR", "SBFC", "HOMEFIRST",
         "AAVAS", "APTUS", "REPCOHOME", "INDIAGLYCO", "ALKYLAMINE", "BALAMINES", "NEOGEN",
         "PAUSHAK", "SURYAROSNI", "STYRENIX", "SARDAEN", "GODAWARI", "LANDMARK", "ETHOSLTD",
-        "SAFARI", "GARFIBRES"
+        "SAFARI", "GARFIBRES", "TAALTECH", "CONCORD", "SHAKTIPUMP", "DYCL"
     ],
     "EARLY_MICROCAP": [
         "KAYNES", "DATAPATT", "ZENITH", "AETHER", "ANUPAM", "SANSERA", "CRAFTSMAN",
         "JAMNAAUTO", "SUPRAJIT", "PRICOLLTD", "GABRIEL", "NEWGEN", "ASTRAZEN", "ERIS",
         "GRANULES", "SUVENPHAR", "TEJASNET", "AMBER", "FIVESTAR", "SBFC", "HOMEFIRST",
         "AAVAS", "APTUS", "REPCOHOME", "INDIAGLYCO", "ALKYLAMINE", "BALAMINES", "NEOGEN",
-        "PAUSHAK", "SURYAROSNI", "STYRENIX", "SARDAEN", "GODAWARI", "LANDMARK", "ETHOSLTD"
+        "PAUSHAK", "SURYAROSNI", "STYRENIX", "SARDAEN", "GODAWARI", "LANDMARK", "ETHOSLTD",
+        "TAALTECH", "CONCORD", "SHAKTIPUMP", "DYCL"
     ],
     "PRE_FLY": [
         "DIXON", "POLYCAB", "KEI", "MAZDOCK", "COCHINSHIP", "GRSE", "BEML", "ZENITH",
@@ -61,7 +62,8 @@ _ARCHETYPE_DEFAULT_UNIVERSES: Dict[str, List[str]] = {
         "DIXON", "POLYCAB", "KEI", "MAZDOCK", "COCHINSHIP", "GRSE", "BEML", "ZENITH",
         "TRENT", "BEL", "HAL", "BDL", "KAYNES", "APARINDS", "CGPOWER", "TUBEINVEST",
         "SOLARINDS", "SUZLON", "INOXWIND", "RVNL", "IRFC", "BSE", "MCX", "CDSL", "ANGELONE",
-        "DATAPATT", "NEWGEN", "SANSERA", "CRAFTSMAN", "AETHER"
+        "DATAPATT", "NEWGEN", "SANSERA", "CRAFTSMAN", "AETHER",
+        "TAALTECH", "CONCORD", "SHAKTIPUMP", "DYCL"
     ],
     "SWING_POSITIONAL": [
         "DIXON", "POLYCAB", "KEI", "MAZDOCK", "COCHINSHIP", "GRSE", "BEML", "ZENITH",
@@ -192,8 +194,12 @@ def run_technical_universe_screener(
                 price_f = float(price)
                 if price_f < 20.0:
                     continue  # Exclude sub-₹20 penny stock
-                if turnover is not None and turnover < 10000000.0 and not is_offline:
-                    continue  # Exclude sub-₹1 Cr turnover illiquid stock
+                # Phase 182: Horizon-Tiered Liquidity Filtering
+                # Microcaps (<₹1,500 Cr) trade at lower daily rupee turnover (₹30L–₹75L) during base formation.
+                # Preserve them with a ₹30 Lakh turnover floor instead of imposing the ₹1.0 Cr large-cap floor.
+                min_turnover = 3000000.0 if (intent_archetype and "MICRO" in intent_archetype.upper()) else 10000000.0
+                if turnover is not None and turnover < min_turnover and not is_offline:
+                    continue  # Exclude illiquid stock below intent-specific liquidity floor
             except (ValueError, TypeError):
                 pass
 

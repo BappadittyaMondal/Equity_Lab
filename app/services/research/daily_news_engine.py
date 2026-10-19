@@ -54,7 +54,7 @@ RSS_SOURCES = [
     },
     {
         "name": "TradeBrains_All",
-        "url": "https://tradebrains.in/rss",
+        "url": "https://tradebrains.in/feed/",
         "category": "EQUITY_IDEAS",
     },
     {
@@ -144,19 +144,35 @@ def fetch_rss_headlines(source: Dict[str, str], timeout: int = 15) -> List[Dict[
     """
     headlines = []
     try:
-        req = Request(source["url"], headers={"User-Agent": "EquityLab/0.1 Research Bot"})
+        req = Request(
+            source["url"],
+            headers={
+                "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
+                "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
+            },
+        )
         with urlopen(req, timeout=timeout) as response:
             xml_data = response.read()
 
         root = ET.fromstring(xml_data)
 
         # Handle both RSS 2.0 (<channel><item>) and Atom (<entry>) formats
-        items = root.findall(".//item") or root.findall(".//{http://www.w3.org/2005/Atom}entry")
+        items = root.findall(".//item")
+        if not items:
+            items = root.findall(".//{http://www.w3.org/2005/Atom}entry")
 
-        for item in items[:20]:  # Cap at 20 per source to avoid token waste
-            title_el = item.find("title") or item.find("{http://www.w3.org/2005/Atom}title")
-            link_el = item.find("link") or item.find("{http://www.w3.org/2005/Atom}link")
-            pub_el = item.find("pubDate") or item.find("{http://www.w3.org/2005/Atom}published")
+        for item in items[:25]:  # Cap at 25 per source to avoid token waste
+            title_el = item.find("title")
+            if title_el is None:
+                title_el = item.find("{http://www.w3.org/2005/Atom}title")
+
+            link_el = item.find("link")
+            if link_el is None:
+                link_el = item.find("{http://www.w3.org/2005/Atom}link")
+
+            pub_el = item.find("pubDate")
+            if pub_el is None:
+                pub_el = item.find("{http://www.w3.org/2005/Atom}published")
 
             title = title_el.text.strip() if title_el is not None and title_el.text else ""
             if not title:
@@ -263,12 +279,15 @@ def classify_headline_forensics(title: str, text: str = "") -> Dict[str, Any]:
 
     # 2. Order Value Extraction
     order_val_cr = None
-    m = ORDER_VALUE_REGEX.search(combined)
-    if m:
-        try:
-            order_val_cr = float(m.group(1).replace(",", ""))
-        except ValueError:
-            pass
+    has_order_keyword = any(k in combined for k in ["order", "contract", "bags", "wins", "awarded", "capex", "capacity", "expansion", "loi", "loa", "deal", "secures"])
+    is_earnings = any(k in combined for k in ["net profit", "pat falls", "pat jumps", "pat rises", "profit falls", "profit rises", "net loss", "q1 profit", "q2 profit", "q3 profit", "q4 profit"])
+    if has_order_keyword and not is_earnings:
+        m = ORDER_VALUE_REGEX.search(combined)
+        if m:
+            try:
+                order_val_cr = float(m.group(1).replace(",", ""))
+            except ValueError:
+                pass
 
     # 3. Catalyst Tier Classification
     if is_clickbait:

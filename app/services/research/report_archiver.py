@@ -129,6 +129,7 @@ CANONICAL_ROOT_DIRS: Set[str] = {
     "frontend_deploy",
     "scripts",
     "Stocks_Analysis_Report",
+    "Smart_Suparstar_Investor_Selection",
 }
 
 

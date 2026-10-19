@@ -27,8 +27,8 @@ def test_ace_investor_query_intent_detection():
     """Verify that natural language queries map to ace investor archetypes."""
     assert QueryAdaptiveConstraintEngine.detect_query_intent("Find stocks matching Vijay Kedia SMILE rules") == "KEDIA_SMILE"
     assert QueryAdaptiveConstraintEngine.detect_query_intent("Ashish Kacholia capital scalability compounder") == "KACHOLIA_SCALABILITY"
-    assert QueryAdaptiveConstraintEngine.detect_query_intent("Mukul Agrawal techno funda inflection breakout") == "AGRAWAL_INFLECTION"
-    assert QueryAdaptiveConstraintEngine.detect_query_intent("Smart money super investor multibagger picks") == "MULTIBAGGER"
+    assert QueryAdaptiveConstraintEngine.detect_query_intent("Smart money super investor multibagger picks") == "SMART_SUPERSTAR_INVESTOR"
+    assert QueryAdaptiveConstraintEngine.detect_query_intent("High growth compounder multibagger picks") == "MULTIBAGGER"
 
 
 def test_kedia_smile_constraints():

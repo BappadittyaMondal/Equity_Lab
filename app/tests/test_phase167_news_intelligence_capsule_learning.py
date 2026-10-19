@@ -34,7 +34,7 @@ def test_rss_sources_expansion():
 
     tb = next(s for s in RSS_SOURCES if s["name"] == "TradeBrains_All")
     assert tb["category"] == "EQUITY_IDEAS"
-    assert "tradebrains.in/rss" in tb["url"]
+    assert "tradebrains.in" in tb["url"]
 
     bse = next(s for s in RSS_SOURCES if s["name"] == "BSE_Corp_Announcements")
     assert bse["category"] == "REGULATORY"

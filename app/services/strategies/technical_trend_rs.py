@@ -85,6 +85,11 @@ def evaluate_technical_trend_and_rs(
     excess_6m = stock_6m_ret - bench_6m_ret
     excess_12m = stock_12m_ret - bench_12m_ret
 
+    if np.isnan(excess_6m) or np.isinf(excess_6m):
+        excess_6m = 0.0
+    if np.isnan(excess_12m) or np.isinf(excess_12m):
+        excess_12m = 0.0
+
     ram_6m = float(excess_6m / annualized_vol) if annualized_vol > 0 else 0.0
     ram_12m = float(excess_12m / annualized_vol) if annualized_vol > 0 else 0.0
 
@@ -93,6 +98,10 @@ def evaluate_technical_trend_and_rs(
 
     recent_rs = stock_6m_ret - bench_6m_ret
     prev_rs = ((close.iloc[-126] - close.iloc[-min(n, 252)]) / close.iloc[-min(n, 252)]) - bench_12m_ret if n >= 126 else 0.0
+    if np.isnan(recent_rs) or np.isinf(recent_rs):
+        recent_rs = 0.0
+    if np.isnan(prev_rs) or np.isinf(prev_rs):
+        prev_rs = 0.0
     rs_accel = float((recent_rs - prev_rs) * 100.0)
 
     # 5. Pre-Breakout RS Leadership Check (§106)

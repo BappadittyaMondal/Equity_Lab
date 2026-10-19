@@ -228,7 +228,19 @@ def calculate_continuous_q_bounds(fundamentals: Dict[str, Any]) -> Tuple[float, 
     if cfo_pat is not None:
         try:
             cfo_val = float(cfo_pat)
-            tc = max(0.0, min(1.0, cfo_val / 0.80))
+            sales_growth = fundamentals.get("sales_growth_latest") or fundamentals.get("sales_growth_3yr") or 0.0
+            try:
+                sg_val = float(sales_growth)
+            except (ValueError, TypeError):
+                sg_val = 0.0
+
+            # Phase 182: High-growth working capital buffer. If company has rapid revenue growth (>=20%)
+            # and positive cash flow, floor effective cash credit at 0.60 so rapid expansion is not
+            # unfairly penalized as accounting fraud.
+            if cfo_val > 0 and sg_val >= 20.0:
+                tc = max(0.60, min(1.0, cfo_val / 0.80))
+            else:
+                tc = max(0.0, min(1.0, cfo_val / 0.80))
             q_point = _q_from_cfo(tc)
             return q_point, q_point, q_point, "OBSERVED"
         except (ValueError, TypeError):
@@ -301,6 +313,23 @@ def _calculate_operating_leverage_convexity(fundamentals: Dict[str, Any]) -> flo
     except (ValueError, TypeError):
         cwip_boost = 0.0
 
+    # Phase 182: Asset-Light / Services / ER&D Operating Leverage Boost
+    # Service, ER&D, and SaaS firms do not carry physical CWIP (factories under construction).
+    # Their operating leverage stems from high capital productivity (ROCE >= 22%) and strong
+    # operating margins (>= 18%). Apply equivalent 0.20 convexity boost if CWIP boost is absent.
+    if cwip_boost == 0.0:
+        sector_str = str(fundamentals.get("sector") or fundamentals.get("industry") or "").upper()
+        is_asset_light_erd = any(s in sector_str for s in ("SERVICE", "IT", "ER&D", "SOFTWARE", "TECH", "DIGITAL"))
+        roce_val = fundamentals.get("roce_latest") or fundamentals.get("roce") or 0.0
+        opm_val = fundamentals.get("operating_margin") or fundamentals.get("opm") or 0.0
+        try:
+            r_f = float(roce_val)
+            o_f = float(opm_val)
+            if is_asset_light_erd and r_f >= 22.0 and o_f >= 18.0:
+                cwip_boost = 0.20
+        except (ValueError, TypeError):
+            pass
+
     # Apply floor/ceiling first, then boost — preserves semantics for all company types
     omega_base = max(1.0, ratio)
     return round(min(2.5, omega_base + cwip_boost), 3)
@@ -350,6 +379,8 @@ def _calculate_annualized_book_to_bill(fundamentals: Dict[str, Any]) -> Dict[str
         elif "TRANSFORMER" in sector or "POWER" in sector:
             tenure_years = 1.75
         elif "FORGING" in sector or "AUTO" in sector or "PUMP" in sector:
+            tenure_years = 1.0
+        elif "IT" in sector or "ER&D" in sector or "SOFTWARE" in sector or "SERVICE" in sector or "TECH" in sector:
             tenure_years = 1.0
         else:
             tenure_years = 2.0

@@ -665,12 +665,22 @@ class QueryAdaptiveConstraintEngine:
                     tightened.append(f"Pristine CAQI cash accrual verified ({caqi_val:.2f}x >= 0.80x threshold).")
 
                 if debt_eq is not None and debt_eq > 0.30:
-                    warnings.append(f"CAUTION: Balance sheet leverage (D/E: {debt_eq:.2f}) is above pristine compounder tier (< 0.30).")
+                    msg = f"OBJECTIVE_BLOCK: Balance sheet leverage (D/E: {debt_eq:.2f}) exceeds SIP Compounder fortress ceiling (0.30). Phase 184: Institutional hard gate enforced per archetype specification."
+                    objective_blocks.append(msg)
+                    vetoes.append(msg)
+                    tightened.append(f"Solvency fortress: Debt/Equity <= 0.30 strictly enforced (failed: {debt_eq:.2f}).")
+                elif debt_eq is not None:
+                    tightened.append(f"Fortress balance sheet verified (Debt/Equity: {debt_eq:.2f} <= 0.30).")
 
             if pledge_pct is None:
-                warnings.append("CAUTION: Promoter pledge unobserved in compounder candidate.")
+                warnings.append("CAUTION: Promoter pledge unobserved in compounder candidate; zero-pledge institutional requirement cannot be verified.")
             elif pledge_pct > 0.0:
-                warnings.append(f"CAUTION: Promoter pledging ({pledge_pct:.1f}%) detected in compounder scrip.")
+                msg = f"OBJECTIVE_BLOCK: Promoter pledge ({pledge_pct:.1f}%) violates SIP Compounder zero-tolerance policy. Phase 184: Institutional hard gate enforced per archetype specification."
+                objective_blocks.append(msg)
+                vetoes.append(msg)
+                tightened.append(f"Zero-tolerance promoter pledge strictly enforced (failed: {pledge_pct:.1f}% > 0.0%).")
+            else:
+                tightened.append("Zero promoter pledge confirmed (0.0%) — unencumbered insider conviction verified for SIP compounder.")
 
             # Hard Valuation Sanity Cap for SIP Compounder
             pe_val = _get_opt_float(["pe_ratio", "pe", "trailing_pe"])
@@ -704,8 +714,8 @@ class QueryAdaptiveConstraintEngine:
             elif vol_z is not None:
                 tightened.append(f"Momentum volume surge confirmed (Z-score: +{vol_z:.1f}s).")
 
-            if close_pos is not None and close_pos < 0.60:
-                warnings.append(f"CAUTION: Close position ({close_pos:.2f}) indicates intraday selling pressure (< 0.60).")
+            if close_pos is not None and close_pos < 0.75:
+                warnings.append(f"CAUTION: Close position ({close_pos:.2f}) indicates intraday selling pressure (< 0.75). Phase 184: Aligned with archetype specification.")
 
             # Circuit Headroom Gate: must be at least 3.0% away from upper circuit
             if circuit_headroom is not None:
@@ -797,6 +807,18 @@ class QueryAdaptiveConstraintEngine:
                 tightened.append(f"Multiple expansion headroom: DEME-HR > 1.0 required for asymmetric re-rating (constrained: {deme_hr or 1.0:.2f}).")
             elif deme_verdict == "UNDERVALUED" or (deme_hr is not None and deme_hr > 2.0):
                 tightened.append(f"Strong multiple expansion headroom verified: DEME-HR ({deme_hr or 2.0:.2f} > 2.0x ceiling buffer).")
+
+            # Phase 184: Promoter Holding >= 50% hard gate (image-spec mandatory — previously absent)
+            if prom_hold is None:
+                warnings.append("CAUTION: Promoter holding unobserved; institutional multibagger requires verified insider skin-in-the-game.")
+                tightened.append("Insider alignment gate: Promoter holding >= 50.0% strictly required (unobserved).")
+            elif prom_hold < 50.0:
+                msg = f"OBJECTIVE_BLOCK: Promoter holding ({prom_hold:.1f}%) below institutional multibagger insider-conviction standard (>= 50.0%). Phase 184: Hard gate enforced per archetype specification."
+                objective_blocks.append(msg)
+                vetoes.append(msg)
+                tightened.append(f"Insider conviction gate: Promoter >= 50.0% strictly enforced (failed: {prom_hold:.1f}%).")
+            else:
+                tightened.append(f"High insider conviction verified: Promoter holding ({prom_hold:.1f}% >= 50.0%).")
 
         # ── 6. EARLY MICROCAP RISK-FIRST INTENT ──────────────────────────
         elif norm_intent in ("EARLY_MICROCAP", "MICROCAP_RISK"):
@@ -1030,6 +1052,19 @@ class QueryAdaptiveConstraintEngine:
             else:
                 tightened.append(f"Positive operational cash conversion verified (CFO > 0).")
 
+            # Phase 184 — C4: Operating Leverage Convexity Omega >= 1.0 (image-spec mandatory gate)
+            omega_val = _get_opt_float(["operating_leverage_convexity", "omega", "op_leverage_convexity", "op_lev_convexity"])
+            if omega_val is None:
+                warnings.append("CAUTION: Operating leverage convexity (Omega) unobserved; micro-multibagger amplification unconfirmed.")
+                tightened.append("Operating leverage convexity Omega >= 1.0 strictly enforced (unobserved).")
+            elif omega_val < 1.0:
+                msg = f"OBJECTIVE_BLOCK: Operating leverage convexity (Omega: {omega_val:.2f}) is sub-unity — revenue growth does not amplify to EBITDA. Micro-multibagger conviction requires Omega >= 1.0. Phase 184: Hard gate enforced per archetype specification."
+                objective_blocks.append(msg)
+                vetoes.append(msg)
+                tightened.append(f"Operating leverage convexity Omega >= 1.0 strictly enforced (failed: Omega={omega_val:.2f}).")
+            else:
+                tightened.append(f"Operating leverage convexity verified (Omega: {omega_val:.2f} >= 1.0 — EBITDA amplification confirmed).")
+
         # ── 12. PRE FLY INTENT ───────────────────────────────────────────
         elif norm_intent == "PRE_FLY":
             relaxed.append("Multi-year 10Y DCF intrinsic valuation and long-term reinvestment runway relaxed for pre-fly technical launchpad.")
@@ -1161,6 +1196,19 @@ class QueryAdaptiveConstraintEngine:
                 objective_blocks.append(msg)
                 vetoes.append(msg)
                 tightened.append(f"Anti-operator churn guard strictly triggered: {msg}")
+
+            # Phase 184 — C4: Operating Leverage Convexity Omega >= 1.0 (image-spec mandatory — Micro-Multibagger conjunction gate)
+            omega_val_combo = _get_opt_float(["operating_leverage_convexity", "omega", "op_leverage_convexity", "op_lev_convexity"])
+            if omega_val_combo is None:
+                warnings.append("CAUTION: Operating leverage convexity (Omega) unobserved; Deadliest Combo EBITDA amplification cannot be confirmed.")
+                tightened.append("Operating leverage convexity Omega >= 1.0 strictly enforced for Deadliest Combo (unobserved).")
+            elif omega_val_combo < 1.0:
+                msg = f"OBJECTIVE_BLOCK: Operating leverage convexity (Omega: {omega_val_combo:.2f}) is sub-unity — Deadliest Combo requires Micro-Multibagger fundamentals including Omega >= 1.0. Phase 184: Hard gate enforced per archetype specification."
+                objective_blocks.append(msg)
+                vetoes.append(msg)
+                tightened.append(f"Operating leverage convexity Omega >= 1.0 strictly enforced for Deadliest Combo (failed: Omega={omega_val_combo:.2f}).")
+            else:
+                tightened.append(f"Operating leverage convexity verified for Deadliest Combo (Omega: {omega_val_combo:.2f} >= 1.0).")
 
         # ── 14. GENERAL INTENT ───────────────────────────────────────────
         else:
