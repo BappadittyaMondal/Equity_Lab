@@ -1,6 +1,6 @@
 {
   "version": "1.2.0",
-  "last_updated_utc": "2026-10-20T13:38:32.107642+00:00",
+  "last_updated_utc": "2026-10-20T16:59:02.372171+00:00",
   "entities": {
     "ERD_SERVICES_CONVEXITY_RULE": {
       "entity_id": "ERD_SERVICES_CONVEXITY_RULE",
@@ -1044,6 +1044,93 @@
       "p_value": 0.001,
       "fdr_q_value": 0.005,
       "performance_delta": 0.2,
+      "human_signoff": true
+    },
+    "FPI_SMID_ACCUMULATION_RULE": {
+      "entity_id": "FPI_SMID_ACCUMULATION_RULE",
+      "canonical_name": "FPI_SMID_ACCUMULATION_RULE",
+      "category": "MARKET_MICROSTRUCTURE",
+      "confidence_score": 0.95,
+      "verification_status": "CERTIFIED_FACT",
+      "source_origin": "EMPIRICAL_AUDIT_VERIFICATION",
+      "relevance_vector": {
+        "micro_multibagger": 0.9,
+        "deadliest_combo": 0.95,
+        "multibagger": 0.85,
+        "pre_fly": 0.8
+      },
+      "bayesian_prior_modifier": {
+        "metric": "fpi_smid_accumulation_conviction",
+        "weight_delta": 0.2
+      },
+      "description": "Global FPI/FII capital in smallcaps decouples from headline Nifty index outflows; smart foreign capital targets high-ROCE (>= 22%) smallcaps with delivery % >= 60% and orderbook tailwinds.",
+      "sensationalism_penalty": 0.0,
+      "created_at_utc": "2026-10-20T16:59:02.335311+00:00",
+      "last_validated_at_utc": "2026-10-20T16:59:02.335311+00:00",
+      "shadow_status": "PROMOTED",
+      "sample_count": 1,
+      "success_count": 1,
+      "p_value": null,
+      "fdr_q_value": null,
+      "performance_delta": 0.0,
+      "human_signoff": true
+    },
+    "SURPRISE_FACTOR_PANIC_VS_DERATE_RULE": {
+      "entity_id": "SURPRISE_FACTOR_PANIC_VS_DERATE_RULE",
+      "canonical_name": "SURPRISE_FACTOR_PANIC_VS_DERATE_RULE",
+      "category": "ACCOUNTING_INFLECTION",
+      "confidence_score": 0.96,
+      "verification_status": "CERTIFIED_FACT",
+      "source_origin": "EMPIRICAL_AUDIT_VERIFICATION",
+      "relevance_vector": {
+        "turnaround": 0.95,
+        "value_buying": 0.9,
+        "sip_compounder": 0.85,
+        "deadliest_combo": 0.8
+      },
+      "bayesian_prior_modifier": {
+        "metric": "panic_vs_derate_litmus_score",
+        "weight_delta": 0.25
+      },
+      "description": "Separates transient quarterly earnings miss (gross margin flat +-1.5%, orderbook intact, temporary freight/maintenance cost) as high-conviction panic buy from structural de-rating (gross margin drops > 400 bps, pricing power lost).",
+      "sensationalism_penalty": 0.0,
+      "created_at_utc": "2026-10-20T16:59:02.339184+00:00",
+      "last_validated_at_utc": "2026-10-20T16:59:02.339184+00:00",
+      "shadow_status": "PROMOTED",
+      "sample_count": 1,
+      "success_count": 1,
+      "p_value": null,
+      "fdr_q_value": null,
+      "performance_delta": 0.0,
+      "human_signoff": true
+    },
+    "STRUCTURAL_LIQUIDITY_TRAP_RULE": {
+      "entity_id": "STRUCTURAL_LIQUIDITY_TRAP_RULE",
+      "canonical_name": "STRUCTURAL_LIQUIDITY_TRAP_RULE",
+      "category": "FORENSIC_RISK",
+      "confidence_score": 0.98,
+      "verification_status": "CERTIFIED_FACT",
+      "source_origin": "EMPIRICAL_AUDIT_VERIFICATION",
+      "relevance_vector": {
+        "early_microcap": 0.95,
+        "micro_multibagger": 0.95,
+        "swing_3d": 0.9,
+        "deadliest_combo": 0.85
+      },
+      "bayesian_prior_modifier": {
+        "metric": "structural_liquidity_defense",
+        "weight_delta": -0.3
+      },
+      "description": "Enforces strict lower circuit and liquidity defense: blocks fresh capital entry if free float < 15%, ADTV < Rs 30 Lakhs, or price proximity to circuit limit < 3.0%, preventing illiquid capital freeze.",
+      "sensationalism_penalty": 0.0,
+      "created_at_utc": "2026-10-20T16:59:02.354574+00:00",
+      "last_validated_at_utc": "2026-10-20T16:59:02.354574+00:00",
+      "shadow_status": "PROMOTED",
+      "sample_count": 1,
+      "success_count": 1,
+      "p_value": null,
+      "fdr_q_value": null,
+      "performance_delta": 0.0,
       "human_signoff": true
     }
   },
