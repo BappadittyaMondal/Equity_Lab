@@ -193,10 +193,21 @@ def resolve_report_subfolder(category_or_query: str) -> Tuple[str, str]:
         if re.search(r"\b30\s*d|\b30\s*day", q_low):
             return INTENT_TO_FOLDER_AND_PREFIX["POSITIONAL_30D"]
         return INTENT_TO_FOLDER_AND_PREFIX["SWING"]
+    if "kedia" in q_low:
+        return INTENT_TO_FOLDER_AND_PREFIX["KEDIA_SMILE"]
+    if "kacholia" in q_low:
+        return INTENT_TO_FOLDER_AND_PREFIX["KACHOLIA_SCALABILITY"]
+    if "mukul" in q_low or "agrawal" in q_low:
+        return INTENT_TO_FOLDER_AND_PREFIX["AGRAWAL_INFLECTION"]
 
     # Fallback to QueryAdaptiveConstraintEngine intent detection
-    detected = QueryAdaptiveConstraintEngine.detect_intent(raw)
-    primary = detected.get("primary_intent", "GENERAL")
+    if hasattr(QueryAdaptiveConstraintEngine, "detect_query_intent"):
+        primary = QueryAdaptiveConstraintEngine.detect_query_intent(raw)
+    elif hasattr(QueryAdaptiveConstraintEngine, "detect_intent"):
+        res = QueryAdaptiveConstraintEngine.detect_intent(raw)
+        primary = res.get("primary_intent", "GENERAL") if isinstance(res, dict) else str(res)
+    else:
+        primary = "GENERAL"
     return INTENT_TO_FOLDER_AND_PREFIX.get(primary, ("Comparison_And_Single", "STOCK_ANALYSIS"))
 
 

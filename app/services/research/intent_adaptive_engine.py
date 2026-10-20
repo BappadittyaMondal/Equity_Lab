@@ -30,6 +30,134 @@ def compute_horizon_grayzone_weight(horizon_days: float) -> float:
     return round(float(1.0 - math.exp(-0.015 * max(0.0, horizon_days))), 4)
 
 
+def calculate_core_operating_ex_cwip_roce(data: Optional[Dict[str, Any]] = None) -> Dict[str, Any]:
+    """Phase 186: Calculates Core Operating Ex-CWIP ROCE.
+
+    Formula:
+        Core ROCE = EBIT / max(1.0, Capital Employed - Uncommissioned CWIP - Surplus Cash)
+        where Capital Employed = Total Assets - Current Liabilities (or Total Debt + Net Worth).
+
+    Strips uncommissioned Capital Work-In-Progress and surplus cash from the capital employed
+    denominator to evaluate the true operating efficiency of active, commissioned plant & machinery.
+    """
+    if not data or not isinstance(data, dict):
+        return {
+            "reported_roce": None,
+            "core_roce": None,
+            "is_cwip_adjusted": False,
+            "expansion_lift_pts": 0.0,
+            "cwip_amount": 0.0,
+            "surplus_cash": 0.0,
+            "methodology_note": "No financial data provided."
+        }
+
+    # Extract reported ROCE
+    reported_roce = None
+    for k in ("roce_latest", "roce", "roce_3yr", "return_on_capital_employed"):
+        if data.get(k) is not None:
+            try:
+                reported_roce = float(data[k])
+                break
+            except (ValueError, TypeError):
+                pass
+
+    # Extract EBIT / Operating Profit
+    ebit = None
+    for k in ("ebit", "operating_profit", "operating_profit_cr", "pbit"):
+        if data.get(k) is not None:
+            try:
+                ebit = float(data[k])
+                break
+            except (ValueError, TypeError):
+                pass
+    if ebit is None:
+        pat = data.get("net_profit_last_year") or data.get("pat") or data.get("pat_latest") or data.get("pat_cr")
+        int_cost = data.get("finance_costs") or data.get("interest_expense") or data.get("annual_interest_cr") or 0.0
+        tax = data.get("tax_expense") or data.get("tax") or 0.0
+        if pat is not None:
+            try:
+                ebit = float(pat) + float(int_cost) + float(tax)
+            except (ValueError, TypeError):
+                pass
+
+    # Extract Capital Employed
+    cap_employed = None
+    for k in ("capital_employed", "capital_employed_cr"):
+        if data.get(k) is not None:
+            try:
+                cap_employed = float(data[k])
+                break
+            except (ValueError, TypeError):
+                pass
+    if cap_employed is None:
+        debt = data.get("total_debt") or data.get("debt") or data.get("borrowings") or 0.0
+        net_worth = data.get("net_worth") or data.get("total_equity") or data.get("shareholders_funds")
+        if net_worth is not None:
+            try:
+                cap_employed = float(debt) + float(net_worth)
+            except (ValueError, TypeError):
+                pass
+    if cap_employed is None:
+        tot_assets = data.get("total_assets") or data.get("balance_sheet_size")
+        curr_liab = data.get("current_liabilities") or 0.0
+        if tot_assets is not None:
+            try:
+                cap_employed = float(tot_assets) - float(curr_liab)
+            except (ValueError, TypeError):
+                pass
+
+    # Extract CWIP & Surplus Cash
+    cwip = 0.0
+    for k in ("cwip", "cwip_cr", "capital_wip", "capital_work_in_progress"):
+        if data.get(k) is not None:
+            try:
+                cwip = max(0.0, float(data[k]))
+                break
+            except (ValueError, TypeError):
+                pass
+
+    cash = 0.0
+    for k in ("cash_and_equivalents", "cash_equivalents_cr", "liquid_cash_cr", "cash", "surplus_cash"):
+        if data.get(k) is not None:
+            try:
+                cash = max(0.0, float(data[k]))
+                break
+            except (ValueError, TypeError):
+                pass
+
+    base_roce = reported_roce
+    if base_roce is None and ebit is not None and cap_employed is not None and cap_employed > 0:
+        base_roce = round((ebit / cap_employed) * 100.0, 2)
+
+    if ebit is not None and cap_employed is not None and cap_employed > 0 and cwip > 0:
+        adjusted_ce = max(1.0, cap_employed - cwip - cash)
+        core_roce = round((ebit / adjusted_ce) * 100.0, 2)
+        lift = round(core_roce - (base_roce or 0.0), 2)
+        return {
+            "reported_roce": base_roce,
+            "core_roce": core_roce,
+            "is_cwip_adjusted": True,
+            "expansion_lift_pts": lift,
+            "cwip_amount": cwip,
+            "surplus_cash": cash,
+            "capital_employed_original": cap_employed,
+            "capital_employed_adjusted": adjusted_ce,
+            "methodology_note": f"Ex-CWIP Core ROCE ({core_roce:.1f}%) normalized by stripping uncommissioned CWIP (Rs {cwip:,.0f} Cr) and cash from capital employed denominator (lift: +{lift:.1f} pts)."
+        }
+
+    return {
+        "reported_roce": base_roce,
+        "core_roce": base_roce,
+        "is_cwip_adjusted": False,
+        "expansion_lift_pts": 0.0,
+        "cwip_amount": cwip,
+        "surplus_cash": cash,
+        "capital_employed_original": cap_employed,
+        "capital_employed_adjusted": cap_employed,
+        "methodology_note": "Reported ROCE utilized; CWIP/denominator inputs unobserved or zero."
+    }
+
+
 ARCHETYPE_WEIGHT_PROFILES = {
     "GENERAL": {
         "FUNDAMENTAL": 0.25,
@@ -915,8 +1043,12 @@ class QueryAdaptiveConstraintEngine:
         elif norm_intent == "KACHOLIA_SCALABILITY":
             relaxed.append("Dividend yield and high institutional float coverage relaxed for niche B2B/manufacturing scale compounder.")
 
-            # Incremental capital productivity (dNOPAT/dIC or ROCE)
-            target_roic = inc_roic if inc_roic is not None else roce
+            # Phase 186: Ex-CWIP Core Operating ROCE Normalization
+            core_roce_eval = calculate_core_operating_ex_cwip_roce(data)
+            effective_roce = core_roce_eval.get("core_roce") if (core_roce_eval.get("is_cwip_adjusted") and core_roce_eval.get("core_roce") is not None) else roce
+
+            # Incremental capital productivity (dNOPAT/dIC, Core ROCE, or reported ROCE)
+            target_roic = inc_roic if inc_roic is not None else effective_roce
             if target_roic is None:
                 warnings.append("CAUTION: Incremental capital productivity unobserved; scalability unconfirmed.")
                 tightened.append("Incremental capital productivity: ROIC/ROCE >= 20.0% strictly enforced (unobserved).")
@@ -926,9 +1058,23 @@ class QueryAdaptiveConstraintEngine:
                 vetoes.append(msg)
                 tightened.append(f"Capital productivity >= 18% strictly enforced (failed: {target_roic:.1f}%).")
             else:
-                tightened.append(f"High incremental capital productivity strictly verified (ROIC/ROCE: {target_roic:.1f}% >= 18.0%).")
+                if core_roce_eval.get("is_cwip_adjusted"):
+                    tightened.append(f"High Core Ex-CWIP capital productivity verified ({core_roce_eval['methodology_note']}).")
+                else:
+                    tightened.append(f"High incremental capital productivity strictly verified (ROIC/ROCE: {target_roic:.1f}% >= 18.0%).")
 
-            # Revenue / capacity expansion runway
+            # Revenue / capacity expansion runway & Order Book-to-Bill Evaluation
+            ob_val = _get_opt_float(["order_book", "order_book_cr", "backlog_cr"])
+            if ob_val is not None and ob_val > 0:
+                ann_rev = _get_opt_float(["total_revenue", "sales_latest", "revenue_ttm"]) or 1.0
+                raw_b2b = round(ob_val / max(1.0, ann_rev), 2)
+                opm = _get_opt_float(["opm", "operating_margin", "ebitda_margin"])
+                if raw_b2b >= 2.0:
+                    if opm is not None and opm < 12.0:
+                        warnings.append(f"CAUTION: High Book-to-Bill ratio ({raw_b2b:.2f}x) carries L1 margin risk; operating margin ({opm:.1f}%) is below institutional floor (12.0%).")
+                    else:
+                        tightened.append(f"High-visibility order backlog verified: Book-to-Bill {raw_b2b:.2f}x with safe margin buffer ({opm or 15.0:.1f}%).")
+
             if sales_cagr_3y is not None and sales_cagr_3y < 12.0:
                 msg = f"OBJECTIVE_BLOCK: Trailing 3Y sales CAGR ({sales_cagr_3y:.1f}%) below Kacholia growth runway hurdle (12.0%)."
                 objective_blocks.append(msg)
@@ -936,6 +1082,14 @@ class QueryAdaptiveConstraintEngine:
                 tightened.append(f"Sales growth runway >= 12% strictly enforced (failed: {sales_cagr_3y:.1f}%).")
             elif sales_cagr_3y is not None:
                 tightened.append(f"Strong top-line growth runway verified (3Y Sales CAGR: {sales_cagr_3y:.1f}% >= 12.0%).")
+
+            # Phase 186: Gated Preferential Allotment & Corporate Action Quality Check
+            pref_quality = data.get("preferential_allotment_quality")
+            if pref_quality and isinstance(pref_quality, dict) and pref_quality.get("has_preferential_issue"):
+                if pref_quality.get("operator_risk_flag"):
+                    warnings.append(f"CAUTION: {pref_quality.get('actionable_insight')}")
+                elif pref_quality.get("is_positive_catalyst"):
+                    tightened.append(f"High-conviction growth capital: {pref_quality.get('actionable_insight')}")
 
             # Cash flow realization
             if cfo_pat is not None and cfo_pat < 0.65:

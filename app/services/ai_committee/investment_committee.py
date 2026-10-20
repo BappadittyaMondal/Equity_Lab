@@ -398,6 +398,9 @@ class VirtualInvestmentCommittee:
     @classmethod
     def kacholia_scalability_vector(cls, symbol: str, stock_data: Dict[str, Any]) -> AgentOpinion:
         """Evaluates Kacholia's capital scalability: Incremental ROIC, Fixed Asset Turnover, and CWIP monetization."""
+        from app.services.research.intent_adaptive_engine import calculate_core_operating_ex_cwip_roce
+        from app.services.strategies.shareholding_pattern import evaluate_preferential_allotment_quality
+
         roce = float(stock_data.get("roce_latest") or stock_data.get("roce_3yr") or 15.0)
         inc_roic = float(stock_data.get("incremental_roic") or stock_data.get("inc_roic") or roce)
         asset_turn = float(stock_data.get("asset_turnover") or stock_data.get("fixed_asset_turnover") or 1.2)
@@ -410,13 +413,22 @@ class VirtualInvestmentCommittee:
         findings = []
         concerns = []
 
-        # Incremental Capital Productivity
-        if inc_roic >= 22.0:
-            findings.append(f"Superior Incremental ROIC: {inc_roic:.1f}% (falling incremental capital required per Rs 100 Cr revenue).")
-        elif inc_roic >= 16.0:
-            findings.append(f"Healthy Incremental Return: ROIC {inc_roic:.1f}%.")
+        # Phase 186: Ex-CWIP Core Operating ROCE Normalization
+        core_roce_eval = calculate_core_operating_ex_cwip_roce(stock_data)
+        if core_roce_eval.get("is_cwip_adjusted") and core_roce_eval.get("core_roce") is not None:
+            effective_roce = core_roce_eval["core_roce"]
+            findings.append(f"Ex-CWIP Core ROCE Inflection: {effective_roce:.1f}% (+{core_roce_eval['expansion_lift_pts']:.1f} pts lift over reported {roce:.1f}%) due to active plant productivity.")
         else:
-            concerns.append(f"Capital-Intensive Growth: Incremental ROIC is only {inc_roic:.1f}%.")
+            effective_roce = roce
+
+        # Incremental Capital Productivity
+        target_check_roic = max(inc_roic, effective_roce)
+        if target_check_roic >= 22.0:
+            findings.append(f"Superior Incremental ROIC: {target_check_roic:.1f}% (falling incremental capital required per Rs 100 Cr revenue).")
+        elif target_check_roic >= 16.0:
+            findings.append(f"Healthy Incremental Return: ROIC {target_check_roic:.1f}%.")
+        else:
+            concerns.append(f"Capital-Intensive Growth: Incremental ROIC is only {target_check_roic:.1f}%.")
 
         # Operating leverage & asset turnover
         if asset_turn >= 1.5:
@@ -429,6 +441,28 @@ class VirtualInvestmentCommittee:
         elif sales_3y < 10.0:
             concerns.append(f"Subdued Growth Runway: 3Y Sales CAGR is {sales_3y:.1f}%.")
 
+        # Phase 186: Order Book-to-Bill & Margin Floor
+        order_book = float(stock_data.get("order_book") or stock_data.get("order_book_cr") or 0.0)
+        ann_rev = float(stock_data.get("total_revenue") or stock_data.get("sales_latest") or stock_data.get("revenue_ttm") or 1.0)
+        opm = float(stock_data.get("opm") or stock_data.get("operating_margin") or 15.0)
+        if order_book > 0 and ann_rev > 0:
+            raw_b2b = order_book / max(1.0, ann_rev)
+            if raw_b2b >= 2.0:
+                if opm < 12.0:
+                    concerns.append(f"L1 Margin Risk: High Book-to-Bill ({raw_b2b:.2f}x) carries thin margin buffer ({opm:.1f}% < 12.0%).")
+                else:
+                    findings.append(f"High-Visibility Order Backlog: Book-to-Bill {raw_b2b:.2f}x with safe margin buffer ({opm:.1f}%).")
+
+        # Phase 186: Gated Preferential Allotment Quality
+        pref_eval = stock_data.get("preferential_allotment_quality")
+        if not pref_eval or not isinstance(pref_eval, dict):
+            pref_eval = evaluate_preferential_allotment_quality(stock_data)
+        if pref_eval.get("has_preferential_issue"):
+            if pref_eval.get("is_positive_catalyst"):
+                findings.append(f"High-Conviction Growth Capital: {pref_eval.get('actionable_insight')}")
+            elif pref_eval.get("operator_risk_flag"):
+                concerns.append(f"Operator Risk: {pref_eval.get('actionable_insight')}")
+
         if pat > 0 and cfo >= (0.75 * pat):
             findings.append(f"Disciplined Working Capital: CFO/PAT ratio is {cfo / max(1.0, pat):.2f}x.")
         elif pat > 0 and cfo < (0.50 * pat):
@@ -437,7 +471,7 @@ class VirtualInvestmentCommittee:
         if debt_eq > 0.80:
             concerns.append(f"Capex Leverage Burden: Debt/Equity is {debt_eq:.2f}x.")
 
-        vote = "REJECT" if (inc_roic < 10.0 and roce < 10.0) or debt_eq > 1.3 else ("CAUTION" if concerns else "APPROVE")
+        vote = "REJECT" if (target_check_roic < 10.0 and roce < 10.0) or debt_eq > 1.3 else ("CAUTION" if concerns else "APPROVE")
         weight = 90.0 if vote == "APPROVE" else (65.0 if vote == "CAUTION" else 35.0)
 
         return AgentOpinion(

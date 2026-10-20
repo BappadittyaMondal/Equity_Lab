@@ -132,10 +132,14 @@ def evaluate_shareholding_pattern(
     # Phase 180: Free-Float Squeeze & SME Liquidity Risk Guard
     squeeze_eval = calculate_free_float_squeeze(data)
     sme_eval = evaluate_sme_liquidity_guard(data)
+    pref_eval = evaluate_preferential_allotment_quality(data)
     if squeeze_eval.get("is_float_squeezed"):
         evidence.append(f"[CATALYST: {squeeze_eval['squeeze_tier']}] {squeeze_eval['actionable_insight']}")
     if sme_eval.get("is_sme"):
         evidence.append(f"[RISK GUARD: {sme_eval['liquidity_risk_grade']}] {sme_eval['liquidity_warning']}")
+    if pref_eval.get("has_preferential_issue"):
+        prefix = "CATALYST" if pref_eval.get("is_positive_catalyst") else "CAUTION"
+        evidence.append(f"[{prefix}: {pref_eval['subscriber_tier']}] {pref_eval['actionable_insight']}")
 
     intelligence = ShareholdingPatternIntelligence(
         fii_holding_pct=fii_pct,
@@ -161,6 +165,7 @@ def evaluate_shareholding_pattern(
         "daily_bulk_deals": bulk_eval,
         "free_float_squeeze": squeeze_eval,
         "sme_liquidity_guard": sme_eval,
+        "preferential_allotment_quality": pref_eval,
         "evidence": evidence,
         "meta": create_meta_header(source="Shareholding Pattern Intelligence Engine (§24)")
     }
@@ -500,6 +505,110 @@ def evaluate_sme_liquidity_guard(item: Optional[Dict[str, Any]] = None) -> Dict[
         "minimum_ticket_size_inr": ticket_size_inr,
         "liquidity_risk_grade": liquidity_risk,
         "liquidity_warning": note,
+    }
+
+
+def evaluate_preferential_allotment_quality(data: Optional[Dict[str, Any]] = None) -> Dict[str, Any]:
+    """Phase 186: Evaluates corporate preferential issue / warrant quality and subscriber tier.
+
+    Prevents operator-driven penny stock gaming by gating preferential allotment score boosts:
+    - Tier 1: INSTITUTIONAL_MARQUEE_CO_INVESTMENT (Cat-I/II AIF, Mutual Fund, Marquee Ace Investor) -> +12 to +15 pts.
+    - Tier 2: PROMOTER_SKIN_IN_GAME (Promoter infusion at/above SEBI ICDR floor without warrant discount) -> +8 pts.
+    - Tier 3: UNVERIFIED_OPERATOR_RISK (Allotted to opaque private corporate bodies / deep discounts) -> Caution / 0 pts.
+    """
+    if not data or not isinstance(data, dict):
+        return {
+            "has_preferential_issue": False,
+            "subscriber_tier": "NO_RECENT_PREFERENTIAL_ISSUE",
+            "score_boost_pts": 0.0,
+            "is_positive_catalyst": False,
+            "operator_risk_flag": False,
+            "actionable_insight": "No recent preferential issue or warrant allotment detected."
+        }
+
+    has_pref = bool(
+        data.get("has_preferential_issue") or
+        data.get("preferential_issue") or
+        data.get("warrants_issued") or
+        data.get("is_preferential_allotment")
+    )
+    if not has_pref:
+        return {
+            "has_preferential_issue": False,
+            "subscriber_tier": "NO_RECENT_PREFERENTIAL_ISSUE",
+            "score_boost_pts": 0.0,
+            "is_positive_catalyst": False,
+            "operator_risk_flag": False,
+            "actionable_insight": "No recent preferential issue or warrant allotment detected."
+        }
+
+    subscribers = data.get("preferential_issue_subscribers") or data.get("allottees") or []
+    if isinstance(subscribers, str):
+        subscribers = [subscribers]
+    subscribers_str = " ".join([str(s).upper() for s in subscribers])
+
+    issue_price = None
+    icdr_floor = None
+    for k in ("preferential_price", "issue_price", "allotment_price"):
+        if data.get(k) is not None:
+            try:
+                issue_price = float(data[k])
+                break
+            except (ValueError, TypeError):
+                pass
+    for k in ("sebi_icdr_floor_price", "icdr_floor_price", "floor_price"):
+        if data.get(k) is not None:
+            try:
+                icdr_floor = float(data[k])
+                break
+            except (ValueError, TypeError):
+                pass
+
+    # Tier 1 keywords: Marquee institutional, mutual fund, known ace investor
+    institutional_keywords = (
+        "MUTUAL FUND", "MF", "AIF", "CAT II", "CAT I", "FPI", "FII", "INSURANCE",
+        "KACHOLIA", "AGRAWAL", "KEDIA", "JHUNJHUNWALA", "DAMANI", "LUCKY", "PARAM",
+        "WHITE OAK", "HDFC", "ICICI", "SBI", "NIPPON", "KOTAK", "DSP", "MIRAE"
+    )
+    is_inst = any(kw in subscribers_str for kw in institutional_keywords) or bool(data.get("has_marquee_subscriber"))
+    is_promoter = any(kw in subscribers_str for kw in ("PROMOTER", "FOUNDER", "PROMOTER GROUP")) or bool(data.get("warrants_issued_to_promoter"))
+
+    if is_inst:
+        tier = "INSTITUTIONAL_MARQUEE_CO_INVESTMENT"
+        boost = 15.0
+        is_pos = True
+        op_risk = False
+        note = f"Preferential allotment endorsed by Tier-1 institutional / marquee investors ({subscribers_str or 'Disclosed Institutions'}). High growth capital conviction (+15 pts)."
+    elif is_promoter:
+        is_discounted = (issue_price is not None and icdr_floor is not None and issue_price < icdr_floor * 0.98)
+        if is_discounted:
+            tier = "PROMOTER_DISCOUNTED_WARRANTS"
+            boost = 3.0
+            is_pos = False
+            op_risk = True
+            note = f"Promoter warrants issued at discount below SEBI ICDR floor (Rs {issue_price:.1f} < Rs {icdr_floor:.1f}); governance caution flagged."
+        else:
+            tier = "PROMOTER_SKIN_IN_GAME"
+            boost = 8.0
+            is_pos = True
+            op_risk = False
+            note = "Promoters committing personal growth capital at market ICDR valuation. Strong insider conviction (+8 pts)."
+    else:
+        tier = "UNVERIFIED_OPERATOR_RISK"
+        boost = 0.0
+        is_pos = False
+        op_risk = True
+        note = f"Preferential issue allotted to unverified corporate entities ({subscribers_str or 'Undisclosed private bodies'}). Zero score boost to guard against operator pump-and-dump dilution."
+
+    return {
+        "has_preferential_issue": True,
+        "subscriber_tier": tier,
+        "score_boost_pts": boost,
+        "is_positive_catalyst": is_pos,
+        "operator_risk_flag": op_risk,
+        "actionable_insight": note,
+        "issue_price": issue_price,
+        "icdr_floor_price": icdr_floor
     }
 
 
