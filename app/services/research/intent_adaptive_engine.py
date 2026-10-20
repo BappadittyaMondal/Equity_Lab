@@ -954,9 +954,27 @@ class QueryAdaptiveConstraintEngine:
         elif norm_intent == "AGRAWAL_INFLECTION":
             relaxed.append("Multi-year 5Y/10Y historical metrics and trailing valuation multiples relaxed in favor of immediate operating inflection and volume breakout.")
 
+            # Phase 180: Support SME half-yearly (H1/H2) cadence and M&A normalized operating inflection
+            is_sme = bool(
+                data.get("is_sme") or 
+                data.get("is_sme_platform") or 
+                str(data.get("exchange", "")).upper() in ("BSE_SME", "NSE_EMERGE", "SME")
+            )
+            sme_growth = _get_opt_float(["half_yearly_pat_growth", "hoh_pat_growth", "sme_sales_growth", "half_yearly_sales_growth"])
+            ebitda_growth = _get_opt_float(["ebitda_growth_latest", "op_growth", "operating_profit_growth"])
+            exceptional_costs = _get_opt_float(["one_time_deal_costs", "exceptional_items"]) or 0.0
+            is_ma_dislocation = bool(data.get("is_m_and_a_dislocation") or exceptional_costs > 0)
+
             # Latest QoQ PAT acceleration
             eff_pat_acc = pat_growth_latest if pat_growth_latest is not None else pat_cagr_3y
-            if eff_pat_acc is None:
+
+            if is_sme and (eff_pat_acc is None or eff_pat_acc < 15.0) and sme_growth is not None and sme_growth >= 15.0:
+                relaxed.append("Quarterly 3-month reporting cadence relaxed for SME platform stock in favor of semi-annual (H1/H2) filing.")
+                tightened.append(f"SME semi-annual earnings inflection verified (H1/H2 growth: {sme_growth:.1f}% >= 15.0%).")
+            elif is_ma_dislocation and ebitda_growth is not None and ebitda_growth >= 15.0:
+                relaxed.append(f"Reported headline PAT relaxed due to one-time M&A/deal costs (Rs {exceptional_costs:.1f} Cr).")
+                tightened.append(f"Normalized operating inflection verified (EBITDA growth: {ebitda_growth:.1f}% >= 15.0% despite deal costs).")
+            elif eff_pat_acc is None:
                 warnings.append("CAUTION: Latest PAT growth rate unobserved; earnings inflection unconfirmed.")
                 tightened.append("Operating inflection: PAT acceleration >= 18.0% strictly enforced (unobserved).")
             elif eff_pat_acc < 15.0:

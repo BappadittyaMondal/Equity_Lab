@@ -129,6 +129,14 @@ def evaluate_shareholding_pattern(
     if bulk_eval.get("has_deals") and bulk_eval.get("tracked_smart_money_deals"):
         evidence.extend(bulk_eval["evidence"])
 
+    # Phase 180: Free-Float Squeeze & SME Liquidity Risk Guard
+    squeeze_eval = calculate_free_float_squeeze(data)
+    sme_eval = evaluate_sme_liquidity_guard(data)
+    if squeeze_eval.get("is_float_squeezed"):
+        evidence.append(f"[CATALYST: {squeeze_eval['squeeze_tier']}] {squeeze_eval['actionable_insight']}")
+    if sme_eval.get("is_sme"):
+        evidence.append(f"[RISK GUARD: {sme_eval['liquidity_risk_grade']}] {sme_eval['liquidity_warning']}")
+
     intelligence = ShareholdingPatternIntelligence(
         fii_holding_pct=fii_pct,
         fii_qoq_change=fii_qoq,
@@ -151,6 +159,8 @@ def evaluate_shareholding_pattern(
         "smart_money_clustering": clustering_eval,
         "phantom_superstar_gate": phantom_eval,
         "daily_bulk_deals": bulk_eval,
+        "free_float_squeeze": squeeze_eval,
+        "sme_liquidity_guard": sme_eval,
         "evidence": evidence,
         "meta": create_meta_header(source="Shareholding Pattern Intelligence Engine (§24)")
     }
@@ -390,6 +400,106 @@ def detect_phantom_superstar_status(
         "active_superstars_count": active_count,
         "conviction_haircut_pts": 25.0 if is_phantom else 0.0,
         "verdict_label": verdict,
+    }
+
+
+def calculate_free_float_squeeze(shareholding_data: Optional[Dict[str, Any]] = None) -> Dict[str, Any]:
+    """Phase 180: Computes Liquid Retail Float and evaluates institutional float-lockup squeeze.
+    
+    Formula:
+        Strong Hands = Promoter % + FII % + DII % + Superstars (>1%)
+        Liquid Retail Float = 100% - Strong Hands
+        Squeezed = Liquid Retail Float <= 25.0%
+    """
+    if not shareholding_data or not isinstance(shareholding_data, dict):
+        return {
+            "strong_hands_pct": 0.0,
+            "liquid_retail_float_pct": 100.0,
+            "is_float_squeezed": False,
+            "squeeze_tier": "UNASSESSED",
+            "actionable_insight": "Shareholding data unobserved; float squeeze uncalculated."
+        }
+
+    promoter = float(shareholding_data.get("promoter_holding_pct") or shareholding_data.get("promoter_pct") or 50.0)
+    fii = float(shareholding_data.get("fii_holding_pct") or shareholding_data.get("fii_pct") or 0.0)
+    dii = float(shareholding_data.get("dii_mf_holding_pct") or shareholding_data.get("dii_pct") or 0.0)
+    
+    # Calculate superstar holdings from active holders list if available
+    superstar = float(shareholding_data.get("superstar_holding_pct") or shareholding_data.get("shark_hni_pct") or 0.0)
+    if superstar == 0.0:
+        holders = shareholding_data.get("tracked_holders") or shareholding_data.get("public_shareholders_above_1pct") or []
+        for h in holders:
+            if isinstance(h, dict) and match_smart_money_entity(str(h.get("holder_name") or h.get("name") or "")):
+                superstar += float(h.get("holding_pct") or h.get("stake_pct") or 0.0)
+
+    strong_hands = round(min(100.0, max(0.0, promoter + fii + dii + superstar)), 2)
+    liquid_retail_float = round(max(0.0, 100.0 - strong_hands), 2)
+    is_squeezed = liquid_retail_float <= 25.0
+
+    if liquid_retail_float <= 15.0:
+        squeeze_tier = "EXTREME_FLOAT_LOCKUP"
+    elif liquid_retail_float <= 25.0:
+        squeeze_tier = "HIGH_FLOAT_LOCKUP"
+    elif liquid_retail_float <= 40.0:
+        squeeze_tier = "MODERATE_FLOAT"
+    else:
+        squeeze_tier = "DIFFUSE_RETAIL_FLOAT"
+
+    return {
+        "strong_hands_pct": strong_hands,
+        "liquid_retail_float_pct": liquid_retail_float,
+        "is_float_squeezed": is_squeezed,
+        "squeeze_tier": squeeze_tier,
+        "actionable_insight": (
+            f"Liquid retail float is {liquid_retail_float:.1f}% ({squeeze_tier}). "
+            f"Strong hands lock up {strong_hands:.1f}% of total supply; "
+            + ("high sensitivity to institutional buying surges." if is_squeezed else "plentiful retail float.")
+        )
+    }
+
+
+def evaluate_sme_liquidity_guard(item: Optional[Dict[str, Any]] = None) -> Dict[str, Any]:
+    """Phase 180: Evaluates SME platform fixed-lot liquidity risk and minimum ticket sizes.
+    
+    Prevents retail entrapment in illiquid SME counters by computing exact INR order commitment
+    and highlighting circuit risk.
+    """
+    if not item or not isinstance(item, dict):
+        return {
+            "is_sme": False,
+            "lot_size": 1,
+            "minimum_ticket_size_inr": 0.0,
+            "liquidity_risk_grade": "NORMAL_MAINBOARD_LIQUIDITY",
+            "liquidity_warning": "Mainboard listing: Standard 1-share lot size."
+        }
+
+    is_sme = bool(
+        item.get("is_sme") or 
+        item.get("is_sme_platform") or 
+        str(item.get("exchange", "")).upper() in ("BSE_SME", "NSE_EMERGE", "SME") or
+        str(item.get("series", "")).upper() in ("SM", "ST")
+    )
+    lot_size = int(item.get("lot_size") or (1000 if is_sme else 1))
+    current_price = float(item.get("current_price") or item.get("close") or 0.0)
+    ticket_size_inr = round(lot_size * current_price, 2)
+
+    if is_sme:
+        liquidity_risk = "HIGH_LIQUIDITY_RISK_SME_LOT"
+        note = (
+            f"SME Platform Listing: Fixed lot size of {lot_size} shares. "
+            f"Minimum trade ticket is ~Rs {ticket_size_inr:,.0f}. "
+            "Beware of wide bid-ask spreads and lower-circuit liquidity traps on exit."
+        )
+    else:
+        liquidity_risk = "NORMAL_MAINBOARD_LIQUIDITY"
+        note = "Mainboard listing: Standard 1-share lot size with continuous market liquidity."
+
+    return {
+        "is_sme": is_sme,
+        "lot_size": lot_size,
+        "minimum_ticket_size_inr": ticket_size_inr,
+        "liquidity_risk_grade": liquidity_risk,
+        "liquidity_warning": note,
     }
 
 

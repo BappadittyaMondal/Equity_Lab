@@ -167,9 +167,19 @@ def classify_panic_vs_derate(item: Dict[str, Any]) -> Dict[str, Any]:
         except (ValueError, TypeError):
             pass
 
-    # ── Signal 5: PAT growth trajectory ──────────────────────────────────
+    # ── Signal 5: PAT growth trajectory & M&A Accounting Normalization ──
     pat_growth = item.get("pat_growth_latest")
-    if pat_growth is not None:
+    op_growth = item.get("op_growth") or item.get("ebitda_growth_latest")
+    one_off_costs = float(item.get("one_time_deal_costs") or item.get("exceptional_items") or 0.0)
+    is_ma_dislocation = bool(item.get("is_m_and_a_dislocation") or one_off_costs > 0)
+
+    # Phase 180: If headline PAT fell due to one-time M&A expenses but core EBITDA is expanding >= 15%
+    if op_growth is not None and float(op_growth) >= 15.0 and is_ma_dislocation:
+        panic_signals.append(
+            f"Normalized operating inflection: Operating/EBITDA growth={float(op_growth):.1f}% YoY "
+            f"despite headline accounting one-offs (M&A deal cost dislocation, not operational decay)"
+        )
+    elif pat_growth is not None:
         try:
             pat_f = float(pat_growth)
             if pat_f >= 15.0:
