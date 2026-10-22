@@ -504,6 +504,7 @@ def _run_deadliest_combo_pipeline_core(
     pledge_overrides: Optional[Dict[str, float]] = None,
     enforce_portfolio_constraints: bool = True,
     max_sector_exposure: float = 0.30,
+    disqualify_stage_4: bool = False,
 ) -> Tuple[List[DeadliestComboResult], List[DeadliestComboResult]]:
     """Run the full Deadliest Combination pipeline on a list of tickers.
 
@@ -643,6 +644,31 @@ def _run_deadliest_combo_pipeline_core(
             tbqe_breakdown = {}
             weinstein = "UNKNOWN"
 
+        # ── Stage 4B: Technical Stage-4 Markdown Disqualification Gate (Phase 188) ──
+        # Deadliest Combo = Multibagger (Fundamentals) x Pre-Fly (Technicals & Timing).
+        # A stock in Stage 4 Markdown / falling knife is strictly disqualified from Deadliest Combo / Pre-Fly.
+        is_stage_4 = (weinstein == "STAGE_4_DOWNTREND")
+        price_val_tbqe = float(fundamentals.get("current_price") or 0.0)
+        h52_val_tbqe = float(fundamentals.get("high_52w") or 0.0)
+        d52_pct_tbqe = ((h52_val_tbqe - price_val_tbqe) / h52_val_tbqe * 100.0) if (h52_val_tbqe > 0 and price_val_tbqe > 0) else 0.0
+        dma50_val_tbqe = float(fundamentals.get("dma_50") or 0.0)
+        dma200_val_tbqe = float(fundamentals.get("dma_200") or 0.0)
+        is_broken_ma_tbqe = (price_val_tbqe < dma50_val_tbqe and price_val_tbqe < dma200_val_tbqe and dma200_val_tbqe > 0)
+
+        if disqualify_stage_4 and (is_stage_4 or (is_broken_ma_tbqe and d52_pct_tbqe >= 40.0)):
+            dq_msg = f"STAGE_4_MARKDOWN_VETO: Price {price_val_tbqe:.2f} is in Stage 4 Downtrend below 50/200 DMA with {d52_pct_tbqe:.1f}% drawdown from ATH (falling knife). Reclassified as Turnaround Watchlist."
+            disqualified.append(DeadliestComboResult(
+                symbol=symbol, company_name=company_name,
+                hard_gate_pass=False,
+                disqualification_reason=dq_msg,
+                composite_score=0.0,
+                fundamentals=fundamentals,
+                weinstein_stage=weinstein,
+                tbqe_score=round(tbqe_raw, 4),
+            ))
+            logger.info(f"[PIPELINE] {symbol} DISQUALIFIED: {dq_msg}")
+            continue
+
         # ── Stage 5: Return Ceiling (reverse-DCF) ────────────────────────
         mcap_cr = (fundamentals.get("market_cap", 0.0) or 0.0)
         if mcap_cr > 1e7:
@@ -719,11 +745,13 @@ def _run_deadliest_combo_pipeline_core(
         ceiling_factor = min(1.0, max(0.05, rc_normalized))
 
         # Deadliest Score = 100 * (Potential^0.55 * Timing^0.30 * CeilingFactor^0.15) * Q_continuous
+        # Phase 188: Timing Damping Multiplier to prevent sub-unity powers from inflating failing technical timing
+        timing_damping = min(1.0, max(0.0, (timing - 0.20) / 0.15)) if timing < 0.35 else 1.0
         cross_product = (
             (potential ** SCORING_POWERS["potential"]) *
             (timing ** SCORING_POWERS["timing"]) *
             (ceiling_factor ** SCORING_POWERS["ceiling_factor"])
-        )
+        ) * timing_damping
         s_min = round(100.0 * cross_product * q_min, 2)
         s_max = round(100.0 * cross_product * q_max, 2)
 
@@ -881,6 +909,7 @@ def run_deadliest_combo_pipeline(
     pledge_overrides: Optional[Dict[str, float]] = None,
     enforce_portfolio_constraints: bool = True,
     max_sector_exposure: float = 0.30,
+    disqualify_stage_4: bool = False,
 ) -> List[DeadliestComboResult]:
     """Run the full Deadliest Combination pipeline on a list of tickers.
 
@@ -894,6 +923,7 @@ def run_deadliest_combo_pipeline(
         pledge_overrides=pledge_overrides,
         enforce_portfolio_constraints=enforce_portfolio_constraints,
         max_sector_exposure=max_sector_exposure,
+        disqualify_stage_4=disqualify_stage_4,
     )
     return ranked
 
@@ -905,6 +935,7 @@ def run_deadliest_combo_pipeline_with_audit(
     pledge_overrides: Optional[Dict[str, float]] = None,
     enforce_portfolio_constraints: bool = True,
     max_sector_exposure: float = 0.30,
+    disqualify_stage_4: bool = False,
 ) -> Tuple[List[DeadliestComboResult], List[DeadliestComboResult]]:
     """Same as run_deadliest_combo_pipeline, but returns (ranked_results, disqualified_list)."""
     return _run_deadliest_combo_pipeline_core(
@@ -914,6 +945,7 @@ def run_deadliest_combo_pipeline_with_audit(
         pledge_overrides=pledge_overrides,
         enforce_portfolio_constraints=enforce_portfolio_constraints,
         max_sector_exposure=max_sector_exposure,
+        disqualify_stage_4=disqualify_stage_4,
     )
 
 

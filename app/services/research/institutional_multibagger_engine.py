@@ -966,26 +966,41 @@ class InstitutionalMultibaggerEngine:
     @classmethod
     def get_discovery_status(cls, item: Dict[str, Any]) -> Dict[str, Any]:
         """Discovery Status: Institutional attention level (0=Heavy, 1=Moderate, 2=Light, 3=Undiscovered)."""
-        inst_holding = item.get("fii_dii_holding", item.get("institutional_holding", 15.0))
-        analyst_coverage = item.get("analyst_coverage_count", 5)
+        raw_holding = item.get("fii_dii_holding")
+        if raw_holding is None:
+            raw_holding = item.get("institutional_holding")
+        
+        is_observed = raw_holding is not None
+        inst_holding = float(raw_holding) if is_observed else 0.0
+        analyst_coverage = int(item.get("analyst_coverage_count") or 5)
 
-        if inst_holding < 2.0 and analyst_coverage <= 1:
+        if not is_observed:
+            level = 1
+            label = "Unobserved Holding"
+            context_note = f"Institutional holding unobserved (penalized for missing data, Analysts: {analyst_coverage})"
+        elif inst_holding < 2.0 and analyst_coverage <= 1:
             level = 3
             label = "Undiscovered"
+            context_note = f"{label} (FII/DII: {inst_holding:.1f}%, Analysts: {analyst_coverage})"
         elif inst_holding < 10.0 and analyst_coverage <= 3:
             level = 2
             label = "Lightly Covered"
+            context_note = f"{label} (FII/DII: {inst_holding:.1f}%, Analysts: {analyst_coverage})"
         elif inst_holding < 25.0:
             level = 1
             label = "Moderately Covered"
+            context_note = f"{label} (FII/DII: {inst_holding:.1f}%, Analysts: {analyst_coverage})"
         else:
             level = 0
             label = "Heavily Covered"
+            context_note = f"{label} (FII/DII: {inst_holding:.1f}%, Analysts: {analyst_coverage})"
 
         return {
             "discovery_level": level,
             "discovery_label": label,
-            "context_note": f"{label} (FII/DII: {inst_holding:.1f}%, Analysts: {analyst_coverage})"
+            "is_institutional_holding_observed": is_observed,
+            "institutional_holding_pct": inst_holding if is_observed else 0.0,
+            "context_note": context_note
         }
 
     @classmethod
@@ -1449,7 +1464,11 @@ class InstitutionalMultibaggerEngine:
         regulatory_trigger_date_str = item.get("regulatory_trigger_date")
         regulatory_category = str(item.get("regulatory_category") or "GENERIC").upper()
         analyst_coverage = int(item.get("analyst_coverage_count") or 5)
-        inst_holding = float(item.get("fii_dii_holding", item.get("institutional_holding", 15.0)) or 15.0)
+        raw_holding = item.get("fii_dii_holding")
+        if raw_holding is None:
+            raw_holding = item.get("institutional_holding")
+        inst_holding_observed = raw_holding is not None
+        inst_holding = float(raw_holding) if inst_holding_observed else 0.0
         days_since_trigger = item.get("days_since_trigger")
 
         # Category-specific typical discovery lag benchmarks (from 14-stock evidence)
@@ -1513,7 +1532,9 @@ class InstitutionalMultibaggerEngine:
             signals.append(f"Analyst coverage: {analyst_coverage} (moderate coverage — partial alpha)")
 
         # Score 3: Institutional holding — lower = less discovery
-        if inst_holding < 2.0:
+        if not inst_holding_observed:
+            signals.append("Institutional holding unobserved; discovery stage penalized for missing data.")
+        elif inst_holding < 2.0:
             score += 20.0
             signals.append(f"Institutional holding {inst_holding:.1f}% < 2%: zero institutional discovery")
         elif inst_holding < 5.0:
@@ -1534,7 +1555,8 @@ class InstitutionalMultibaggerEngine:
             "typical_discovery_lag_days": typical_lag,
             "is_within_undiscovered_window": 0 < lag_days <= typical_lag,
             "analyst_coverage": analyst_coverage,
-            "institutional_holding_pct": inst_holding,
+            "is_institutional_holding_observed": inst_holding_observed,
+            "institutional_holding_pct": inst_holding if inst_holding_observed else 0.0,
             "discovery_signals": signals,
             "methodology_note": (
                 "Pre-event regulatory trigger time-lag scorer (Phase 37-C2). Scores the alpha window "

@@ -1,6 +1,6 @@
 {
   "version": "1.2.0",
-  "last_updated_utc": "2026-10-20T16:59:02.372171+00:00",
+  "last_updated_utc": "2026-10-22T10:04:23.668284+00:00",
   "entities": {
     "ERD_SERVICES_CONVEXITY_RULE": {
       "entity_id": "ERD_SERVICES_CONVEXITY_RULE",
@@ -36,7 +36,7 @@
       "category": "MARKET_MICROSTRUCTURE",
       "confidence_score": 0.71,
       "verification_status": "CERTIFIED_FACT",
-      "source_origin": "USER_FEEDBACK_FB-1792503432",
+      "source_origin": "USER_FEEDBACK_FB-1792663371",
       "relevance_vector": {
         "swing_3d": 0.15,
         "swing_10d": 0.1,
@@ -49,8 +49,8 @@
       },
       "description": "Post-market multilateral closing auction establishing deterministic VWAP and dampening end-of-session volatility.",
       "sensationalism_penalty": 0.0,
-      "created_at_utc": "2026-10-20T13:37:12.631377+00:00",
-      "last_validated_at_utc": "2026-10-20T13:37:12.631377+00:00",
+      "created_at_utc": "2026-10-22T10:02:51.238340+00:00",
+      "last_validated_at_utc": "2026-10-22T10:02:51.238340+00:00",
       "shadow_status": "SHADOW",
       "sample_count": 0,
       "success_count": 0,
@@ -83,7 +83,7 @@
       "category": "GEOPOLITICAL_CORRIDOR",
       "confidence_score": 0.71,
       "verification_status": "CERTIFIED_FACT",
-      "source_origin": "USER_FEEDBACK_FB-1792503432",
+      "source_origin": "USER_FEEDBACK_FB-1792663371",
       "relevance_vector": {
         "swing_3d": 0.0,
         "swing_10d": 0.05,
@@ -96,8 +96,8 @@
       },
       "description": "Bilateral foreign direct investment in South American lithium brine reserves under RIGI regulatory concessions.",
       "sensationalism_penalty": 0.0,
-      "created_at_utc": "2026-10-20T13:37:12.635533+00:00",
-      "last_validated_at_utc": "2026-10-20T13:37:12.635533+00:00",
+      "created_at_utc": "2026-10-22T10:02:51.242365+00:00",
+      "last_validated_at_utc": "2026-10-22T10:02:51.242365+00:00",
       "shadow_status": "SHADOW",
       "sample_count": 0,
       "success_count": 0,
@@ -705,8 +705,8 @@
       },
       "description": "Texmaco Rail ROCE is 11.5% on Screener, which breaches the 20.0% institutional floor.",
       "sensationalism_penalty": 0.0,
-      "created_at_utc": "2026-10-20T13:38:32.025589+00:00",
-      "last_validated_at_utc": "2026-10-20T13:38:32.025589+00:00",
+      "created_at_utc": "2026-10-22T10:04:23.591017+00:00",
+      "last_validated_at_utc": "2026-10-22T10:04:23.591017+00:00",
       "shadow_status": "PROMOTED",
       "sample_count": 1,
       "success_count": 1,
@@ -734,8 +734,8 @@
       },
       "description": "TestBadStock ROCE is below the 20% institutional floor.",
       "sensationalism_penalty": 0.0,
-      "created_at_utc": "2026-10-20T13:38:32.042503+00:00",
-      "last_validated_at_utc": "2026-10-20T13:38:32.042503+00:00",
+      "created_at_utc": "2026-10-22T10:04:23.607948+00:00",
+      "last_validated_at_utc": "2026-10-22T10:04:23.607948+00:00",
       "shadow_status": "PROMOTED",
       "sample_count": 1,
       "success_count": 1,
@@ -763,8 +763,8 @@
       },
       "description": "Test rule for target symbol preservation",
       "sensationalism_penalty": 0.0,
-      "created_at_utc": "2026-10-20T13:38:32.074036+00:00",
-      "last_validated_at_utc": "2026-10-20T13:38:32.074036+00:00",
+      "created_at_utc": "2026-10-22T10:04:23.637307+00:00",
+      "last_validated_at_utc": "2026-10-22T10:04:23.637307+00:00",
       "shadow_status": "PROMOTED",
       "sample_count": 1,
       "success_count": 1,
@@ -794,8 +794,8 @@
       },
       "description": "Superstar investor Rekha Jhunjhunwala has exited or trimmed stake below 1.0% in RAGHAV as of Q4 FY25. Stake trimmed below 1.0% SEBI disclosure threshold",
       "sensationalism_penalty": 0.0,
-      "created_at_utc": "2026-10-20T13:38:32.092355+00:00",
-      "last_validated_at_utc": "2026-10-20T13:38:32.092355+00:00",
+      "created_at_utc": "2026-10-22T10:04:23.652249+00:00",
+      "last_validated_at_utc": "2026-10-22T10:04:23.652249+00:00",
       "shadow_status": "PROMOTED",
       "sample_count": 1,
       "success_count": 1,
@@ -823,8 +823,8 @@
       },
       "description": "Simulated fraudulent accounting veto",
       "sensationalism_penalty": 0.0,
-      "created_at_utc": "2026-10-20T13:38:32.097910+00:00",
-      "last_validated_at_utc": "2026-10-20T13:38:32.097910+00:00",
+      "created_at_utc": "2026-10-22T10:04:23.658083+00:00",
+      "last_validated_at_utc": "2026-10-22T10:04:23.658083+00:00",
       "shadow_status": "PROMOTED",
       "sample_count": 1,
       "success_count": 1,
@@ -1132,7 +1132,93 @@
       "fdr_q_value": null,
       "performance_delta": 0.0,
       "human_signoff": true
+    },
+    "FALLING_KNIFE_PREFLY_DISQUALIFICATION_RULE": {
+      "entity_id": "FALLING_KNIFE_PREFLY_DISQUALIFICATION_RULE",
+      "canonical_name": "FALLING_KNIFE_PREFLY_DISQUALIFICATION_RULE",
+      "category": "HARD_GATE_DISQUALIFICATION",
+      "confidence_score": 0.99,
+      "verification_status": "CERTIFIED_FACT",
+      "source_origin": "EMPIRICAL_AUDIT_VERIFICATION",
+      "relevance_vector": {
+        "pre_fly": 1.0,
+        "deadliest_combo": 1.0,
+        "micro_multibagger": 0.95,
+        "multibagger": 0.9
+      },
+      "bayesian_prior_modifier": {
+        "metric": "stage_4_markdown_disqualification",
+        "weight_delta": -1.0
+      },
+      "description": "Enforces strict Stage 4 Markdown / Falling Knife hard gate for Pre-Fly and Deadliest Combo: blocks fresh capital entry if price < 50 DMA and 200 DMA with >= 40% drawdown from 52W high or weekly RSI < 30. Reclassifies candidates as High-Risk Turnaround Watchlist, preventing fundamental cheapness from masking active institutional distribution.",
+      "sensationalism_penalty": 0.0,
+      "created_at_utc": "2026-10-22T14:30:00.000000+00:00",
+      "last_validated_at_utc": "2026-10-22T14:30:00.000000+00:00",
+      "shadow_status": "PROMOTED",
+      "sample_count": 1,
+      "success_count": 1,
+      "p_value": null,
+      "fdr_q_value": null,
+      "performance_delta": 0.0,
+      "human_signoff": true
+    },
+    "SYNTHETIC_SECTOR_BREADTH_IGNITION_RULE": {
+      "entity_id": "SYNTHETIC_SECTOR_BREADTH_IGNITION_RULE",
+      "canonical_name": "SYNTHETIC_SECTOR_BREADTH_IGNITION_RULE",
+      "category": "SECTOR_THEMATIC_ROTATION",
+      "confidence_score": 0.98,
+      "verification_status": "CERTIFIED_FACT",
+      "source_origin": "EMPIRICAL_AUDIT_VERIFICATION",
+      "relevance_vector": {
+        "pre_fly": 0.95,
+        "deadliest_combo": 0.9,
+        "multibagger": 0.95,
+        "swing": 0.9
+      },
+      "bayesian_prior_modifier": {
+        "metric": "sector_breadth_ignition_tailwinds",
+        "weight_delta": 0.15
+      },
+      "description": "Enforces top-down sector breadth alignment: stocks in sectors with SECTOR_ROTATION_IGNITION (breadth surging from <35% to >60% or >=65% with volume participation) receive institutional tailwind confirmation (+10 bonus). Conversely, candidates in SECTOR_DISTRIBUTION (<35% breadth) receive structural headwind penalty (-15) to prevent fighting sector-wide liquidation.",
+      "sensationalism_penalty": 0.0,
+      "created_at_utc": "2026-10-22T09:49:17.945332+00:00",
+      "last_validated_at_utc": "2026-10-22T09:49:17.945348+00:00",
+      "shadow_status": "PROMOTED",
+      "sample_count": 1,
+      "success_count": 1,
+      "p_value": null,
+      "fdr_q_value": null,
+      "performance_delta": 0.0,
+      "human_signoff": true
+    },
+    "INSTITUTIONAL_HOLDING_FAIL_CLOSED_RULE": {
+      "entity_id": "INSTITUTIONAL_HOLDING_FAIL_CLOSED_RULE",
+      "canonical_name": "INSTITUTIONAL_HOLDING_FAIL_CLOSED_RULE",
+      "category": "FORENSIC_DATA_INTEGRITY",
+      "confidence_score": 0.99,
+      "verification_status": "CERTIFIED_FACT",
+      "source_origin": "EMPIRICAL_AUDIT_VERIFICATION",
+      "relevance_vector": {
+        "multibagger": 1.0,
+        "micro_multibagger": 1.0,
+        "deadliest_combo": 0.9
+      },
+      "bayesian_prior_modifier": {
+        "metric": "unobserved_institutional_holding_penalty",
+        "weight_delta": -0.2
+      },
+      "description": "Replaces silent 15.0% fallback with explicit data provenance: when FII/DII institutional holding is unobserved, the engine sets is_institutional_holding_observed=False, reports holding as 0.0%, and withholds discovery alpha credits until empirical regulatory filings confirm ownership.",
+      "sensationalism_penalty": 0.0,
+      "created_at_utc": "2026-10-22T09:49:17.945356+00:00",
+      "last_validated_at_utc": "2026-10-22T09:49:17.945361+00:00",
+      "shadow_status": "PROMOTED",
+      "sample_count": 1,
+      "success_count": 1,
+      "p_value": null,
+      "fdr_q_value": null,
+      "performance_delta": 0.0,
+      "human_signoff": true
     }
   },
-  "total_entities_count": 41
+  "total_entities_count": 47
 }

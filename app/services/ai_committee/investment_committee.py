@@ -45,16 +45,32 @@ class VirtualInvestmentCommittee:
     @classmethod
     def forensic_auditor_agent(cls, symbol: str, stock_data: Dict[str, Any]) -> AgentOpinion:
         """Evaluates accounting quality, CFO vs PAT, and earnings manipulation signals."""
-        cfo = stock_data.get("cfo_last_year", 0.0)
-        pat = stock_data.get("net_profit_last_year", 0.0)
-        fcf = stock_data.get("fcf_last_year", cfo - stock_data.get("capex_last_year", 0.0))
+        cfo = float(stock_data.get("cfo_last_year") or 0.0)
+        pat = float(stock_data.get("net_profit_last_year") or 0.0)
+        # Normalize raw INR to Crores if necessary
+        if abs(pat) > 1e6:
+            pat = pat / 1e7
+        if abs(cfo) > 1e6:
+            cfo = cfo / 1e7
+
+        capex = float(stock_data.get("capex_last_year") or 0.0)
+        if abs(capex) > 1e6:
+            capex = capex / 1e7
+
+        raw_fcf = stock_data.get("fcf_last_year")
+        fcf = float(raw_fcf) if raw_fcf is not None else (cfo - capex)
+        if abs(fcf) > 1e6:
+            fcf = fcf / 1e7
+
         piotroski = stock_data.get("piotroski_score")
 
         findings = []
         concerns = []
 
-        if cfo > pat:
+        if cfo > pat and cfo > 0.0:
             findings.append(f"Strong Cash Conversion: CFO (₹{cfo:.1f} Cr) > PAT (₹{pat:.1f} Cr). High earnings quality.")
+        elif cfo <= 0.0 and pat > 0.0:
+            concerns.append(f"Earnings Quality Warning: CFO data unobserved or negligible (₹{cfo:.1f} Cr) against PAT (₹{pat:.1f} Cr).")
         else:
             concerns.append(f"Earnings Quality Warning: CFO (₹{cfo:.1f} Cr) < PAT (₹{pat:.1f} Cr). Working capital lag.")
 
@@ -63,15 +79,21 @@ class VirtualInvestmentCommittee:
         elif fcf > 0.0:
             findings.append(f"Positive FCF Generation: FCF is +₹{fcf:.1f} Cr.")
 
-        if piotroski is not None:
-            if piotroski >= 7:
-                findings.append(f"High Financial Strength: Piotroski F-Score is {piotroski}/9.")
-            elif piotroski <= 4:
-                concerns.append(f"Weak Piotroski F-Score ({piotroski}/9). Balance sheet stress.")
+        if piotroski is not None and float(piotroski) > 0.0:
+            p_val = float(piotroski)
+            if p_val >= 7.0:
+                findings.append(f"High Financial Strength: Piotroski F-Score is {int(p_val)}/9.")
+            elif p_val <= 3.0:
+                concerns.append(f"Weak Piotroski F-Score ({int(p_val)}/9). Balance sheet stress.")
+            else:
+                findings.append(f"Moderate Piotroski F-Score ({int(p_val)}/9).")
         else:
             concerns.append("Piotroski F-Score unverified in corporate filings.")
 
-        vote = "REJECT" if (fcf < -1000.0 or (piotroski is not None and piotroski <= 3)) else ("CAUTION" if concerns else "APPROVE")
+        is_fcf_burn = fcf < -1000.0
+        is_confirmed_weak_piotroski = (piotroski is not None and 0.0 < float(piotroski) <= 3.0)
+
+        vote = "REJECT" if (is_fcf_burn or is_confirmed_weak_piotroski) else ("CAUTION" if concerns else "APPROVE")
         weight = 85.0 if vote == "APPROVE" else (60.0 if vote == "CAUTION" else 30.0)
 
         return AgentOpinion(

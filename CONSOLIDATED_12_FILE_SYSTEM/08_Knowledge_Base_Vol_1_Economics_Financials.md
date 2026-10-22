@@ -1,8 +1,8 @@
 # 08_Knowledge_Base_Vol_1_Economics_Financials
 
 > **IERL AI Equity OS — curated upload artifact**  
-> Project Version: `0.0.0` · Bundle Version: `2.0` · Source Commit: `c483336`  
-> Generated At: `2026-10-20T17:03:00.278186+00:00` · Source Hash: `1c0f41a6840ae168` · Compiler: `consolidate_project.py` v2.0
+> Project Version: `0.0.0` · Bundle Version: `2.0` · Source Commit: `a4a92eb`  
+> Generated At: `2026-10-22T10:17:26.822150+00:00` · Source Hash: `072ef8f87b24b0ff` · Compiler: `consolidate_project.py` v2.0
 
 ## Operating contract
 

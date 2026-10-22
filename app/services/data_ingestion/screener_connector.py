@@ -1118,8 +1118,8 @@ class ScreenerCloudConnector:
             conn.close()
 
     @staticmethod
-    def get_or_fetch_fundamentals(symbol: str) -> Optional[Dict[str, Any]]:
-        """Fetch fundamentals from DB cache; if missing or stale (>24h), auto-fetch via yfinance."""
+    def get_or_fetch_fundamentals(symbol: str, max_staleness_hours: float = 24.0) -> Optional[Dict[str, Any]]:
+        """Fetch fundamentals from DB cache; if missing or stale (>max_staleness_hours), auto-fetch via yfinance."""
         # 1. Try local DB first
         cached = ScreenerCloudConnector.get_company_fundamentals(symbol)
         if cached:
@@ -1129,16 +1129,27 @@ class ScreenerCloudConnector:
                 try:
                     from datetime import datetime, timezone, timedelta
                     updated_dt = datetime.fromisoformat(updated.replace("Z", "+00:00"))
-                    if datetime.now(timezone.utc) - updated_dt < timedelta(hours=24):
+                    age = datetime.now(timezone.utc) - updated_dt
+                    if age < timedelta(hours=max_staleness_hours):
+                        cached["is_stale_cache"] = False
+                        cached["cache_age_hours"] = round(age.total_seconds() / 3600.0, 2)
                         return cached
                 except Exception:
-                    return cached  # If parse fails, use cached
+                    pass
+            if cached:
+                cached["is_stale_cache"] = True
         
         # 2. Cache miss or stale: fetch live via yfinance
         try:
             from app.services.data_ingestion.fundamental_fetcher import FundamentalFetcher
             result = FundamentalFetcher.fetch_and_store(symbol)
-            return result
+            if result:
+                result["is_stale_cache"] = False
+                result["cache_age_hours"] = 0.0
+                return result
+            if cached:
+                return cached
+            return None
         except Exception as exc:
             import logging
             logging.getLogger(__name__).warning("Live fundamental fetch failed for %s: %s", symbol, exc)

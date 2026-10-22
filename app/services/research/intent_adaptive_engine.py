@@ -519,6 +519,13 @@ class QueryAdaptiveConstraintEngine:
         cfo_direct = _get_opt_float(["cfo", "cfo_cr", "cfo_last_year", "operating_cash_flow_cr", "cfo_ttm"])
         pat_direct = _get_opt_float(["pat", "pat_cr", "net_profit_last_year", "pat_latest", "net_income"])
         price_chg = _get_opt_float(["price_change_pct", "chg_pct", "pct_change", "change_pct", "day_change_pct", "price_change"])
+        price_val = _get_opt_float(["current_price", "price", "cmp", "close"])
+        high52_val = _get_opt_float(["high_52w", "fiftyTwoWeekHigh", "high52"])
+        dma50_val = _get_opt_float(["dma_50", "fiftyDayAverage", "dma50"])
+        dma200_val = _get_opt_float(["dma_200", "twoHundredDayAverage", "dma200"])
+        weinstein_stage_str = str(data.get("weinstein_stage") or data.get("weinstein") or "").upper().strip()
+        rsi_val = _get_opt_float(["rsi", "weekly_rsi", "rsi_14", "rsi_weekly"])
+        is_csuite_resigned = bool(data.get("csuite_resigned") or data.get("ceo_resigned") or data.get("executive_resignation"))
 
         # ── UNIVERSAL SURVEILLANCE & REGULATORY HARD VETO LAYER (All Archetypes) ──
         asm_stage = _get_opt_float(["asm_stage", "sebi_asm_stage"])
@@ -1275,6 +1282,24 @@ class QueryAdaptiveConstraintEngine:
                 vetoes.append(msg)
                 tightened.append(f"Anti-operator churn guard strictly triggered: {msg}")
 
+            # Phase 188 — Stage 4 Markdown / Falling Knife Disqualification Gate
+            drawdown_52w_prefly = ((high52_val - price_val) / high52_val * 100.0) if (high52_val and price_val and high52_val > 0) else 0.0
+            is_broken_prefly = (price_val is not None and dma50_val is not None and dma200_val is not None and
+                                price_val < dma50_val and price_val < dma200_val and dma200_val > 0 and drawdown_52w_prefly >= 40.0)
+            is_stage_4_prefly = (weinstein_stage_str == "STAGE_4_DOWNTREND" or "STAGE_4" in weinstein_stage_str)
+
+            if is_stage_4_prefly or is_broken_prefly or (drawdown_52w_prefly >= 50.0 and rsi_val is not None and rsi_val < 30.0):
+                msg = f"OBJECTIVE_BLOCK: Stage 4 Markdown / Falling Knife detected (Price below 50/200 DMA with {drawdown_52w_prefly:.1f}% drawdown from 52W high). Pre-Fly requires Stage 1 Base or Stage 2 Breakout."
+                objective_blocks.append(msg)
+                vetoes.append(msg)
+                tightened.append(f"Stage 4 Markdown veto strictly enforced: {msg}")
+            elif weinstein_stage_str in ("STAGE_1_BASE", "STAGE_2_EARLY", "STAGE_2_UPTREND"):
+                tightened.append(f"Pre-Fly technical stage verified ({weinstein_stage_str}).")
+
+            if is_csuite_resigned:
+                warnings.append("CAUTION: Executive C-suite departure detected within recent period; institutional liquidity de-risking active.")
+                tightened.append("Executive stability check: C-suite departure flagged for governance / management succession.")
+
         # ── 13. DEADLIEST COMBO INTENT ───────────────────────────────────
         elif norm_intent == "DEADLIEST_COMBO":
             relaxed.append("Large-cap institutional ownership and 10Y terminal DCF relaxed under Deadliest Combo dual-engine conjunction.")
@@ -1381,6 +1406,24 @@ class QueryAdaptiveConstraintEngine:
                 tightened.append(f"Operating leverage convexity Omega >= 1.0 strictly enforced for Deadliest Combo (failed: Omega={omega_val_combo:.2f}).")
             else:
                 tightened.append(f"Operating leverage convexity verified for Deadliest Combo (Omega: {omega_val_combo:.2f} >= 1.0).")
+
+            # Phase 188 — Stage 4 Markdown / Falling Knife Disqualification Gate
+            drawdown_52w_combo = ((high52_val - price_val) / high52_val * 100.0) if (high52_val and price_val and high52_val > 0) else 0.0
+            is_broken_combo = (price_val is not None and dma50_val is not None and dma200_val is not None and
+                               price_val < dma50_val and price_val < dma200_val and dma200_val > 0 and drawdown_52w_combo >= 40.0)
+            is_stage_4_combo = (weinstein_stage_str == "STAGE_4_DOWNTREND" or "STAGE_4" in weinstein_stage_str)
+
+            if is_stage_4_combo or is_broken_combo or (drawdown_52w_combo >= 50.0 and rsi_val is not None and rsi_val < 30.0):
+                msg = f"OBJECTIVE_BLOCK: Stage 4 Markdown / Falling Knife detected (Price below 50/200 DMA with {drawdown_52w_combo:.1f}% drawdown from 52W high). Deadliest Combo requires Stage 1 Base or Stage 2 Breakout."
+                objective_blocks.append(msg)
+                vetoes.append(msg)
+                tightened.append(f"Stage 4 Markdown veto strictly enforced for Deadliest Combo: {msg}")
+            elif weinstein_stage_str in ("STAGE_1_BASE", "STAGE_2_EARLY", "STAGE_2_UPTREND"):
+                tightened.append(f"Deadliest Combo technical stage verified ({weinstein_stage_str}).")
+
+            if is_csuite_resigned:
+                warnings.append("CAUTION: Executive C-suite departure detected within recent period; institutional liquidity de-risking active.")
+                tightened.append("Executive stability check: C-suite departure flagged for governance / management succession.")
 
         # ── 14. GENERAL INTENT ───────────────────────────────────────────
         else:
