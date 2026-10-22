@@ -1,6 +1,6 @@
 {
   "version": "1.2.0",
-  "last_updated_utc": "2026-10-22T10:04:23.668284+00:00",
+  "last_updated_utc": "2026-10-22T15:54:12.900146+00:00",
   "entities": {
     "ERD_SERVICES_CONVEXITY_RULE": {
       "entity_id": "ERD_SERVICES_CONVEXITY_RULE",
@@ -36,7 +36,7 @@
       "category": "MARKET_MICROSTRUCTURE",
       "confidence_score": 0.71,
       "verification_status": "CERTIFIED_FACT",
-      "source_origin": "USER_FEEDBACK_FB-1792663371",
+      "source_origin": "USER_FEEDBACK_FB-1792684367",
       "relevance_vector": {
         "swing_3d": 0.15,
         "swing_10d": 0.1,
@@ -49,8 +49,8 @@
       },
       "description": "Post-market multilateral closing auction establishing deterministic VWAP and dampening end-of-session volatility.",
       "sensationalism_penalty": 0.0,
-      "created_at_utc": "2026-10-22T10:02:51.238340+00:00",
-      "last_validated_at_utc": "2026-10-22T10:02:51.238340+00:00",
+      "created_at_utc": "2026-10-22T15:52:47.761134+00:00",
+      "last_validated_at_utc": "2026-10-22T15:52:47.761134+00:00",
       "shadow_status": "SHADOW",
       "sample_count": 0,
       "success_count": 0,
@@ -83,7 +83,7 @@
       "category": "GEOPOLITICAL_CORRIDOR",
       "confidence_score": 0.71,
       "verification_status": "CERTIFIED_FACT",
-      "source_origin": "USER_FEEDBACK_FB-1792663371",
+      "source_origin": "USER_FEEDBACK_FB-1792684367",
       "relevance_vector": {
         "swing_3d": 0.0,
         "swing_10d": 0.05,
@@ -96,8 +96,8 @@
       },
       "description": "Bilateral foreign direct investment in South American lithium brine reserves under RIGI regulatory concessions.",
       "sensationalism_penalty": 0.0,
-      "created_at_utc": "2026-10-22T10:02:51.242365+00:00",
-      "last_validated_at_utc": "2026-10-22T10:02:51.242365+00:00",
+      "created_at_utc": "2026-10-22T15:52:47.765834+00:00",
+      "last_validated_at_utc": "2026-10-22T15:52:47.765834+00:00",
       "shadow_status": "SHADOW",
       "sample_count": 0,
       "success_count": 0,
@@ -705,8 +705,8 @@
       },
       "description": "Texmaco Rail ROCE is 11.5% on Screener, which breaches the 20.0% institutional floor.",
       "sensationalism_penalty": 0.0,
-      "created_at_utc": "2026-10-22T10:04:23.591017+00:00",
-      "last_validated_at_utc": "2026-10-22T10:04:23.591017+00:00",
+      "created_at_utc": "2026-10-22T15:54:12.810927+00:00",
+      "last_validated_at_utc": "2026-10-22T15:54:12.810927+00:00",
       "shadow_status": "PROMOTED",
       "sample_count": 1,
       "success_count": 1,
@@ -734,8 +734,8 @@
       },
       "description": "TestBadStock ROCE is below the 20% institutional floor.",
       "sensationalism_penalty": 0.0,
-      "created_at_utc": "2026-10-22T10:04:23.607948+00:00",
-      "last_validated_at_utc": "2026-10-22T10:04:23.607948+00:00",
+      "created_at_utc": "2026-10-22T15:54:12.831527+00:00",
+      "last_validated_at_utc": "2026-10-22T15:54:12.831527+00:00",
       "shadow_status": "PROMOTED",
       "sample_count": 1,
       "success_count": 1,
@@ -763,8 +763,8 @@
       },
       "description": "Test rule for target symbol preservation",
       "sensationalism_penalty": 0.0,
-      "created_at_utc": "2026-10-22T10:04:23.637307+00:00",
-      "last_validated_at_utc": "2026-10-22T10:04:23.637307+00:00",
+      "created_at_utc": "2026-10-22T15:54:12.863588+00:00",
+      "last_validated_at_utc": "2026-10-22T15:54:12.863588+00:00",
       "shadow_status": "PROMOTED",
       "sample_count": 1,
       "success_count": 1,
@@ -794,8 +794,8 @@
       },
       "description": "Superstar investor Rekha Jhunjhunwala has exited or trimmed stake below 1.0% in RAGHAV as of Q4 FY25. Stake trimmed below 1.0% SEBI disclosure threshold",
       "sensationalism_penalty": 0.0,
-      "created_at_utc": "2026-10-22T10:04:23.652249+00:00",
-      "last_validated_at_utc": "2026-10-22T10:04:23.652249+00:00",
+      "created_at_utc": "2026-10-22T15:54:12.882012+00:00",
+      "last_validated_at_utc": "2026-10-22T15:54:12.882012+00:00",
       "shadow_status": "PROMOTED",
       "sample_count": 1,
       "success_count": 1,
@@ -823,8 +823,8 @@
       },
       "description": "Simulated fraudulent accounting veto",
       "sensationalism_penalty": 0.0,
-      "created_at_utc": "2026-10-22T10:04:23.658083+00:00",
-      "last_validated_at_utc": "2026-10-22T10:04:23.658083+00:00",
+      "created_at_utc": "2026-10-22T15:54:12.888313+00:00",
+      "last_validated_at_utc": "2026-10-22T15:54:12.888313+00:00",
       "shadow_status": "PROMOTED",
       "sample_count": 1,
       "success_count": 1,
@@ -1218,7 +1218,63 @@
       "fdr_q_value": null,
       "performance_delta": 0.0,
       "human_signoff": true
+    },
+    "MEGA_CAP_SOVEREIGN_REGULATORY_LIABILITY_RULE": {
+      "entity_id": "MEGA_CAP_SOVEREIGN_REGULATORY_LIABILITY_RULE",
+      "canonical_name": "MEGA_CAP_SOVEREIGN_REGULATORY_LIABILITY_RULE",
+      "category": "FORENSIC_SOLVENCY_INTEGRITY",
+      "confidence_score": 0.99,
+      "verification_status": "CERTIFIED_FACT",
+      "source_origin": "EMPIRICAL_AUDIT_VERIFICATION",
+      "relevance_vector": {
+        "value_buying": 1.0,
+        "deadliest_combo": 0.85,
+        "ipo_intelligence": 1.0
+      },
+      "bayesian_prior_modifier": {
+        "metric": "hidden_regulatory_leverage_discount",
+        "weight_delta": -0.15
+      },
+      "description": "Requires capitalization of deferred sovereign/regulatory obligations (e.g. DoT spectrum liabilities, concession fees) and Ind AS 116 lease dues into Adjusted Net Debt for capital-intensive regulated sectors (telecom, utilities, concessions). Prevents deceptive optical solvency where standard leverage ignores sovereign liabilities.",
+      "sensationalism_penalty": 0.0,
+      "created_at_utc": "2026-10-22T15:43:39.033523+00:00",
+      "last_validated_at_utc": "2026-10-22T15:43:39.033523+00:00",
+      "shadow_status": "PROMOTED",
+      "sample_count": 1,
+      "success_count": 1,
+      "p_value": null,
+      "fdr_q_value": null,
+      "performance_delta": 0.0,
+      "human_signoff": true
+    },
+    "DEFERRED_TAX_CLIFF_RUNWAY_RULE": {
+      "entity_id": "DEFERRED_TAX_CLIFF_RUNWAY_RULE",
+      "canonical_name": "DEFERRED_TAX_CLIFF_RUNWAY_RULE",
+      "category": "FORENSIC_FCF_INTEGRITY",
+      "confidence_score": 0.99,
+      "verification_status": "CERTIFIED_FACT",
+      "source_origin": "EMPIRICAL_AUDIT_VERIFICATION",
+      "relevance_vector": {
+        "multibagger": 0.9,
+        "turnaround": 0.85,
+        "ipo_intelligence": 1.0
+      },
+      "bayesian_prior_modifier": {
+        "metric": "cash_tax_shield_cliff_haircut",
+        "weight_delta": -0.2
+      },
+      "description": "Identifies hidden Free Cash Flow cliffs caused by the exhaustion of unabsorbed accelerated tax depreciation shields (Section 32 of Indian Income Tax Act). Flags companies where tax shield runway < 4 years and full reversion to statutory 25.17% corporate tax creates a >20% cash tax drag on operating cash flow.",
+      "sensationalism_penalty": 0.0,
+      "created_at_utc": "2026-10-22T15:43:39.033523+00:00",
+      "last_validated_at_utc": "2026-10-22T15:43:39.033523+00:00",
+      "shadow_status": "PROMOTED",
+      "sample_count": 1,
+      "success_count": 1,
+      "p_value": null,
+      "fdr_q_value": null,
+      "performance_delta": 0.0,
+      "human_signoff": true
     }
   },
-  "total_entities_count": 47
+  "total_entities_count": 49
 }

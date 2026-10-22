@@ -313,3 +313,173 @@ class McKinseyInvestedCapitalNormalizer:
             "blume_adjusted_beta": blume_beta,
             "value_creation_status": value_creation,
         }
+
+
+class RegulatoryAndSovereignSolvencyScorer:
+    """Phase 189: Regulatory & Sovereign Obligation Solvency Scorer.
+
+    Addresses structural solvency blindspots in capital-intensive regulated sectors
+    (Telecom, Utilities, Power, Infrastructure, Concessionaires):
+    1. Standard reported financial debt frequently excludes deferred spectrum payment dues (DoT),
+       statutory concession fees, or long-term lease liabilities under Ind AS 116.
+    2. Deconstructs:
+       - Standard Net Debt = Financial Debt - Liquid Cash
+       - Standard Leverage = Standard Net Debt / EBITDA
+       - Total Sovereign / Regulatory Obligations = Deferred Spectrum Liabilities + Lease Obligations
+       - Adjusted Net Debt = Standard Net Debt + Total Sovereign / Regulatory Obligations
+       - Adjusted Leverage = Adjusted Net Debt / max(0.1, EBITDA)
+       - Adjusted Interest Coverage = EBITDA / max(0.1, Gross Interest + Accretion of Deferred Liabilities)
+    3. Emits alerts when hidden regulatory leverage expands true debt burden by >= 50%.
+    """
+
+    @staticmethod
+    def calculate_adjusted_solvency(
+        symbol: str,
+        ebitda_cr: float,
+        financial_debt_cr: float,
+        cash_and_equivalents_cr: float,
+        deferred_spectrum_liabilities_cr: float = 0.0,
+        lease_liabilities_cr: float = 0.0,
+        annual_interest_expense_cr: Optional[float] = None,
+        interest_accretion_cr: float = 0.0,
+        sector: str = "GENERAL",
+    ) -> Dict[str, Any]:
+        """Calculates standard vs adjusted solvency ratios accounting for sovereign and regulatory obligations."""
+        ebitda = max(0.1, float(ebitda_cr))
+        fin_debt = max(0.0, float(financial_debt_cr))
+        cash = max(0.0, float(cash_and_equivalents_cr))
+        spectrum_due = max(0.0, float(deferred_spectrum_liabilities_cr))
+        lease_due = max(0.0, float(lease_liabilities_cr))
+        interest_acc = max(0.0, float(interest_accretion_cr))
+
+        total_regulatory_obligations = round(spectrum_due + lease_due, 2)
+        standard_net_debt = round(fin_debt - cash, 2)
+        adjusted_net_debt = round(standard_net_debt + total_regulatory_obligations, 2)
+
+        standard_leverage = round(standard_net_debt / ebitda, 2)
+        adjusted_leverage = round(adjusted_net_debt / ebitda, 2)
+
+        standard_interest_coverage = None
+        adjusted_interest_coverage = None
+        if annual_interest_expense_cr is not None and annual_interest_expense_cr > 0:
+            fin_interest = float(annual_interest_expense_cr)
+            standard_interest_coverage = round(ebitda / fin_interest, 2)
+            adjusted_interest_coverage = round(ebitda / (fin_interest + interest_acc), 2)
+
+        # Classify Solvency Health
+        if adjusted_leverage <= 1.50:
+            solvency_status = "PRISTINE_SOLVENCY"
+        elif adjusted_leverage <= 3.00:
+            solvency_status = "HEALTHY_REGULATED_LEVERAGE"
+        elif adjusted_leverage <= 4.50:
+            solvency_status = "MODERATE_REGULATORY_BURDEN"
+        else:
+            solvency_status = "HIGH_REGULATORY_SOLVENCY_RISK"
+
+        flags: List[str] = []
+        if spectrum_due > 0 and (fin_debt == 0 or spectrum_due >= 0.50 * fin_debt):
+            flags.append(
+                f"DEFERRED_SPECTRUM_OVERHANG: Deferred regulatory/spectrum obligation of ₹{spectrum_due:,.1f} Cr "
+                f"represents {round((spectrum_due / max(0.1, fin_debt)) * 100.0, 1)}% of reported financial debt."
+            )
+
+        if adjusted_leverage >= standard_leverage * 1.50 and total_regulatory_obligations > 1000.0:
+            flags.append(
+                f"HIDDEN_REGULATORY_LEVERAGE_EXPANSION: True leverage expands from {standard_leverage:.2f}x (standard) "
+                f"to {adjusted_leverage:.2f}x (adjusted) after capitalizing ₹{total_regulatory_obligations:,.1f} Cr in sovereign/lease obligations."
+            )
+
+        return {
+            "symbol": symbol.upper(),
+            "sector": sector.upper(),
+            "ebitda_cr": round(ebitda, 2),
+            "financial_debt_cr": fin_debt,
+            "liquid_cash_cr": cash,
+            "deferred_spectrum_liabilities_cr": spectrum_due,
+            "lease_liabilities_cr": lease_due,
+            "total_regulatory_obligations_cr": total_regulatory_obligations,
+            "standard_net_debt_cr": standard_net_debt,
+            "adjusted_net_debt_cr": adjusted_net_debt,
+            "standard_leverage_ratio": standard_leverage,
+            "adjusted_leverage_ratio": adjusted_leverage,
+            "standard_interest_coverage": standard_interest_coverage,
+            "adjusted_interest_coverage": adjusted_interest_coverage,
+            "solvency_status": solvency_status,
+            "regulatory_debt_burden_flags": flags,
+        }
+
+
+class CashTaxShieldRunwayScorer:
+    """Phase 189: Cash Tax vs P&L Tax Shield Runway Scorer.
+
+    Detects hidden cash tax cliffs arising from expiring accelerated depreciation shields:
+    1. During massive capex expansion (e.g. Jio 2016-2024 telecom rollout), accelerated tax depreciation
+       under Section 32 of Indian Income Tax Act creates massive unabsorbed tax depreciation.
+    2. Result: While P&L provisions statutory/deferred tax, actual cash tax paid is ~0, inflating FCF.
+    3. As unabsorbed depreciation is exhausted, the tax shield runs out: the company faces a "cash tax cliff"
+       where cash tax jumps to full statutory rate (~25.17%), creating an abrupt 20-30% FCF contraction.
+    """
+
+    @staticmethod
+    def evaluate_tax_shield_runway(
+        symbol: str,
+        unabsorbed_tax_depreciation_cr: float,
+        annual_accelerated_depreciation_claimed_cr: float,
+        annual_pbt_cr: float,
+        annual_fcf_cr: Optional[float] = None,
+        statutory_tax_rate_pct: float = 25.17,
+        current_cash_tax_paid_cr: float = 0.0,
+    ) -> Dict[str, Any]:
+        """Computes runway years remaining on unabsorbed tax depreciation and potential cash tax drag."""
+        unabsorbed = max(0.0, float(unabsorbed_tax_depreciation_cr))
+        annual_claim = max(0.1, float(annual_accelerated_depreciation_claimed_cr))
+        pbt = max(0.0, float(annual_pbt_cr))
+        stat_rate = max(0.0, min(100.0, float(statutory_tax_rate_pct)))
+        cash_tax_now = max(0.0, float(current_cash_tax_paid_cr))
+
+        # Runway in years = remaining unabsorbed tax shield / annual shield consumption
+        runway_years = round(unabsorbed / annual_claim, 2)
+
+        # Projected full statutory cash tax when shield expires = PBT * statutory rate
+        projected_statutory_cash_tax_cr = round(pbt * (stat_rate / 100.0), 2)
+        incremental_cash_tax_drag_cr = round(max(0.0, projected_statutory_cash_tax_cr - cash_tax_now), 2)
+
+        cash_tax_drag_pct_of_fcf = None
+        if annual_fcf_cr is not None and annual_fcf_cr > 0:
+            cash_tax_drag_pct_of_fcf = round((incremental_cash_tax_drag_cr / float(annual_fcf_cr)) * 100.0, 1)
+
+        # Classify Runway Urgency
+        if runway_years >= 6.0:
+            runway_classification = "LONG_RUNWAY_SECURE_TAX_SHIELD"
+            risk_level = "LOW"
+        elif runway_years >= 3.0:
+            runway_classification = "MEDIUM_RUNWAY_MONITOR_EXPIRATION"
+            risk_level = "MODERATE"
+        elif runway_years >= 1.0:
+            runway_classification = "APPROACHING_TAX_CLIFF_ELEVATED_RISK"
+            risk_level = "HIGH"
+        else:
+            runway_classification = "IMMINENT_TAX_CLIFF_FCF_CONTRACTION"
+            risk_level = "CRITICAL"
+
+        flags: List[str] = []
+        if runway_years < 4.0 and incremental_cash_tax_drag_cr > 0:
+            drag_info = f" ({cash_tax_drag_pct_of_fcf:.1f}% of annual FCF)" if cash_tax_drag_pct_of_fcf is not None else ""
+            flags.append(
+                f"TAX_SHIELD_CLIFF_ALERT: Unabsorbed depreciation tax shield expires in {runway_years:.1f} years. "
+                f"Future cash tax will increase by ₹{incremental_cash_tax_drag_cr:,.1f} Cr/yr{drag_info} "
+                f"upon full statutory reversion to {stat_rate:.2f}%."
+            )
+
+        return {
+            "symbol": symbol.upper(),
+            "unabsorbed_tax_depreciation_cr": unabsorbed,
+            "annual_accelerated_depreciation_claimed_cr": annual_claim,
+            "tax_shield_runway_years": runway_years,
+            "runway_classification": runway_classification,
+            "risk_level": risk_level,
+            "projected_statutory_cash_tax_cr": projected_statutory_cash_tax_cr,
+            "incremental_cash_tax_drag_cr": incremental_cash_tax_drag_cr,
+            "cash_tax_drag_pct_of_fcf": cash_tax_drag_pct_of_fcf,
+            "warning_flags": flags,
+        }

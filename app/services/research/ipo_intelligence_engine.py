@@ -158,6 +158,20 @@ UNLISTED_IPO_PIPELINE: List[Dict[str, Any]] = [
         "investment_thesis": "Top-tier premium electric two-wheeler OEM in India with proprietary battery pack and charging network.",
         "key_risk": "Persistent operating EBITDA losses, subsidy cuts (FAME/EMPS), and cut-throat pricing competition from Ola Electric & TVS.",
     },
+    {
+        "company_name": "Reliance Jio Infocomm Ltd",
+        "symbol": "JIO",
+        "sector": "TELECOM_DIGITAL_INFRASTRUCTURE",
+        "status": "DRHP_PREPARATION_EXPECTED_FY27",
+        "expected_timeline": "H2 FY27",
+        "est_valuation_cr": 1000000.0,
+        "operating_margin_pct": 51.9,
+        "roe_pct": 12.8,
+        "unlisted_price_inr": 850.0,
+        "listing_gain_prob_baseline": 0.85,
+        "investment_thesis": "India's largest telecom and digital infrastructure operator with ~480M+ subscribers, ~40% market share, ₹18.3/mo ARPU bridge upside, 5G standalone architecture, and captive enterprise cloud/data center expansion.",
+        "key_risk": "₹1.04T DoT deferred spectrum and regulatory liabilities, accelerated depreciation tax cliff (₹17,400 Cr remaining deductions expiring in ~3-4 yrs leading to 25.17% corporate cash tax drag), and aggressive tariff hike sensitivity.",
+    },
 ]
 
 
