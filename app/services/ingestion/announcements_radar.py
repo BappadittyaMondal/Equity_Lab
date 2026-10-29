@@ -204,3 +204,113 @@ class CorporateAnnouncementsRadar:
             "timestamp": get_ist_now_str(),
             "meta": create_meta_header(source=f"BSE/NSE Regulation 30 Radar ({clean_sym})")
         }
+
+
+class GuidanceRevisionVelocityScorer:
+    """Concall Guidance Revision Velocity & Acceleration Scorer (Phase 190).
+
+    Quantifies the institutional alpha momentum generated when management raises
+    full-year revenue, EBITDA, or PAT guidance across consecutive quarters.
+
+    Empirical Rationale:
+      Two or more consecutive quarters of raised guidance indicates systematic sell-side
+      under-forecasting, structural operating leverage expansion, and superior order conversion.
+      Yields a +15.0 pt institutional alpha boost in multi-horizon scoring.
+    """
+
+    @classmethod
+    def evaluate_guidance_velocity(
+        cls,
+        consecutive_quarters_raised: int = 0,
+        revenue_guidance_delta_pct: float = 0.0,
+        pat_guidance_delta_pct: float = 0.0,
+        order_book_to_bill_ratio: Optional[float] = None
+    ) -> Dict[str, Any]:
+        """Evaluates guidance revision velocity, institutional stance, and catalyst impact."""
+        consec = int(consecutive_quarters_raised)
+        rev_delta = round(float(revenue_guidance_delta_pct), 2)
+        pat_delta = round(float(pat_guidance_delta_pct), 2)
+
+        signals = []
+        alerts = []
+
+        if consec >= 2:
+            velocity_tier = "ACCELERATING_INSTITUTIONAL_ALPHA"
+            catalyst_score_delta = 15.0
+            institutional_stance = "STRONG_ACCUMULATION_CATALYST"
+            confidence = "HIGH"
+            signals.append("CONSECUTIVE_GUIDANCE_UPGRADE_ACCELERATION")
+            alerts.append("CONSECUTIVE_GUIDANCE_UPGRADE_ALPHA_BOOST")
+            commentary = (
+                f"Management has raised FY guidance for {consec} consecutive quarters "
+                f"(Revenue +{rev_delta}%, PAT +{pat_delta}%). Strongest tier-1 institutional accumulation signal."
+            )
+        elif consec == 1:
+            velocity_tier = "POSITIVE_GUIDANCE_INFLECTION"
+            catalyst_score_delta = 7.5
+            institutional_stance = "WATCHLIST_CATALYST_CONFIRMATION"
+            confidence = "MEDIUM"
+            signals.append("SINGLE_QUARTER_GUIDANCE_UPGRADE")
+            commentary = (
+                f"Management initiated a guidance raise in the latest quarter "
+                f"(Revenue +{rev_delta}%, PAT +{pat_delta}%). Early inflection point."
+            )
+        elif consec <= -2:
+            velocity_tier = "CONSECUTIVE_GUIDANCE_DOWNGRADE_DE_RATING"
+            catalyst_score_delta = -20.0
+            institutional_stance = "STRUCTURAL_DE_RATING_RISK"
+            confidence = "HIGH"
+            signals.append("CONSECUTIVE_GUIDANCE_DOWNGRADES")
+            alerts.append("CONSECUTIVE_GUIDANCE_CUT_WARNING")
+            commentary = (
+                f"Management cut FY guidance for {abs(consec)} consecutive quarters "
+                f"(Revenue {rev_delta}%, PAT {pat_delta}%). High probability of prolonged consensus earnings cuts."
+            )
+        elif consec == -1:
+            velocity_tier = "GUIDANCE_DOWNGRADE_HEADWIND"
+            catalyst_score_delta = -10.0
+            institutional_stance = "CAUTION_TRIM_EXPOSURE"
+            confidence = "MEDIUM"
+            signals.append("SINGLE_QUARTER_GUIDANCE_DOWNGRADE")
+            commentary = (
+                f"Guidance lowered in latest quarter (Revenue {rev_delta}%, PAT {pat_delta}%). "
+                "Monitor for margin contraction."
+            )
+        else:
+            velocity_tier = "GUIDANCE_STABLE_OR_MAINTAINED"
+            catalyst_score_delta = 0.0
+            institutional_stance = "NEUTRAL"
+            confidence = "LOW"
+            signals.append("GUIDANCE_UNMODIFIED")
+            commentary = "Guidance maintained at previously stated run-rate."
+
+        # Order book to bill modifier
+        if order_book_to_bill_ratio is not None and order_book_to_bill_ratio > 0:
+            ob_ratio = round(float(order_book_to_bill_ratio), 2)
+            if ob_ratio >= 3.0:
+                signals.append("MULTI_YEAR_ORDER_BOOK_RUNWAY")
+                if consec > 0:
+                    catalyst_score_delta += 2.5
+            elif ob_ratio < 1.0:
+                signals.append("DEPLETING_ORDER_BOOK_COVERAGE")
+        else:
+            ob_ratio = None
+
+        return {
+            "consecutive_quarters_raised": consec,
+            "revenue_guidance_delta_pct": rev_delta,
+            "pat_guidance_delta_pct": pat_delta,
+            "order_book_to_bill_ratio": ob_ratio,
+            "velocity_tier": velocity_tier,
+            "catalyst_score_delta": round(catalyst_score_delta, 1),
+            "institutional_stance": institutional_stance,
+            "confidence": confidence,
+            "signals": signals,
+            "alerts": alerts,
+            "commentary": commentary
+        }
+
+
+# Expose guidance velocity scorer directly on CorporateAnnouncementsRadar
+CorporateAnnouncementsRadar.evaluate_guidance_velocity = GuidanceRevisionVelocityScorer.evaluate_guidance_velocity
+

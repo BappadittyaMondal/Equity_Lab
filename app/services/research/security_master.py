@@ -320,6 +320,82 @@ class SecurityMaster:
         }
 
 
+    # --- Phase 190: High-Density AI Data Center Thermal & Liquid Cooling Subsectors ---
+    AI_DATA_CENTER_SUBSECTORS: Dict[str, List[str]] = {
+        "LIQUID_COOLING_SKIDS": [
+            "direct-to-chip", "cdu", "coolant distribution unit", "cold plate",
+            "liquid cooling", "immersion cooling", "dielectric fluid", "thermal skid"
+        ],
+        "PRECISION_CHILLERS": [
+            "precision chiller", "absorption chiller", "hvac", "thermal management",
+            "heat exchanger", "cooling tower", "chilled water loop"
+        ],
+        "POWER_TRANSFORMERS_GRID": [
+            "substation transformer", "grid step-down", "high voltage power supply",
+            "ups system", "busduct", "switchgear", "medium voltage"
+        ]
+    }
+
+    @classmethod
+    def classify_ai_datacenter_exposure(
+        cls,
+        symbol: str,
+        description_or_products: str = ""
+    ) -> Dict[str, Any]:
+        """Classifies security exposure to high-density AI Data Center thermal management and grid infrastructure (Phase 190)."""
+        clean = cls._clean_token(symbol)
+        rec = cls.resolve_record(clean)
+
+        combined_text = f"{symbol} {clean} {description_or_products}".lower()
+        if rec:
+            combined_text += f" {rec.company_name} {rec.sector or ''} {' '.join(rec.aliases)}".lower()
+
+        matched_subsectors = []
+        for subsector, keywords in cls.AI_DATA_CENTER_SUBSECTORS.items():
+            if any(k in combined_text for k in keywords):
+                matched_subsectors.append(subsector)
+
+        KNOWN_DATA_CENTER_THERMAL = {
+            "THERMAX": ("PRECISION_CHILLERS", "PRECISION_CHILLER_AND_ABSORPTION_COOLING", 85.0),
+            "SCHNEIDER": ("POWER_TRANSFORMERS_GRID", "HIGH_DENSITY_GRID_POWER_AND_CDU", 90.0),
+            "SHILCHAR": ("POWER_TRANSFORMERS_GRID", "SUBSTATION_GRID_STEPDOWN_TRANSFORMER", 80.0),
+            "APARINDS": ("POWER_TRANSFORMERS_GRID", "HIGH_VOLTAGE_TRANSFORMER_OIL_AND_CABLES", 75.0),
+            "POLYCAB": ("POWER_TRANSFORMERS_GRID", "SPECIALTY_DATA_CENTER_POWER_CABLES", 75.0),
+        }
+
+        if clean in KNOWN_DATA_CENTER_THERMAL:
+            sub, arch, score = KNOWN_DATA_CENTER_THERMAL[clean]
+            if sub not in matched_subsectors:
+                matched_subsectors.append(sub)
+            return {
+                "symbol": clean,
+                "has_ai_datacenter_exposure": True,
+                "subsectors_matched": matched_subsectors,
+                "cooling_architecture": arch,
+                "institutional_tailwind_score": score,
+                "tier": "TIER_1_DATA_CENTER_INFRASTRUCTURE" if score >= 80.0 else "TIER_2_DATA_CENTER_SUPPLIER",
+                "notes": "High-density server rack (>40 kW/rack) cooling and electrical supplier tailwind."
+            }
+
+        has_exposure = len(matched_subsectors) > 0
+        score = 65.0 if has_exposure else 0.0
+        arch = "DIRECT_TO_CHIP_LIQUID_COOLING" if "LIQUID_COOLING_SKIDS" in matched_subsectors else (
+            "PRECISION_CHILLER_THERMAL_SKID" if "PRECISION_CHILLERS" in matched_subsectors else (
+                "HIGH_DENSITY_GRID_POWER" if "POWER_TRANSFORMERS_GRID" in matched_subsectors else "NONE"
+            )
+        )
+
+        return {
+            "symbol": clean,
+            "has_ai_datacenter_exposure": has_exposure,
+            "subsectors_matched": matched_subsectors,
+            "cooling_architecture": arch,
+            "institutional_tailwind_score": score,
+            "tier": "TIER_2_DATA_CENTER_SUPPLIER" if has_exposure else "NO_IDENTIFIED_EXPOSURE",
+            "notes": "Ontology keyword match on thermal/power infrastructure." if has_exposure else "No direct data center thermal exposure."
+        }
+
+
 # ---------------------------------------------------------------------------
 # Initial Canonical Seed Registry
 # ---------------------------------------------------------------------------
@@ -1011,6 +1087,32 @@ _CANONICAL_SEEDS = [
         aliases=['TRENT LTD', 'WESTSIDE', 'ZUDIO', '500251'],
         sector="Retail & Fast Fashion",
         market_cap_tier="LARGE_CAP",
+    ),
+
+    # AI Data Center Thermal Management & Electrical Infrastructure (Phase 190)
+    SecurityRecord(
+        canonical_symbol="THERMAX",
+        company_name="Thermax Ltd",
+        exchange="NSE",
+        nse_symbol="THERMAX",
+        bse_code="500411",
+        isin="INE152A01029",
+        yahoo_ticker="THERMAX.NS",
+        aliases=["THERMAX LTD", "500411"],
+        sector="Capital Goods - AI Data Center Thermal & Cooling",
+        market_cap_tier="LARGE_CAP",
+    ),
+    SecurityRecord(
+        canonical_symbol="SCHNEIDER",
+        company_name="Schneider Electric Infrastructure Ltd",
+        exchange="NSE",
+        nse_symbol="SCHNEIDER",
+        bse_code="534139",
+        isin="INE839M01018",
+        yahoo_ticker="SCHNEIDER.NS",
+        aliases=["SCHNEIDER ELECTRIC", "SEIL", "534139"],
+        sector="Capital Goods - Data Center Power & Grid Infrastructure",
+        market_cap_tier="MID_CAP",
     ),
 ]
 

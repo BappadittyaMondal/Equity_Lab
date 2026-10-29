@@ -13,6 +13,20 @@ logger = logging.getLogger(__name__)
 
 
 SUPPLY_CHAIN_MAP: Dict[str, Dict[str, Any]] = {
+    "THERMAX": {
+        "sector": "AI_DATA_CENTER_THERMAL",
+        "primary_customers": ["Data Center Operators (CtrlS, Yotta, Adani Connex)", "Vertiv OEM Supply Chain", "Commercial IT Parks"],
+        "key_suppliers": ["Steel & Alloy Vendors", "Specialty Pump Manufacturers"],
+        "catalyst_chain": "High-density AI server rack deployment (>40 kW/rack) mandates direct liquid cooling & absorption chiller retrofits.",
+        "second_order_beneficiaries": ["VOLTAS", "BLUESTARCO"]
+    },
+    "SCHNEIDER": {
+        "sector": "DATA_CENTER_ELECTRICAL_INFRASTRUCTURE",
+        "primary_customers": ["Hyperscale Cloud Data Centers", "State Power Utilities", "Industrial Megaprojects"],
+        "key_suppliers": ["Copper Rod Producers", "Semiconductor Component Vendors"],
+        "catalyst_chain": "Surging AI cluster power demand requires dedicated medium-to-high voltage transformer substations and smart switchgear.",
+        "second_order_beneficiaries": ["POLYCAB", "APARINDS"]
+    },
     "SHILCHAR": {
         "sector": "TRANSFORMERS",
         "primary_customers": ["Power Grid Corporation", "Adani Green Energy", "NTPC Renewable", "Torrent Power"],

@@ -197,3 +197,128 @@ def fit_3state_hmm_market_regime(
         "regime_stability_score": round(float(max(blended_probs)), 2),
     }
 
+
+class DIIAbsorptionRatioScorer:
+    """Domestic Institutional Investment (DII) vs FII Outflow Absorption Scorer (Phase 190).
+
+    Quantifies the structural liquidity firewall provided by Indian domestic SIP inflows
+    (> Rs 25,000 Cr/month) against Foreign Institutional Investor (FII) sell-offs.
+
+    Mathematical Formulation:
+        Absorption Ratio = DII Net Inflow (Rs Cr) / max(0.1, FII Net Outflow (Rs Cr))
+
+    Regimes:
+      - DOMESTIC_SUPER_ABSORPTION: Absorption Ratio >= 1.25x (FII outflow overwhelmingly absorbed)
+      - DOMESTIC_ABSORPTION_STABLE: 1.0x <= Absorption Ratio < 1.25x (Positive domestic absorption)
+      - PARTIAL_DOMESTIC_ABSORPTION: 0.5x <= Absorption Ratio < 1.0x (Moderate net foreign liquidity drain)
+      - NET_LIQUIDITY_DEFICIT_HAIRCUT: Absorption Ratio < 0.5x (Severe foreign drain overwhelming domestic flows)
+      - DUAL_CAPITAL_INFLOW: Both FII and DII are net buyers (FII net outflow <= 0)
+    """
+
+    @classmethod
+    def calculate_absorption_ratio(
+        cls,
+        dii_net_cr: Optional[float] = None,
+        fii_net_cr: Optional[float] = None,
+        monthly_sip_runrate_cr: float = 25000.0,
+    ) -> Dict[str, Any]:
+        """Calculates DII absorption ratio, net institutional liquidity, and regime firewall state."""
+        if dii_net_cr is None and fii_net_cr is None:
+            return {
+                "status": "DATA_UNAVAILABLE",
+                "dii_net_cr": None,
+                "fii_net_cr": None,
+                "net_institutional_flow_cr": 0.0,
+                "absorption_ratio": 1.0,
+                "firewall_active": True,
+                "regime_status": "DATA_UNAVAILABLE_BASELINE",
+                "risk_haircut": 0.0,
+                "signals": ["FLOW_DATA_UNAVAILABLE_FAIL_CLOSED_BASELINE"],
+                "interpretation": "Flow data unobserved; defaulting to neutral domestic SIP baseline stability."
+            }
+
+        dii_flow = float(dii_net_cr or 0.0)
+        fii_flow = float(fii_net_cr or 0.0)
+        net_flow = dii_flow + fii_flow
+
+        signals = []
+
+        # Case 1: FII is a net buyer (fii_flow >= 0)
+        if fii_flow >= 0:
+            absorption_ratio = 999.0 if dii_flow >= 0 else round(dii_flow / max(0.1, abs(fii_flow)), 2)
+            regime_status = "DUAL_CAPITAL_INFLOW" if dii_flow >= 0 else "FOREIGN_DOMINANT_INFLOW"
+            firewall_active = True
+            risk_haircut = 0.0
+            signals.append("FOREIGN_NET_BUYING_CONFIRMED")
+            interpretation = "Foreign investors are net buyers; institutional liquidity tailwind active."
+        else:
+            # Case 2: FII is net selling (fii_flow < 0)
+            fii_outflow = abs(fii_flow)
+            denom = max(0.1, fii_outflow)
+            absorption_ratio = round(dii_flow / denom, 2)
+
+            if dii_flow <= 0:
+                # Both selling
+                regime_status = "SYNCHRONIZED_INSTITUTIONAL_EXIT"
+                firewall_active = False
+                risk_haircut = 0.25
+                signals.append("SYNCHRONIZED_FII_DII_DISTRIBUTION")
+                interpretation = "Both FIIs and DIIs are net sellers; structural liquidity contraction."
+            elif absorption_ratio >= 1.25:
+                regime_status = "DOMESTIC_SUPER_ABSORPTION"
+                firewall_active = True
+                risk_haircut = 0.0
+                signals.append("DOMESTIC_FIREWALL_SUPER_ABSORPTION")
+                interpretation = (
+                    f"Domestic SIP/mutual fund inflows (Rs {dii_flow:,.1f} Cr) absorb {absorption_ratio:.2f}x "
+                    f"of foreign selling (Rs {fii_outflow:,.1f} Cr). Macro-panic falsified."
+                )
+            elif absorption_ratio >= 1.0:
+                regime_status = "DOMESTIC_ABSORPTION_STABLE"
+                firewall_active = True
+                risk_haircut = 0.0
+                signals.append("DOMESTIC_FIREWALL_STABLE_ABSORPTION")
+                interpretation = (
+                    f"Domestic liquidity fully neutralizes foreign selling at {absorption_ratio:.2f}x. "
+                    "Market insulated from panic liquidation."
+                )
+            elif absorption_ratio >= 0.5:
+                regime_status = "PARTIAL_DOMESTIC_ABSORPTION"
+                firewall_active = False
+                risk_haircut = 0.10
+                signals.append("MODERATE_FOREIGN_LIQUIDITY_DRAIN")
+                interpretation = (
+                    f"Domestic inflows absorb only {absorption_ratio:.2f}x of foreign selling. "
+                    "Net liquidity deficit creates moderate drag on benchmark momentum."
+                )
+            else:
+                regime_status = "NET_LIQUIDITY_DEFICIT_HAIRCUT"
+                firewall_active = False
+                risk_haircut = 0.20
+                signals.append("UNABSORBED_FII_OUTFLOW_PANIC")
+                interpretation = (
+                    f"Heavy foreign liquidation (Rs {fii_outflow:,.1f} Cr) overwhelms domestic absorption "
+                    f"({absorption_ratio:.2f}x). Elevated risk of valuation de-rating."
+                )
+
+        # Contextualize with monthly SIP run-rate
+        sip_coverage_ratio = round(monthly_sip_runrate_cr / max(0.1, abs(fii_flow)), 2) if fii_flow < 0 else 999.0
+        if sip_coverage_ratio >= 1.0 and fii_flow < 0:
+            signals.append("SIP_RUNRATE_COVERS_OUTFLOW")
+
+        return {
+            "status": "COMPUTED",
+            "dii_net_cr": dii_flow,
+            "fii_net_cr": fii_flow,
+            "net_institutional_flow_cr": round(net_flow, 2),
+            "absorption_ratio": absorption_ratio,
+            "firewall_active": firewall_active,
+            "regime_status": regime_status,
+            "risk_haircut": risk_haircut,
+            "signals": signals,
+            "sip_coverage_ratio": sip_coverage_ratio,
+            "monthly_sip_runrate_cr": monthly_sip_runrate_cr,
+            "interpretation": interpretation
+        }
+
+
