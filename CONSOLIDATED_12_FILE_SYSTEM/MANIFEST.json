@@ -784,65 +784,65 @@
     "files": [
         {
             "filename": "01_System_Core_Instructions_Architecture.md",
-            "bytes": 139747,
-            "sha256": "d979787bf3d6141c7ab15094aeee68ce4f8c9f8812880e3191d254e0aa12fce4"
+            "bytes": 143676,
+            "sha256": "5270f005dd54a96be4cb1071f5d2dae048f4c0abb53154407da64eb531cc8f0a"
         },
         {
             "filename": "02_Engine_Contracts_Schemas.md",
-            "bytes": 201513,
-            "sha256": "ae3940efb9f214177cb2ccf284eaea780fe7b2f4e2d77f0851e4ed7d5fc2d208"
+            "bytes": 209206,
+            "sha256": "3ad1e489b9ac803e11b3ce9865a791e0f8feb1b203561039037164ad316899e4"
         },
         {
             "filename": "03_Engine_Registries_Pipelines.md",
-            "bytes": 65082,
-            "sha256": "21cdaf48248ceb31083d8cfe39b4cee3f07bcde03e8ff3c0ce6b9f0151f58e06"
+            "bytes": 67524,
+            "sha256": "b1c2abe02f8234979afaece9fc9ad1020e3b8271affcce92f9ae777d56f5f3d1"
         },
         {
             "filename": "04_Workflow_Skills_01_to_09.md",
-            "bytes": 301424,
-            "sha256": "841e4c4ecefedce06513b0288de4b63d86424f180d0fde2235239a668798add6"
+            "bytes": 308502,
+            "sha256": "30ec19527d78b6ef8ca3da3560664e97ffc864f8fab98fafbdfdae30d1f298e4"
         },
         {
             "filename": "05_Workflow_Skills_10_to_25.md",
-            "bytes": 71299,
-            "sha256": "02bccf7d9cffb6d24dfa61598905e61093e11ad5849eca544985784eb43f0c26"
+            "bytes": 72668,
+            "sha256": "0d4359a98fb6d05da2ed42d8940f063d900785b69a813a67748d7af7fd9eaf22"
         },
         {
             "filename": "06_Analytical_Lens_Skills_26_to_34.md",
-            "bytes": 142340,
-            "sha256": "91e32234a724b9e3397715b369e5e780f1af1c04c3b3e4d82e500bda9a624de1"
+            "bytes": 145261,
+            "sha256": "47ff2a4cc4cf8c50b53479aa387e29428da1a327225c71679fcb21c706a76068"
         },
         {
             "filename": "07_Analytical_Lens_Skills_35_to_41.md",
-            "bytes": 130326,
-            "sha256": "5ea0479c1432ef947e0ee629ebe4c3290140917bad3c44eac24a36eb6597cf43"
+            "bytes": 132869,
+            "sha256": "9418749c70ac52757fac0e4eac79467364afe7b8ddf4fd47899ef4f10003708e"
         },
         {
             "filename": "08_Knowledge_Base_Vol_1_Economics_Financials.md",
-            "bytes": 86904,
-            "sha256": "98f2ee31ad866be6a5db4b55ab74379b43e4038728bea05a13db166a17891248"
+            "bytes": 88363,
+            "sha256": "b18889b86cda064dc2994a1ad1d48c01c414116f76271d6d5dfbb4b60ee2829f"
         },
         {
             "filename": "09_Knowledge_Base_Vol_2_Markets_Governance_Macro.md",
-            "bytes": 84963,
-            "sha256": "78457f17638ce051eb9e7955de15937e659e575ffcfefda899359ae78dbbcff0"
+            "bytes": 86188,
+            "sha256": "eb2f31640fe15930a568376309837a54f7cf04172bcc6ae0e57f906eae9ddef8"
         },
         {
             "filename": "10_Knowledge_Base_Vol_3_Forensics_Moats_Banking.md",
-            "bytes": 64900,
-            "sha256": "51785c382edc47ce46b0c6fac1167286bcb8d53e0872f88ecf60b4b9542272d3"
+            "bytes": 65774,
+            "sha256": "dd9e7e7880e529a95e88f77989a877855f32f8743d7c93cb0e3251950852f558"
         },
         {
             "filename": "11_Knowledge_Base_Vol_4_Sector_Deep_Dives.md",
-            "bytes": 71507,
-            "sha256": "b965f4b815b004bad156066a1e50a19ad2b1d099425f3e07ee5fe54e425e33ab"
+            "bytes": 72239,
+            "sha256": "b62f01851f6e0ae5d6786ed76c60cfe000be19178200cb0d498d0b63a9586888"
         },
         {
             "filename": "12_Knowledge_Base_Vol_5_Screening_Portfolio_Glossaries.md",
-            "bytes": 88219,
-            "sha256": "f5db521c5ca72483065d90d879bbbcbf150959cb4a6b435fe746f4b7390c8384"
+            "bytes": 89553,
+            "sha256": "20e7dd83164ec8dd68fcb86c9c9ec36b1f4aedf8d2901a39a26a7d1564e3b720"
         }
     ],
-    "GIT_COMMIT_SOURCE": "9e18776",
-    "GIT_COMMIT": "9e18776"
+    "GIT_COMMIT_SOURCE": "a7aa2fa",
+    "GIT_COMMIT": "a7aa2fa"
 }
