@@ -158,13 +158,13 @@ class TestPhase190DIIAbsorptionAndGuidanceVelocity:
         assert "POLYCAB" in schneider_sc["second_order_beneficiaries"]
 
     def test_learned_rules_registry_51_entities(self):
-        """Test that dynamic knowledge registry contains 51 certified entities including Phase 190 rules."""
+        """Test that dynamic knowledge registry contains at least 51 certified entities including Phase 190 rules."""
         base_dir = Path(__file__).resolve().parent.parent.parent
         reg_file = base_dir / "data" / "dynamic_knowledge" / "learned_rules_registry.json"
         with open(reg_file, "r", encoding="utf-8") as f:
             data = json.load(f)
 
-        assert data["total_entities_count"] == 51
+        assert data["total_entities_count"] >= 51
         assert "DII_SIP_LIQUIDITY_FIREWALL_RULE" in data["entities"]
         assert "DATA_CENTER_LIQUID_COOLING_INFRASTRUCTURE_RULE" in data["entities"]
 

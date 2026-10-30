@@ -223,6 +223,7 @@ TRACKED_SMART_MONEY_PATTERNS: Dict[str, list[str]] = {
     "PORINJU_VELIYATH": ["porinju veliyath", "equity intelligence"],
     "NIKHIL_KAMATH": ["nikhil kamath", "kamath associates", "nksquared"],
     "KENNETH_ANDRADE": ["andrade", "old bridge"],
+    "RAAMDEO_AGRAWAL": ["raamdeo agrawal", "ramdeo agarwal", "motilal oswal", "passion for investing"],
     "RADHAKISHAN_DAMANI": ["damani", "derive trading", "gopikishan damani"],
     "LIC_INDIA": ["life insurance corporation", "lic of india"],
     "SBI_MUTUAL_FUND": ["sbi mutual fund", "sbi mf"],
@@ -249,6 +250,9 @@ SUPERSTAR_PORTFOLIO_REGISTRY: Dict[str, list[str]] = {
     "DOLLY_KHANNA": [
         "TIRUMALCHM", "TALBROS", "DEEPAKSP", "MANGCHEFER", "PRAKASH"
     ],
+    "RAAMDEO_AGRAWAL": [
+        "MOTILALOFS", "APARINDS", "MAHABANK", "ZOMATO", "GLOBAL", "POLYMED"
+    ],
     "RADHAKISHAN_DAMANI": [
         "DMART", "VSTIND", "INDIASE", "APLPOLLO", "TRENT", "SUNDRMFAST"
     ],
@@ -274,6 +278,8 @@ def match_smart_money_entity(name: str) -> Optional[str]:
     clean_name = str(name or "").lower().strip()
     if not clean_name:
         return None
+    if ("raamdeo" in clean_name) or ("ramdeo" in clean_name and "agrawal" in clean_name) or ("motilal oswal" in clean_name):
+        return "RAAMDEO_AGRAWAL"
     if "mukul" in clean_name and ("agrawal" in clean_name or "agarwal" in clean_name):
         return "MUKUL_AGRAWAL"
     for entity, patterns in TRACKED_SMART_MONEY_PATTERNS.items():

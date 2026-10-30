@@ -483,3 +483,122 @@ class CashTaxShieldRunwayScorer:
             "cash_tax_drag_pct_of_fcf": cash_tax_drag_pct_of_fcf,
             "warning_flags": flags,
         }
+
+class WorkingCapitalVelocityScorer:
+    """Dr. Anil Lamba Working Capital Velocity & Cash-to-Cash Cycle (CCC) Scorer (Phase 191).
+
+    Derived from "Romancing the Balance Sheet" financial management principles:
+      1. Cash-to-Cash Cycle (CCC) = Debtor Days + Inventory Days - Creditor Days.
+      2. Good Cost vs Bad Cost: Revenue-generating operating efficiency vs bloated working capital.
+      3. Working Capital Suffocation / Paper Profit Trap:
+         When PAT growth is positive, but CCC expands sharply (delta CCC > 25 days YoY),
+         accounting profits are trapped in uncollected receivables or unsold inventory,
+         draining cash and forcing companies to take expensive short-term borrowings.
+      4. Negative Working Capital Flyaway:
+         When CCC <= 0 (e.g. FMCG, retail giants), the business operates on supplier credit
+         and upfront customer cash, generating an internal zero-cost financing float.
+    """
+
+    @classmethod
+    def evaluate_working_capital_velocity(
+        cls,
+        symbol: str,
+        debtor_days: float,
+        inventory_days: float,
+        creditor_days: float,
+        prior_debtor_days: Optional[float] = None,
+        prior_inventory_days: Optional[float] = None,
+        prior_creditor_days: Optional[float] = None,
+        pat_growth_pct: Optional[float] = None,
+        cfo_cr: Optional[float] = None,
+        pat_cr: Optional[float] = None,
+    ) -> Dict[str, Any]:
+        """Calculates Cash-to-Cash Cycle velocity, working capital drag, and forensic traps."""
+        clean_sym = symbol.upper().replace(".NS", "").replace(".BO", "")
+        cur_d = max(0.0, float(debtor_days))
+        cur_i = max(0.0, float(inventory_days))
+        cur_c = max(0.0, float(creditor_days))
+
+        current_ccc = round(cur_d + cur_i - cur_c, 1)
+
+        delta_ccc = None
+        if (
+            prior_debtor_days is not None
+            and prior_inventory_days is not None
+            and prior_creditor_days is not None
+        ):
+            prior_ccc = round(float(prior_debtor_days) + float(prior_inventory_days) - float(prior_creditor_days), 1)
+            delta_ccc = round(current_ccc - prior_ccc, 1)
+
+        signals: List[str] = []
+        alerts: List[str] = []
+        risk_score: float = 0.0
+
+        # Tier 1: Negative Working Capital Float (Pristine Cash Machine)
+        if current_ccc <= 0.0:
+            velocity_tier = "NEGATIVE_WORKING_CAPITAL_FLOAT"
+            risk_score = 0.0
+            conviction_boost = 15.0
+            signals.append("PRISTINE_NEGATIVE_WORKING_CAPITAL_FLOAT")
+            notes = (
+                f"Negative Cash-to-Cash Cycle ({current_ccc:.1f} days). Company operates on supplier credit, "
+                "generating internal zero-cost float financing."
+            )
+        # Tier 2: Severe Working Capital Suffocation / Paper Profit Trap
+        elif delta_ccc is not None and delta_ccc > 30.0 and (pat_growth_pct is None or pat_growth_pct > 0):
+            velocity_tier = "CRITICAL_WORKING_CAPITAL_SUFFOCATION"
+            risk_score = 30.0
+            conviction_boost = -25.0
+            signals.append("WORKING_CAPITAL_SUFFOCATION_TRAP")
+            alerts.append("LAMBA_PAPER_PROFIT_SUFFOCATION_ALERT")
+            notes = (
+                f"Severe Cash-to-Cash elongation (+{delta_ccc:.1f} days YoY to {current_ccc:.1f} days). "
+                "Reported earnings trapped in unpaid receivables/inventory pileup. High risk of short-term debt spike."
+            )
+        # Tier 3: Moderate Working Capital Drag
+        elif delta_ccc is not None and delta_ccc > 15.0:
+            velocity_tier = "MODERATE_WORKING_CAPITAL_DRAG"
+            risk_score = 15.0
+            conviction_boost = -10.0
+            signals.append("WORKING_CAPITAL_CYCLE_ELONGATION")
+            notes = f"Working capital cycle extended by +{delta_ccc:.1f} days YoY ({current_ccc:.1f} days)."
+        # Tier 4: Fast Cash Velocity
+        elif current_ccc <= 60.0:
+            velocity_tier = "FAST_CASH_VELOCITY_EFFICIENT"
+            risk_score = 0.0
+            conviction_boost = 10.0
+            signals.append("HIGH_WORKING_CAPITAL_EFFICIENCY")
+            notes = f"Lean cash conversion cycle ({current_ccc:.1f} days). Superior working capital discipline."
+        else:
+            velocity_tier = "NORMAL_WORKING_CAPITAL_CYCLE"
+            risk_score = 5.0
+            conviction_boost = 0.0
+            signals.append("STANDARD_WORKING_CAPITAL_CYCLE")
+            notes = f"Operating Cash-to-Cash cycle is {current_ccc:.1f} days."
+
+        # Cross-validate CFO to PAT Cash Conversion
+        cfo_pat_ratio = None
+        if cfo_cr is not None and pat_cr is not None and pat_cr > 0:
+            cfo_pat_ratio = round(float(cfo_cr) / float(pat_cr), 2)
+            if cfo_pat_ratio < 0.5:
+                alerts.append("CFO_PAT_DIVERGENCE_WORKING_CAPITAL_ABSORPTION")
+                signals.append("WEAK_CFO_PAT_CONVERSION")
+                conviction_boost -= 10.0
+
+        return {
+            "symbol": clean_sym,
+            "debtor_days": cur_d,
+            "inventory_days": cur_i,
+            "creditor_days": cur_c,
+            "cash_to_cash_cycle_days": current_ccc,
+            "prior_cash_to_cash_cycle_days": prior_ccc if delta_ccc is not None else None,
+            "delta_ccc_days": delta_ccc,
+            "velocity_tier": velocity_tier,
+            "risk_score": risk_score,
+            "conviction_boost": conviction_boost,
+            "cfo_pat_ratio": cfo_pat_ratio,
+            "signals": signals,
+            "alerts": alerts,
+            "notes": notes,
+        }
+

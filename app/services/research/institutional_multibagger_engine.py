@@ -1866,3 +1866,209 @@ class InstitutionalMultibaggerEngine:
         filtered = [e for e in evaluated if e["symbol"] in accepted_symbols]
         filtered.sort(key=lambda x: x["overall_score"], reverse=True)
         return filtered
+
+class RaamdeoAgrawalQGLPScorer:
+    """Raamdeo Agrawal (Motilal Oswal) 100x Multibagger QGLP Framework Scorer (Phase 191).
+
+    Derived from Motilal Oswal's 25+ Year Annual Wealth Creation Studies:
+      1. Quality of Business & Management (Q):
+         - High ROCE (>= 15% minimum, >= 20% pristine)
+         - High Cash Flow Conversion (CFO / PAT >= 0.80)
+         - High unencumbered promoter skin in the game (Holding >= 50%, Pledge <= 5%)
+         - Conservative leverage (Debt/Equity <= 0.50x)
+         (Max 25 pts)
+
+      2. Growth in Earnings (G):
+         - 3Y/5Y Sales CAGR >= 15%
+         - 3Y/5Y PAT CAGR >= 20%
+         - Jaw Effect / Operating Leverage (PAT CAGR > Sales CAGR)
+         (Max 25 pts)
+
+      3. Longevity of Growth Runway (L):
+         - Market cap runway headroom (MCap < Rs 30,000 Cr permits 10x-100x compounding)
+         - Long runway addressable market (TAM) reinvestment potential
+         - Competitive advantage / Moat stability
+         (Max 25 pts)
+
+      4. Price / Favorable Valuation (P):
+         - PEG Ratio (PE / PAT Growth):
+             PEG <= 1.0x -> 25 pts (Pristine QGLP Sweet Spot)
+             1.0x < PEG <= 1.5x -> 18 pts (Reasonable Valuation)
+             1.5x < PEG <= 2.2x -> 10 pts (Fairly Valued)
+             PEG > 2.2x -> 2 pts (Stretched / Expensive)
+         (Max 25 pts)
+
+    Score Classifications (0 - 100):
+      >= 80.0: PRISTINE_QGLP_100X_CANDIDATE
+      65.0 - 79.9: HIGH_QUALITY_QGLP_COMPOUNDER
+      45.0 - 64.9: MODERATE_QGLP_WATCHLIST
+      < 45.0: REJECTED_FAILS_QGLP_CRITERIA
+    """
+
+    @classmethod
+    def evaluate_qglp(cls, item: Dict[str, Any]) -> Dict[str, Any]:
+        """Evaluates a company through Raamdeo Agrawal's QGLP 4-pillar methodology."""
+        clean_sym = str(item.get("symbol", "")).upper().replace(".NS", "").replace(".BO", "")
+        
+        # 1. Quality Pillar (Max 25 pts)
+        q_score = 0.0
+        q_signals = []
+
+        roce = float(item.get("roce_latest") or item.get("roce") or item.get("roce_3yr") or 0.0)
+        if roce >= 20.0:
+            q_score += 8.0
+            q_signals.append("PRISTINE_ROCE_OVER_20")
+        elif roce >= 15.0:
+            q_score += 5.0
+            q_signals.append("HEALTHY_ROCE_OVER_15")
+
+        cfo = float(item.get("cfo_last_year") or item.get("cfo") or 0.0)
+        pat = float(item.get("net_profit_last_year") or item.get("pat") or item.get("pat_latest") or 0.0)
+        if cfo > 0 and pat > 0:
+            cfo_pat = cfo / pat
+            if cfo_pat >= 0.85:
+                q_score += 7.0
+                q_signals.append("HIGH_CASH_CONVERSION_CFO_PAT")
+            elif cfo_pat >= 0.65:
+                q_score += 4.0
+        elif cfo > 0:
+            q_score += 4.0
+
+        promoter = float(item.get("promoter_holding") or 0.0)
+        pledge = float(item.get("pledged_pct") or item.get("pledge") or 0.0)
+        if promoter >= 50.0 and pledge <= 5.0:
+            q_score += 6.0
+            q_signals.append("STRONG_UNENCUMBERED_PROMOTER_SKIN")
+        elif promoter >= 40.0 and pledge <= 15.0:
+            q_score += 3.0
+
+        de = float(item.get("debt_to_equity") or item.get("de_ratio") or 0.0)
+        if de <= 0.35:
+            q_score += 4.0
+            q_signals.append("CONSERVATIVE_BALANCE_SHEET")
+        elif de <= 0.70:
+            q_score += 2.0
+
+        q_score = min(25.0, round(q_score, 1))
+
+        # 2. Growth Pillar (Max 25 pts)
+        g_score = 0.0
+        g_signals = []
+
+        sales_growth = float(item.get("sales_growth_3yr") or item.get("sales_growth_5yr") or item.get("revenue_growth") or 0.0)
+        if sales_growth >= 20.0:
+            g_score += 10.0
+            g_signals.append("HIGH_SALES_GROWTH_OVER_20")
+        elif sales_growth >= 12.0:
+            g_score += 6.0
+
+        pat_growth = float(item.get("pat_growth_3yr") or item.get("pat_growth_5yr") or item.get("pat_growth_latest") or 0.0)
+        if pat_growth >= 25.0:
+            g_score += 10.0
+            g_signals.append("ROBUST_PAT_GROWTH_OVER_25")
+        elif pat_growth >= 15.0:
+            g_score += 6.0
+
+        # Operating leverage check (Jaw effect: PAT growth > Sales growth)
+        if pat_growth > sales_growth and sales_growth >= 10.0:
+            g_score += 5.0
+            g_signals.append("POSITIVE_JAW_OPERATING_LEVERAGE")
+
+        g_score = min(25.0, round(g_score, 1))
+
+        # 3. Longevity Pillar (Max 25 pts)
+        l_score = 0.0
+        l_signals = []
+
+        mcap = float(item.get("market_cap") or item.get("market_cap_cr") or 5000.0)
+        if mcap < 5000.0:
+            l_score += 12.0
+            l_signals.append("EXTREME_100X_MCAP_HEADROOM")
+        elif mcap < 15000.0:
+            l_score += 9.0
+            l_signals.append("LARGE_MULTIBAGGER_MCAP_HEADROOM")
+        elif mcap < 35000.0:
+            l_score += 5.0
+        else:
+            l_score += 2.0
+
+        # High ROCE durability acts as moat proxy
+        if roce >= 25.0:
+            l_score += 8.0
+            l_signals.append("DEEP_MOAT_ROCE_COMPOUNDER")
+        elif roce >= 18.0:
+            l_score += 5.0
+
+        # Clean longevity bonus
+        if promoter >= 55.0 and de <= 0.2:
+            l_score += 5.0
+            l_signals.append("MULTIDECADE_SURVIVABILITY")
+
+        l_score = min(25.0, round(l_score, 1))
+
+        # 4. Price / Favorable Valuation Pillar (Max 25 pts)
+        p_score = 0.0
+        p_signals = []
+
+        pe = float(item.get("pe_ratio") or item.get("pe") or 25.0)
+        growth_for_peg = max(5.0, pat_growth if pat_growth > 0 else sales_growth)
+        peg = round(pe / growth_for_peg, 2)
+
+        if peg <= 1.0 and peg > 0:
+            p_score = 25.0
+            p_signals.append("PRISTINE_QGLP_PEG_UNDER_1")
+        elif peg <= 1.5:
+            p_score = 18.0
+            p_signals.append("ATTRACTIVE_GARP_VALUATION")
+        elif peg <= 2.2:
+            p_score = 10.0
+            p_signals.append("FAIR_VALUATION")
+        else:
+            p_score = 2.0
+            p_signals.append("ELEVATED_VALUATION_PREMIUM")
+
+        total_qglp = round(q_score + g_score + l_score + p_score, 1)
+
+        if total_qglp >= 80.0:
+            verdict = "PRISTINE_QGLP_100X_CANDIDATE"
+            recommendation = "HIGH_CONVICTION_MULTIBAGGER_ACCUMULATE"
+        elif total_qglp >= 65.0:
+            verdict = "HIGH_QUALITY_QGLP_COMPOUNDER"
+            recommendation = "COMPOUNDER_WATCHLIST_ACCUMULATE"
+        elif total_qglp >= 45.0:
+            verdict = "MODERATE_QGLP_WATCHLIST"
+            recommendation = "MONITOR_FOR_BETTER_VALUATION_OR_GROWTH"
+        else:
+            verdict = "REJECTED_FAILS_QGLP_CRITERIA"
+            recommendation = "DO_NOT_CHASE"
+
+        return {
+            "symbol": clean_sym,
+            "qglp_total_score": total_qglp,
+            "qglp_verdict": verdict,
+            "recommendation": recommendation,
+            "pillar_breakdown": {
+                "quality_score": q_score,
+                "growth_score": g_score,
+                "longevity_score": l_score,
+                "price_score": p_score,
+            },
+            "metrics": {
+                "roce": roce,
+                "sales_growth": sales_growth,
+                "pat_growth": pat_growth,
+                "peg_ratio": peg,
+                "market_cap_cr": mcap,
+                "debt_to_equity": de,
+                "promoter_holding": promoter,
+            },
+            "signals": q_signals + g_signals + l_signals + p_signals,
+            "methodology_note": (
+                "Motilal Oswal QGLP Framework (Raamdeo Agrawal): 25 pts Quality (ROCE, CFO/PAT, low D/E, unencumbered promoter), "
+                "25 pts Growth (Sales/PAT CAGR, Jaw effect), 25 pts Longevity (MCap headroom, moat stability), "
+                "25 pts Price (PEG ratio discipline)."
+            )
+        }
+
+
+InstitutionalMultibaggerEngine.evaluate_raamdeo_agrawal_qglp = RaamdeoAgrawalQGLPScorer.evaluate_qglp
