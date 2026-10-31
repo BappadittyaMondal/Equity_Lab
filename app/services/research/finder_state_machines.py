@@ -374,6 +374,7 @@ class SIPPolicyEngine:
         roce_5y_avg: Optional[float] = None,
         roce_3y_avg: Optional[float] = None,
         sector: Optional[str] = None,
+        drawdown_from_52w_high: Optional[float] = None,
     ) -> Dict[str, Any]:
         """Evaluates SIP contribution allocation multiplier and thesis preservation."""
         # Cyclical Commodity Peak-Earnings Protection:
@@ -451,6 +452,21 @@ class SIPPolicyEngine:
             action = "MODERATE_SIP"
             desc = "Mild premium; scale allocation to 0.75x."
 
+        # Abhishek Kar 41/45-Year Annual Correction Calibrator (Phase 193)
+        # Indian markets experience >= 10% intra-year drawdowns in 41 of 45 years.
+        # For secular compounders with intact moats, a 10%-15% drawdown represents an annual accumulation tranche.
+        is_41_45_opp = False
+        if drawdown_from_52w_high is not None and drawdown_from_52w_high >= 10.0:
+            is_41_45_opp = True
+            if drawdown_from_52w_high >= 15.0 and is_price_below_200sma and multiplier < 2.00:
+                multiplier = 2.00
+                action = "EXPANDED_SIP_HISTORICAL_PANIC_DEPLOYMENT"
+                desc = f"Historical drawdown (-{drawdown_from_52w_high:.1f}% >= 15%) below 200 SMA on intact compounder; maximum 2.0x capital deployment."
+            elif multiplier < 1.50:
+                multiplier = 1.50
+                action = "EXPANDED_SIP_ANNUAL_CORRECTION_ACCUMULATION"
+                desc = f"Annual 41/45 correction (-{drawdown_from_52w_high:.1f}% >= 10%) on intact secular compounder; scale allocation to 1.50x."
+
         return {
             "symbol": symbol.upper(),
             "policy_action": action,
@@ -459,4 +475,7 @@ class SIPPolicyEngine:
             "roce_10y_avg": round(effective_roce, 2),
             "hysteresis_active": prev_multiplier is not None,
             "valuation_z_score": round(valuation_z_score, 2),
+            "is_41_45_annual_correction_opportunity": is_41_45_opp,
+            "drawdown_from_52w_high": round(drawdown_from_52w_high, 2) if drawdown_from_52w_high is not None else None,
+            "abhishek_kar_correction_axiom": "Indian market experiences >= 10% intra-year corrections in 41 of 45 years. Standard drawdowns represent accumulation alpha for secular compounders.",
         }

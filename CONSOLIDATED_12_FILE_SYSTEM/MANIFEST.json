@@ -3,17 +3,17 @@
     "PROJECT_VERSION": "0.0.0",
     "BUNDLE_VERSION": "2.0",
     "SCHEMA_VERSION": "1.0",
-    "GIT_COMMIT_SOURCE": "9a9623c",
-    "GIT_COMMIT": "9a9623c",
-    "GENERATED_AT": "2026-10-31T10:38:05.039474+00:00",
+    "GIT_COMMIT_SOURCE": "c81b4d7",
+    "GIT_COMMIT": "c81b4d7",
+    "GENERATED_AT": "2026-10-31T11:51:21.520997+00:00",
     "GENERATOR_VERSION": "2.0",
-    "SOURCE_HASH": "37bccab7d3bbe81928882e9181a6da52c9be10ec8df61fc58ecc3929908c5c57"
+    "SOURCE_HASH": "713014834efd470b65e060981a814e3e00d055324ae399f754621c2ad5e9402b"
   },
   "bundle_files": {
     "01_System_Core_Instructions_Architecture.md": {
       "sources_count": 8,
       "output_bytes": 139747,
-      "sha256": "7dbfe0f84b1ccb741a0d7a81ced9d52f9a962dc914b1272e1ba4e835c066cc94",
+      "sha256": "2e5e330322e6a591fbd05f6a7cb21985ec3fdc5ab4d0dd957a3c8c6a5ae93887",
       "embedded_sources": [
         {
           "position": 1,
@@ -76,7 +76,7 @@
     "02_Engine_Contracts_Schemas.md": {
       "sources_count": 9,
       "output_bytes": 201513,
-      "sha256": "2be48520aa92a094c0923bb1ec286517c0f03b7a2cf258f7e4a42393fb369c5a",
+      "sha256": "648f2340597a0d13d0bce8734177469e118373f7a934c3b67fa4946313486b90",
       "embedded_sources": [
         {
           "position": 1,
@@ -146,7 +146,7 @@
     "03_Engine_Registries_Pipelines.md": {
       "sources_count": 9,
       "output_bytes": 65082,
-      "sha256": "89f826d14f69186a211abe148c785811ac1d1e1fc9e653f6846c2e3390434b29",
+      "sha256": "f4e20959ebf7e2f77fd7a88c6797b9fa301dfdd4c8ff39ed447913b53a17e9a4",
       "embedded_sources": [
         {
           "position": 1,
@@ -216,7 +216,7 @@
     "04_Workflow_Skills_01_to_09.md": {
       "sources_count": 2,
       "output_bytes": 301424,
-      "sha256": "59ebcdd0cbf1c621ffbb4cc3bd4e37a1febe41c00df7b80b37bd7d357b633b66",
+      "sha256": "f8743a0c57f0f8ccd7ed51e565d753514b0b25e0e14e74f5d5eabce8dd2b8056",
       "embedded_sources": [
         {
           "position": 1,
@@ -237,7 +237,7 @@
     "05_Workflow_Skills_10_to_25.md": {
       "sources_count": 4,
       "output_bytes": 71299,
-      "sha256": "b10ec8d2f2bc42e6f9311dd7ab0770788c07ed55d7de465e00ca94bf06f2bbf0",
+      "sha256": "f39214c069e6926e460260ca18e40659e6709d887f5354344ffd76af042408c3",
       "embedded_sources": [
         {
           "position": 1,
@@ -272,7 +272,7 @@
     "06_Analytical_Lens_Skills_26_to_34.md": {
       "sources_count": 7,
       "output_bytes": 142340,
-      "sha256": "f952ed6af5043e12b19507be5adb07f27cf11f69fa3ab00aa256501e495f072d",
+      "sha256": "1252c9e8ab2f3ff3fcd1945946a8a0ff3d7c03c0bbc3ac914d6f7e3be3338a81",
       "embedded_sources": [
         {
           "position": 1,
@@ -328,7 +328,7 @@
     "07_Analytical_Lens_Skills_35_to_41.md": {
       "sources_count": 8,
       "output_bytes": 130326,
-      "sha256": "065a28ce1380a678be0494d324011d8e5f9482b863773efe2c9d773d9e96edc8",
+      "sha256": "c412aaaf05b7cd2f61302d5cbda17feeda727ec20553e2f7190b84ff3ae2cf26",
       "embedded_sources": [
         {
           "position": 1,
@@ -391,7 +391,7 @@
     "08_Knowledge_Base_Vol_1_Economics_Financials.md": {
       "sources_count": 12,
       "output_bytes": 86904,
-      "sha256": "829c8bab9d8893ef651ef5ccde2090c59e725f36467ef950cc4b08ab340c8abb",
+      "sha256": "6b5b3a6484fc386ad6fe9e14c9eed04bbc3434b4cb9dc82cbb5ed22e5d9aa4dc",
       "embedded_sources": [
         {
           "position": 1,
@@ -482,7 +482,7 @@
     "09_Knowledge_Base_Vol_2_Markets_Governance_Macro.md": {
       "sources_count": 12,
       "output_bytes": 84963,
-      "sha256": "ac0730edc70c026162494632f1881e82308ad9cffa39c02f98d9b7f8cb7daa45",
+      "sha256": "d472338c569650af5a53b315718bfa7a12042a1572172d03cf96010953f17e97",
       "embedded_sources": [
         {
           "position": 1,
@@ -573,7 +573,7 @@
     "10_Knowledge_Base_Vol_3_Forensics_Moats_Banking.md": {
       "sources_count": 8,
       "output_bytes": 64900,
-      "sha256": "367b57807a6aba4490f27348e773267080e6e275be9caf100bb44e736369064a",
+      "sha256": "267e29311a7ae717407f9d2d5d9e47fc930f6e527a8ac3d1ed00315919230a61",
       "embedded_sources": [
         {
           "position": 1,
@@ -636,7 +636,7 @@
     "11_Knowledge_Base_Vol_4_Sector_Deep_Dives.md": {
       "sources_count": 9,
       "output_bytes": 71507,
-      "sha256": "2fac8c57e61ab0f9f9602fd76f3d63c427057eedd4e417349e69eaeb47e11707",
+      "sha256": "ca92e2f33ff3361b67cd56552d04e464b2cba333d4a4362b548ab1c257e45a75",
       "embedded_sources": [
         {
           "position": 1,
@@ -706,7 +706,7 @@
     "12_Knowledge_Base_Vol_5_Screening_Portfolio_Glossaries.md": {
       "sources_count": 10,
       "output_bytes": 91529,
-      "sha256": "4a03e86b451d96111a76603f88a8800f2804f513cdf4616092d3710f83480cf2",
+      "sha256": "8d36971160da3df8e5438016192fa45c9f329402a6647eb2853c98ca7a8694a5",
       "embedded_sources": [
         {
           "position": 1,

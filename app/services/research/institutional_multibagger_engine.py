@@ -2072,3 +2072,110 @@ class RaamdeoAgrawalQGLPScorer:
 
 
 InstitutionalMultibaggerEngine.evaluate_raamdeo_agrawal_qglp = RaamdeoAgrawalQGLPScorer.evaluate_qglp
+
+class MungerInversionSentinel:
+    """Charlie Munger Inversion-First Disqualification Sentinel (Phase 193).
+
+    Derived from Charlie Munger's foundational doctrine: 'Invert, always invert.'
+    Before scoring upside growth potential, aggressively interrogates and eliminates
+    the 6 fatal corporate failure modes that cause permanent capital destruction:
+      1. Excessive Financial Leverage (Debt/Equity > 0.50x industrial, > 0.35x smallcap).
+      2. Working Capital Suffocation / Overtrading (Cash-to-Cash cycle elongating > 25 days YoY with CFO < 0).
+      3. Forensic Manipulation Red Flags (Beneish M-Score > -1.78 or auditor qualification/resignation).
+      4. Encumbered Promoter Skin (Pledged promoter holding > 15.0%).
+      5. Negative Capital Spread / Value Destruction (ROCE < 12.0% falling below borrowing cost).
+      6. Sovereign Regulatory / Price-Control Trap (Vulnerability to state price caps, export duties, or subsidy freezes).
+
+    Status Classifications:
+      - PRISTINE_INVERSION_PASS (0 killers triggered, score = 100.0)
+      - CONDITIONAL_INVERSION_WARNING (1 minor killer, score = 65.0 - 75.0, 25% sizing haircut)
+      - FATAL_INVERSION_DISQUALIFICATION (>= 2 killers or severe fraud/debt, score = 0.0, vetoed)
+    """
+
+    @classmethod
+    def evaluate_inversion(cls, item: Dict[str, Any], objective: str = "MULTIBAGGER") -> Dict[str, Any]:
+        """Evaluates whether an equity candidate survives Munger's inversion screen."""
+        clean_sym = str(item.get("symbol", "")).upper().replace(".NS", "").replace(".BO", "")
+        killers_triggered = []
+        warnings = []
+        score = 100.0
+
+        de = float(item.get("debt_to_equity") or item.get("de_ratio") or 0.0)
+        mcap = float(item.get("market_cap") or item.get("market_cap_cr") or 5000.0)
+        de_limit = 0.35 if mcap < 3000.0 else 0.60
+        if de > de_limit:
+            killers_triggered.append(f"EXCESSIVE_FINANCIAL_LEVERAGE: D/E {de:.2f} exceeds {de_limit:.2f} ceiling")
+            score -= 30.0
+
+        # 2. Working Capital Suffocation & Overtrading Trap (Dr. Anil Lamba & Munger)
+        cfo = float(item.get("cfo_last_year") or item.get("cfo") or 0.0)
+        pat = float(item.get("net_profit_last_year") or item.get("pat") or item.get("pat_latest") or 0.0)
+        ccc_delta = float(item.get("ccc_delta_yoy") or item.get("cash_cycle_delta") or 0.0)
+        if ccc_delta > 25.0 and cfo < 0 and pat > 0:
+            killers_triggered.append(f"WORKING_CAPITAL_SUFFOCATION: CCC elongated +{ccc_delta:.0f}d with negative CFO")
+            score -= 35.0
+        elif ccc_delta > 30.0:
+            warnings.append(f"WORKING_CAPITAL_ELONGATION: CCC stretched +{ccc_delta:.0f} days YoY")
+            score -= 15.0
+
+        # 3. Forensic Manipulation Red Flags
+        beneish_m = float(item.get("beneish_m_score") or item.get("m_score") or -2.5)
+        auditor_flag = bool(item.get("auditor_resignation") or item.get("auditor_qualification"))
+        if beneish_m > -1.78:
+            killers_triggered.append(f"FORENSIC_MANIPULATION_RED_FLAG: Beneish M-Score {beneish_m:.2f} > -1.78")
+            score -= 50.0
+        if auditor_flag:
+            killers_triggered.append("AUDITOR_RESIGNATION_OR_QUALIFICATION_FATAL_VETO")
+            score -= 50.0
+
+        # 4. Encumbered Promoter Skin
+        pledge = float(item.get("pledged_pct") or item.get("pledge") or 0.0)
+        if pledge > 15.0:
+            killers_triggered.append(f"ENCUMBERED_PROMOTER_SKIN: Pledged shares {pledge:.1f}% exceeds 15% threshold")
+            score -= 25.0
+        elif pledge > 5.0:
+            warnings.append(f"MODERATE_PLEDGE_WARNING: {pledge:.1f}% pledged")
+            score -= 10.0
+
+        # 5. Negative Capital Spread / Value Destruction
+        roce = float(item.get("roce_latest") or item.get("roce") or item.get("roce_3yr") or 15.0)
+        if roce < 12.0 and objective != "TURNAROUND":
+            killers_triggered.append(f"NEGATIVE_CAPITAL_SPREAD: ROCE {roce:.1f}% fails 12.0% cost-of-capital hurdle")
+            score -= 25.0
+        elif roce < 12.0 and objective == "TURNAROUND":
+            warnings.append(f"TURNAROUND_DEPRESSED_ROCE: ROCE {roce:.1f}% permitted under turnaround recovery context")
+            score -= 10.0
+
+        # 6. Sovereign Regulatory / Price-Cap Trap (The Alibaba Lesson)
+        sector = str(item.get("sector") or item.get("industry") or "").upper().strip()
+        has_sovereign_cap = bool(item.get("sovereign_price_cap") or item.get("regulatory_price_control"))
+        if has_sovereign_cap or any(k in sector for k in ["FERTILIZER", "SUGAR_SUBSIDY", "PRICE_CONTROLLED_UTILITY"]):
+            warnings.append(f"SOVEREIGN_REGULATORY_CAP: Sector '{sector}' subject to state pricing interventions")
+            score -= 15.0
+
+        score = max(0.0, round(score, 1))
+
+        if len(killers_triggered) == 0 and len(warnings) == 0 and score >= 90.0:
+            status = "PRISTINE_INVERSION_PASS"
+            passed = True
+        elif len(killers_triggered) <= 1 and score >= 50.0:
+            status = "CONDITIONAL_INVERSION_WARNING"
+            passed = True
+        else:
+            status = "FATAL_INVERSION_DISQUALIFICATION"
+            passed = False
+
+        return {
+            "symbol": clean_sym,
+            "inversion_passed": passed,
+            "inversion_status": status,
+            "inversion_score": score,
+            "fatal_killers_triggered": killers_triggered,
+            "warnings": warnings,
+            "killer_count": len(killers_triggered),
+            "objective_context": objective,
+            "core_munger_axiom": "Invert, always invert. Solve problems backwards by eliminating permanent capital loss hazards first.",
+        }
+
+
+InstitutionalMultibaggerEngine.evaluate_munger_inversion = MungerInversionSentinel.evaluate_inversion

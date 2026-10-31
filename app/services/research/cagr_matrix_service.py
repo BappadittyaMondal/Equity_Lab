@@ -81,6 +81,9 @@ def generate_cagr_sensitivity_matrix(symbol: str, sector: Optional[str] = None) 
             pe_min, pe_max = 12.0, 30.0
         elif any(k in norm_sec for k in ["FMCG", "CONSUMER"]):
             pe_min, pe_max = 20.0, 65.0
+        elif any(k in norm_sec for k in ["IT_SERVICES", "IT SERVICES", "IT_STAFFING", "STAFFING", "CONSULTING", "LINEAR_IT"]):
+            # Dr. Ankit Shah / Macro Disruption: Linear-headcount IT services face AI delivery automation headwinds
+            pe_min, pe_max = 14.0, 25.0
         elif any(k in norm_sec for k in ["TECH", "IT", "PHARMA", "HEALTHCARE"]):
             pe_min, pe_max = 18.0, 50.0
 
