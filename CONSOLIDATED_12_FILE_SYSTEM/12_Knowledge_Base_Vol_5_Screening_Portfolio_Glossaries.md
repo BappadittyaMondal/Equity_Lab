@@ -1,8 +1,8 @@
 # 12_Knowledge_Base_Vol_5_Screening_Portfolio_Glossaries
 
 > **IERL AI Equity OS — curated upload artifact**  
-> Project Version: `0.0.0` · Bundle Version: `2.0` · Source Commit: `a7aa2fa`  
-> Generated At: `2026-10-30T06:53:52.911121+00:00` · Source Hash: `92bf8048ed4377ad` · Compiler: `consolidate_project.py` v2.0
+> Project Version: `0.0.0` · Bundle Version: `2.0` · Source Commit: `9a9623c`  
+> Generated At: `2026-10-31T10:38:05.039474+00:00` · Source Hash: `37bccab7d3bbe819` · Compiler: `consolidate_project.py` v2.0
 
 ## Operating contract
 
@@ -48,7 +48,7 @@ The SHA-256 values cover the exact UTF-8 source payload, not this wrapper. Use t
 | 3 | `Domain_43_Portfolio_Management_Rules.md` | 8,180 | `30b297079dfb458f8bf255b3874fb6d014411646819faffe18f1c67755e78c92` |
 | 4 | `Domain_44_Geo_Economic_Impact.md` | 7,529 | `c9869fc4ecbdfaa93b7fd803dd875145e2cda2a35e3dd82b2cc2b62dcf74144a` |
 | 5 | `Domain_45_Rule_Based_Options_Systematic_Strategies.md` | 8,693 | `83e53e758977c89d259d99335b8429e393ea359f5025ed05660dd537f5d65982` |
-| 6 | `Domain_46_Technical_Growth_Second_Brain_Strategies.md` | 8,590 | `304b6b625eda120bd631db6c23b367cf6115f057348b5b624e0b260decd1efe0` |
+| 6 | `Domain_46_Technical_Growth_Second_Brain_Strategies.md` | 11,899 | `9e6b0bb5774a0c21c4c6dc35f74dc18f093e6a71fea06b0e188270cefabba946` |
 | 7 | `Domain_47_Fundamental_Value_Structural_Strategies.md` | 12,145 | `2aa2ff4a478f956c13222d66c16ff96574e9c92f7f150ee7777c3256e451f1d7` |
 | 8 | `Domain_48_Quant_Momentum_Ethical_Screening_Strategies.md` | 8,322 | `d21ffa06684dcd6c1893a4322e8585be9d0afae095a1a1f1eb1824821d4e53fd` |
 | 9 | `Screener_Field_Glossary_v_0_0.md` | 4,608 | `dfc5983dcc65e76fe48e49451b3b12b3ceb0c67277bdd191bb668b3f53b836ce` |
@@ -602,7 +602,7 @@ End of Document — Domain 45
 
 ---
 
-<!-- BEGIN SYSTEM FILE 6: Domain_46_Technical_Growth_Second_Brain_Strategies.md | SHA256: 304b6b625eda120bd631db6c23b367cf6115f057348b5b624e0b260decd1efe0 -->
+<!-- BEGIN SYSTEM FILE 6: Domain_46_Technical_Growth_Second_Brain_Strategies.md | SHA256: 9e6b0bb5774a0c21c4c6dc35f74dc18f093e6a71fea06b0e188270cefabba946 -->
 ## Embedded source 6: Domain 46 Technical Growth Second Brain Strategies
 
 <!-- IERL-CANONICAL-METADATA v1.2 -->
@@ -762,6 +762,50 @@ SEPA Strategy Setup:
 - Phase 3 (Pivot Entry): Pivot buy trigger at ₹300; set stop loss at ₹285 (5% risk).
 - Phase 4 (Risk Management): Stock advances to ₹360 (+20%); trim partial profit, trail stop loss to ₹315.
 ```
+
+---
+
+## 9. J.M. Hurst Time Cycle FLD Projections & Two-Candle Confirmation Heuristic (Ashish Kyal CMT Model)
+- **Concept:** Multi-dimensional timing architecture combining the X-axis (Time Cycles) with the Y-axis (Price targets) and Execution filters (Candlestick confirmation) to eliminate premature entries on false breakout wick traps.
+- **Pillar 1: J.M. Hurst Time Cycles & Future Line of Demarcation (FLD):**
+  - Indian equity indices and large-cap leaders exhibit a rhythmic nominal cycle (typically 54–56 trading days on daily charts, or 20 periods on short-term swing frames).
+  - The Future Line of Demarcation (FLD) is an SMA displaced forward by half the cycle period (H = L / 2):
+    \\text{FLD}_L(t) = \\text{SMA}_L\\left(t - \\frac{L}{2}\\right)
+  - When price crosses above the FLD from below, it mathematically confirms cycle trough inflection.
+  - Mechanical FLD Price Target formula:
+    \\text{Target} = P_{\\text{cross}} + (P_{\\text{cross}} - P_{\\text{trough}})
+- **Pillar 2: The Two-Candle Confirmation Heuristic:**
+  - A breakout or reversal is only actionable when confirmed by a subsequent candle closing above the high of the prior candle (for bullish entry) or below the low of the prior candle (for bearish breakdown).
+  - Wick Trap Sentinel: If intraday price spikes above prior high but closes below, it is flagged as an UNCONFIRMED_PREMATURE_BREAKOUT (Wick Trap), suppressing entry.
+- **Pillar 3: Glenn Neely Neo Wave 7-Legged Diametric Consolidations:**
+  - Sideways consolidations in Indian equities frequently form 7 alternating legs (a-b-c-d-e-f-g) characterized by time-duration equality. Breakout occurs upon termination of leg g.
+- **Pillar 4: Multiplicative Zero-Gate Invariant:**
+  - Technical cycles and FLD projections are strictly entry and timing filters. Under zero circumstances may they override fundamental forensic disqualifications (Beneish fraud, debt traps, or governance vetos).
+
+### Pre-Execution Requirements — Strategy 9
+`
+□ Daily price and volume candles covering at least 1.5x the cycle length (e.g. >= 30 bars for 20-day cycle)
+□ Verified cycle trough price level (P_trough) and distance from last trough (days_since_trough)
+□ Two-candle confirmation check: current close > prior candle high (mandatory follow-through)
+`
+
+### Failure Modes & Hard Stop Rules — Strategy 9
+`
+❗ Price fails to close above prior candle high (wick trap / false breakout trap — DO NOT ENTER)
+❗ Price breaks below the cycle trough price P_trough (cycle hypothesis invalidated — EXIT IMMEDIATELY)
+❗ Technical cycle inflection in fundamentally distressed / forensic warning stock (fundamental zero-gate veto)
+`
+
+### Worked Numerical Example — Strategy 9
+`
+Hurst FLD & Two-Candle Setup:
+- Cycle Parameters: Nominal cycle length L = 54 days; half-displacement H = 27 days.
+- Current Status: Day 51 from cycle trough (cyclical accumulation zone active).
+- Trough Price: P_trough = ₹450; FLD level = ₹490.
+- Trigger: Current candle crosses FLD and closes at ₹500, with prior candle high at ₹492 (2-candle confirmed).
+- Mechanical Target: Target = ₹500 + (₹500 - ₹450) = ₹550 (+10% objective upside target).
+- Structural Stop Loss: Set at ₹445.50 (1% below cycle trough ₹450). Risk = ₹54.50, Reward = ₹50.00 (R:R ratio aligned).
+`
 
 ---
 End of Document — Domain 46
