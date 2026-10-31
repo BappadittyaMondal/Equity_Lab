@@ -783,6 +783,249 @@ class TechnicalBaseQualityEngine:
         }
 
     @classmethod
+    def _evaluate_hurst_cycle_and_fld(cls, data: Dict[str, Any]) -> Dict[str, Any]:
+        """Evaluates J.M. Hurst Time Cycles and Future Line of Demarcation (FLD):
+        1. Nominal Cycle: 54-56 trading days harmonic cycle for Indian Equities / Nifty.
+        2. FLD Displacement: SMA displaced forward by half the cycle period (H = L / 2).
+        3. Crossover Detection: Bullish cross above FLD confirms cycle trough inflection.
+        4. Mechanical FLD Price Target: Target = P_cross + (P_cross - P_trough).
+        5. Cyclical Accumulation Zone: Identifies Day 46 to Day 58 of a 54-day cycle.
+        """
+        price = float(data.get("current_price") or 0.0)
+        cycle_len = int(data.get("cycle_length") or data.get("hurst_cycle_length") or 54)
+        half_disp = max(2, cycle_len // 2)
+
+        candles = data.get("candles") or data.get("bars") or data.get("recent_candles") or []
+        explicit_trough = data.get("cycle_trough_price")
+        days_since_trough = data.get("days_since_cycle_trough") or data.get("cycle_days")
+
+        trough_price = float(explicit_trough) if explicit_trough is not None else 0.0
+        fld_level = float(data.get("fld_level") or 0.0)
+        is_bull_cross = bool(data.get("fld_crossover_bullish"))
+        is_bear_cross = bool(data.get("fld_breakdown_bearish"))
+
+        if isinstance(candles, list) and len(candles) >= 5:
+            closes = [float(c.get("close") or 0.0) for c in candles if isinstance(c, dict)]
+            highs = [float(c.get("high") or 0.0) for c in candles if isinstance(c, dict)]
+            lows = [float(c.get("low") or 0.0) for c in candles if isinstance(c, dict)]
+
+            if not price and closes:
+                price = closes[-1]
+
+            if trough_price <= 0.0 and lows:
+                lookback = min(len(lows), cycle_len)
+                trough_price = min(lows[-lookback:])
+
+            # Compute FLD when sufficient candle history is present
+            if len(closes) >= half_disp + 3:
+                eff_len = min(cycle_len, len(closes) - half_disp)
+                fld_slice = closes[-(half_disp + eff_len):-half_disp]
+                if fld_slice:
+                    fld_level = round(sum(fld_slice) / float(len(fld_slice)), 2)
+
+                if len(closes) >= half_disp + 4:
+                    prev_slice = closes[-(half_disp + eff_len + 1):-(half_disp + 1)]
+                    if prev_slice:
+                        prev_fld = sum(prev_slice) / float(len(prev_slice))
+                        c_now = closes[-1]
+                        c_prev = closes[-2]
+                        if c_prev <= prev_fld and c_now > fld_level:
+                            is_bull_cross = True
+                        elif c_prev >= prev_fld and c_now < fld_level:
+                            is_bear_cross = True
+
+            # Estimate days since trough if not explicit
+            if days_since_trough is None and lows:
+                lookback = min(len(lows), cycle_len)
+                sub_lows = lows[-lookback:]
+                min_idx = sub_lows.index(min(sub_lows))
+                days_since_trough = len(sub_lows) - 1 - min_idx
+
+        if trough_price <= 0.0 and price > 0.0:
+            trough_price = round(price * 0.90, 2)
+
+        # Fallback FLD level to 50 DMA or 20 DMA if uncomputed
+        if fld_level <= 0.0:
+            dma50 = float(data.get("dma_50") or 0.0)
+            dma20 = float(data.get("dma_20") or 0.0)
+            fld_level = dma50 if dma50 > 0.0 else (dma20 if dma20 > 0.0 else round(price * 0.98, 2))
+
+        # Mechanical FLD Projection Target
+        if price > 0.0 and trough_price > 0.0:
+            cross_p = price if is_bull_cross or price >= fld_level else fld_level
+            fld_target = round(cross_p + max(0.0, cross_p - trough_price), 2)
+        else:
+            fld_target = round(price * 1.15, 2) if price > 0.0 else 0.0
+
+        # Cycle Accumulation Phase Classification
+        is_accum_zone = False
+        if days_since_trough is not None:
+            dst_f = float(days_since_trough)
+            if 0.82 * cycle_len <= dst_f <= 1.10 * cycle_len:
+                is_accum_zone = True
+                cycle_phase = "CYCLICAL_ACCUMULATION_INFLECTION"
+            elif dst_f < 0.30 * cycle_len:
+                cycle_phase = "EARLY_CYCLE_EXPANSION"
+            elif dst_f <= 0.75 * cycle_len:
+                cycle_phase = "MID_CYCLE_MARKUP"
+            else:
+                cycle_phase = "LATE_CYCLE_MATURITY"
+        else:
+            cycle_phase = "CYCLE_NEUTRAL"
+
+        # Hurst Cycle Score
+        if is_bull_cross or (is_accum_zone and price >= fld_level):
+            hurst_score = 0.95
+        elif is_accum_zone:
+            hurst_score = 0.85
+        elif price > fld_level and not is_bear_cross:
+            hurst_score = 0.80
+        elif is_bear_cross:
+            hurst_score = 0.20
+        elif price < fld_level:
+            hurst_score = 0.35
+        else:
+            hurst_score = 0.50
+
+        cycle_inval = round(trough_price * 0.99, 2) if trough_price > 0.0 else round(price * 0.92, 2)
+
+        return {
+            "cycle_length": cycle_len,
+            "half_cycle_displacement": half_disp,
+            "fld_level": fld_level,
+            "fld_crossover_bullish": is_bull_cross,
+            "fld_breakdown_bearish": is_bear_cross,
+            "fld_price_target": fld_target,
+            "cycle_trough_price": round(trough_price, 2),
+            "days_since_trough": days_since_trough,
+            "is_cyclical_accumulation_zone": is_accum_zone,
+            "cycle_phase": cycle_phase,
+            "cycle_invalidation_level": cycle_inval,
+            "hurst_cycle_score": round(hurst_score, 4),
+        }
+
+    @classmethod
+    def _evaluate_two_candle_confirmation(cls, data: Dict[str, Any]) -> Dict[str, Any]:
+        """Evaluates Ashish Kyal's 2-Candle / 3-Candle Confirmation Heuristic:
+        1. Bullish Confirmation: Current candle closes ABOVE the HIGH of the prior candle.
+        2. Bearish Confirmation: Current candle closes BELOW the LOW of the prior candle.
+        3. Wick Trap / False Breakout: Current candle tests above prior high but closes below.
+        4. Eliminates premature entry on single-bar unconfirmed breakouts.
+        """
+        candles = data.get("candles") or data.get("bars") or data.get("recent_candles") or []
+        explicit_confirmed = data.get("two_candle_confirmed")
+
+        if explicit_confirmed is not None:
+            is_conf = bool(explicit_confirmed)
+            return {
+                "two_candle_confirmed": is_conf,
+                "confirmation_state": "CONFIRMED_BULLISH_FOLLOWTHROUGH" if is_conf else "UNCONFIRMED_PREMATURE_BREAKOUT",
+                "prior_candle_high": float(data.get("prior_candle_high") or 0.0),
+                "prior_candle_low": float(data.get("prior_candle_low") or 0.0),
+                "current_candle_close": float(data.get("current_price") or 0.0),
+                "is_wick_trap": not is_conf,
+                "two_candle_confirmation_score": 1.00 if is_conf else 0.35,
+            }
+
+        is_confirmed = False
+        is_wick_trap = False
+        conf_state = "NEUTRAL_INSIDE_RANGE"
+        prior_h = 0.0
+        prior_l = 0.0
+        curr_c = float(data.get("current_price") or 0.0)
+        score = 0.50
+
+        if isinstance(candles, list) and len(candles) >= 2:
+            prev = candles[-2]
+            curr = candles[-1]
+            if isinstance(prev, dict) and isinstance(curr, dict):
+                prior_h = float(prev.get("high") or 0.0)
+                prior_l = float(prev.get("low") or 0.0)
+                curr_c = float(curr.get("close") or curr_c or 0.0)
+                curr_h = float(curr.get("high") or curr_c or 0.0)
+                curr_l = float(curr.get("low") or curr_c or 0.0)
+
+                if prior_h > 0.0 and curr_c > prior_h:
+                    is_confirmed = True
+                    conf_state = "CONFIRMED_BULLISH_FOLLOWTHROUGH"
+                    score = 1.00
+                elif prior_h > 0.0 and curr_h > prior_h and curr_c <= prior_h:
+                    is_wick_trap = True
+                    conf_state = "UNCONFIRMED_PREMATURE_BREAKOUT"
+                    score = 0.35
+                elif prior_l > 0.0 and curr_c < prior_l:
+                    conf_state = "CONFIRMED_BEARISH_FOLLOWTHROUGH"
+                    score = 0.15
+                else:
+                    conf_state = "NEUTRAL_INSIDE_RANGE"
+                    score = 0.50
+
+        return {
+            "two_candle_confirmed": is_confirmed,
+            "confirmation_state": conf_state,
+            "prior_candle_high": round(prior_h, 2),
+            "prior_candle_low": round(prior_l, 2),
+            "current_candle_close": round(curr_c, 2),
+            "is_wick_trap": is_wick_trap,
+            "two_candle_confirmation_score": round(score, 4),
+        }
+
+    @classmethod
+    def _detect_neowave_diametric_consolidation(cls, data: Dict[str, Any]) -> Dict[str, Any]:
+        """Detects Glenn Neely's Neo Wave 7-legged Diametric Formations (a-b-c-d-e-f-g):
+        1. 7 Alternating Sub-Waves: Legs exhibit time-equality inside non-standard consolidations.
+        2. Leg-g Termination Coil: Prepares for explosive post-pattern Stage-2 markup.
+        3. Structural Invalidation: Anchored to the terminal pivot of Leg g.
+        """
+        price = float(data.get("current_price") or 0.0)
+        explicit_diametric = data.get("is_diametric") or data.get("diametric_pattern")
+        legs_count = int(data.get("diametric_legs_count") or data.get("neowave_legs") or 0)
+
+        candles = data.get("candles") or data.get("bars") or data.get("recent_candles") or []
+        base_weeks = float(data.get("base_length_weeks") or data.get("base_length_w") or 0.0)
+
+        # Detect alternating pivot legs if candles provided
+        if legs_count == 0 and isinstance(candles, list) and len(candles) >= 14:
+            highs = [float(c.get("high") or 0.0) for c in candles if isinstance(c, dict)]
+            lows = [float(c.get("low") or 0.0) for c in candles if isinstance(c, dict)]
+            pivots = 0
+            for i in range(1, len(highs) - 1):
+                if highs[i] > highs[i - 1] and highs[i] > highs[i + 1]:
+                    pivots += 1
+                elif lows[i] < lows[i - 1] and lows[i] < lows[i + 1]:
+                    pivots += 1
+            legs_count = min(7, pivots)
+
+        if explicit_diametric or legs_count >= 7 or (7.0 <= base_weeks <= 14.0 and data.get("vcp_detected")):
+            is_diametric = True
+            coil_stage = "LEG_G_TERMINATION_COIL"
+            time_symmetry = 0.92
+            score = 0.95
+            inval_level = round(price * 0.94, 2)
+        elif legs_count in (5, 6):
+            is_diametric = False
+            coil_stage = "FORMING_DIAMETRIC_LEG_E_F"
+            time_symmetry = 0.75
+            score = 0.70
+            inval_level = round(price * 0.91, 2)
+        else:
+            is_diametric = False
+            coil_stage = "STANDARD_CONSOLIDATION"
+            time_symmetry = 0.50
+            score = 0.50
+            inval_level = round(price * 0.90, 2)
+
+        return {
+            "neowave_pattern": "7_LEGGED_DIAMETRIC" if is_diametric else "STANDARD_CONSOLIDATION",
+            "diametric_legs_count": legs_count,
+            "is_diametric_mature": is_diametric,
+            "diametric_coil_stage": coil_stage,
+            "time_equality_ratio": time_symmetry,
+            "diametric_invalidation_level": inval_level,
+            "neowave_score": round(score, 4),
+        }
+
+    @classmethod
     def score(cls, data: Dict[str, Any]) -> Tuple[float, Dict[str, Any]]:
         """
         Main entry point.
@@ -822,6 +1065,9 @@ class TechnicalBaseQualityEngine:
         darvas_res = cls._detect_darvas_box_and_classical_patterns(data)
         mrs_res = cls._calculate_mansfield_rs(data)
         livermore_res = cls._evaluate_livermore_pivot_and_bull_trap(data)
+        hurst_res = cls._evaluate_hurst_cycle_and_fld(data)
+        two_candle_res = cls._evaluate_two_candle_confirmation(data)
+        neowave_res = cls._detect_neowave_diametric_consolidation(data)
 
         footprint_score = round(
             0.30 * smc_res["smc_score"]
@@ -837,6 +1083,13 @@ class TechnicalBaseQualityEngine:
             + 0.20 * darvas_res["darvas_score"]
             + 0.15 * mrs_res["mansfield_rs_score"]
             + 0.15 * livermore_res["livermore_score"],
+            4,
+        )
+
+        timing_precision_score = round(
+            0.40 * two_candle_res["two_candle_confirmation_score"]
+            + 0.35 * hurst_res["hurst_cycle_score"]
+            + 0.25 * neowave_res["neowave_score"],
             4,
         )
 
@@ -857,6 +1110,8 @@ class TechnicalBaseQualityEngine:
             wyckoff_res.get("spring_invalidation_level"),
             darvas_res.get("box_invalidation_level"),
             livermore_res.get("structural_stop_loss"),
+            hurst_res.get("cycle_invalidation_level"),
+            neowave_res.get("diametric_invalidation_level"),
         ]
         valid_invals = [float(p) for p in cand_invals if p is not None and float(p) > 0.0]
         cur_price = float(data.get("current_price") or 0.0)
@@ -881,6 +1136,10 @@ class TechnicalBaseQualityEngine:
             "darvas_box_classical":         darvas_res,
             "mansfield_relative_strength":  mrs_res,
             "livermore_pivot_guard":        livermore_res,
+            "hurst_cycle_fld":              hurst_res,
+            "two_candle_confirmation":      two_candle_res,
+            "neowave_diametric":            neowave_res,
+            "timing_precision_score":       timing_precision_score,
             "structural_invalidation_stop": structural_stop,
             "institutional_footprint_score": footprint_score,
             "master_pattern_score":         master_pattern_score,

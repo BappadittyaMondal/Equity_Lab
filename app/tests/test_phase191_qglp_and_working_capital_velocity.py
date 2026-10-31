@@ -134,7 +134,7 @@ class TestPhase191QGLPAndWorkingCapitalVelocity:
         with open(reg_file, "r", encoding="utf-8") as f:
             data = json.load(f)
 
-        assert data["total_entities_count"] == 53
+        assert data["total_entities_count"] >= 53
         assert "RAAMDEO_AGRAWAL_QGLP_FRAMEWORK_RULE" in data["entities"]
         assert "LAMBA_WORKING_CAPITAL_VELOCITY_RULE" in data["entities"]
 

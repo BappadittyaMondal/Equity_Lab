@@ -157,4 +157,48 @@ SEPA Strategy Setup:
 ```
 
 ---
+
+## 9. J.M. Hurst Time Cycle FLD Projections & Two-Candle Confirmation Heuristic (Ashish Kyal CMT Model)
+- **Concept:** Multi-dimensional timing architecture combining the X-axis (Time Cycles) with the Y-axis (Price targets) and Execution filters (Candlestick confirmation) to eliminate premature entries on false breakout wick traps.
+- **Pillar 1: J.M. Hurst Time Cycles & Future Line of Demarcation (FLD):**
+  - Indian equity indices and large-cap leaders exhibit a rhythmic nominal cycle (typically 54–56 trading days on daily charts, or 20 periods on short-term swing frames).
+  - The Future Line of Demarcation (FLD) is an SMA displaced forward by half the cycle period (H = L / 2):
+    \\text{FLD}_L(t) = \\text{SMA}_L\\left(t - \\frac{L}{2}\\right)
+  - When price crosses above the FLD from below, it mathematically confirms cycle trough inflection.
+  - Mechanical FLD Price Target formula:
+    \\text{Target} = P_{\\text{cross}} + (P_{\\text{cross}} - P_{\\text{trough}})
+- **Pillar 2: The Two-Candle Confirmation Heuristic:**
+  - A breakout or reversal is only actionable when confirmed by a subsequent candle closing above the high of the prior candle (for bullish entry) or below the low of the prior candle (for bearish breakdown).
+  - Wick Trap Sentinel: If intraday price spikes above prior high but closes below, it is flagged as an UNCONFIRMED_PREMATURE_BREAKOUT (Wick Trap), suppressing entry.
+- **Pillar 3: Glenn Neely Neo Wave 7-Legged Diametric Consolidations:**
+  - Sideways consolidations in Indian equities frequently form 7 alternating legs (a-b-c-d-e-f-g) characterized by time-duration equality. Breakout occurs upon termination of leg g.
+- **Pillar 4: Multiplicative Zero-Gate Invariant:**
+  - Technical cycles and FLD projections are strictly entry and timing filters. Under zero circumstances may they override fundamental forensic disqualifications (Beneish fraud, debt traps, or governance vetos).
+
+### Pre-Execution Requirements — Strategy 9
+`
+□ Daily price and volume candles covering at least 1.5x the cycle length (e.g. >= 30 bars for 20-day cycle)
+□ Verified cycle trough price level (P_trough) and distance from last trough (days_since_trough)
+□ Two-candle confirmation check: current close > prior candle high (mandatory follow-through)
+`
+
+### Failure Modes & Hard Stop Rules — Strategy 9
+`
+❗ Price fails to close above prior candle high (wick trap / false breakout trap — DO NOT ENTER)
+❗ Price breaks below the cycle trough price P_trough (cycle hypothesis invalidated — EXIT IMMEDIATELY)
+❗ Technical cycle inflection in fundamentally distressed / forensic warning stock (fundamental zero-gate veto)
+`
+
+### Worked Numerical Example — Strategy 9
+`
+Hurst FLD & Two-Candle Setup:
+- Cycle Parameters: Nominal cycle length L = 54 days; half-displacement H = 27 days.
+- Current Status: Day 51 from cycle trough (cyclical accumulation zone active).
+- Trough Price: P_trough = ₹450; FLD level = ₹490.
+- Trigger: Current candle crosses FLD and closes at ₹500, with prior candle high at ₹492 (2-candle confirmed).
+- Mechanical Target: Target = ₹500 + (₹500 - ₹450) = ₹550 (+10% objective upside target).
+- Structural Stop Loss: Set at ₹445.50 (1% below cycle trough ₹450). Risk = ₹54.50, Reward = ₹50.00 (R:R ratio aligned).
+`
+
+---
 End of Document — Domain 46
