@@ -1508,7 +1508,67 @@
       "fdr_q_value": null,
       "performance_delta": 0.0,
       "human_signoff": true
+    },
+    "BASANT_MAHESHWARI_SALES_FIRST_COMPOUNDER_RULE": {
+      "entity_id": "BASANT_MAHESHWARI_SALES_FIRST_COMPOUNDER_RULE",
+      "canonical_name": "Basant Maheshwari Sales-First Multiplier & Topline Growth Moat Rule",
+      "category": "SECULAR_GROWTH_COMPOUNDING",
+      "confidence_score": 0.99,
+      "verification_status": "CERTIFIED_FACT",
+      "source_origin": "EMPIRICAL_AUDIT_VERIFICATION",
+      "relevance_vector": {
+        "multibagger": 1.0,
+        "early_compounder": 1.0,
+        "deadliest_combo": 0.95,
+        "sip": 0.9,
+        "turnaround": 0.0
+      },
+      "bayesian_prior_modifier": {
+        "metric": "sales_growth_multiplier",
+        "weight_delta": 0.25
+      },
+      "description": "Codifies Basant Maheshwari's core doctrine from 'The Thoughtful Investor': 'Sales growth is the mother of all growth.' Enforces >= 20% 3Y sales CAGR for premium multibagger status. Disqualifies earnings growth driven purely by cost-cutting or temporary margin expansion (PAT CAGR > 25% with Sales CAGR < 10%), while strictly exempting Turnaround and BFSI sectors.",
+      "sensationalism_penalty": 0.0,
+      "created_at_utc": "2026-11-02T12:00:00.000000+00:00",
+      "last_validated_at_utc": "2026-11-02T12:00:00.000000+00:00",
+      "shadow_status": "PROMOTED",
+      "sample_count": 1,
+      "success_count": 1,
+      "p_value": null,
+      "fdr_q_value": null,
+      "performance_delta": 0.0,
+      "human_signoff": true
+    },
+    "MAINTENANCE_VS_GROWTH_CAPEX_SIEVE_RULE": {
+      "entity_id": "MAINTENANCE_VS_GROWTH_CAPEX_SIEVE_RULE",
+      "canonical_name": "Maintenance vs Growth Capex Sieve & Asset-Light FCF Rule",
+      "category": "CAPITAL_ALLOCATION_EFFICIENCY",
+      "confidence_score": 0.98,
+      "verification_status": "CERTIFIED_FACT",
+      "source_origin": "EMPIRICAL_AUDIT_VERIFICATION",
+      "relevance_vector": {
+        "multibagger": 0.95,
+        "value_buying": 0.9,
+        "deadliest_combo": 0.9,
+        "sip": 0.85,
+        "turnaround": 0.6
+      },
+      "bayesian_prior_modifier": {
+        "metric": "maintenance_capex_haircut",
+        "weight_delta": 0.2
+      },
+      "description": "Sifts destructive maintenance capex (depreciation/CFO > 75% with stagnant sales) from productive expansion capex (CWIP > 35% of capex with sales growth >= 15%). Protects gigafactory supercycle capex while penalizing asset-heavy cash sinks that deplete equity free cash flows.",
+      "sensationalism_penalty": 0.0,
+      "created_at_utc": "2026-11-02T12:00:00.000000+00:00",
+      "last_validated_at_utc": "2026-11-02T12:00:00.000000+00:00",
+      "shadow_status": "PROMOTED",
+      "sample_count": 1,
+      "success_count": 1,
+      "p_value": null,
+      "fdr_q_value": null,
+      "performance_delta": 0.0,
+      "human_signoff": true
     }
   },
-  "total_entities_count": 57
+  "total_entities_count": 59
 }

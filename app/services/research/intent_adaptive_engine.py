@@ -435,10 +435,50 @@ class QueryAdaptiveConstraintEngine:
         return "GENERAL"
 
     @classmethod
+    def normalize_intent_alias(cls, intent: str) -> str:
+        """Normalizes heterogeneous user/API intent strings into canonical archetype keys."""
+        if not intent or not isinstance(intent, str):
+            return "GENERAL"
+        norm = intent.strip().upper().replace("INTENT_", "").replace("INTENT:", "")
+        if norm in ("SIP", "SIP_COMPOUND", "COMPOUNDER", "SIP_COMPOUNDING"):
+            return "SIP_COMPOUNDER"
+        elif norm in ("VALUE", "DEEP_VALUE", "VALUE_BUY", "DEEPVALUE"):
+            return "VALUE_BUYING"
+        elif norm in ("SWING_3D", "3D", "TACTICAL", "3_DAY", "3DAY"):
+            return "SWING_3D"
+        elif norm in ("SWING_10D", "10D", "10_DAY", "10DAY", "FORTNIGHTLY"):
+            return "SWING_10D"
+        elif norm in ("POSITIONAL_30D", "30D", "MONTHLY", "30_DAY", "30DAY"):
+            return "POSITIONAL_30D"
+        elif norm in ("SWING", "POSITIONAL", "SWING_TRADE"):
+            return "SWING_POSITIONAL"
+        elif norm in ("MICROCAP", "NANO_CAP", "EARLY_STAGE"):
+            return "EARLY_MICROCAP"
+        elif norm in ("MICRO_MULTIBAGGER", "MICRO-MULTIBAGGER", "MICROMULTIBAGGER"):
+            return "MICRO_MULTIBAGGER"
+        elif norm in ("PRE_FLY", "PRE-FLY", "PREFLY", "LAUNCHPAD"):
+            return "PRE_FLY"
+        elif norm in ("DEADLIEST_COMBO", "DEADLIEST-COMBO", "DEADLIEST", "DEADLIEST_COMBINATION"):
+            return "DEADLIEST_COMBO"
+        elif norm in ("MULTIBAGGER", "10X", "5X", "100X"):
+            return "MULTIBAGGER"
+        elif norm in ("COMPARE", "PEER", "PEER_COMPARE"):
+            return "PEER_COMPARE"
+        elif norm in ("KEDIA", "VIJAY_KEDIA", "SMILE", "KEDIA_SMILE"):
+            return "KEDIA_SMILE"
+        elif norm in ("KACHOLIA", "ASHISH_KACHOLIA", "KACHOLIA_SCALABILITY"):
+            return "KACHOLIA_SCALABILITY"
+        elif norm in ("AGRAWAL", "MUKUL_AGRAWAL", "AGRAWAL_INFLECTION"):
+            return "AGRAWAL_INFLECTION"
+        elif norm in ("TURNAROUND", "TURN_AROUND", "RESTRUCTURING"):
+            return "TURNAROUND"
+        return norm if norm in ARCHETYPE_WEIGHT_PROFILES else "GENERAL"
+
+    @classmethod
     def get_weight_profile(cls, intent: str) -> Dict[str, float]:
         """Returns the category weight profile for composite scoring."""
-        norm_intent = str(intent).upper().replace("INTENT_", "")
-        return ARCHETYPE_WEIGHT_PROFILES.get(norm_intent, ARCHETYPE_WEIGHT_PROFILES["GENERAL"])
+        canonical = cls.normalize_intent_alias(intent)
+        return ARCHETYPE_WEIGHT_PROFILES.get(canonical, ARCHETYPE_WEIGHT_PROFILES["GENERAL"])
 
     @classmethod
     def evaluate_adaptive_constraints(
@@ -447,37 +487,7 @@ class QueryAdaptiveConstraintEngine:
         data: Dict[str, Any]
     ) -> Dict[str, Any]:
         """Evaluates whether an investment opportunity passes context-specific strict/relaxed gates."""
-        norm_intent = str(intent).upper().replace("INTENT_", "")
-        if norm_intent in ("SIP", "SIP_COMPOUND", "COMPOUNDER"):
-            norm_intent = "SIP_COMPOUNDER"
-        elif norm_intent in ("VALUE", "DEEP_VALUE"):
-            norm_intent = "VALUE_BUYING"
-        elif norm_intent in ("SWING_3D", "3D", "TACTICAL", "3_DAY", "3DAY"):
-            norm_intent = "SWING_3D"
-        elif norm_intent in ("SWING_10D", "10D", "10_DAY", "10DAY"):
-            norm_intent = "SWING_10D"
-        elif norm_intent in ("POSITIONAL_30D", "30D", "MONTHLY", "30_DAY", "30DAY"):
-            norm_intent = "POSITIONAL_30D"
-        elif norm_intent in ("SWING", "POSITIONAL"):
-            norm_intent = "SWING_POSITIONAL"
-        elif norm_intent in ("MICROCAP", "NANO_CAP", "EARLY_STAGE"):
-            norm_intent = "EARLY_MICROCAP"
-        elif norm_intent in ("MICRO_MULTIBAGGER", "MICRO-MULTIBAGGER", "MICROMULTIBAGGER"):
-            norm_intent = "MICRO_MULTIBAGGER"
-        elif norm_intent in ("PRE_FLY", "PRE-FLY", "PREFLY", "LAUNCHPAD"):
-            norm_intent = "PRE_FLY"
-        elif norm_intent in ("DEADLIEST_COMBO", "DEADLIEST-COMBO", "DEADLIEST", "DEADLIEST_COMBINATION"):
-            norm_intent = "DEADLIEST_COMBO"
-        elif norm_intent in ("MULTIBAGGER", "10X", "5X"):
-            norm_intent = "MULTIBAGGER"
-        elif norm_intent in ("COMPARE", "PEER"):
-            norm_intent = "PEER_COMPARE"
-        elif norm_intent in ("KEDIA", "VIJAY_KEDIA", "SMILE", "KEDIA_SMILE"):
-            norm_intent = "KEDIA_SMILE"
-        elif norm_intent in ("KACHOLIA", "ASHISH_KACHOLIA", "KACHOLIA_SCALABILITY"):
-            norm_intent = "KACHOLIA_SCALABILITY"
-        elif norm_intent in ("AGRAWAL", "MUKUL_AGRAWAL", "AGRAWAL_INFLECTION"):
-            norm_intent = "AGRAWAL_INFLECTION"
+        norm_intent = cls.normalize_intent_alias(intent)
 
         relaxed: List[str] = []
         tightened: List[str] = []

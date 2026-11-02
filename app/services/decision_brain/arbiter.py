@@ -43,7 +43,7 @@ CATEGORY_WEIGHTS: Dict[str, float] = {
 }
 
 # Archetype-specific weight profiles for dynamic context-aware arbitration
-from app.services.research.intent_adaptive_engine import ARCHETYPE_WEIGHT_PROFILES
+from app.services.research.intent_adaptive_engine import ARCHETYPE_WEIGHT_PROFILES, QueryAdaptiveConstraintEngine
 
 
 MODEL_VERSION = "0.4.0"
@@ -216,7 +216,8 @@ class Arbiter:
         Engines with status=data_insufficient contribute 0 (excluded).
         Returns (composite_score_0_100, category_breakdown_dict).
         """
-        weights = ARCHETYPE_WEIGHT_PROFILES.get(objective.upper(), CATEGORY_WEIGHTS)
+        norm_obj = QueryAdaptiveConstraintEngine.normalize_intent_alias(objective)
+        weights = ARCHETYPE_WEIGHT_PROFILES.get(norm_obj, CATEGORY_WEIGHTS)
         category_scores: Dict[str, List[float]] = {k: [] for k in weights}
         category_breakdown: Dict[str, float] = {}
 

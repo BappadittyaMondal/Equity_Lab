@@ -271,6 +271,29 @@ class InstitutionalMultibaggerEngine:
             except (ValueError, TypeError):
                 pass
 
+        # Phase 194: Basant Maheshwari Sales-First & Maintenance Capex Sieve
+        sec_upper = str(item.get("sector") or item.get("industry") or "").upper()
+        is_bfsi_sector = any(k in sec_upper for k in ["BANK", "FINANCIAL", "NBFC", "BFSI", "INSURANCE"])
+        is_turnaround_mode = str(item.get("objective", "")).upper() == "TURNAROUND" or str(item.get("strategy_type", "")).upper() == "TURNAROUND"
+
+        if not is_bfsi_sector and not is_turnaround_mode:
+            # 1. Basant Maheshwari: Sales growth is the mother of all growth
+            if pat_growth_3yr >= 25.0 and sales_growth_3yr < 10.0:
+                risk_penalties -= 10.0
+                risk_flags.append(
+                    f"Basant Maheshwari Warning: Unsustainable Margin Expansion (PAT 3Y +{pat_growth_3yr:.1f}% vs Sales 3Y only +{sales_growth_3yr:.1f}%)"
+                )
+            
+            # 2. Asset-Heavy Maintenance Capex Sieve
+            deprec = float(item.get("depreciation_last_year") or item.get("depreciation") or 0.0)
+            if cfo_last_year > 0 and deprec > 0:
+                maint_drag = deprec / cfo_last_year
+                if maint_drag > 0.75 and sales_growth_3yr < 10.0:
+                    risk_penalties -= 10.0
+                    risk_flags.append(
+                        f"Asset-Heavy Maintenance Sink: Depreciation consumes {maint_drag*100:.0f}% of CFO with sub-10% sales growth"
+                    )
+
         overall_score = max(0.0, min(100.0, raw_score + risk_penalties))
 
         # ── Phase 178-5: Superstar Conviction Adjustment (Shareholding Verdict Wire) ──
@@ -2179,3 +2202,80 @@ class MungerInversionSentinel:
 
 
 InstitutionalMultibaggerEngine.evaluate_munger_inversion = MungerInversionSentinel.evaluate_inversion
+
+
+class BasantMaheshwariGrowthSentinel:
+    """Basant Maheshwari Growth & Sieve Sentinel (Phase 194).
+    
+    Codifies the core doctrines from 'The Thoughtful Investor':
+    1. 'Sales growth is the mother of all growth': Earnings growth without top-line
+       volume growth (>20-25%) is low-quality margin expansion.
+    2. Asset-Light vs Asset-Heavy Maintenance Sieve: Sifts maintenance drag (depreciation/CFO)
+       from productive expansion capex (CWIP).
+    3. Strict Scoping: Exempts Turnarounds, Deep Value, and BFSI from manufacturing metrics.
+    """
+
+    @classmethod
+    def evaluate_growth_moat(
+        cls,
+        item: Dict[str, Any],
+        objective: str = "MULTIBAGGER"
+    ) -> Dict[str, Any]:
+        """Evaluates whether candidate clears Basant Maheshwari's sales and capital sieve."""
+        clean_sym = str(item.get("symbol", "")).upper().replace(".NS", "").replace(".BO", "")
+        sec_upper = str(item.get("sector") or item.get("industry") or "").upper()
+        is_bfsi = any(k in sec_upper for k in ["BANK", "FINANCIAL", "NBFC", "BFSI", "INSURANCE"])
+        is_turnaround = str(objective).upper() == "TURNAROUND" or str(item.get("strategy_type", "")).upper() == "TURNAROUND"
+
+        sales_cagr = float(item.get("sales_growth_3yr") or item.get("sales_cagr_3yr") or 0.0)
+        pat_cagr = float(item.get("pat_growth_3yr") or item.get("pat_cagr_3yr") or 0.0)
+        cfo = float(item.get("cfo_last_year") or item.get("cfo") or 0.0)
+        deprec = float(item.get("depreciation_last_year") or item.get("depreciation") or 0.0)
+        capex = float(item.get("capex_last_year") or item.get("capex") or 0.0)
+        cwip = float(item.get("cwip") or 0.0)
+
+        flags = []
+        is_exempt = is_bfsi or is_turnaround
+
+        if is_exempt:
+            moat_status = "EXEMPT_NON_MANUFACTURING_OR_TURNAROUND"
+            moat_multiplier = 1.00
+            maint_drag = 0.0
+        else:
+            maint_drag = (deprec / cfo) if cfo > 0 else 0.0
+            is_gigafactory = (cwip > 0.35 * max(1.0, capex) and sales_cagr >= 15.0)
+
+            if sales_cagr >= 20.0:
+                moat_status = "PRISTINE_SECULAR_GROWTH_COMPOUNDER"
+                moat_multiplier = 1.00
+            elif sales_cagr >= 12.0:
+                moat_status = "MODERATE_VOLUME_EXPANSION"
+                moat_multiplier = 0.90
+            elif pat_cagr >= 25.0 and sales_cagr < 10.0:
+                moat_status = "UNSUSTAINABLE_MARGIN_EXPANSION_TRICK"
+                moat_multiplier = 0.70
+                flags.append(f"PAT CAGR +{pat_cagr:.1f}% backed by only +{sales_cagr:.1f}% Sales CAGR")
+            else:
+                moat_status = "SUBDUED_TOPLINE_GROWTH"
+                moat_multiplier = 0.80
+
+            if is_gigafactory:
+                flags.append(f"EXPANSION_GIGAFACTORY_SUPERCYCLE: CWIP ₹{cwip:.1f}Cr indicates productive capacity creation")
+            elif maint_drag > 0.75 and sales_cagr < 10.0:
+                flags.append(f"ASSET_HEAVY_MAINTENANCE_SINK: Depreciation consumes {maint_drag*100:.0f}% of CFO")
+                moat_multiplier = min(moat_multiplier, 0.75)
+
+        return {
+            "symbol": clean_sym,
+            "sales_growth_3yr": sales_cagr,
+            "pat_growth_3yr": pat_cagr,
+            "moat_status": moat_status,
+            "moat_multiplier": moat_multiplier,
+            "maintenance_drag_ratio": round(maint_drag, 2),
+            "is_exempt": is_exempt,
+            "flags": flags,
+            "axiom": "Sales growth is the mother of all growth. True compounders expand volume and pricing, not just accounting margins."
+        }
+
+
+InstitutionalMultibaggerEngine.evaluate_basant_maheshwari_growth_moat = BasantMaheshwariGrowthSentinel.evaluate_growth_moat
