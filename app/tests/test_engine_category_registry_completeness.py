@@ -6,7 +6,7 @@ import pytest
 from app.services.decision_brain.debate_engine import ENGINE_CATEGORIES, _get_engine_category
 from app.services.strategies.registry import STRATEGY_MODULES
 
-VALID_CATEGORIES = {"FUNDAMENTAL", "TECHNICAL", "VALUATION", "FORENSIC", "GOVERNANCE", "OPTIONS"}
+VALID_CATEGORIES = {"FUNDAMENTAL", "TECHNICAL", "VALUATION", "FORENSIC", "GOVERNANCE", "OPTIONS", "MACRO"}
 
 
 def test_all_strategy_modules_registered_in_engine_categories():
@@ -34,8 +34,8 @@ def test_forensic_engines_explicitly_classified():
 
 
 def test_core_research_engines_classified():
-    """Verify that all E1-E21 engines have active non-OTHER classifications."""
-    for i in range(1, 22):
+    """Verify that all E1-E22 engines have active non-OTHER classifications."""
+    for i in range(1, 23):
         eng_id = f"E{i}"
         cat = _get_engine_category(eng_id)
         assert cat != "OTHER", f"Engine {eng_id} unexpectedly classified as OTHER"

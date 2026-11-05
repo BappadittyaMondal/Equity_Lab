@@ -35,6 +35,7 @@ ENGINE_CATEGORIES: Dict[str, str] = {
     "E15": "TECHNICAL", "E16": "TECHNICAL", "E17": "GOVERNANCE",
     "E18": "TECHNICAL", "E19": "FUNDAMENTAL", "E20": "FUNDAMENTAL",
     "E21": "FUNDAMENTAL",
+    "E22": "MACRO",
     # Techno-Fundamental Patterns & Momentum
     "B4": "TECHNICAL", "B5": "TECHNICAL", "B6": "TECHNICAL",
     "B7": "TECHNICAL", "B8": "TECHNICAL",
@@ -51,6 +52,12 @@ ENGINE_CATEGORIES: Dict[str, str] = {
 
 # Severity matrix: which category pairs cause what severity
 SEVERITY_MATRIX: Dict[Tuple[str, str], str] = {
+    ("MACRO", "TECHNICAL"): "LOW",
+    ("TECHNICAL", "MACRO"): "LOW",
+    ("MACRO", "FUNDAMENTAL"): "MEDIUM",
+    ("FUNDAMENTAL", "MACRO"): "MEDIUM",
+    ("MACRO", "FORENSIC"): "HIGH",
+    ("FORENSIC", "MACRO"): "HIGH",
     ("FUNDAMENTAL", "TECHNICAL"): "LOW",
     ("TECHNICAL", "FUNDAMENTAL"): "LOW",
     ("VALUATION", "TECHNICAL"): "LOW",

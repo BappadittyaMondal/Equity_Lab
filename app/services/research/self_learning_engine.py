@@ -602,6 +602,102 @@ class SelfLearningEngine:
 
         return results
 
+    
+    def recall_applicable_priors(
+        self,
+        symbol: str,
+        sector: Optional[str] = None,
+        snap: Optional[Any] = None,
+        objective: str = "GENERAL",
+    ) -> Dict[str, Any]:
+        """Phase 199: Dynamic Memory Recall of verified PROMOTED priors.
+
+        Matches active institutional rules against the target company and returns
+        structured weight deltas, forensic haircuts, and empirical hard gates.
+        """
+        clean_sym = symbol.replace(".NS", "").replace(".BO", "").upper().strip()
+        promoted = self.query_learned_priors(require_promoted=True)
+        
+        applied_rules: List[Dict[str, Any]] = []
+        hard_veto_rule: Optional[Dict[str, Any]] = None
+        net_weight_delta: float = 0.0
+        
+        for ent in promoted:
+            eid = ent.get("entity_id", "")
+            mod = ent.get("bayesian_prior_modifier", {})
+            metric = mod.get("metric", "")
+            delta = float(mod.get("weight_delta", 0.0))
+            target_sym = mod.get("target_symbol") or ""
+            target_clean = str(target_sym).replace(".NS", "").replace(".BO", "").upper().strip()
+            
+            # 1. Target symbol matching rules
+            is_sym_match = (target_clean and target_clean == clean_sym) or (clean_sym and (f"_{clean_sym}" in eid or f"{clean_sym}_" in eid or eid == clean_sym))
+            if is_sym_match:
+                if metric == "empirical_override" or (ent.get("category") == "HARD_GATE_DISQUALIFICATION" and delta <= -0.5):
+                    hard_veto_rule = {
+                        "entity_id": eid,
+                        "reason": ent.get("description", f"Disqualified by verified empirical rule for {clean_sym}"),
+                        "category": ent.get("category"),
+                    }
+                applied_rules.append({
+                    "entity_id": eid,
+                    "category": ent.get("category"),
+                    "metric": metric,
+                    "weight_delta": delta,
+                    "reason": ent.get("description", f"Specific empirical rule for {clean_sym}")
+                })
+                net_weight_delta += delta
+                continue
+
+            # 2. General forensic / microstructure rules conditionally matching snap attributes
+            if snap is not None:
+                # Rule: Unobserved / sub-1% institutional holding penalty
+                if metric == "unobserved_institutional_holding_penalty":
+                    inst_holding = getattr(snap, "institutional_holding", None)
+                    if inst_holding is not None:
+                        try:
+                            if float(inst_holding) < 1.0:
+                                applied_rules.append({
+                                    "entity_id": eid,
+                                    "category": ent.get("category"),
+                                    "metric": metric,
+                                    "weight_delta": delta,
+                                    "reason": f"Institutional holding ({inst_holding}%) < 1.0% triggers institutional fail-closed penalty."
+                                })
+                                net_weight_delta += delta
+                        except (ValueError, TypeError):
+                            pass
+
+                # Rule: Working capital elongation haircut
+                elif metric == "working_capital_elongation_haircut":
+                    wc_days = getattr(snap, "working_capital_days", None)
+                    rec_days = getattr(snap, "debtor_days", None)
+                    try:
+                        wc_f = float(wc_days) if wc_days is not None else 0.0
+                        rec_f = float(rec_days) if rec_days is not None else 0.0
+                        if wc_f > 120.0 or rec_f > 90.0:
+                            applied_rules.append({
+                                "entity_id": eid,
+                                "category": ent.get("category"),
+                                "metric": metric,
+                                "weight_delta": delta,
+                                "reason": f"Working capital elongation (WC days: {wc_days}, debtor days: {rec_days}) triggers liquidity penalty."
+                            })
+                            net_weight_delta += delta
+                    except (ValueError, TypeError):
+                        pass
+
+        clamped_delta = max(-0.40, min(0.25, round(net_weight_delta, 3)))
+        
+        return {
+            "symbol": clean_sym,
+            "promoted_rules_evaluated": len(promoted),
+            "applied_rules_count": len(applied_rules),
+            "applied_rules": applied_rules,
+            "net_conviction_delta_pct": clamped_delta,
+            "hard_veto_rule": hard_veto_rule,
+        }
+
     def record_trial_outcome(
         self,
         entity_id: str,

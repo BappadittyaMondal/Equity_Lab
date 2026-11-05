@@ -331,8 +331,37 @@ def _calculate_operating_leverage_convexity(fundamentals: Dict[str, Any]) -> flo
             pass
 
     # Apply floor/ceiling first, then boost — preserves semantics for all company types
+    # Phase 199: Book-to-Bill (B2B) & Sovereign Capex Backlog Visibility Boost
+    # Capital goods, defence, and infrastructure companies with multi-year order books
+    # (B2B >= 2.5x or sovereign capex bonus flag) exhibit high operating leverage visibility.
+    b2b_boost = 0.0
+    b2b_ratio = fundamentals.get("b2b_ratio")
+    order_book = fundamentals.get("order_book_cr") or fundamentals.get("order_book")
+    revenue = fundamentals.get("ttm_revenue_cr") or fundamentals.get("ttm_revenue") or fundamentals.get("sales")
+    
+    if b2b_ratio is not None:
+        try:
+            b2b_val = float(b2b_ratio)
+            if b2b_val >= 2.5:
+                b2b_boost = min(0.25, round((b2b_val - 1.0) * 0.08, 3))
+        except (ValueError, TypeError):
+            pass
+    elif order_book and revenue:
+        try:
+            ob_val = float(order_book)
+            rev_val = float(revenue)
+            if ob_val > 0 and rev_val > 0:
+                calc_b2b = ob_val / rev_val
+                if calc_b2b >= 2.5:
+                    b2b_boost = min(0.25, round((calc_b2b - 1.0) * 0.08, 3))
+        except (ValueError, TypeError):
+            pass
+    elif fundamentals.get("sovereign_capex_bonus") is True:
+        b2b_boost = 0.15
+
+    # Apply floor/ceiling first, then boosts  preserves bounds in [1.0, 2.5]
     omega_base = max(1.0, ratio)
-    return round(min(2.5, omega_base + cwip_boost), 3)
+    return round(min(2.5, omega_base + cwip_boost + b2b_boost), 3)
 
 
 

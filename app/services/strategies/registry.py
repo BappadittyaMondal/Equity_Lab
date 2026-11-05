@@ -509,7 +509,19 @@ RESEARCH_ENGINES: Dict[str, StrategyModule] = {
         metrics=["early_compounder_score", "incremental_roic_pct", "incubator_tier"],
         risk_warnings=["Micro-cap illiquidity and execution lag risks apply."],
         methodology="Sequential 3-agent pipeline: Agent 10 (Incremental ROIC) + Agent 11 (Reverse Valuation) + Agent 12 (PM Kill-Test)."
-    )
+    ),
+    "E22": StrategyModule(
+        id="E22",
+        name="Geopolitical & Macroeconomic Risk Engine",
+        category="Macro / Geopolitics",
+        description="Evaluates global energy sensitivity (Brent Crude), maritime disruption (Red Sea), foreign exchange volatility (USD/INR), and sovereign regulatory overlays.",
+        status="production",
+        required_inputs=["symbol"],
+        universe="NSE All Equities",
+        metrics=["macro_risk_rating", "effective_overlay_pct", "conviction_penalty_pct"],
+        risk_warnings=["Macro regimes can pivot unpredictably on geopolitical escalation."],
+        methodology="Dynamic geographic exposure breakdown, shipping corridor sensitivity, commodity shock matrix, and physical disruption gates."
+    ),
 }
 
 # Extended Specialized Research Capabilities (governance registry)
@@ -598,8 +610,6 @@ def list_strategy_modules() -> List[StrategyModule]:
 def get_strategy_module(strategy_id: str) -> StrategyModule:
     from app.core.config import settings
     clean_id = strategy_id.upper().strip()
-    if clean_id == "E22":
-        clean_id = "OBV_ACC"
     if clean_id in STRATEGY_MODULES:
         mod = STRATEGY_MODULES[clean_id]
         if clean_id == "A2":
@@ -1275,6 +1285,49 @@ def run_strategy_module(
     elif module.id == "E21":
         from app.services.research.early_compounder_engine import run_early_compounder_engine
         return run_early_compounder_engine(symbol, as_of=as_of)
+    elif module.id == "E22":
+        from app.services.research.geopolitical_engine import evaluate_geopolitical_risk
+        res_e22 = evaluate_geopolitical_risk(symbol, as_of=as_of)
+        
+        eff_overlay = float(res_e22.get("effective_overlay_pct") or 0.0)
+        conv_penalty = float(res_e22.get("conviction_penalty_pct") or 0.0)
+        macro_score = max(10.0, min(95.0, round(75.0 + eff_overlay - conv_penalty, 1)))
+        
+        pdlr_triggered = False
+        pdlr_gate = res_e22.get("pdlr_gate")
+        if isinstance(pdlr_gate, dict):
+            pdlr_triggered = bool(pdlr_gate.get("triggered", False))
+        
+        risk_rating = str(res_e22.get("macro_risk_rating", "LOW")).upper()
+        passed_gates = (risk_rating in ("LOW", "MODERATE", "NEUTRAL")) and (conv_penalty < 25.0) and not pdlr_triggered
+        
+        norm_sym = res_e22.get("symbol", normalize_symbol(symbol))
+        return StrategyRunResponse(
+            strategy_id="E22",
+            strategy_name=module.name,
+            status="production",
+            executed_at=res_e22.get("executed_at", get_ist_now_str()),
+            symbol=norm_sym,
+            passed_gates=passed_gates,
+            results={
+                "macro_risk_rating": risk_rating,
+                "overlay_type": res_e22.get("overlay_type", "NEUTRAL"),
+                "effective_overlay_pct": eff_overlay,
+                "conviction_penalty_pct": conv_penalty,
+                "pdlr_gate": pdlr_gate,
+                "active_triggers": res_e22.get("active_triggers", []),
+                "evidence": res_e22.get("evidence", [])
+            },
+            metrics={
+                "score": macro_score,
+                "macro_risk_rating": risk_rating,
+                "effective_overlay_pct": eff_overlay,
+                "conviction_penalty_pct": conv_penalty,
+            },
+            risk_warnings=module.risk_warnings,
+            disclaimer="Geopolitical & Macroeconomic Risk evaluation.",
+            meta=create_meta_header(source=f"Phase 199 Geopolitical Strategy Adapter ({norm_sym})")
+        )
     elif module.id == "SIP_POLICY":
         from app.services.research.finder_state_machines import SIPPolicyEngine
         from app.services.data_ingestion.screener_connector import ScreenerCloudConnector

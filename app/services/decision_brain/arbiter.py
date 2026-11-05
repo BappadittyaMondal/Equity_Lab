@@ -303,6 +303,7 @@ class Arbiter:
             "valuation": category_breakdown.get("VALUATION", 0.0),
             "forensic_governance": forensic_gov_score,
             "technical_momentum": category_breakdown.get("TECHNICAL", 0.0),
+            "macro_geopolitical": category_breakdown.get("MACRO", 0.0),
         }
         return coverage_pct, clusters
 
@@ -984,6 +985,27 @@ class Arbiter:
             if w not in contextual_warnings:
                 contextual_warnings.append(w)
 
+
+        # Phase 199: Dynamic Self-Learning Memory Recall & Prior Feedback
+        learned_priors_eval: Dict[str, Any] = {}
+        try:
+            from app.services.research.self_learning_engine import SelfLearningEngine
+            sle = SelfLearningEngine()
+            learned_priors_eval = sle.recall_applicable_priors(
+                symbol=normalized,
+                sector=getattr(snap, "sector", None),
+                snap=snap,
+                objective=objective
+            )
+            if learned_priors_eval.get("hard_veto_rule"):
+                hard_veto = learned_priors_eval["hard_veto_rule"]
+                veto_desc = f"LEARNED_RULE_VETO: {hard_veto['entity_id']} - {hard_veto['reason']}"
+                if veto_desc not in fatal_vetoes:
+                    fatal_vetoes.append(veto_desc)
+                veto = True
+        except Exception as e:
+            logger.warning("Self-learning recall failed for %s: %s", normalized, e)
+
         # Step 3: Detect contradictions
         contradictions = self._detect_contradictions(outputs)
 
@@ -1038,6 +1060,11 @@ class Arbiter:
         if getattr(self, "_pledge_audit_amber", False):
             final_score_f = min(final_score_f, 65.0)  # Cap conviction under unobserved promoter pledge
 
+        # Phase 199: Apply Self-Learning PROMOTED Prior Weight Delta
+        sl_delta = learned_priors_eval.get("net_conviction_delta_pct", 0.0) if isinstance(learned_priors_eval, dict) else 0.0
+        if sl_delta != 0.0 and not veto:
+            final_score_f = max(5.0, min(95.0, round(final_score_f * (1.0 + sl_delta), 1)))
+
         final_score = int(round(final_score_f))
 
         # Compute independent evidence clusters and explicit coverage %
@@ -1061,6 +1088,11 @@ class Arbiter:
             "fatal_vetoes": fatal_vetoes,
             "critical_warnings": [w["alert"] for w in critical_warnings],
             "contextual_warnings": contextual_warnings,
+            "self_learning_feedback": {
+                "rules_applied_count": learned_priors_eval.get("applied_rules_count", 0) if isinstance(learned_priors_eval, dict) else 0,
+                "net_conviction_delta_pct": learned_priors_eval.get("net_conviction_delta_pct", 0.0) if isinstance(learned_priors_eval, dict) else 0.0,
+                "applied_rules": [r["entity_id"] for r in learned_priors_eval.get("applied_rules", [])] if isinstance(learned_priors_eval, dict) else [],
+            },
             "three_tier_alerts": {
                 "tier_1_fatal_vetoes": fatal_vetoes,
                 "tier_2_critical_warnings": critical_warnings,
