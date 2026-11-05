@@ -161,7 +161,11 @@ class TestDeadliestComboPipelineExecution:
             "STOCK3.NS": s3,
         }.get(sym)
 
-        results = run_deadliest_combo_pipeline(["STOCK1.NS", "STOCK2.NS", "STOCK3.NS"], top_n=5)
+        results = run_deadliest_combo_pipeline(
+            ["STOCK1.NS", "STOCK2.NS", "STOCK3.NS"],
+            top_n=5,
+            disqualify_stage_4=False,  # Phase 198: Explicit False here to isolate pledge gate test from Stage-4 veto
+        )
 
         # Stock 3 must be filtered out
         assert len(results) == 2

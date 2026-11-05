@@ -65,9 +65,44 @@ def compute_portfolio_delta_rebalance(
     # Process all stocks that were in the previous portfolio
     for sym, prev_data in prev_map.items():
         curr_data = curr_map.get(sym)
-        prev_price = float(prev_data.get("price") or prev_data.get("current_price") or prev_data.get("entry_price") or 1.0)
+        # Phase 198 — C7: Phantom gain bug fix.
+        # Previous code used `or 1.0` fallback, producing 49,900% phantom gain when
+        # entry_price=None and curr_price=500. Now: missing prev_price → DATA_INSUFFICIENT HOLD.
+        _prev_price_raw = (
+            prev_data.get("price")
+            or prev_data.get("current_price")
+            or prev_data.get("entry_price")
+        )
+        if _prev_price_raw is None:
+            decisions.append(RebalanceDecision(
+                symbol=sym,
+                action=RebalanceAction.HOLD,
+                previous_rank=prev_data.get("rank"),
+                current_rank=curr_map.get(sym, {}).get("rank") if curr_data else None,
+                price_change_pct=0.0,
+                extension_z=0.0,
+                reverse_dcf_headroom_pct=50.0,
+                rationale="DATA_INSUFFICIENT: Entry price unobserved; cannot compute price gain. Holding pending data.",
+                urgency="MONITOR",
+            ))
+            continue
+        prev_price = float(_prev_price_raw)
+        if prev_price <= 0:
+            decisions.append(RebalanceDecision(
+                symbol=sym,
+                action=RebalanceAction.HOLD,
+                previous_rank=prev_data.get("rank"),
+                current_rank=curr_map.get(sym, {}).get("rank") if curr_data else None,
+                price_change_pct=0.0,
+                extension_z=0.0,
+                reverse_dcf_headroom_pct=50.0,
+                rationale="DATA_INSUFFICIENT: Entry price <= 0; cannot compute price gain. Holding pending data.",
+                urgency="MONITOR",
+            ))
+            continue
+
         curr_price = float(curr_data.get("price") or curr_data.get("current_price") or prev_data.get("current_price") or prev_price) if curr_data else float(prev_data.get("current_price") or prev_price)
-        
+
         # Calculate price change
         price_gain = ((curr_price - prev_price) / prev_price) * 100.0 if prev_price > 0 else 0.0
         reported_gain = float(curr_data.get("unrealized_return_pct") or prev_data.get("unrealized_return_pct") or price_gain) if curr_data else price_gain
@@ -79,7 +114,10 @@ def compute_portfolio_delta_rebalance(
         # Check technical extension & valuation metrics
         src = curr_data if curr_data else prev_data
         extension_z = float(src.get("extension_z") or src.get("extension_zscore") or 0.0)
-        dcf_headroom = float(src.get("reverse_dcf_headroom") or src.get("headroom_pct") or 50.0)
+        # Phase 198 — C7 Part 2: Do not impute bullish DCF headroom default.
+        # If headroom is unobserved, signal unverifiable rather than silently assuming 50%.
+        _dcf_raw = src.get("reverse_dcf_headroom") or src.get("headroom_pct")
+        dcf_headroom = float(_dcf_raw) if _dcf_raw is not None else None
         rsi = float(src.get("rsi") or 50.0)
         is_vetoed = bool(src.get("is_vetoed") or src.get("fatal_veto") or src.get("vetoes"))
 
@@ -97,7 +135,7 @@ def compute_portfolio_delta_rebalance(
                 current_rank=curr_rank,
                 price_change_pct=round(effective_gain, 2),
                 extension_z=round(extension_z, 2),
-                reverse_dcf_headroom_pct=round(dcf_headroom, 2),
+                reverse_dcf_headroom_pct=round(dcf_headroom, 2) if dcf_headroom is not None else 0.0,
                 rationale=reason,
                 urgency="IMMEDIATE"
             ))
@@ -111,7 +149,7 @@ def compute_portfolio_delta_rebalance(
             if extension_z >= max_extension_z:
                 take_profit_triggered = True
                 reasons.append(f"Climactic technical extension (Z-score {extension_z:+.2f} >= {max_extension_z:+.2f})")
-            if dcf_headroom < min_reverse_dcf_headroom:
+            if dcf_headroom is not None and dcf_headroom < min_reverse_dcf_headroom:
                 take_profit_triggered = True
                 reasons.append(f"Reverse-DCF headroom exhausted ({dcf_headroom:.1f}% < {min_reverse_dcf_headroom:.1f}%)")
             if rsi >= 78.0:
@@ -131,7 +169,7 @@ def compute_portfolio_delta_rebalance(
                 current_rank=curr_rank,
                 price_change_pct=round(effective_gain, 2),
                 extension_z=round(extension_z, 2),
-                reverse_dcf_headroom_pct=round(dcf_headroom, 2),
+                reverse_dcf_headroom_pct=round(dcf_headroom, 2) if dcf_headroom is not None else 0.0,
                 rationale=f"Lock in profits ({effective_gain:+.1f}% gain): " + "; ".join(reasons),
                 urgency="NORMAL"
             ))
@@ -139,6 +177,7 @@ def compute_portfolio_delta_rebalance(
 
         # Rule 3: Still in current portfolio with safe headroom -> HOLD
         if curr_data:
+            _dcf_display = f"{dcf_headroom:.1f}%" if dcf_headroom is not None else "UNVERIFIED"
             decisions.append(RebalanceDecision(
                 symbol=sym,
                 action=RebalanceAction.HOLD,
@@ -146,8 +185,8 @@ def compute_portfolio_delta_rebalance(
                 current_rank=curr_rank,
                 price_change_pct=round(effective_gain, 2),
                 extension_z=round(extension_z, 2),
-                reverse_dcf_headroom_pct=round(dcf_headroom, 2),
-                rationale=f"Thesis intact; position ranked #{curr_rank} with {dcf_headroom:.1f}% valuation runway remaining.",
+                reverse_dcf_headroom_pct=round(dcf_headroom, 2) if dcf_headroom is not None else 0.0,
+                rationale=f"Thesis intact; position ranked #{curr_rank} with {_dcf_display} valuation runway remaining.",
                 urgency="MONITOR"
             ))
         else:
@@ -159,7 +198,7 @@ def compute_portfolio_delta_rebalance(
                 current_rank=None,
                 price_change_pct=round(effective_gain, 2),
                 extension_z=round(extension_z, 2),
-                reverse_dcf_headroom_pct=round(dcf_headroom, 2),
+                reverse_dcf_headroom_pct=round(dcf_headroom, 2) if dcf_headroom is not None else 0.0,
                 rationale=f"Relative rank displaced by higher-scoring candidates ({effective_gain:+.1f}% return); rotate capital.",
                 urgency="NORMAL"
             ))

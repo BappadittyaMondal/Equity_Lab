@@ -134,6 +134,166 @@ IMPACT_KEYWORDS = {
 
 
 # ─────────────────────────────────────────────────────────────────────────────
+# Phase 198 NEW-C1: 6-Class Catalyst Taxonomy
+# Classifies market-moving headlines into structural catalyst categories.
+# Each class has distinct investment implications and score weights.
+# ─────────────────────────────────────────────────────────────────────────────
+
+CATALYST_TAXONOMY: Dict[str, Dict[str, Any]] = {
+    "SOVEREIGN_ORDER_WIN": {
+        "description": "Government / PSU mega-order or LOI award to private company",
+        "investment_implication": "STRONG_POSITIVE_ENTRY",
+        "book_to_bill_trigger": True,  # Feeds NEW-C2 B2B computation
+        "keywords": [
+            "defence ministry", "mod order", "ntpc award", "nhsrcl", "railway board",
+            "letter of intent", "loi", "contract value", "order book", "epc award",
+            "ministry of defence", "armed forces contract", "navy order", "air force order",
+            "metro rail order", "power grid award", "bpcl contract", "ongc award",
+            "nuclear power", "ircon", "rites order", "nhai contract", "irfc",
+        ],
+    },
+    "REGULATORY_SHOCK": {
+        "description": "Adverse regulatory action — RBI risk weights, USFDA 483, SEBI circular",
+        "investment_implication": "NEGATIVE_INVESTIGATE_PANIC_VS_DERATE",
+        "trigger_panic_classifier": True,  # Feeds NEW-C3 panic bridge
+        "keywords": [
+            "rbi guidelines", "risk weight", "risk weights", "provisioning norms",
+            "sebi circular", "usfda 483", "import alert", "gst demand",
+            "show cause notice", "risk weight hike", "npa classification",
+            "rbi action", "sebi order", "regulatory action", "norms tightened",
+            "edrm warning", "warning letter", "complete response letter", "crl",
+        ],
+    },
+    "GLOBAL_TECH_JV": {
+        "description": "International technology JV, PLI partnership, or ecosystem certification",
+        "investment_implication": "STRONG_POSITIVE_MOAT_BUILDER",
+        "keywords": [
+            "joint venture", "technology transfer", "renesas", "mufg", "smbc",
+            "pli scheme", "semiconductor", "osat", "atmp", "jv agreement",
+            "manufacturing partner", "strategic alliance", "global oem",
+            "nvidia partnership", "intel agreement", "tsmc", "samsung fab",
+            "foxconn jv", "apple supplier", "tesla supply", "qualified vendor",
+            "tech collaboration", "r&d partnership", "defence technology",
+        ],
+    },
+    "OPERATING_LEVERAGE_BLOWOUT": {
+        "description": "Earnings blowout driven by operating leverage — margin expansion + volume surge",
+        "investment_implication": "POSITIVE_MOMENTUM_CONFIRMATION",
+        "keywords": [
+            "ebitda margin jumped", "ebitda margin expanded", "pat doubles",
+            "pat surges", "operating leverage", "volume growth", "capacity utilization",
+            "margin expansion", "record revenue", "record profit", "highest ever",
+            "blowout results", "exceptional quarter", "operating profit surges",
+            "ebitda doubles", "net profit triples", "strong operational performance",
+        ],
+    },
+    "TECH_ECOSYSTEM_CERT": {
+        "description": "Tier-1 supplier certification or ecosystem partner announcement",
+        "investment_implication": "POSITIVE_MOAT_SIGNAL",
+        "keywords": [
+            "tier-1 supplier", "certified partner", "qualified supplier", "ecosystem partner",
+            "preferred vendor", "oem approved", "design win", "platform win",
+            "chip design win", "automotive tier-1", "aerospace approved supplier",
+            "iso 9001", "as9100", "iatf 16949 certification",
+        ],
+    },
+    "PE_SECONDARY_EXIT": {
+        "description": "PE/promoter block deal exit — distribution trap risk",
+        "investment_implication": "CAUTION_DISTRIBUTION_TRAP",
+        "keywords": [
+            "block deal sell", "secondary sale", "pe exit", "promoter sale",
+            "open market sale", "bulk deal sell", "stake sale", "promoter offloading",
+            "private equity exit", "vc exit", "pre-ipo investor exit",
+            "institutional exit", "promoter reduces stake",
+        ],
+    },
+}
+
+
+def classify_catalyst_class(title: str) -> Optional[str]:
+    """Phase 198 NEW-C1: Classify a headline into one of 6 catalyst taxonomy classes.
+
+    Returns the catalyst_class string or None if no match.
+    Priority order: SOVEREIGN_ORDER_WIN > REGULATORY_SHOCK > PE_SECONDARY_EXIT >
+                    GLOBAL_TECH_JV > OPERATING_LEVERAGE_BLOWOUT > TECH_ECOSYSTEM_CERT
+    """
+    title_lower = title.lower()
+
+    # Ordered priority matching
+    priority_order = [
+        "SOVEREIGN_ORDER_WIN",
+        "REGULATORY_SHOCK",
+        "PE_SECONDARY_EXIT",
+        "GLOBAL_TECH_JV",
+        "OPERATING_LEVERAGE_BLOWOUT",
+        "TECH_ECOSYSTEM_CERT",
+    ]
+
+    for cat in priority_order:
+        keywords = CATALYST_TAXONOMY[cat]["keywords"]
+        for kw in keywords:
+            if kw.lower() in title_lower:
+                return cat
+
+    return None
+
+
+def compute_book_to_bill(order_book_cr: Optional[float], ttm_revenue_cr: Optional[float]) -> Dict[str, Any]:
+    """Phase 198 NEW-C2: Compute Book-to-Bill ratio and sovereign capex signal.
+
+    B2B >= 2.5x indicates strong multi-year revenue visibility.
+    When combined with positive CFO, signals SOVEREIGN_CAPEX_BONUS for Deadliest Combo scoring.
+
+    Args:
+        order_book_cr: Total outstanding order book in Crores
+        ttm_revenue_cr: Trailing 12-month revenue in Crores
+
+    Returns:
+        Dict with b2b_ratio, sovereign_capex_bonus flag, tier classification
+    """
+    if order_book_cr is None or ttm_revenue_cr is None:
+        return {
+            "b2b_ratio": None,
+            "sovereign_capex_bonus": False,
+            "b2b_tier": "UNASSESSED",
+            "methodology_note": "Book-to-Bill requires order_book_cr and ttm_revenue_cr.",
+        }
+
+    if ttm_revenue_cr <= 0:
+        return {
+            "b2b_ratio": None,
+            "sovereign_capex_bonus": False,
+            "b2b_tier": "INSUFFICIENT_DATA",
+            "methodology_note": "TTM revenue <= 0; B2B undefined.",
+        }
+
+    b2b = round(order_book_cr / ttm_revenue_cr, 2)
+
+    if b2b >= 4.0:
+        tier = "ULTRA_HIGH_VISIBILITY"
+        bonus = True
+    elif b2b >= 2.5:
+        tier = "HIGH_VISIBILITY"
+        bonus = True
+    elif b2b >= 1.5:
+        tier = "MODERATE_VISIBILITY"
+        bonus = False
+    elif b2b >= 1.0:
+        tier = "LOW_VISIBILITY"
+        bonus = False
+    else:
+        tier = "REVENUE_RUNOFF_RISK"
+        bonus = False
+
+    return {
+        "b2b_ratio": b2b,
+        "sovereign_capex_bonus": bonus,
+        "b2b_tier": tier,
+        "methodology_note": f"B2B={b2b:.2f}x (Order Book {order_book_cr:.0f} Cr / TTM Rev {ttm_revenue_cr:.0f} Cr). Bonus threshold: B2B >= 2.5x.",
+    }
+
+
+# ─────────────────────────────────────────────────────────────────────────────
 # T6: News Ingestion & Impact Mapper
 # ─────────────────────────────────────────────────────────────────────────────
 
@@ -355,8 +515,8 @@ def synthesize_news_capsule(headline_item: Dict[str, Any]) -> Dict[str, Any]:
     }
 
 
-def classify_headline(title: str) -> Dict[str, Any]:
-    """Classify a headline by sector, impact direction, magnitude, ticker, and forensics."""
+def classify_headline(title: str, item_financials: Optional[Dict[str, Any]] = None) -> Dict[str, Any]:
+    """Classify a headline by sector, impact direction, magnitude, ticker, forensics, and Phase 198 catalysts."""
     title_lower = title.lower()
 
     # Sector classification
@@ -396,11 +556,40 @@ def classify_headline(title: str) -> Dict[str, Any]:
     # Forensic & Clickbait Analysis
     forensics = classify_headline_forensics(title)
 
+    # Phase 198 NEW-C1: 6-Class Catalyst Taxonomy
+    catalyst_class = classify_catalyst_class(title)
+
+    # Phase 198 NEW-C2: Book-to-Bill & Sovereign Capex
+    order_book_cr = (item_financials or {}).get("order_book_cr")
+    ttm_rev_cr = (item_financials or {}).get("ttm_revenue_cr") or (item_financials or {}).get("revenue_cr")
+    b2b_data = compute_book_to_bill(order_book_cr, ttm_rev_cr)
+
+    # Phase 198 NEW-C3: Regulatory Shock Panic Bridge
+    regulatory_panic_verdict = None
+    panic_analysis = None
+    if catalyst_class == "REGULATORY_SHOCK":
+        try:
+            from app.services.research.panic_vs_derate import classify_panic_vs_derate
+            panic_payload = dict(item_financials or {})
+            if "rsi_14" not in panic_payload:
+                panic_payload["rsi_14"] = 35.0  # standard oversold assumption if triggered by headline shock
+            if "price_drop_3m_pct" not in panic_payload:
+                panic_payload["price_drop_3m_pct"] = 18.0
+            panic_analysis = classify_panic_vs_derate(panic_payload)
+            regulatory_panic_verdict = panic_analysis.get("verdict")
+        except Exception as e:
+            logger.warning("Error running panic_vs_derate for regulatory shock: %s", e)
+
     base_result = {
         "sectors": matched_sectors,
         "direction": direction,
         "magnitude": magnitude,
         "resolved_ticker": resolved_ticker,
+        "catalyst_class": catalyst_class,
+        "book_to_bill": b2b_data,
+        "sovereign_capex_bonus": b2b_data.get("sovereign_capex_bonus", False),
+        "regulatory_panic_verdict": regulatory_panic_verdict,
+        "panic_analysis": panic_analysis,
         **forensics,
     }
 
@@ -573,8 +762,17 @@ def feed_news_to_self_learning(
         is_clickbait = h.get("is_clickbait_hype", False)
 
         target_entity_id = None
+        catalyst_class = h.get("catalyst_class")
         if is_clickbait:
             target_entity_id = "OPERATOR_CHURN_PENNY_HYPE"
+        elif catalyst_class == "SOVEREIGN_ORDER_WIN":
+            target_entity_id = "SOVEREIGN_MEGA_ORDER_BOOK_TO_BILL"
+        elif catalyst_class == "REGULATORY_SHOCK":
+            target_entity_id = "RBI_REGULATORY_PANIC_VS_STRUCTURAL_DERATE"
+        elif catalyst_class in ("GLOBAL_TECH_JV", "TECH_ECOSYSTEM_CERT"):
+            target_entity_id = "GLOBAL_TECH_JV_PLI_MOAT"
+        elif catalyst_class == "PE_SECONDARY_EXIT":
+            target_entity_id = "PE_SECONDARY_BLOCK_EXIT_TRAP"
         elif tier == "TIER_1_MOMENTUM_CATALYST" and any(k in title.lower() for k in ["order", "contract", "bags", "wins", "awarded"]):
             target_entity_id = "REG30_MEGA_ORDER_CATALYST"
         elif any(k in title.lower() for k in ["pat jumps", "pat surges", "net profit", "results"]):

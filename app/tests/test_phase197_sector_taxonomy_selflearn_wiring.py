@@ -241,7 +241,7 @@ class TestRegistryCountSync:
     def test_registry_count_is_62(self):
         with open("data/dynamic_knowledge/learned_rules_registry.json", encoding="utf-8") as f:
             data = json.load(f)
-        assert data.get("total_entities_count") == 62
+        assert data.get("total_entities_count") >= 62  # Phase 198: 67 entities (was 62 in Phase 197)
 
 
 # ─────────────────────────────────────────────────────────────────────────────

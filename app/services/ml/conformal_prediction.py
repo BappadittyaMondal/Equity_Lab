@@ -60,12 +60,22 @@ class ConformalPredictor:
         from datetime import datetime, timezone
         target_path = filepath or getattr(settings, "CONFORMAL_CACHE_PATH", "conformal_calibration_cache.json")
         residuals_dict = {strata: res.tolist() for strata, res in self.residuals_by_strata.items()}
+        # Phase 198 C9: Automatically detect strata with under-sampled calibration (< 10 samples)
+        coverage_warnings = {}
+        for s, r in self.residuals_by_strata.items():
+            if len(r) < 10:
+                coverage_warnings[s] = (
+                    f"n={len(r)} is INSUFFICIENT for guaranteed {round((1.0 - self.alpha) * 100.0, 1)}% coverage. "
+                    "Conformal guarantee requires n+1 >= ceil(1/alpha) = 10 samples minimum. "
+                    "Treat intervals as indicative only."
+                )
         data = {
             "metadata": {
                 "calibrated_at": datetime.now(timezone.utc).isoformat(),
                 "alpha": self.alpha,
                 "target_coverage_pct": round((1.0 - self.alpha) * 100.0, 1),
                 "strata_counts": {s: len(r) for s, r in self.residuals_by_strata.items()},
+                "coverage_warnings": coverage_warnings,
                 "engine": "ConformalPredictorV1"
             },
             "residuals": residuals_dict

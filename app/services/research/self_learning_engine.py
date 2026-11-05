@@ -290,6 +290,47 @@ class SelfLearningEngine:
             "relevance": {"swing_3d": 0.30, "swing_10d": 0.55, "positional_30d": 0.75, "multibagger": 0.60, "sip_compounder": 0.40},
             "modifier": {"metric": "pead_sue_drift_acceleration", "weight_delta": 0.25},
         },
+        # Phase 198: 5 New Strategic Knowledge Patterns
+        "SIX_CATALYST_TAXONOMY_FRAMEWORK": {
+            "patterns": [r"\b(catalyst\s*taxonomy|six-?class\s*catalyst|sovereign\s*order\s*win|operating\s*leverage\s*blowout|tech\s*ecosystem\s*cert)\b"],
+            "name": "Six-Class Structural Catalyst Taxonomy Framework",
+            "category": "MARKET_MICROSTRUCTURE",
+            "desc": "Rigorous 6-class catalyst taxonomy replacing uncalibrated hype tagging with quantified event vectors.",
+            "relevance": {"deadliest_combo": 0.95, "pre_fly": 0.90, "swing_3d": 0.70, "multibagger": 0.85},
+            "modifier": {"metric": "catalyst_momentum_weight", "weight_delta": 0.15},
+        },
+        "RBI_REGULATORY_PANIC_VS_STRUCTURAL_DERATE": {
+            "patterns": [r"\b(regulatory\s*panic|rbi\s*guidelines?\s*shock|project\s*finance\s*norms|risk\s*weight\s*hike\s*panic|dislocation\s*opportunity)\b"],
+            "name": "RBI Regulatory Panic vs. Structural De-Rating Dislocation Bridge",
+            "category": "REGULATORY_MECHANISM",
+            "desc": "Distinguishes headline-driven regulatory panic dips from fundamental structural de-rating, enabling anti-cyclical accumulation.",
+            "relevance": {"sip_compounder": 0.90, "turnaround": 0.85, "value_buying": 0.80, "deadliest_combo": 0.60},
+            "modifier": {"metric": "panic_accumulation_multiplier", "weight_delta": 0.20},
+        },
+        "SOVEREIGN_MEGA_ORDER_BOOK_TO_BILL": {
+            "patterns": [r"\b(book-?to-?bill|b2b\s*ratio|order\s*book\s*to\s*bill|sovereign\s*capex\s*bonus|defence\s*ministry\s*order|railway\s*board\s*award)\b"],
+            "name": "Sovereign Mega-Order Book-to-Bill Multi-Year Revenue Visibility",
+            "category": "SECTOR_TAXONOMY",
+            "desc": "Quantifies multi-year capex backlog for capital goods, defence, and railway infrastructure when Book-to-Bill ratio >= 2.5x with positive operating cash flows.",
+            "relevance": {"deadliest_combo": 0.95, "multibagger": 0.90, "positional_30d": 0.75},
+            "modifier": {"metric": "revenue_visibility_multiplier", "weight_delta": 0.18},
+        },
+        "GLOBAL_TECH_JV_PLI_MOAT": {
+            "patterns": [r"\b(global\s*tech\s*jv|semiconductor\s*atmp|osat\s*jv|technology\s*transfer\s*agreement|tier-?1\s*partner\s*nvidia|apple\s*supplier\s*jv)\b"],
+            "name": "Global Technology JV & PLI Ecosystem Moat Inflection",
+            "category": "GEOPOLITICAL_CORRIDOR",
+            "desc": "International technology transfers, sovereign semiconductor/OSAT ATMP joint ventures, and tier-1 vendor qualifications providing non-linear operating leverage.",
+            "relevance": {"multibagger": 0.90, "micro_multibagger": 0.85, "deadliest_combo": 0.80},
+            "modifier": {"metric": "tech_transfer_moat_lift", "weight_delta": 0.15},
+        },
+        "PE_SECONDARY_BLOCK_EXIT_TRAP": {
+            "patterns": [r"\b(pe\s*exit\s*trap|secondary\s*block\s*sale|promoter\s*offloading\s*block|pe\s*secondary\s*exit|institutional\s*distribution\s*trap)\b"],
+            "name": "Private Equity Secondary Block Sale Distribution Trap",
+            "category": "MARKET_MICROSTRUCTURE",
+            "desc": "Detects large PE/promoter secondary block deal distribution into retail euphoria; suppresses false institutional support floor assumptions.",
+            "relevance": {"swing_3d": 0.70, "pre_fly": 0.80, "deadliest_combo": 0.65},
+            "modifier": {"metric": "distribution_overhang_penalty", "weight_delta": -0.20},
+        },
     }
 
     def __init__(self, registry_file: Optional[str] = None):

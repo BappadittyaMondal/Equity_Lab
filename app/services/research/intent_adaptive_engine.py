@@ -329,6 +329,28 @@ ARCHETYPE_WEIGHT_PROFILES = {
         "OTHER":       0.00,
         "OPTIONS":     0.00,
     },
+    # Phase 198 P1-E: SMART_SUPERSTAR_INVESTOR weight profile (was absent; fell to GENERAL)
+
+    "SMART_SUPERSTAR_INVESTOR": {
+
+        "GOVERNANCE":  0.35,  # Superstar holding quality, pledge-free insider conviction
+
+        "FUNDAMENTAL": 0.30,  # Business moat, ROCE trajectory, long-horizon earning power
+
+        "FORENSIC":    0.20,  # Accounting cleanness, cash conversion, zero red flags
+
+        "VALUATION":   0.10,  # Reasonable entry vs. smart money average cost basis
+
+        "TECHNICAL":   0.05,  # Secondary role — superstar thesis is not chart-driven
+
+        "MACRO":       0.00,
+
+        "OTHER":       0.00,
+
+        "OPTIONS":     0.00,
+
+    },
+
 }
 
 
@@ -440,39 +462,54 @@ class QueryAdaptiveConstraintEngine:
         if not intent or not isinstance(intent, str):
             return "GENERAL"
         norm = intent.strip().upper().replace("INTENT_", "").replace("INTENT:", "")
-        if norm in ("SIP", "SIP_COMPOUND", "COMPOUNDER", "SIP_COMPOUNDING"):
+        norm_key = norm.replace(" ", "_").replace("-", "_")
+        if norm in ("SIP", "SIP_COMPOUND", "COMPOUNDER", "SIP_COMPOUNDING") or norm_key in ("SIP", "SIP_COMPOUND", "COMPOUNDER", "SIP_COMPOUNDING"):
             return "SIP_COMPOUNDER"
-        elif norm in ("VALUE", "DEEP_VALUE", "VALUE_BUY", "DEEPVALUE"):
+        elif norm in ("VALUE", "DEEP_VALUE", "VALUE_BUY", "DEEPVALUE") or norm_key in ("VALUE", "DEEP_VALUE", "VALUE_BUY", "DEEPVALUE"):
             return "VALUE_BUYING"
-        elif norm in ("SWING_3D", "3D", "TACTICAL", "3_DAY", "3DAY"):
+        elif norm in ("SWING_3D", "3D", "TACTICAL", "3_DAY", "3DAY") or norm_key in ("SWING_3D", "3D", "TACTICAL", "3_DAY", "3DAY"):
             return "SWING_3D"
-        elif norm in ("SWING_10D", "10D", "10_DAY", "10DAY", "FORTNIGHTLY"):
+        elif norm in ("SWING_10D", "10D", "10_DAY", "10DAY", "FORTNIGHTLY") or norm_key in ("SWING_10D", "10D", "10_DAY", "10DAY", "FORTNIGHTLY"):
             return "SWING_10D"
-        elif norm in ("POSITIONAL_30D", "30D", "MONTHLY", "30_DAY", "30DAY"):
+        elif norm in ("POSITIONAL_30D", "30D", "MONTHLY", "30_DAY", "30DAY") or norm_key in ("POSITIONAL_30D", "30D", "MONTHLY", "30_DAY", "30DAY"):
             return "POSITIONAL_30D"
-        elif norm in ("SWING", "POSITIONAL", "SWING_TRADE"):
+        elif norm in ("SWING", "POSITIONAL", "SWING_TRADE") or norm_key in ("SWING", "POSITIONAL", "SWING_TRADE"):
             return "SWING_POSITIONAL"
-        elif norm in ("MICROCAP", "NANO_CAP", "EARLY_STAGE"):
+        elif norm in ("MICROCAP", "NANO_CAP", "EARLY_STAGE") or norm_key in ("MICROCAP", "NANO_CAP", "EARLY_STAGE"):
             return "EARLY_MICROCAP"
-        elif norm in ("MICRO_MULTIBAGGER", "MICRO-MULTIBAGGER", "MICROMULTIBAGGER"):
+        elif norm in ("MICRO_MULTIBAGGER", "MICRO-MULTIBAGGER", "MICROMULTIBAGGER") or norm_key in ("MICRO_MULTIBAGGER", "MICRO-MULTIBAGGER", "MICROMULTIBAGGER"):
             return "MICRO_MULTIBAGGER"
-        elif norm in ("PRE_FLY", "PRE-FLY", "PREFLY", "LAUNCHPAD"):
+        elif norm in ("PRE_FLY", "PRE-FLY", "PREFLY", "LAUNCHPAD") or norm_key in ("PRE_FLY", "PRE-FLY", "PREFLY", "LAUNCHPAD"):
             return "PRE_FLY"
-        elif norm in ("DEADLIEST_COMBO", "DEADLIEST-COMBO", "DEADLIEST", "DEADLIEST_COMBINATION"):
+        elif norm in ("DEADLIEST_COMBO", "DEADLIEST-COMBO", "DEADLIEST", "DEADLIEST_COMBINATION") or norm_key in ("DEADLIEST_COMBO", "DEADLIEST-COMBO", "DEADLIEST", "DEADLIEST_COMBINATION"):
             return "DEADLIEST_COMBO"
-        elif norm in ("MULTIBAGGER", "10X", "5X", "100X"):
+        elif norm in ("MULTIBAGGER", "10X", "5X", "100X") or norm_key in ("MULTIBAGGER", "10X", "5X", "100X"):
             return "MULTIBAGGER"
-        elif norm in ("COMPARE", "PEER", "PEER_COMPARE"):
+        elif norm in ("COMPARE", "PEER", "PEER_COMPARE") or norm_key in ("COMPARE", "PEER", "PEER_COMPARE"):
             return "PEER_COMPARE"
-        elif norm in ("KEDIA", "VIJAY_KEDIA", "SMILE", "KEDIA_SMILE"):
+        elif norm in ("KEDIA", "VIJAY_KEDIA", "SMILE", "KEDIA_SMILE") or norm_key in ("KEDIA", "VIJAY_KEDIA", "SMILE", "KEDIA_SMILE"):
             return "KEDIA_SMILE"
-        elif norm in ("KACHOLIA", "ASHISH_KACHOLIA", "KACHOLIA_SCALABILITY"):
+        elif norm in ("KACHOLIA", "ASHISH_KACHOLIA", "KACHOLIA_SCALABILITY") or norm_key in ("KACHOLIA", "ASHISH_KACHOLIA", "KACHOLIA_SCALABILITY"):
             return "KACHOLIA_SCALABILITY"
-        elif norm in ("AGRAWAL", "MUKUL_AGRAWAL", "AGRAWAL_INFLECTION"):
+        elif norm in ("AGRAWAL", "MUKUL_AGRAWAL", "AGRAWAL_INFLECTION") or norm_key in ("AGRAWAL", "MUKUL_AGRAWAL", "AGRAWAL_INFLECTION"):
             return "AGRAWAL_INFLECTION"
-        elif norm in ("TURNAROUND", "TURN_AROUND", "RESTRUCTURING"):
+        elif norm in ("TURNAROUND", "TURN_AROUND", "RESTRUCTURING") or norm_key in ("TURNAROUND", "TURN_AROUND", "RESTRUCTURING"):
             return "TURNAROUND"
-        return norm if norm in ARCHETYPE_WEIGHT_PROFILES else "GENERAL"
+        # Phase 198 P1-E: SMART_SUPERSTAR_INVESTOR alias normalization
+        elif (
+            norm in ("SMART_SUPERSTAR_INVESTOR", "SUPER_INVESTOR", "SMART_MONEY",
+                     "SUPERSTAR_INVESTOR", "SMART_INVESTOR", "ACE_INVESTOR",
+                     "MARQUEE_INVESTOR", "BIG_INVESTOR", "SUPERSTAR_PORTFOLIO")
+            or norm_key in ("SMART_SUPERSTAR_INVESTOR", "SUPER_INVESTOR", "SMART_MONEY",
+                            "SUPERSTAR_INVESTOR", "SMART_INVESTOR", "ACE_INVESTOR",
+                            "MARQUEE_INVESTOR", "BIG_INVESTOR", "SUPERSTAR_PORTFOLIO")
+        ):
+            return "SMART_SUPERSTAR_INVESTOR"
+        if norm in ARCHETYPE_WEIGHT_PROFILES:
+            return norm
+        if norm_key in ARCHETYPE_WEIGHT_PROFILES:
+            return norm_key
+        return "GENERAL"
 
     @classmethod
     def get_weight_profile(cls, intent: str) -> Dict[str, float]:

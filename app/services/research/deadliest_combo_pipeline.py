@@ -909,7 +909,7 @@ def run_deadliest_combo_pipeline(
     pledge_overrides: Optional[Dict[str, float]] = None,
     enforce_portfolio_constraints: bool = True,
     max_sector_exposure: float = 0.30,
-    disqualify_stage_4: bool = False,
+    disqualify_stage_4: bool = True,  # Phase 198 C6 fix: default True — Stage-4 stocks are NEVER safe entries
 ) -> List[DeadliestComboResult]:
     """Run the full Deadliest Combination pipeline on a list of tickers.
 
@@ -935,7 +935,7 @@ def run_deadliest_combo_pipeline_with_audit(
     pledge_overrides: Optional[Dict[str, float]] = None,
     enforce_portfolio_constraints: bool = True,
     max_sector_exposure: float = 0.30,
-    disqualify_stage_4: bool = False,
+    disqualify_stage_4: bool = True,  # Phase 198 C6 fix: default True in public API
 ) -> Tuple[List[DeadliestComboResult], List[DeadliestComboResult]]:
     """Same as run_deadliest_combo_pipeline, but returns (ranked_results, disqualified_list)."""
     return _run_deadliest_combo_pipeline_core(

@@ -43,9 +43,49 @@ def compute_return_ceiling(
     dividend_yield_pct: Optional[float] = None,
     cfo_pat_ratio: Optional[float] = None,
     sector: Optional[str] = None,
+    archetype: Optional[str] = None,
+    cfo_3yr_avg: Optional[float] = None,
 ) -> Dict[str, Any]:
-    """Compute Bear / Base / Bull return multiples via reverse-DCF with sector awareness."""
+    """Compute Bear / Base / Bull return multiples via reverse-DCF with sector awareness.
+
+    Phase 198 C4: Added `archetype` and `cfo_3yr_avg` params.
+    For TURNAROUND archetype with negative PAT but positive OCF, uses 3-yr avg OCF
+    as earnings proxy with conservative Bear/Base/Bull scenarios.
+    """
+    # Phase 198 C4: TURNAROUND OCF fallback when PAT <= 0 but CFO > 0
+    _using_ocf_proxy = False
+    _label_prefix = ""
     if current_mcap_cr <= 0 or ttm_pat_cr <= 0:
+        ocf_proxy = cfo_3yr_avg
+        if (
+            ocf_proxy is not None
+            and float(ocf_proxy) > 0
+            and str(archetype or "").upper() == "TURNAROUND"
+        ):
+            # Use OCF as a conservative earnings proxy for turnaround ceiling
+            ttm_pat_cr = float(ocf_proxy)
+            _using_ocf_proxy = True
+            _label_prefix = "OCF_NORMALIZED_TURNAROUND_"
+            # Override with conservative turnaround scenarios (lower growth than base defaults)
+            if growth_scenarios is None:
+                growth_scenarios = {
+                    "bear": {"pat_cagr_pct": 4.0, "terminal_pe": 10.0},
+                    "base": {"pat_cagr_pct": 12.0, "terminal_pe": 16.0},
+                    "bull": {"pat_cagr_pct": 22.0, "terminal_pe": 22.0},
+                }
+        else:
+            return {
+                "bear_multiple": 0.0,
+                "base_multiple": 0.0,
+                "bull_multiple": 0.0,
+                "multibagger_eligible": False,
+                "label": "INSUFFICIENT_DATA",
+                "horizon_years": horizon_years,
+                "dividend_trap_warning": False,
+                "sovereign_yield_pct": sovereign_yield_pct,
+                "sector": str(sector or "GENERAL").upper(),
+            }
+    if current_mcap_cr <= 0:
         return {
             "bear_multiple": 0.0,
             "base_multiple": 0.0,
@@ -139,7 +179,8 @@ def compute_return_ceiling(
     return {
         **results,
         "multibagger_eligible": eligible,
-        "label": label,
+        "label": f"{_label_prefix}{label}" if _label_prefix else label,
+        "ocf_proxy_used": _using_ocf_proxy,
         "horizon_years": horizon_years,
         "current_mcap_cr": current_mcap_cr,
         "ttm_pat_cr": ttm_pat_cr,

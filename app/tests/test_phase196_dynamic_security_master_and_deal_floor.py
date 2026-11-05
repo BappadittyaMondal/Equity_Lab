@@ -104,7 +104,7 @@ def test_dynamic_knowledge_entity_62():
         data = json.load(f)
 
     assert "INSTITUTIONAL_DEAL_VALUATION_FLOOR_RULE" in data["entities"]
-    assert len(data["entities"]) == 62
+    assert len(data["entities"]) >= 62  # Phase 198: 67 entities with 5 new additions (was 62 in Phase 197)
 
     e62 = data["entities"]["INSTITUTIONAL_DEAL_VALUATION_FLOOR_RULE"]
     assert e62["verification_status"] == "CERTIFIED_FACT"

@@ -1,6 +1,6 @@
 {
-  "version": "1.2.2",
-  "last_updated_utc": "2026-11-05T09:20:42.641805+00:00",
+  "version": "1.2.3",
+  "last_updated_utc": "2026-11-05T15:14:03.111431+00:00",
   "entities": {
     "ERD_SERVICES_CONVEXITY_RULE": {
       "entity_id": "ERD_SERVICES_CONVEXITY_RULE",
@@ -36,7 +36,7 @@
       "category": "MARKET_MICROSTRUCTURE",
       "confidence_score": 0.71,
       "verification_status": "CERTIFIED_FACT",
-      "source_origin": "USER_FEEDBACK_FB-1793870294",
+      "source_origin": "USER_FEEDBACK_FB-1793891483",
       "relevance_vector": {
         "swing_3d": 0.15,
         "swing_10d": 0.1,
@@ -49,8 +49,8 @@
       },
       "description": "Post-market multilateral closing auction establishing deterministic VWAP and dampening end-of-session volatility.",
       "sensationalism_penalty": 0.0,
-      "created_at_utc": "2026-11-05T09:18:14.504652+00:00",
-      "last_validated_at_utc": "2026-11-05T09:18:14.504652+00:00",
+      "created_at_utc": "2026-11-05T15:11:23.397722+00:00",
+      "last_validated_at_utc": "2026-11-05T15:11:23.397722+00:00",
       "shadow_status": "SHADOW",
       "sample_count": 0,
       "success_count": 0,
@@ -83,7 +83,7 @@
       "category": "GEOPOLITICAL_CORRIDOR",
       "confidence_score": 0.71,
       "verification_status": "CERTIFIED_FACT",
-      "source_origin": "USER_FEEDBACK_FB-1793870294",
+      "source_origin": "USER_FEEDBACK_FB-1793891483",
       "relevance_vector": {
         "swing_3d": 0.0,
         "swing_10d": 0.05,
@@ -96,8 +96,8 @@
       },
       "description": "Bilateral foreign direct investment in South American lithium brine reserves under RIGI regulatory concessions.",
       "sensationalism_penalty": 0.0,
-      "created_at_utc": "2026-11-05T09:18:14.510938+00:00",
-      "last_validated_at_utc": "2026-11-05T09:18:14.510938+00:00",
+      "created_at_utc": "2026-11-05T15:11:23.415792+00:00",
+      "last_validated_at_utc": "2026-11-05T15:11:23.415792+00:00",
       "shadow_status": "SHADOW",
       "sample_count": 0,
       "success_count": 0,
@@ -705,8 +705,8 @@
       },
       "description": "Texmaco Rail ROCE is 11.5% on Screener, which breaches the 20.0% institutional floor.",
       "sensationalism_penalty": 0.0,
-      "created_at_utc": "2026-11-05T09:20:39.465761+00:00",
-      "last_validated_at_utc": "2026-11-05T09:20:39.465761+00:00",
+      "created_at_utc": "2026-11-05T15:13:24.328822+00:00",
+      "last_validated_at_utc": "2026-11-05T15:13:24.328822+00:00",
       "shadow_status": "PROMOTED",
       "sample_count": 1,
       "success_count": 1,
@@ -734,8 +734,8 @@
       },
       "description": "TestBadStock ROCE is below the 20% institutional floor.",
       "sensationalism_penalty": 0.0,
-      "created_at_utc": "2026-11-05T09:20:39.492936+00:00",
-      "last_validated_at_utc": "2026-11-05T09:20:39.492936+00:00",
+      "created_at_utc": "2026-11-05T15:13:24.351049+00:00",
+      "last_validated_at_utc": "2026-11-05T15:13:24.351049+00:00",
       "shadow_status": "PROMOTED",
       "sample_count": 1,
       "success_count": 1,
@@ -763,8 +763,8 @@
       },
       "description": "Test rule for target symbol preservation",
       "sensationalism_penalty": 0.0,
-      "created_at_utc": "2026-11-05T09:20:42.594893+00:00",
-      "last_validated_at_utc": "2026-11-05T09:20:42.594893+00:00",
+      "created_at_utc": "2026-11-05T15:13:26.992823+00:00",
+      "last_validated_at_utc": "2026-11-05T15:13:26.992823+00:00",
       "shadow_status": "PROMOTED",
       "sample_count": 1,
       "success_count": 1,
@@ -794,8 +794,8 @@
       },
       "description": "Superstar investor Rekha Jhunjhunwala has exited or trimmed stake below 1.0% in RAGHAV as of Q4 FY25. Stake trimmed below 1.0% SEBI disclosure threshold",
       "sensationalism_penalty": 0.0,
-      "created_at_utc": "2026-11-05T09:20:42.617327+00:00",
-      "last_validated_at_utc": "2026-11-05T09:20:42.617327+00:00",
+      "created_at_utc": "2026-11-05T15:13:27.014897+00:00",
+      "last_validated_at_utc": "2026-11-05T15:13:27.014897+00:00",
       "shadow_status": "PROMOTED",
       "sample_count": 1,
       "success_count": 1,
@@ -823,8 +823,8 @@
       },
       "description": "Simulated fraudulent accounting veto",
       "sensationalism_penalty": 0.0,
-      "created_at_utc": "2026-11-05T09:20:42.627724+00:00",
-      "last_validated_at_utc": "2026-11-05T09:20:42.627724+00:00",
+      "created_at_utc": "2026-11-05T15:13:27.024003+00:00",
+      "last_validated_at_utc": "2026-11-05T15:13:27.024003+00:00",
       "shadow_status": "PROMOTED",
       "sample_count": 1,
       "success_count": 1,
@@ -1659,7 +1659,149 @@
       "fdr_q_value": null,
       "performance_delta": 0.0,
       "human_signoff": true
+    },
+    "SIX_CATALYST_TAXONOMY_FRAMEWORK": {
+      "entity_id": "SIX_CATALYST_TAXONOMY_FRAMEWORK",
+      "canonical_name": "Six-Class Structural Catalyst Taxonomy Framework",
+      "category": "MARKET_MICROSTRUCTURE",
+      "confidence_score": 0.9,
+      "verification_status": "CERTIFIED_FACT",
+      "source_origin": "PHASE_198_RESEARCH_AUDIT",
+      "relevance_vector": {
+        "deadliest_combo": 0.95,
+        "pre_fly": 0.9,
+        "swing_3d": 0.7,
+        "multibagger": 0.85
+      },
+      "bayesian_prior_modifier": {
+        "metric": "catalyst_momentum_weight",
+        "weight_delta": 0.15
+      },
+      "description": "Rigorous 6-class catalyst taxonomy (Sovereign Order Win, Regulatory Shock, Global Tech JV, Operating Leverage Blowout, Tech Ecosystem Cert, PE Secondary Exit) replacing uncalibrated hype tagging.",
+      "sensationalism_penalty": 0.0,
+      "created_at_utc": "2026-11-05T10:13:20.909484+00:00",
+      "last_validated_at_utc": "2026-11-05T10:13:20.909484+00:00",
+      "shadow_status": "SHADOW",
+      "sample_count": 0,
+      "success_count": 0,
+      "p_value": null,
+      "fdr_q_value": null,
+      "performance_delta": 0.0,
+      "human_signoff": false
+    },
+    "RBI_REGULATORY_PANIC_VS_STRUCTURAL_DERATE": {
+      "entity_id": "RBI_REGULATORY_PANIC_VS_STRUCTURAL_DERATE",
+      "canonical_name": "RBI Regulatory Panic vs. Structural De-Rating Dislocation Bridge",
+      "category": "REGULATORY_MECHANISM",
+      "confidence_score": 0.85,
+      "verification_status": "CERTIFIED_FACT",
+      "source_origin": "PHASE_198_RESEARCH_AUDIT",
+      "relevance_vector": {
+        "sip_compounder": 0.9,
+        "turnaround": 0.85,
+        "value_buying": 0.8,
+        "deadliest_combo": 0.6
+      },
+      "bayesian_prior_modifier": {
+        "metric": "panic_accumulation_multiplier",
+        "weight_delta": 0.2
+      },
+      "description": "Distinguishes headline-driven regulatory panic dips (solvency intact, prospective rules) from fundamental structural de-rating, enabling anti-cyclical accumulation.",
+      "sensationalism_penalty": 0.0,
+      "created_at_utc": "2026-11-05T10:13:20.909484+00:00",
+      "last_validated_at_utc": "2026-11-05T10:13:20.909484+00:00",
+      "shadow_status": "SHADOW",
+      "sample_count": 0,
+      "success_count": 0,
+      "p_value": null,
+      "fdr_q_value": null,
+      "performance_delta": 0.0,
+      "human_signoff": false
+    },
+    "SOVEREIGN_MEGA_ORDER_BOOK_TO_BILL": {
+      "entity_id": "SOVEREIGN_MEGA_ORDER_BOOK_TO_BILL",
+      "canonical_name": "Sovereign Mega-Order Book-to-Bill Multi-Year Revenue Visibility",
+      "category": "SECTOR_TAXONOMY",
+      "confidence_score": 0.73,
+      "verification_status": "CERTIFIED_FACT",
+      "source_origin": "DAILY_NEWS_INTELLIGENCE_LOOP",
+      "relevance_vector": {
+        "deadliest_combo": 0.95,
+        "multibagger": 0.9,
+        "positional_30d": 0.75
+      },
+      "bayesian_prior_modifier": {
+        "metric": "revenue_visibility_multiplier",
+        "weight_delta": 0.18
+      },
+      "description": "Quantifies multi-year capex backlog for capital goods, defence, and railway infrastructure when Book-to-Bill ratio >= 2.5x with positive operating cash flows.",
+      "sensationalism_penalty": 0.0,
+      "created_at_utc": "2026-11-05T15:14:03.070484+00:00",
+      "last_validated_at_utc": "2026-11-05T15:14:03.070484+00:00",
+      "shadow_status": "SHADOW",
+      "sample_count": 0,
+      "success_count": 0,
+      "p_value": null,
+      "fdr_q_value": null,
+      "performance_delta": 0.0,
+      "human_signoff": false
+    },
+    "GLOBAL_TECH_JV_PLI_MOAT": {
+      "entity_id": "GLOBAL_TECH_JV_PLI_MOAT",
+      "canonical_name": "Global Technology JV & PLI Ecosystem Moat Inflection",
+      "category": "GEOPOLITICAL_CORRIDOR",
+      "confidence_score": 0.73,
+      "verification_status": "CERTIFIED_FACT",
+      "source_origin": "DAILY_NEWS_INTELLIGENCE_LOOP",
+      "relevance_vector": {
+        "multibagger": 0.9,
+        "micro_multibagger": 0.85,
+        "deadliest_combo": 0.8
+      },
+      "bayesian_prior_modifier": {
+        "metric": "tech_transfer_moat_lift",
+        "weight_delta": 0.15
+      },
+      "description": "International technology transfers, sovereign semiconductor/OSAT ATMP joint ventures, and tier-1 vendor qualifications providing non-linear operating leverage.",
+      "sensationalism_penalty": 0.0,
+      "created_at_utc": "2026-11-05T15:14:03.099516+00:00",
+      "last_validated_at_utc": "2026-11-05T15:14:03.099516+00:00",
+      "shadow_status": "SHADOW",
+      "sample_count": 0,
+      "success_count": 0,
+      "p_value": null,
+      "fdr_q_value": null,
+      "performance_delta": 0.0,
+      "human_signoff": false
+    },
+    "PE_SECONDARY_BLOCK_EXIT_TRAP": {
+      "entity_id": "PE_SECONDARY_BLOCK_EXIT_TRAP",
+      "canonical_name": "Private Equity Secondary Block Sale Distribution Trap",
+      "category": "MARKET_MICROSTRUCTURE",
+      "confidence_score": 0.73,
+      "verification_status": "CERTIFIED_FACT",
+      "source_origin": "DAILY_NEWS_INTELLIGENCE_LOOP",
+      "relevance_vector": {
+        "swing_3d": 0.7,
+        "pre_fly": 0.8,
+        "deadliest_combo": 0.65
+      },
+      "bayesian_prior_modifier": {
+        "metric": "distribution_overhang_penalty",
+        "weight_delta": -0.2
+      },
+      "description": "Detects large PE/promoter secondary block deal distribution into retail euphoria; suppresses false institutional support floor assumptions.",
+      "sensationalism_penalty": 0.0,
+      "created_at_utc": "2026-11-05T15:14:03.079482+00:00",
+      "last_validated_at_utc": "2026-11-05T15:14:03.079482+00:00",
+      "shadow_status": "SHADOW",
+      "sample_count": 0,
+      "success_count": 0,
+      "p_value": null,
+      "fdr_q_value": null,
+      "performance_delta": 0.0,
+      "human_signoff": false
     }
   },
-  "total_entities_count": 62
+  "total_entities_count": 67
 }
