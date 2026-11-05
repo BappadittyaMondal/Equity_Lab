@@ -1229,6 +1229,21 @@ class Arbiter:
         except Exception as e:
             logger.warning("Audit trail build failed for %s: %s", normalized, e)
 
+        # Phase 197 — C3: Self-Learning Auto-Hook (non-blocking).
+        # Passes a compact conviction summary to SelfLearningEngine after every
+        # arbitration so that patterns accumulate automatically.  Any failure here
+        # must NEVER propagate — arbitration correctness takes absolute priority.
+        try:
+            from app.services.research.self_learning_engine import SelfLearningEngine
+            _sl_summary = (
+                f"Symbol: {normalized}, Verdict: {final_verdict}, "
+                f"Score: {final_score}, Objective: {objective.upper()}, "
+                f"Regime: {regime}"
+            )
+            SelfLearningEngine().learn_from_text(_sl_summary)
+        except Exception:
+            pass  # Non-blocking — silent failure permitted
+
         return call
 
     def synthesize_intent_verdict(self, symbol: str, intent: str, as_of: Optional[Any] = None) -> Dict[str, Any]:

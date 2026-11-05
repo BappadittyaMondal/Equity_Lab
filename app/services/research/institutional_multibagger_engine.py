@@ -294,6 +294,20 @@ class InstitutionalMultibaggerEngine:
                         f"Asset-Heavy Maintenance Sink: Depreciation consumes {maint_drag*100:.0f}% of CFO with sub-10% sales growth"
                     )
 
+            # 3. Phase 195: Asset-Light ROCE Denominator Normalizer
+            fixed_assets = float(item.get("fixed_assets") or item.get("net_block") or 0.0)
+            working_cap = float(item.get("working_capital") or item.get("working_cap") or 0.0)
+            rev_val = float(item.get("revenue") or item.get("sales") or item.get("ttm_revenue") or 0.0)
+            roce_val = float(item.get("roce") or item.get("roce_pct") or 0.0)
+
+            if rev_val > 0.0:
+                cap_intensity = (fixed_assets + working_cap) / rev_val
+                if cap_intensity < 0.20 and roce_val > 45.0 and sales_growth_3yr < 10.0:
+                    risk_penalties -= 10.0
+                    risk_flags.append(
+                        f"Asset-Light Denominator Distortion: ROCE {roce_val:.1f}% inflated by near-zero asset base (intensity {cap_intensity:.2f}) with sluggish sales (+{sales_growth_3yr:.1f}%)"
+                    )
+
         overall_score = max(0.0, min(100.0, raw_score + risk_penalties))
 
         # ── Phase 178-5: Superstar Conviction Adjustment (Shareholding Verdict Wire) ──
@@ -2279,3 +2293,381 @@ class BasantMaheshwariGrowthSentinel:
 
 
 InstitutionalMultibaggerEngine.evaluate_basant_maheshwari_growth_moat = BasantMaheshwariGrowthSentinel.evaluate_growth_moat
+
+
+
+class AssetLightDenominatorNormalizer:
+    """Asset-Light ROCE Denominator Normalizer & Sovereign Capex Sieve (Phase 195).
+
+    Resolves the 'Asset-Light Ratio Trap':
+    In standard accounting, ROCE = EBIT / Capital Employed.
+    Software/consulting firms have near-zero physical assets, so ROCE artificially
+    explodes to 60%-130% even with sluggish topline sales growth. Meanwhile, heavy
+    capital goods, defense, and power companies have massive plants, bounding ROCE
+    between 22% and 38% despite locked-in 5-year sovereign backlogs.
+
+    This normalizer:
+    1. Computes Capital Intensity = (Fixed Assets + Working Capital) / Revenue.
+    2. Sifts 'Asset-Light Denominator Distortion' from 'Pristine Secular Compounders'.
+    3. Rewards heavy capital compounders operating at high asset turns.
+    4. Exempts BFSI (which operates on regulatory capital adequacy) and Turnarounds.
+    """
+
+    @classmethod
+    def evaluate_capital_intensity(
+        cls,
+        item: Dict[str, Any],
+        objective: str = "MULTIBAGGER"
+    ) -> Dict[str, Any]:
+        clean_sym = str(item.get("symbol", "")).upper().replace(".NS", "").replace(".BO", "")
+        sec_upper = str(item.get("sector") or item.get("industry") or "").upper()
+        is_bfsi = any(k in sec_upper for k in ["BANK", "FINANCIAL", "NBFC", "BFSI", "INSURANCE"])
+        is_turnaround = str(objective).upper() == "TURNAROUND" or str(item.get("strategy_type", "")).upper() == "TURNAROUND"
+
+        if is_bfsi or is_turnaround:
+            return {
+                "symbol": clean_sym,
+                "status": "EXEMPT_BFSI_OR_TURNAROUND",
+                "capital_intensity": None,
+                "normalized_roce_multiplier": 1.00,
+                "flags": [],
+                "is_exempt": True
+            }
+
+        fixed_assets = float(item.get("fixed_assets") or item.get("net_block") or 0.0)
+        working_cap = float(item.get("working_capital") or item.get("working_cap") or 0.0)
+        rev = float(item.get("revenue") or item.get("sales") or item.get("ttm_revenue") or 0.0)
+        raw_roce = float(item.get("roce") or item.get("roce_pct") or 0.0)
+        sales_cagr = float(item.get("sales_growth_3yr") or item.get("sales_cagr_3yr") or 0.0)
+        fcf = float(item.get("fcf_last_year") or item.get("fcf") or 0.0)
+        pat = float(item.get("pat_last_year") or item.get("pat") or 0.0)
+
+        fcf_pat_ratio = (fcf / pat) if pat > 0 else 0.0
+        cap_intensity = (fixed_assets + working_cap) / rev if rev > 0 else 0.50
+
+        flags = []
+        multiplier = 1.00
+        status = "STANDARD_CAPITAL_STRUCTURE"
+
+        # Asset-light classification
+        if cap_intensity <= 0.20:  # Phase 197 I3: inclusive boundary (was strictly <)
+            if raw_roce > 45.0:
+                if sales_cagr >= 20.0 and fcf_pat_ratio >= 0.70:
+                    status = "PRISTINE_ASSET_LIGHT_COMPOUNDER"
+                    multiplier = 1.00
+                    flags.append("Pristine Asset-Light Compounder: High ROCE verified by >20% Sales CAGR & >70% FCF conversion")
+                elif sales_cagr < 10.0:
+                    status = "ASSET_LIGHT_DENOMINATOR_DISTORTION"
+                    multiplier = 0.80
+                    flags.append(f"Asset-Light Denominator Distortion: ROCE {raw_roce:.1f}% inflated by tiny asset base with sluggish sales (+{sales_cagr:.1f}%)")
+                else:
+                    status = "MODERATE_ASSET_LIGHT_GROWTH"
+                    multiplier = 0.90
+        # Capital-intensive sovereign/industrial classification
+        elif cap_intensity >= 0.40:
+            if raw_roce >= 22.0 and sales_cagr >= 15.0:
+                status = "SOVEREIGN_CAPEX_CHAMPION"
+                multiplier = 1.05
+                flags.append(f"Sovereign Capex Champion: Robust {raw_roce:.1f}% ROCE on substantial physical capital base (+{sales_cagr:.1f}% Sales CAGR)")
+
+        return {
+            "symbol": clean_sym,
+            "status": status,
+            "capital_intensity": round(cap_intensity, 2),
+            "raw_roce": raw_roce,
+            "sales_growth_3yr": sales_cagr,
+            "normalized_roce_multiplier": multiplier,
+            "flags": flags,
+            "is_exempt": False
+        }
+
+
+class SectorOrderBookOrVelocitySieve:
+    """Contextual Order-Book vs. Consumer Velocity Sieve (Phase 195).
+
+    Eliminates the 'Universal Book-to-Bill Trap':
+    Order books exist ONLY in EPC, Defence, Capital Goods, and Infrastructure.
+    Applying an order book requirement to Retail, FMCG, CDMO, or Banking blindly
+    disqualifies world-class compounders.
+
+    This sieve contextually routes:
+    - EPC/Defence/Capital Goods -> Evaluates Book-to-Bill (>1.5x) and Burn Rate (kappa >= 0.20).
+    - Retail/FMCG/Consumer/Pharma -> Evaluates Inventory Turnover Velocity (>= 4.0x) and CCC (<= 60 days).
+    - BFSI -> Evaluates Credit Cost (<= 1.2%) and NIM (>= 3.0%).
+    """
+
+    @classmethod
+    def evaluate_sector_pipeline_velocity(
+        cls,
+        item: Dict[str, Any]
+    ) -> Dict[str, Any]:
+        clean_sym = str(item.get("symbol", "")).upper().replace(".NS", "").replace(".BO", "")
+        sec_upper = str(item.get("sector") or item.get("industry") or "").upper()
+
+        is_order_book_sector = any(k in sec_upper for k in [
+            "DEFENCE", "DEFENSE", "SHIPBUILDING", "RAILWAY", "POWER", "CAPITAL GOODS",
+            "INFRASTRUCTURE", "ENGINEERING", "EPC", "CONSTRUCTION"
+        ])
+        is_consumer_pharma = any(k in sec_upper for k in [
+            "RETAIL", "FMCG", "CONSUMER", "PHARMA", "HEALTHCARE", "CHEMICAL", "AUTO"
+        ])
+        is_bfsi = any(k in sec_upper for k in [
+            "BANK", "FINANCIAL", "NBFC", "BFSI", "INSURANCE"
+        ])
+
+        flags = []
+        status = "PASSED"
+        velocity_score = 100.0
+
+        if is_order_book_sector:
+            order_book = float(item.get("order_book") or item.get("backlog") or 0.0)
+            rev = float(item.get("revenue") or item.get("sales") or item.get("ttm_revenue") or 0.0)
+            burn_rate = float(item.get("order_book_burn_rate") or item.get("burn_rate") or 0.0)
+
+            if rev > 0 and order_book > 0:
+                book_to_bill = order_book / rev
+                if book_to_bill >= 2.0:
+                    status = "ROBUST_SOVEREIGN_BACKLOG"
+                    flags.append(f"Multi-Year Backlog: Book-to-Bill {book_to_bill:.1f}x guarantees multi-year revenue visibility")
+                elif book_to_bill < 1.0:
+                    status = "DEPLETED_ORDER_BOOK"
+                    velocity_score -= 15.0
+                    flags.append(f"Depleted Backlog: Book-to-Bill {book_to_bill:.1f}x indicates weakening order pipeline")
+            elif burn_rate > 0 and burn_rate < 0.20:
+                status = "STAGNANT_EXECUTION_BURN_RATE"
+                velocity_score -= 15.0
+                flags.append(f"Execution Bottleneck: Order book burn rate {burn_rate:.2f} < 0.20 floor")
+        elif is_consumer_pharma:
+            inv_turnover = float(item.get("inventory_turnover") or item.get("inv_turns") or 0.0)
+
+            if inv_turnover >= 6.0:
+                status = "RAPID_INVENTORY_VELOCITY"
+                flags.append(f"High Consumer Velocity: Inventory turns {inv_turnover:.1f}x indicates strong product pull")
+            elif inv_turnover > 0 and inv_turnover < 2.5:
+                status = "INVENTORY_STAGNATION"
+                velocity_score -= 10.0
+                flags.append(f"Inventory Glut: Turns {inv_turnover:.1f}x indicates sluggish distribution channel")
+        elif is_bfsi:
+            status = "BFSI_REGULATORY_CAPITAL_MODE"
+            flags.append("BFSI Mode: Order-book and inventory metrics bypassed; governed by Capital Adequacy and NIM")
+        else:
+            status = "GENERAL_SECTOR_PASSED"
+
+        return {
+            "symbol": clean_sym,
+            "status": status,
+            "velocity_score": max(0.0, min(100.0, velocity_score)),
+            "is_order_book_sector": is_order_book_sector,
+            "is_consumer_pharma": is_consumer_pharma,
+            "is_bfsi": is_bfsi,
+            "flags": flags
+        }
+
+
+class AntiSpuriousIntermarketGuard:
+    """Anti-Spurious Cross-Asset & Retail Derivative Quarantine (Phase 195).
+
+    Eliminates retail indicator fallacies and spurious intermarket claims:
+    1. Prohibits inferring index direction from low-weight or non-constituent stocks
+       (e.g., claiming Bank Nifty follows Asian Paints or Nifty follows only TCS).
+    2. Rejects single 3-minute opening candle trend extrapolation as high-whipsaw noise.
+    3. Reaffirms that derivative options are negative-sum friction, protecting cash equity
+       compounding capital.
+    """
+
+    INDEX_CONSTITUENT_WEIGHTS = {
+        "NIFTY_50": {
+            "HDFCBANK": 11.5,
+            "RELIANCE": 9.2,
+            "ICICIBANK": 7.8,
+            "INFY": 5.4,
+            "TCS": 3.8,
+            "ITC": 3.7,
+            "LT": 3.6,
+            "AXISBANK": 3.1,
+            "SBIN": 2.9,
+            "BHARTIARTL": 2.8,
+        },
+        "BANK_NIFTY": {
+            "HDFCBANK": 29.5,
+            "ICICIBANK": 24.0,
+            "SBIN": 10.2,
+            "KOTAKBANK": 9.8,
+            "AXISBANK": 9.5,
+            "INDUSINDBK": 5.5,
+        },
+        # Phase 197 — C4: NIFTY_DEFENCE added (approximate NSE free-float weights).
+        # Previously ALL defence stocks returned FATAL_SPURIOUS_VETO because
+        # only NIFTY_50 and BANK_NIFTY were registered.
+        "NIFTY_DEFENCE": {
+            "HAL": 19.2,
+            "BEL": 12.1,
+            "COCHINSHIP": 9.8,
+            "GRSE": 9.1,
+            "MAZDOCK": 8.3,
+            "BHEL": 6.5,
+            "BEML": 5.2,
+            "PARAS": 3.8,
+            "DATAPATT": 3.2,
+            "MTAR": 2.8,
+        },
+        # Phase 197 — C4: NIFTY_IT added (approximate NSE free-float weights).
+        "NIFTY_IT": {
+            "TCS": 18.3,
+            "INFY": 15.1,
+            "WIPRO": 12.0,
+            "HCLTECH": 11.2,
+            "TECHM": 9.8,
+            "LTTS": 5.1,
+            "COFORGE": 4.2,
+            "PERSISTENT": 3.9,
+            "MPHASIS": 3.1,
+            "OFSS": 2.8,
+        },
+    }
+
+    @classmethod
+    def validate_intermarket_transmission(
+        cls,
+        driver_symbol: str,
+        target_index: str = "NIFTY_50"
+    ) -> Dict[str, Any]:
+        driver = driver_symbol.upper().replace(".NS", "").replace(".BO", "")
+        index = target_index.upper()
+
+        weights = cls.INDEX_CONSTITUENT_WEIGHTS.get(index, {})
+        weight = weights.get(driver, 0.0)
+
+        is_constituent = driver in weights
+        is_dominant = weight >= 8.0
+
+        if not is_constituent:
+            status = "SPURIOUS_NON_CONSTITUENT_CLAIM"
+            verdict = "FATAL_SPURIOUS_VETO"
+            reason = f"{driver} has 0.0% weight in {index}. Linking {index} direction to {driver} is an empirical fallacy."
+        elif not is_dominant:
+            status = "SUBORDINATE_WEIGHT_CORRELATE"
+            verdict = "INSUFFICIENT_INDEX_LEVERAGE"
+            reason = f"{driver} carries only {weight:.1f}% weight in {index}; cannot dictate index direction against banking/energy clusters."
+        else:
+            status = "LEGITIMATE_MACRO_HEAVYWEIGHT"
+            verdict = "VALID_TRANSMISSION_DRIVER"
+            reason = f"{driver} carries {weight:.1f}% weight in {index}; verified transmission heavyweight."
+
+        return {
+            "driver_symbol": driver,
+            "target_index": index,
+            "index_weight_pct": weight,
+            "is_constituent": is_constituent,
+            "is_dominant_driver": is_dominant,
+            "status": status,
+            "verdict": verdict,
+            "reason": reason
+        }
+
+
+InstitutionalMultibaggerEngine.evaluate_capital_intensity = AssetLightDenominatorNormalizer.evaluate_capital_intensity
+InstitutionalMultibaggerEngine.evaluate_sector_pipeline_velocity = SectorOrderBookOrVelocitySieve.evaluate_sector_pipeline_velocity
+InstitutionalMultibaggerEngine.validate_intermarket_transmission = AntiSpuriousIntermarketGuard.validate_intermarket_transmission
+
+
+
+class InstitutionalDealFloorSentinel:
+    """Institutional Deal-to-Valuation Floor Bridge (Phase 196).
+
+    Codifies the 'Institutional Valuation Anchor Floor' doctrine:
+    When marquee institutional investors, sovereign wealth funds, or global strategic
+    partners inject substantial capital (e.g. preferential allotments like MUFG into
+    Shriram Finance at ₹840.93 per share), that transaction price establishes a validated
+    institutional valuation anchor floor.
+
+    Capabilities:
+    1. Downside Cushion Calculation:
+       Downside Risk to Floor = ((Current Price - Floor Price) / Current Price) * 100%
+    2. Active Floor Cushion (< 8.0%):
+       Awards +10 point valuation safety bonus for Value Buying & SIP models.
+    3. Structural Floor Breach:
+       If price falls below institutional floor by > 5%, flags BROKEN_INSTITUTIONAL_FLOOR_WARNING
+       (signaling severe governance or structural thesis impairment).
+    """
+
+    KNOWN_DEAL_FLOORS: Dict[str, Dict[str, Any]] = {
+        "SHRIRAMFIN": {
+            "floor_price": 840.93,
+            "investor": "Mitsubishi UFJ Financial Group (MUFG)",
+            "stake_pct": 20.0,
+            "deal_value_inr_cr": 39618.0,
+            "date": "2026-Q1",
+            "status": "ACTIVE_INSTITUTIONAL_VALUATION_ANCHOR_FLOOR"
+        }
+    }
+
+    @classmethod
+    def evaluate_deal_floor(
+        cls,
+        symbol: str,
+        current_price: float,
+        custom_floor_price: Optional[float] = None
+    ) -> Dict[str, Any]:
+        clean_sym = symbol.upper().replace(".NS", "").replace(".BO", "").strip()
+
+        deal_info = cls.KNOWN_DEAL_FLOORS.get(clean_sym, {})
+        floor_price = custom_floor_price or deal_info.get("floor_price")
+
+        if not floor_price or floor_price <= 0.0 or current_price <= 0.0:
+            return {
+                "symbol": clean_sym,
+                "has_institutional_floor": False,
+                "floor_price": None,
+                "downside_cushion_pct": None,
+                "status": "NO_ACTIVE_DEAL_FLOOR",
+                "valuation_floor_multiplier": 1.00,
+                "flags": []
+            }
+
+        cushion_pct = ((current_price - floor_price) / current_price) * 100.0
+        flags = []
+        multiplier = 1.00
+
+        if current_price >= floor_price:
+            if cushion_pct <= 8.0:
+                status = "ACTIVE_INSTITUTIONAL_VALUATION_ANCHOR_FLOOR"
+                multiplier = 1.15
+                flags.append(
+                    f"Institutional Valuation Floor: CMP ₹{current_price:.2f} is within {cushion_pct:.1f}% of institutional floor (₹{floor_price:.2f}). Downside heavily cushioned."
+                )
+            elif cushion_pct <= 20.0:
+                status = "MODERATE_DEAL_FLOOR_CUSHION"
+                multiplier = 1.05
+                flags.append(
+                    f"Moderate Deal Cushion: CMP ₹{current_price:.2f} is {cushion_pct:.1f}% above institutional floor (₹{floor_price:.2f})."
+                )
+            else:
+                status = "EXTENDED_ABOVE_DEAL_FLOOR"
+                multiplier = 1.00
+        else:
+            pct_below = abs(cushion_pct)
+            if pct_below > 5.0:
+                status = "BROKEN_INSTITUTIONAL_FLOOR_WARNING"
+                multiplier = 0.80
+                flags.append(
+                    f"Broken Institutional Floor Warning: CMP ₹{current_price:.2f} is {pct_below:.1f}% BELOW institutional entry price (₹{floor_price:.2f}). Structural thesis risk."
+                )
+            else:
+                status = "MARGINAL_FLOOR_TEST"
+                multiplier = 0.95
+
+        return {
+            "symbol": clean_sym,
+            "has_institutional_floor": True,
+            "floor_price": round(floor_price, 2),
+            "current_price": round(current_price, 2),
+            "downside_cushion_pct": round(cushion_pct, 2),
+            "investor": deal_info.get("investor", "Institutional Strategic Partner"),
+            "status": status,
+            "valuation_floor_multiplier": multiplier,
+            "flags": flags
+        }
+
+
+InstitutionalMultibaggerEngine.evaluate_deal_floor = InstitutionalDealFloorSentinel.evaluate_deal_floor

@@ -32,7 +32,16 @@ class HorizonAdaptiveEngine:
         "COMPOUNDER": "QUALITY_COMPOUNDER_5_10Y",
         "MULTIBAGGER": "PRE_DISCOVERY_LAUNCHPAD",
         "LAUNCHPAD": "PRE_DISCOVERY_LAUNCHPAD",
-        "EARLY_MICROCAP": "PRE_DISCOVERY_LAUNCHPAD"
+        "EARLY_MICROCAP": "PRE_DISCOVERY_LAUNCHPAD",
+        # Phase 197 — I1: Previously unmapped objectives fell through to the
+        # POSITIONAL_SWING_10_30D default, which applies wrong evidence strictness.
+        "VALUE_BUYING": "TURNAROUND_1_3Y",         # long-term value = turnaround evidence profile
+        "DEADLIEST_COMBO": "PRE_DISCOVERY_LAUNCHPAD",
+        "PRE_FLY": "PRE_DISCOVERY_LAUNCHPAD",
+        "MICRO_MULTIBAGGER": "PRE_DISCOVERY_LAUNCHPAD",
+        "KEDIA_SMILE": "QUALITY_COMPOUNDER_5_10Y",
+        "PEER_COMPARE": "POSITIONAL_SWING_10_30D",  # comparative analysis, intermediate horizon
+        "GENERAL": "POSITIONAL_SWING_10_30D",        # balanced default made explicit
     }
 
     @classmethod
@@ -225,9 +234,28 @@ class HorizonAdaptiveEngine:
                 "Short-term RSI oversold/overbought noise ignored",
                 "Quarterly earnings hiccups within 10% tolerated for secular franchise"
             ])
-            roce_10y = float(data.get("roce_10y_avg") or data.get("roce") or 18.0)
-            de_ratio = float(data.get("debt_to_equity") or 0.2)
-            pledge_pct = float(data.get("pledged_pct") or 0.0)
+            # Phase 197 — C2: SIP Phantom Approval fix.
+            # Replace `or default` with explicit None-aware guards.
+            # 0.0 is a valid real value for pledge_pct (zero pledge = good),
+            # so we must distinguish None (missing) vs 0.0 (actual zero pledge).
+            _roce_raw = data.get("roce_10y_avg") if data.get("roce_10y_avg") is not None else data.get("roce")
+            _de_raw = data.get("debt_to_equity")
+            _pl_raw = data.get("pledged_pct")
+
+            if _roce_raw is None and _de_raw is None and _pl_raw is None:
+                # All three critical fields missing — phantom data, force rejection
+                breached_gates.append(
+                    "DATA_INSUFFICIENT_ROCE: All three SIP quality gates (10Y ROCE, D/E, Pledge) "
+                    "are missing; cannot evaluate compounder quality. Rejecting phantom approval."
+                )
+                evidence_score = 0.0
+                roce_10y = 0.0
+                de_ratio = 9.9
+                pledge_pct = 100.0
+            else:
+                roce_10y = float(_roce_raw) if _roce_raw is not None else 0.0
+                de_ratio = float(_de_raw) if _de_raw is not None else 9.9
+                pledge_pct = float(_pl_raw) if _pl_raw is not None else 100.0
 
             if roce_10y >= 15.0:
                 tightened_factors.append(f"Secular 10Y ROCE average {roce_10y:.1f}% >= 15.0% strictly verified.")

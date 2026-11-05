@@ -36,6 +36,142 @@ class SecurityRecord:
 class SecurityMaster:
     """Institutional Centralized Security Master and Alias Resolver."""
 
+    # Phase 197 — C1: Canonical Sector Taxonomy.
+    # All sector variant strings from any engine/DB MUST be normalised through
+    # normalize_sector() before routing or comparison.  One canonical key per
+    # economic cluster eliminates the 4-variant sector-naming chaos (C1 bug).
+    SECTOR_TAXONOMY = {
+        # Defence cluster
+        "DEFENSE": "DEFENSE",
+        "DEFENCE": "DEFENSE",
+        "defense": "DEFENSE",
+        "defence": "DEFENSE",
+        "CAPITAL GOODS": "CAPITAL_GOODS",
+        "CAPITAL_GOODS": "CAPITAL_GOODS",
+        "capital goods": "CAPITAL_GOODS",
+        "capital_goods": "CAPITAL_GOODS",
+        # IT / Technology cluster
+        "IT SERVICES": "IT_SERVICES",
+        "IT_SERVICES": "IT_SERVICES",
+        "it services": "IT_SERVICES",
+        "it_services": "IT_SERVICES",
+        "TECHNOLOGY": "IT_SERVICES",
+        "technology": "IT_SERVICES",
+        "SOFTWARE": "IT_SERVICES",
+        "software": "IT_SERVICES",
+        # BFSI cluster
+        "FINANCIAL SERVICES": "BFSI",
+        "FINANCIAL_SERVICES": "BFSI",
+        "financial services": "BFSI",
+        "BFSI": "BFSI",
+        "bfsi": "BFSI",
+        "BANKING": "BFSI",
+        "banking": "BFSI",
+        "BANK": "BFSI",
+        "bank": "BFSI",
+        "NBFC": "BFSI",
+        "nbfc": "BFSI",
+        "INSURANCE": "BFSI",
+        "insurance": "BFSI",
+        # Power / Infrastructure cluster
+        "POWER": "POWER_INFRA",
+        "power": "POWER_INFRA",
+        "POWER INFRA": "POWER_INFRA",
+        "POWER_INFRA": "POWER_INFRA",
+        "power infra": "POWER_INFRA",
+        "INFRASTRUCTURE": "POWER_INFRA",
+        "infrastructure": "POWER_INFRA",
+        "UTILITIES": "POWER_INFRA",
+        "utilities": "POWER_INFRA",
+        # Pharma / Healthcare
+        "PHARMA": "PHARMA",
+        "pharma": "PHARMA",
+        "PHARMACEUTICALS": "PHARMA",
+        "pharmaceuticals": "PHARMA",
+        "HEALTHCARE": "PHARMA",
+        "healthcare": "PHARMA",
+        # FMCG / Consumer
+        "FMCG": "FMCG",
+        "fmcg": "FMCG",
+        "CONSUMER STAPLES": "FMCG",
+        "consumer staples": "FMCG",
+        "CONSUMER": "CONSUMER_SERVICES",
+        "consumer": "CONSUMER_SERVICES",
+        "CONSUMER SERVICES": "CONSUMER_SERVICES",
+        "CONSUMER_SERVICES": "CONSUMER_SERVICES",
+        "consumer services": "CONSUMER_SERVICES",
+        # Retail / Fast Fashion
+        "RETAIL": "RETAIL",
+        "retail": "RETAIL",
+        "RETAIL & FAST FASHION": "RETAIL",
+        "retail & fast fashion": "RETAIL",
+        # Metals / Materials
+        "METALS": "METALS",
+        "metals": "METALS",
+        "METALS & MINING": "METALS",
+        "metals & mining": "METALS",
+        "MINING": "METALS",
+        "mining": "METALS",
+        "MATERIALS": "METALS",
+        "materials": "METALS",
+        # Auto
+        "AUTO": "AUTO",
+        "auto": "AUTO",
+        "AUTOMOBILE": "AUTO",
+        "automobile": "AUTO",
+        "AUTOMOBILES": "AUTO",
+        "automobiles": "AUTO",
+        # Oil & Gas / Energy
+        "OIL & GAS": "OIL_GAS",
+        "OIL_GAS": "OIL_GAS",
+        "oil & gas": "OIL_GAS",
+        "ENERGY": "OIL_GAS",
+        "energy": "OIL_GAS",
+        # Chemicals
+        "CHEMICALS": "CHEMICALS",
+        "chemicals": "CHEMICALS",
+        "SPECIALTY CHEMICALS": "CHEMICALS",
+        "specialty chemicals": "CHEMICALS",
+        # Real Estate
+        "REAL ESTATE": "REAL_ESTATE",
+        "REAL_ESTATE": "REAL_ESTATE",
+        "real estate": "REAL_ESTATE",
+        "REALTY": "REAL_ESTATE",
+        "realty": "REAL_ESTATE",
+        # Telecom
+        "TELECOM": "TELECOM",
+        "telecom": "TELECOM",
+        "TELECOMMUNICATIONS": "TELECOM",
+        "telecommunications": "TELECOM",
+        # Unclassified
+        "UNCLASSIFIED": "UNCLASSIFIED",
+        "unclassified": "UNCLASSIFIED",
+    }
+
+    # Phase 197 — I4: Known ticker -> canonical sector for symbols that resolve
+    # to "Unclassified" from the dynamic ResearchDataStore bridge.
+    _KNOWN_SECTOR_OVERRIDES = {
+        "KSOLVES": "IT_SERVICES",
+        "NLCINDIA": "POWER_INFRA",
+    }
+
+    @classmethod
+    def normalize_sector(cls, raw_sector: str) -> str:
+        """Normalise any raw sector string to a canonical SECTOR_TAXONOMY key.
+
+        Case-insensitive; returns the canonical key or the uppercased raw
+        string for open-world tolerance (never crashes on unknown sectors).
+        """
+        if not raw_sector:
+            return "UNCLASSIFIED"
+        for candidate in (raw_sector, raw_sector.strip(), raw_sector.upper().strip()):
+            mapped = cls.SECTOR_TAXONOMY.get(candidate)
+            if mapped:
+                return mapped
+        return raw_sector.upper().strip()
+
+
+
     _INDEX_MAP: Dict[str, str] = {
         "NIFTY": "^NSEI",
         "NIFTY 50": "^NSEI",
@@ -126,6 +262,48 @@ class SecurityMaster:
         compact = re.sub(r"[^A-Z0-9]", "", clean)
         if compact in cls._ALIAS_LOOKUP:
             return cls._REGISTRY.get(cls._ALIAS_LOOKUP[compact])
+
+        # Phase 196: Dynamic ResearchDataStore Database Bridge
+        lookup_target = stripped or clean
+        try:
+            from app.services.research_data import ResearchDataStore
+            rds = ResearchDataStore()
+            comp = rds.get_company(lookup_target)
+            if not comp and lookup_target != clean:
+                comp = rds.get_company(clean)
+            if comp:
+                canon_sym = str(comp.symbol).replace(".NS", "").replace(".BO", "")
+                dyn_rec = SecurityRecord(
+                    canonical_symbol=canon_sym,
+                    company_name=comp.legal_name or canon_sym,
+                    exchange="NSE",
+                    nse_symbol=canon_sym,
+                    sector=cls.normalize_sector(comp.sector or "Unclassified"),
+                    yahoo_ticker=f"{canon_sym}.NS",
+                    aliases=[canon_sym, comp.legal_name or canon_sym]
+                )
+                cls._REGISTRY[canon_sym] = dyn_rec
+                cls._ALIAS_LOOKUP[canon_sym] = canon_sym
+                if comp.legal_name:
+                    cls._ALIAS_LOOKUP[cls._clean_token(comp.legal_name)] = canon_sym
+                return dyn_rec
+        except Exception:
+            pass
+
+        # Phase 196: Fallback Dynamic Record Synthesis for Valid Equity Tickers
+        if re.match(r"^[A-Z0-9_\-]{2,15}$", lookup_target):
+            dyn_rec = SecurityRecord(
+                canonical_symbol=lookup_target,
+                company_name=lookup_target,
+                exchange="NSE",
+                nse_symbol=lookup_target,
+                sector=cls._KNOWN_SECTOR_OVERRIDES.get(lookup_target, "Unclassified"),
+                yahoo_ticker=f"{lookup_target}.NS",
+                aliases=[lookup_target]
+            )
+            cls._REGISTRY[lookup_target] = dyn_rec
+            cls._ALIAS_LOOKUP[lookup_target] = lookup_target
+            return dyn_rec
 
         return None
 
