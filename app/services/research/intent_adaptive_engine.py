@@ -552,6 +552,9 @@ class QueryAdaptiveConstraintEngine:
         pledge_pct = _get_opt_float(["pledged_pct", "promoter_pledge_pct"])
         interest_cov = _get_opt_float(["interest_coverage"])
         dso = _get_opt_float(["dso", "debtor_days"])
+        delta_dso = _get_opt_float(["delta_dso", "dso_drift", "dso_change", "debtor_days_change"])
+        export_rev_pct = _get_opt_float(["export_revenue_pct", "exports_pct", "export_sales_pct"])
+        rvol_50 = _get_opt_float(["rvol_50", "relative_volume_50", "rvol"])
         mcap = _get_opt_float(["market_cap"])
         pat_growth_latest = _get_opt_float(["pat_growth_latest", "pat_growth_yoy", "latest_pat_growth"])
         vol_z = _get_opt_float(["volume_z_score", "vol_z", "z_vol"])
@@ -864,6 +867,20 @@ class QueryAdaptiveConstraintEngine:
             else:
                 tightened.append("Zero promoter pledge confirmed (0.0%) — unencumbered insider conviction verified for SIP compounder.")
 
+            # Phase 202: Working Capital Sieve & DSO Drift Gate
+            if delta_dso is not None and delta_dso > 30.0 and cfo_pat is not None and cfo_pat < 0.60:
+                msg = f"OBJECTIVE_BLOCK: Working capital degradation: Days Sales Outstanding expanded by {delta_dso:.0f} days with substandard cash realization (CFO/PAT: {cfo_pat:.2f} < 0.60)."
+                objective_blocks.append(msg)
+                vetoes.append(msg)
+                tightened.append(f"Working capital discipline strictly enforced: DSO expansion <= 30d (failed: +{delta_dso:.0f}d).")
+            elif dso is not None and dso > 180.0 and cfo_pat is not None and cfo_pat < 0.60:
+                msg = f"OBJECTIVE_BLOCK: Chronic receivables lock-up: Days Sales Outstanding ({dso:.0f}d > 180d) with weak cash realization (CFO/PAT: {cfo_pat:.2f} < 0.60)."
+                objective_blocks.append(msg)
+                vetoes.append(msg)
+                tightened.append(f"Receivables lock-up ceiling strictly enforced: DSO <= 180d (failed: {dso:.0f}d).")
+            elif dso is not None:
+                tightened.append(f"Disciplined working capital cycle verified (DSO: {dso:.0f} days).")
+
             # Hard Valuation Sanity Cap for SIP Compounder
             pe_val = _get_opt_float(["pe_ratio", "pe", "trailing_pe"])
             peg_val = _get_opt_float(["peg_ratio", "peg"])
@@ -1001,6 +1018,17 @@ class QueryAdaptiveConstraintEngine:
                 tightened.append(f"Insider conviction gate: Promoter >= 50.0% strictly enforced (failed: {prom_hold:.1f}%).")
             else:
                 tightened.append(f"High insider conviction verified: Promoter holding ({prom_hold:.1f}% >= 50.0%).")
+
+            # Phase 202: Working Capital Narrative Sieve
+            if delta_dso is not None and delta_dso > 35.0 and cfo_pat is not None and cfo_pat < 0.50:
+                msg = f"OBJECTIVE_BLOCK: Narrative vs Cash-Flow divergence: DSO expanded by {delta_dso:.0f} days while CFO/PAT ({cfo_pat:.2f}) is below 0.50. Paper revenue accumulation hazard."
+                objective_blocks.append(msg)
+                vetoes.append(msg)
+                tightened.append(f"Working capital narrative sieve strictly enforced (failed: +{delta_dso:.0f}d DSO expansion).")
+            elif dso is not None and dso > 180.0 and cfo_pat is not None and cfo_pat < 0.50:
+                warnings.append(f"CAUTION: Chronic working capital lock-up (DSO {dso:.0f}d > 180d) with weak cash realization.")
+            if export_rev_pct is not None and export_rev_pct >= 40.0:
+                relaxed.append(f"Foreign currency liabilities naturally hedged by dollar export revenues ({export_rev_pct:.1f}% of total sales).")
 
         # ── 6. EARLY MICROCAP RISK-FIRST INTENT ──────────────────────────
         elif norm_intent in ("EARLY_MICROCAP", "MICROCAP_RISK"):
@@ -1322,6 +1350,13 @@ class QueryAdaptiveConstraintEngine:
             elif adtv is not None:
                 tightened.append(f"Launchpad liquidity verified (ADTV: ₹{adtv:.1f} Cr >= ₹{adtv_floor_prefly:.1f} Cr for {tier_prefly}).")
 
+            # Phase 202: Outlier-Resistant Institutional Volume Gate
+            if rvol_50 is not None and rvol_50 >= 3.0:
+                if adtv is not None and adtv < 0.75:
+                    warnings.append(f"CAUTION: High relative volume ({rvol_50:.1f}x) on illiquid micro-turnover (Rs {adtv:.2f} Cr < Rs 0.75 Cr); operator churn hazard.")
+                else:
+                    tightened.append(f"Institutional volume ignition verified (RVOL-50: {rvol_50:.1f}x with safe daily liquidity).")
+
             # Anti-operator churn guard: abnormal volume spike with stagnant price advance
             if vol_z is not None and vol_z >= 3.0 and price_chg is not None and abs(price_chg) <= 0.5:
                 msg = f"OBJECTIVE_BLOCK: Suspect volume churn/distribution: Volume surge (+{vol_z:.1f}σ) with stagnant price action ({price_chg:.2f}%)."
@@ -1409,6 +1444,15 @@ class QueryAdaptiveConstraintEngine:
             else:
                 tightened.append(f"Positive cash conversion verified (CFO > 0).")
 
+            # Phase 202: Narrative vs. Cash-Flow Sieve Gate
+            if delta_dso is not None and delta_dso > 35.0 and cfo_pat is not None and cfo_pat < 0.50:
+                msg = f"OBJECTIVE_BLOCK: Narrative vs Cash-Flow divergence: Trade receivables expanded (+{delta_dso:.0f}d DSO) without commensurate cash collection (CFO/PAT: {cfo_pat:.2f} < 0.50)."
+                objective_blocks.append(msg)
+                vetoes.append(msg)
+                tightened.append("Deadliest Combo cash realization gate: Narrative receivables expansion veto strictly enforced.")
+            if export_rev_pct is not None and export_rev_pct >= 40.0:
+                relaxed.append(f"Foreign currency debt naturally hedged by dollar export revenues ({export_rev_pct:.1f}% of sales).")
+
             # Technical timing: Circuit headroom >= 3.0%
             if circuit_headroom is not None and circuit_headroom < 3.0:
                 msg = f"OBJECTIVE_BLOCK: Circuit headroom ({circuit_headroom:.1f}% < 3.0%) insufficient for launchpad entry."
@@ -1432,7 +1476,7 @@ class QueryAdaptiveConstraintEngine:
             if adtv is not None and adtv < adtv_floor_combo:
                 warnings.append(f"CAUTION: Daily turnover (₹{adtv:.1f} Cr) below preferred launchpad liquidity benchmark (₹{adtv_floor_combo:.1f} Cr for {tier_combo}).")
             elif adtv is not None:
-                tightened.append(f"Launchpad liquidity verified (ADTV: ₹{adtv:.1f} Cr >= ₹{adtv_floor_combo:.1f} Cr for {tier_combo}).")
+                tightened.append(f"Launchpad liquidity verified (ADTV: ₹{adtv:.1f} Cr >= ₹{adtv_floor_prefly:.1f} Cr for {tier_prefly}).")
 
             # Anti-operator churn guard
             if vol_z is not None and vol_z >= 3.0 and price_chg is not None and abs(price_chg) <= 0.5:

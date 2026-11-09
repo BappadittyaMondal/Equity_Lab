@@ -216,14 +216,59 @@ def build_report_filename(
     top_n: Optional[int] = None,
     ext: str = "md",
     timestamp: Optional[datetime] = None,
+    symbol: Optional[str] = None,
 ) -> Tuple[str, str]:
-    """Return (subfolder_name, filename) with IST date-time stamp."""
+    """Return (subfolder_name, filename) with IST date-time stamp adhering to naming guidelines."""
     subfolder, prefix = resolve_report_subfolder(category_or_query)
-    n_val = top_n if (top_n is not None and top_n > 0) else extract_top_n(category_or_query, default_n=10)
     ts = (timestamp or datetime.now(IST)).astimezone(IST)
     clean_ext = ext.lstrip(".")
-    filename = f"{prefix}_TOP_{n_val}_{ts.strftime('%Y-%m-%d_%H%M_IST')}.{clean_ext}"
+    ts_str = ts.strftime('%Y-%m-%d_%H%M_IST')
+
+    # If an individual stock symbol is specified (e.g. AWFIS, PASHUPATI, GRWRHITECH)
+    if symbol and symbol.strip():
+        sym_clean = re.sub(r"[^A-Za-z0-9_]", "", symbol.upper().strip())
+        if prefix in ("STOCK_ANALYSIS", "COMPARISON"):
+            filename = f"{sym_clean}_ANALYSIS_{ts_str}.{clean_ext}"
+        else:
+            filename = f"{prefix}_{sym_clean}_{ts_str}.{clean_ext}"
+        return subfolder, filename
+
+    # Check if a Top-N list is explicitly requested or detected in query text
+    has_top_n_keyword = bool(re.search(r"\btop[\s_\-]*\d{1,3}\b", category_or_query or "", flags=re.IGNORECASE))
+    if top_n is not None and top_n > 0:
+        filename = f"{prefix}_TOP_{top_n}_{ts_str}.{clean_ext}"
+    elif has_top_n_keyword:
+        n_val = extract_top_n(category_or_query, default_n=10)
+        filename = f"{prefix}_TOP_{n_val}_{ts_str}.{clean_ext}"
+    else:
+        # General strategy file without Top-N (e.g. PRE_FLY_2026-11-07_1826_IST.md)
+        filename = f"{prefix}_{ts_str}.{clean_ext}"
+
     return subfolder, filename
+
+
+def save_single_stock_report(
+    content: str | bytes,
+    symbol: str,
+    category_or_query: str = "GENERAL",
+    ext: str = "md",
+    timestamp: Optional[datetime] = None,
+    base_root: Optional[Path] = None,
+) -> Path:
+    """Save an individual stock analysis report into the matching strategy subfolder or Comparison_And_Single/."""
+    reports_root = ensure_report_directories(base_root=base_root)
+    subfolder, filename = build_report_filename(
+        category_or_query=category_or_query,
+        symbol=symbol,
+        ext=ext,
+        timestamp=timestamp,
+    )
+    target_path = reports_root / subfolder / filename
+    if isinstance(content, bytes):
+        target_path.write_bytes(content)
+    else:
+        target_path.write_text(content, encoding="utf-8")
+    return target_path
 
 
 def save_stock_list_report(
@@ -233,14 +278,16 @@ def save_stock_list_report(
     ext: str = "md",
     timestamp: Optional[datetime] = None,
     base_root: Optional[Path] = None,
+    symbol: Optional[str] = None,
 ) -> Path:
-    """Save a Top-N stock analysis report into the matching `Stocks_Analysis_Report/<Subfolder>/` directory."""
+    """Save a Top-N stock list or general strategy report into the matching `Stocks_Analysis_Report/<Subfolder>/` directory."""
     reports_root = ensure_report_directories(base_root=base_root)
     subfolder, filename = build_report_filename(
         category_or_query=category_or_query,
         top_n=top_n,
         ext=ext,
         timestamp=timestamp,
+        symbol=symbol,
     )
     target_path = reports_root / subfolder / filename
     if isinstance(content, bytes):

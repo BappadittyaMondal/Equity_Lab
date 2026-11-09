@@ -1,6 +1,6 @@
 {
   "version": "1.2.3",
-  "last_updated_utc": "2026-11-05T17:06:59.786632+00:00",
+  "last_updated_utc": "2026-11-08T15:06:21.554027+00:00",
   "entities": {
     "ERD_SERVICES_CONVEXITY_RULE": {
       "entity_id": "ERD_SERVICES_CONVEXITY_RULE",
@@ -1801,6 +1801,90 @@
       "fdr_q_value": null,
       "performance_delta": 0.0,
       "human_signoff": false
+    },
+    "SAMIR_ARORA_VIA_NEGATIVA_CM3_INFLECTION": {
+      "entity_id": "SAMIR_ARORA_VIA_NEGATIVA_CM3_INFLECTION",
+      "canonical_name": "SAMIR_ARORA_VIA_NEGATIVA_CM3_INFLECTION",
+      "category": "CAPITAL_PRESERVATION_INVERSION",
+      "confidence_score": 0.9,
+      "verification_status": "CERTIFIED_FACT",
+      "source_origin": "EMPIRICAL_AUDIT_VERIFICATION",
+      "relevance_vector": {
+        "multibagger": 0.85,
+        "sip_compounder": 0.6,
+        "swing_3d": 0.1
+      },
+      "bayesian_prior_modifier": {
+        "metric": "platform_cm3_inflection",
+        "weight_delta": 0.05
+      },
+      "description": "For high-growth platform businesses and digital aggregators, trailing high P/E is uninformative. The critical gate is positive unit economics (Contribution Margin CM3 > 0) with operating leverage (Delta Fixed Overhead / Delta GMV -> 0).",
+      "sensationalism_penalty": 0.0,
+      "created_at_utc": "2026-11-08T15:06:21.513470+00:00",
+      "last_validated_at_utc": "2026-11-08T15:06:21.513470+00:00",
+      "shadow_status": "PROMOTED",
+      "sample_count": 1,
+      "success_count": 1,
+      "p_value": null,
+      "fdr_q_value": null,
+      "performance_delta": 0.0,
+      "human_signoff": true
+    },
+    "KEDIA_YOUNG_BREAKOUT_EXTENSION_GATE": {
+      "entity_id": "KEDIA_YOUNG_BREAKOUT_EXTENSION_GATE",
+      "canonical_name": "KEDIA_YOUNG_BREAKOUT_EXTENSION_GATE",
+      "category": "MARKET_MICROSTRUCTURE",
+      "confidence_score": 0.88,
+      "verification_status": "CERTIFIED_FACT",
+      "source_origin": "EMPIRICAL_AUDIT_VERIFICATION",
+      "relevance_vector": {
+        "pre_fly": 0.9,
+        "swing_3d": 0.85,
+        "deadliest_combo": 0.7
+      },
+      "bayesian_prior_modifier": {
+        "metric": "young_breakout_extension",
+        "weight_delta": 0.05
+      },
+      "description": "A breakout offers asymmetric R:R >= 3:1 only if emerging from a base >= 60 trading days (3 months) without participating in the prior 15-day impulse (<= 12% extension). Stocks extended >25% in 10 sessions are penalized as exhaustion climaxes.",
+      "sensationalism_penalty": 0.0,
+      "created_at_utc": "2026-11-08T15:06:21.522478+00:00",
+      "last_validated_at_utc": "2026-11-08T15:06:21.522478+00:00",
+      "shadow_status": "PROMOTED",
+      "sample_count": 1,
+      "success_count": 1,
+      "p_value": null,
+      "fdr_q_value": null,
+      "performance_delta": 0.0,
+      "human_signoff": true
+    },
+    "PANKAJ_BHARADWAJ_3M_RISK_BUDGET_ASYMMETRY": {
+      "entity_id": "PANKAJ_BHARADWAJ_3M_RISK_BUDGET_ASYMMETRY",
+      "canonical_name": "PANKAJ_BHARADWAJ_3M_RISK_BUDGET_ASYMMETRY",
+      "category": "RETAIL_BEHAVIORAL_ALPHA",
+      "confidence_score": 0.92,
+      "verification_status": "CERTIFIED_FACT",
+      "source_origin": "EMPIRICAL_AUDIT_VERIFICATION",
+      "relevance_vector": {
+        "swing_3d": 0.95,
+        "deadliest_combo": 0.8,
+        "pre_fly": 0.75
+      },
+      "bayesian_prior_modifier": {
+        "metric": "risk_budget_3m_asymmetry",
+        "weight_delta": 0.05
+      },
+      "description": "Enforces that positional and swing allocations maintain a strict 1% capital-at-risk budget bounded by the 5-day ADV liquidity envelope and minimum reward-to-risk ratio W/L >= 2.5:1.",
+      "sensationalism_penalty": 0.0,
+      "created_at_utc": "2026-11-08T15:06:21.541460+00:00",
+      "last_validated_at_utc": "2026-11-08T15:06:21.541460+00:00",
+      "shadow_status": "PROMOTED",
+      "sample_count": 1,
+      "success_count": 1,
+      "p_value": null,
+      "fdr_q_value": null,
+      "performance_delta": 0.0,
+      "human_signoff": true
     }
   },
   "total_entities_count": 67
